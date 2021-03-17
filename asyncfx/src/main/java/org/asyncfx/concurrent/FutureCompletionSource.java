@@ -41,10 +41,6 @@ public class FutureCompletionSource<V> {
         return future;
     }
 
-    public void setProgress(double progress) {
-        future.getProgressInfo().setProgress(progress);
-    }
-
     public void setResult(V value) {
         future.completeWithResult(value);
     }

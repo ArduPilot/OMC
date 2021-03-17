@@ -9,7 +9,6 @@ package com.intel.missioncontrol.ui.sidepane.planning.settings;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.SuppressLinter;
-import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.geometry.AreaOfInterestCorner;
 import com.intel.missioncontrol.map.IMapController;
@@ -36,14 +35,12 @@ import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
 import com.intel.missioncontrol.ui.navigation.SettingsPage;
 import com.intel.missioncontrol.ui.scope.planning.PlanningScope;
-import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
 import eu.mavinci.core.flightplan.FlightplanSpeedModes;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import java.util.Arrays;
 import java.util.List;
@@ -64,10 +61,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.asyncfx.beans.property.AsyncObjectProperty;
-import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 
 public class GeneralSettingsSectionViewModel extends ViewModelBase {
@@ -101,10 +95,10 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
     private IntegerProperty selectedRefPointOptionIndex = new SimpleIntegerProperty();
     private BooleanProperty refPointCoordinatesEditable = new SimpleBooleanProperty();
 
+
     private final IApplicationContext applicationContext;
     private final INavigationService navigationService;
     private final Command toggleChooseRefPointCommand;
-    private final Command referencePositionFromUavCommand;
     private final ISelectionManager selectionManager;
 
     private ChangeListener<ObservableList<AreaOfInterest>> aoiChangeListener =
@@ -148,11 +142,6 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
     private final IMapModel mapModel;
     private final IMapController mapController;
 
-    @InjectScope
-    private FlightScope flightScope;
-
-    private final AsyncObjectProperty<Position> dronePosition = new SimpleAsyncObjectProperty<>(this);
-
     @Inject
     public GeneralSettingsSectionViewModel(
             IApplicationContext applicationContext,
@@ -181,16 +170,11 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
             new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
         QuantityBindings.bindBidirectional(gsdToleranceQuantity, gsdTolerance, Unit.FACTOR);
         toggleChooseRefPointCommand = new DelegateCommand(this::toggleChooseRefPosition);
-        referencePositionFromUavCommand =
-            new DelegateCommand(this::referencePositionFromUav, dronePosition.isNotNull());
     }
 
     @Override
     protected void initializeViewModel() {
         super.initializeViewModel();
-
-        dronePosition.bind(
-            PropertyPath.from(flightScope.currentDroneProperty()).selectReadOnlyAsyncObject(IDrone::positionProperty));
 
         selectedTerrainMode.bindBidirectional(
             propertyPathStore
@@ -199,7 +183,7 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
 
         mapController
             .mouseModeProperty()
-            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform());
 
         maxSpeedUIVisible.bind(
             Bindings.createBooleanBinding(
@@ -248,14 +232,10 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
         return toggleChooseRefPointCommand;
     }
 
-    public Command getReferencePositionFromUavCommand() {
-        return referencePositionFromUavCommand;
-    }
-
     private void toggleChooseRefPosition() {
         if (mapController.getMouseMode() != InputMode.SET_REF_POINT) {
             selectionManager.setSelection(
-                applicationContext.getCurrentMission().getCurrentFlightPlan().getLegacyFlightplan().getRefPoint());
+                applicationContext.getCurrentLegacyMission().getCurrentFlightPlan().getLegacyFlightplan().getRefPoint());
             mapController.setMouseMode(InputMode.SET_REF_POINT);
         } else {
             mapController.tryCancelMouseModes(InputMode.SET_REF_POINT);
@@ -267,12 +247,12 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
             .positionProperty()
             .bindBidirectional(
                 propertyPathStore
-                    .from(applicationContext.currentMissionProperty())
+                    .from(applicationContext.currentLegacyMissionProperty())
                     .select(Mission::currentFlightPlanProperty)
                     .selectObject(FlightPlan::refPointPositionProperty));
         refPointElevation.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::refPointElevationProperty));
 
@@ -284,12 +264,12 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
     private void initRefPointOptionsList() {
         selectedRefPointType.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::refPointTypeProperty));
         selectedRefPointOptionIndex.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectInteger(FlightPlan::getRefPointOptionIndexProperty));
 
@@ -337,13 +317,13 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
             });
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentFlightPlanProperty)
             .selectReadOnlyList(FlightPlan::areasOfInterestProperty)
             .addListener(new WeakChangeListener<>(aoiChangeListener));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentFlightPlanProperty)
             .selectBoolean(FlightPlan::refPointAutoProperty)
             .addListener(new WeakChangeListener<>(refPointSetManuallyListener));
@@ -353,9 +333,9 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
 
     private void refillReferencePointOptionsList() {
         FlightPlan flightPlan =
-            applicationContext.getCurrentMission() == null
+            applicationContext.getCurrentLegacyMission() == null
                 ? null
-                : applicationContext.getCurrentMission().currentFlightPlanProperty().get();
+                : applicationContext.getCurrentLegacyMission().currentFlightPlanProperty().get();
         ReadOnlyListProperty<AreaOfInterest> list = flightPlan == null ? null : flightPlan.areasOfInterestProperty();
 
         refPointOptionsList.clear();
@@ -485,26 +465,5 @@ public class GeneralSettingsSectionViewModel extends ViewModelBase {
 
     public BooleanProperty refPointCoordinatesEditableProperty() {
         return refPointCoordinatesEditable;
-    }
-
-    private void referencePositionFromUav() {
-        Mission currentMission = applicationContext.getCurrentMission();
-        if (currentMission == null) {
-            return;
-        }
-
-        LatLon latLonNew = dronePosition.getValueUncritical();
-        if (latLonNew == null) {
-            return;
-        }
-
-        FlightPlan fp = currentMission.currentFlightPlanProperty().get();
-        if (fp == null) {
-            return;
-        }
-
-        Position oldPos = fp.refPointPositionProperty().get();
-        Position newPos = new Position(latLonNew, oldPos == null ? 0 : oldPos.elevation);
-        fp.refPointPositionProperty().set(newPos);
     }
 }

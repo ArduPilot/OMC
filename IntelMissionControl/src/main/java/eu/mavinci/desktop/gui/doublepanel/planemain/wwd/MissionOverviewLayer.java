@@ -53,7 +53,7 @@ public class MissionOverviewLayer extends AbstractLayer {
             ISelectionManager selectionManager) {
         this.nonFlatEarth = nonFlatEarth;
         this.missionMaterial = new Material(new Color(0xf3, 0xf3, 0xf3));
-        this.missionSelectedMaterial = new Material(new Color(0x00, 0xBB, 0xFF));
+        this.missionSelectedMaterial = new Material(new Color(0x0A, 0xAE, 0xEF));
         setPickEnabled(true);
         setName("MissionOverview");
         polygonLayer.setMaxActiveAltitude(3000000);
@@ -64,7 +64,7 @@ public class MissionOverviewLayer extends AbstractLayer {
         textLayer.getTextRenderer().setOnTopEyeDistance(11);
         textLayer.getTextRenderer().setEffect(AVKey.TEXT_EFFECT_SHADOW);
         recentMissions = missionManager.recentMissionInfosProperty();
-        recentMissions.addListener((ListChangeListener<MissionInfo>)c -> reconstruct(), dispatcher::run);
+        recentMissions.addListener((ListChangeListener<MissionInfo>)c -> reconstruct(), dispatcher);
         selectionManager
             .currentSelectionProperty()
             .addListener(
@@ -75,8 +75,8 @@ public class MissionOverviewLayer extends AbstractLayer {
                         setSelectedMission(null);
                     }
                 },
-                dispatcher::run);
-        dispatcher.run(this::reconstruct);
+                dispatcher);
+        dispatcher.runLaterAsync(this::reconstruct);
     }
 
     @Override

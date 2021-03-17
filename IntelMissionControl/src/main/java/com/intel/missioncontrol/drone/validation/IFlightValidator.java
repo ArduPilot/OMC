@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.drone.validation;
 
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 
 public interface IFlightValidator {
@@ -17,9 +16,4 @@ public interface IFlightValidator {
     }
 
     FlightValidatorType getFlightValidatorType();
-
-    ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction();
-
-    ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction();
-
 }

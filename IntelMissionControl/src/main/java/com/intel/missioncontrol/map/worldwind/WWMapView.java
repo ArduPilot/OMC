@@ -12,7 +12,6 @@ import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.common.PostConstruct;
 import com.intel.missioncontrol.map.ViewMode;
-import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.impl.MView;
 import com.intel.missioncontrol.map.worldwind.impl.ViewAdapter;
 import com.intel.missioncontrol.map.worldwind.property.WWAsyncDoubleProperty;
@@ -56,14 +55,12 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
             @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
             Provider<IWWGlobes> globesProvider,
             IApplicationContext applicationContext,
-            GeneralSettings generalSettings,
-            IElevationModel elevationModel) {
+            GeneralSettings generalSettings) {
         super(
             new MView(
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::droneProperty),
-                dispatcher,
-                elevationModel));
+                dispatcher));
         this.dispatcher = dispatcher;
         this.globesProvider = globesProvider;
 
@@ -73,7 +70,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
                 (observable, oldValue, newValue) -> {
                     ((MViewInputHandler)getAdaptedView().getViewInputHandler()).setMapRotationStyle(newValue);
                 },
-                dispatcher::run);
+                dispatcher);
 
         ((MViewInputHandler)getAdaptedView().getViewInputHandler())
             .setMapRotationStyle(generalSettings.getMapRotationStyle());

@@ -148,10 +148,8 @@ public class AboutDialogView extends DialogView<AboutDialogViewModel> {
     @Override
     protected void initializeView() {
         super.initializeView();
-        currentVersion.textProperty().bind(viewModel.currentVersionProperty());
-        currentBuild.textProperty().bind(viewModel.currentBuildProperty());
-
-        currentBuild.textProperty().bind(viewModel.currentBuildProperty());
+        currentVersion.textProperty().set("v" + viewModel.getCurrentMajor());
+        currentBuild.textProperty().set("build " + viewModel.getBuildNumber());
         currentBuildTooltip.setText(
             languageHelper.getString(
                 "com.intel.missioncontrol.ui.dialogs.AboutDialogView.currentBuildTooltip",

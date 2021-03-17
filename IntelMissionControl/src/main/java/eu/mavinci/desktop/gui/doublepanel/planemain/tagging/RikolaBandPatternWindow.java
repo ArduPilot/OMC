@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.desktop.gui.widgets.i18n.MCFrame;
@@ -38,7 +38,8 @@ public class RikolaBandPatternWindow extends MCFrame {
     private static final long serialVersionUID = -720235730287332043L;
 
     public static String KEY = "eu.mavinci.desktop.gui.doublepanel.planemain.tagging.RikolaBandPatternWindow";
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public RikolaBandPatternWindow(ITaggingAlgorithm alg, File file, boolean shouldBeVisible) {
         super("com/intel/missioncontrol/icons/icon_chart.svg");

@@ -29,7 +29,7 @@ public class AirspaceLayer extends WWLayerWrapper {
             (settingsManager.getSection(AirspacesProvidersSettings.class).getAirspaceProvider()
                     == AirspaceProvider.AIRMAP2
                 ? new AirMap2Layer(dispatcher)
-                : new AirspacesLayer()),
+                : new AirspacesLayer(dispatcher)),
             dispatcher);
         airspacesProvidersSettings = settingsManager.getSection(AirspacesProvidersSettings.class);
     }

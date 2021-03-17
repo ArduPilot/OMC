@@ -6,12 +6,12 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
+import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Unit;
-import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
 import eu.mavinci.core.flightplan.CPhotoSettings;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
@@ -53,12 +53,11 @@ public class PhotoSettings extends CPhotoSettings implements IRecalculateable {
     }
 
     public String toString() {
-        return StaticInjector.getInstance(ILanguageHelper.class)
-            .getString(
-                KEY_TO_STRING + "." + OperationLevel.DEBUG,
-                CMathHelper.round(maxRoll, 1),
-                CMathHelper.round(maxNick, 1),
-                CMathHelper.round(mintimeinterval, 2));
+        return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(
+            KEY_TO_STRING + "." + OperationLevel.DEBUG,
+            CMathHelper.round(maxRoll, 1),
+            CMathHelper.round(maxNick, 1),
+            CMathHelper.round(mintimeinterval, 2));
     }
 
     @Override

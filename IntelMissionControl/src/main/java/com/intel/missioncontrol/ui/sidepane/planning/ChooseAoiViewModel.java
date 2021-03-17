@@ -74,7 +74,7 @@ public class ChooseAoiViewModel extends ViewModelBase {
     }
 
     public ReadOnlyObjectProperty<Mission> currentMissionProperty() {
-        return applicationContext.currentMissionProperty();
+        return applicationContext.currentLegacyMissionProperty();
     }
 
     public Command getEditPlanSettingsCommand() {
@@ -88,7 +88,7 @@ public class ChooseAoiViewModel extends ViewModelBase {
     private void chooseAreaOfInterest(PlanType aoiId) {
         planningScope.generateDefaultName(aoiId);
         navigationService.navigateTo(SidePanePage.EDIT_FLIGHTPLAN);
-        mapModel.addAreaOfInterest(applicationContext.getCurrentMission(), aoiId);
+        mapModel.addAreaOfInterest(applicationContext.getCurrentLegacyMission(), aoiId);
     }
 
 }

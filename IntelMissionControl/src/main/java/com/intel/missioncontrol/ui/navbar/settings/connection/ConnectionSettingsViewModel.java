@@ -28,7 +28,6 @@ import com.intel.missioncontrol.ui.navigation.SidePanePage;
 import com.intel.missioncontrol.ui.navigation.WorkflowStep;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
-import com.intel.missioncontrol.ui.sidepane.analysis.tasks.CreateDatasetTask;
 import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
 import de.saxsys.mvvmfx.InjectScope;
@@ -61,12 +60,9 @@ import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConnectionSettingsViewModel extends ViewModelBase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateDatasetTask.class);
     @InjectScope
     private FlightScope flightScope;
 
@@ -119,7 +115,7 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
                         selectedTableItem.set(null); // TODO set to first item in list
                     }
                 },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
 
         IConnectionListener connectionListener = droneConnectionListenerService.getConnectionListener();
 
@@ -127,8 +123,7 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
         droneConnectionListenerService
             .getConnectionListener()
             .listenerErrorProperty()
-            .addListener(
-                (observable, oldValue, newValue) -> showListenerErrorToast(newValue), Dispatcher.platform()::run);
+            .addListener((observable, oldValue, newValue) -> showListenerErrorToast(newValue), Dispatcher.platform());
 
         navigationService
             .workflowStepProperty()
@@ -178,7 +173,7 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
                 e -> {},
                 selectedTableItem
                     .isNotNull()
-                    .and(applicationContext.currentMissionProperty().isNotNull())
+                    .and(applicationContext.currentLegacyMissionProperty().isNotNull())
                     .and(
                         PropertyPath.from(selectedTableItem)
                             .selectReadOnlyString(ConnectionSettingsTableItem::modelNameProperty)
@@ -298,7 +293,6 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
                                             "com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneViewModel.connectFailed",
                                             errorMessage))
                                     .create();
-                            LOGGER.warn(toast.getText());
                             applicationContext.addToast(toast);
                         });
                 })
@@ -347,7 +341,6 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
                         () -> droneConnectionListenerService.getConnectionListener().restartAsync(),
                         MoreExecutors.directExecutor())
                     .create();
-            LOGGER.warn(listenerErrorToast.getText());
             applicationContext.addToast(listenerErrorToast);
         }
     }
@@ -365,7 +358,7 @@ public class ConnectionSettingsViewModel extends ViewModelBase {
     }
 
     ReadOnlyObjectProperty currentMissionProperty() {
-        return applicationContext.currentMissionProperty();
+        return applicationContext.currentLegacyMissionProperty();
     }
 
     Property<Boolean> acceptIncomingConnectionsProperty() {

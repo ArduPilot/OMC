@@ -6,15 +6,15 @@
 
 package eu.mavinci.core.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
+import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
-import eu.mavinci.core.obfuscation.IKeepAll;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.util.LinkedList;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 
-public enum PlanType implements IKeepAll {
+public enum PlanType implements Localizable {
     POLYGON,
     CORRIDOR,
     CITY,
@@ -26,8 +26,8 @@ public enum PlanType implements IKeepAll {
     FACADE,
     MANUAL,
     GEOFENCE_POLY,
-    GEOFENCE_CIRC,
     NO_FLY_ZONE_POLY,
+    GEOFENCE_CIRC,
     NO_FLY_ZONE_CIRC,
     POINT_OF_INTEREST,
     PANORAMA,
@@ -37,7 +37,10 @@ public enum PlanType implements IKeepAll {
 
     public static PlanType DEFAULT = POLYGON;
     static AsyncObjectProperty<OperationLevel> operationLevel =
-        StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).operationLevelProperty();
+        DependencyInjector.getInstance()
+            .getInstanceOf(ISettingsManager.class)
+            .getSection(GeneralSettings.class)
+            .operationLevelProperty();
 
     public boolean isSelectable(Boolean camSupportsCopter, boolean allowIdenticalPoints) {
         switch (this) {
@@ -46,8 +49,7 @@ public enum PlanType implements IKeepAll {
         case FACADE:
         case POINT_OF_INTEREST:
         case SEARCH:
-        case GEOFENCE_CIRC:
-                return camSupportsCopter == null || camSupportsCopter.booleanValue();
+            return camSupportsCopter == null || camSupportsCopter.booleanValue();
 
         case PANORAMA:
             return allowIdenticalPoints && (camSupportsCopter == null || camSupportsCopter.booleanValue());
@@ -60,10 +62,11 @@ public enum PlanType implements IKeepAll {
         case COPTER3D:
         case WINDMILL:
         case INSPECTION_POINTS:
-        case NO_FLY_ZONE_POLY:
-        case NO_FLY_ZONE_CIRC:
         case GEOFENCE_POLY:
-                return (camSupportsCopter == null || camSupportsCopter.booleanValue())
+        case NO_FLY_ZONE_POLY:
+        case GEOFENCE_CIRC:
+        case NO_FLY_ZONE_CIRC:
+            return (camSupportsCopter == null || camSupportsCopter.booleanValue())
                 && operationLevel.get() == OperationLevel.DEBUG;
         default:
             return true;

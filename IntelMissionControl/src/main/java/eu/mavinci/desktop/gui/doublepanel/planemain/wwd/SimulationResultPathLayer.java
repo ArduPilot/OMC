@@ -6,14 +6,13 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.IWWMapView;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.AirspacesProvidersSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.StringHelper;
-import eu.mavinci.core.plane.AirplaneFlightphase;
 import eu.mavinci.desktop.gui.wwext.IWWPickableAdvancedTooltip;
 import eu.mavinci.desktop.helper.IRecomputeListener;
 import eu.mavinci.desktop.helper.Recomputer;
@@ -34,11 +33,11 @@ public class SimulationResultPathLayer extends AColoredTrajectoryLayer implement
 
     private Flightplan fp;
 
-    static ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    static ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     // it's deprecated but how else ??
     static AirspacesProvidersSettings airspacesProvidersSettings =
-        StaticInjector.getInstance(AirspacesProvidersSettings.class);
+        DependencyInjector.getInstance().getInstanceOf(AirspacesProvidersSettings.class);
 
     static class SimulationResultPathTooltipProvider implements IWWPickableAdvancedTooltip {
 
@@ -132,10 +131,7 @@ public class SimulationResultPathLayer extends AColoredTrajectoryLayer implement
                 FPsim.SimDistance simPos = simResult.simDistances.get(i);
                 Color color;
                 if (airspacesProvidersSettings.isUseAirspaceDataForPlanning()) {
-                    // do not warn about "too low height" during takeoff/landing
-                    if ((simPos.groundDistanceMeter < minGroundDistance
-                                && simPos.flightPhase == AirplaneFlightphase.airborne)
-                            || !simPos.aoiCollisions.isEmpty()) {
+                    if (simPos.groundDistanceMeter < minGroundDistance || !simPos.aoiCollisions.isEmpty()) {
                         color = COLOR_TOO_LOW;
                     } else if (simPos.airspaceDistanceMeter < 0) {
                         color = COLOR_TOO_HIGH;
@@ -166,7 +162,7 @@ public class SimulationResultPathLayer extends AColoredTrajectoryLayer implement
         };
 
     public SimulationResultPathLayer(Flightplan fp, IWWGlobes globes, IWWMapView mapView) {
-        super(new SimulationResultPathTooltipProvider(fp, globes, mapView), "TrackLayerName", false, true, mapView);
+        super(new SimulationResultPathTooltipProvider(fp, globes, mapView), "TrackLayerName", false, true);
         this.fp = fp;
         setPickEnabled(true);
         fp.getFPsim().addRecomputeListener(this);

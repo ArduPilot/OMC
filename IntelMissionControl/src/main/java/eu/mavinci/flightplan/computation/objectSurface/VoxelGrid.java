@@ -6,8 +6,8 @@
 
 package eu.mavinci.flightplan.computation.objectSurface;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.flightplan.ITransformationProvider;
 import eu.mavinci.flightplan.computation.AutoFPhelper;
@@ -41,7 +41,8 @@ public class VoxelGrid {
     public static final double sqrt12 = Math.sqrt(1. / 2);
 
     public ITransformationProvider trafo;
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
     public VoxelGrid(
             MMesh mesh, double sizeParallel, double sizeInFlight, double camAlt, ITransformationProvider trafo) {

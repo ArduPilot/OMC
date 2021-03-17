@@ -25,6 +25,8 @@ import com.intel.missioncontrol.logging.ProvisioningLogger;
 import com.intel.missioncontrol.logging.ReseatableFileAppender;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.map.SelectionManager;
+import com.intel.missioncontrol.project.IProjectManager;
+import com.intel.missioncontrol.project.ProjectManager;
 import com.intel.missioncontrol.ui.dialogs.DialogContextProvider;
 import com.intel.missioncontrol.ui.dialogs.DialogService;
 import com.intel.missioncontrol.ui.dialogs.IDialogContextProvider;
@@ -53,6 +55,7 @@ public class BaseModule extends AbstractModule {
         bind(IVersionProvider.class).toInstance(versionProvider);
         bind(IPathProvider.class).toInstance(pathProvider);
         bind(IFileExtractor.class).to(FileExtractor.class).in(Singleton.class);
+        bind(IProjectManager.class).to(ProjectManager.class).in(Singleton.class);
         bind(ApplicationContext.class).in(Singleton.class);
         bind(IApplicationContext.class).to(ApplicationContext.class);
         bind(IDialogService.class).to(DialogService.class).in(Singleton.class);

@@ -6,7 +6,6 @@
 
 package eu.mavinci.desktop.gui.asctec;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -14,6 +13,7 @@ import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.GPSFixType;
 import eu.mavinci.core.flightplan.PhotoLogLineType;
 import eu.mavinci.core.obfuscation.IKeepAll;
@@ -30,7 +30,7 @@ public interface FalconLogLib extends Library, IKeepAll, IFalconSDLog {
     FalconLogLib INSTANCE = initLib();
 
     static FalconLogLib initLib() {
-        IVersionProvider versionProvider = StaticInjector.getInstance(IVersionProvider.class);
+        IVersionProvider versionProvider = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class);
         if (versionProvider.getSystem().isLinux()) {
             if (versionProvider.isEclipseLaunched()) {
                 System.setProperty("jna.library.path", new File("").getAbsolutePath() + "/lib/");

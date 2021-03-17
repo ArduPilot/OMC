@@ -11,7 +11,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.WeakInvalidationListener;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -66,7 +65,7 @@ public class ChecklistViewModel implements ViewModel {
         return checkedItemCount.get();
     }
 
-    public ReadOnlyIntegerProperty checkedItemCountProperty() {
+    public IntegerProperty checkedItemCountProperty() {
         return checkedItemCount;
     }
 
@@ -74,7 +73,7 @@ public class ChecklistViewModel implements ViewModel {
         return totalItemCount.get();
     }
 
-    public ReadOnlyIntegerProperty totalItemCountProperty() {
+    public IntegerProperty totalItemCountProperty() {
         return totalItemCount;
     }
 }

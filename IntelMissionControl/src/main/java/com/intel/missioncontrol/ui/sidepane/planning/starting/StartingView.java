@@ -19,7 +19,6 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.ViewBase;
 import com.intel.missioncontrol.ui.ViewHelper;
 import com.intel.missioncontrol.ui.controls.AdornerSplitView;
-import com.intel.missioncontrol.ui.controls.Button;
 import com.intel.missioncontrol.ui.controls.ToggleSwitch;
 import com.intel.missioncontrol.ui.controls.VariantQuantitySpinnerValueFactory;
 import de.saxsys.mvvmfx.InjectViewModel;
@@ -34,8 +33,8 @@ public class StartingView extends ViewBase<StartingViewModel> {
 
     public static final String ELEVATION_OVER_R = "takeoffLanding.labelElevationOverR";
     public static final String ELEVATION_AGL = "takeoffLanding.labelElevationAGL";
-    private static final String TOGGLE_YES = "com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.yes";
-    private static final String TOGGLE_NO = "com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.no";
+    private static final String TOGGLE_YES = "com.intel.missioncontrol.ui.toggle.Yes";
+    private static final String TOGGLE_NO = "com.intel.missioncontrol.ui.toggle.No";
 
     @InjectViewModel
     private StartingViewModel viewModel;
@@ -51,9 +50,6 @@ public class StartingView extends ViewBase<StartingViewModel> {
 
     @FXML
     private ToggleButton chooseTakeOffPositionButton;
-
-    @FXML
-    private Button takeOffPositionFromUavButton;
 
     @FXML
     private ToggleSwitch autoSwitch;
@@ -140,10 +136,6 @@ public class StartingView extends ViewBase<StartingViewModel> {
             .disableProperty()
             .bind(viewModel.getToggleChooseTakeOffPositionCommand().notExecutableProperty());
 
-        takeOffPositionFromUavButton
-                .disableProperty()
-                .bind(viewModel.getTakeOffPositionFromUavCommand().notExecutableProperty());
-
         chooseTakeOffPositionButton.selectedProperty().bindBidirectional(viewModel.takeoffButtonPressedProperty());
         chooseTakeOffPositionButton.getStyleClass().remove("toggle-button");
 
@@ -158,6 +150,38 @@ public class StartingView extends ViewBase<StartingViewModel> {
 
         takeOffLatitudeSpinner.disableProperty().bind(viewModel.autoEnabledProperty());
         takeOffLongitudeSpinner.disableProperty().bind(viewModel.autoEnabledProperty());
+
+        elevationSpinner.visibleProperty().bind(viewModel.showTakeoffElevationProperty());
+        elevationSpinner.managedProperty().bind(viewModel.showTakeoffElevationProperty());
+
+        ViewHelper.initAutoCommitSpinner(
+            elevationSpinner,
+            viewModel.takeoffElevationProperty(),
+            Unit.METER,
+            settingsManager.getSection(GeneralSettings.class),
+            5,
+            0.0,
+            1000.0,
+            1.0,
+            false);
+        elevationSpinner.disableProperty().bind(viewModel.autoEnabledProperty());
+        elevationLabel
+            .textProperty()
+            .bind(
+                Bindings.createStringBinding(
+                    () -> {
+                        AltitudeAdjustModes mode = viewModel.currentAltModeProperty().get();
+                        if (mode != null) {
+                            if (mode.equals(AltitudeAdjustModes.CONSTANT_OVER_R)) {
+                                return languageHelper.getString(ELEVATION_OVER_R);
+                            } else if (mode.equals(AltitudeAdjustModes.FOLLOW_TERRAIN)) {
+                                return languageHelper.getString(ELEVATION_AGL);
+                            }
+                        }
+
+                        return languageHelper.getString(ELEVATION_AGL);
+                    },
+                    viewModel.currentAltModeProperty()));
     }
 
     @Override
@@ -173,11 +197,6 @@ public class StartingView extends ViewBase<StartingViewModel> {
     @FXML
     public void onToggleChooseTakeOffPositionClicked() {
         viewModel.getToggleChooseTakeOffPositionCommand().execute();
-    }
-
-    @FXML
-    public void takeOffPositionFromUavButtonClicked() {
-        viewModel.getTakeOffPositionFromUavCommand().execute();
     }
 
     private void setToggleLabel(boolean val) {

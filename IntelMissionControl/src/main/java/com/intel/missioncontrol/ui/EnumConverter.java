@@ -6,12 +6,12 @@
 
 package com.intel.missioncontrol.ui;
 
+import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import javafx.util.StringConverter;
 
 /** Created by akorotenko on 7/4/17. */
-public class EnumConverter<T extends Enum<T> & IKeepAll> extends StringConverter<T> {
+public class EnumConverter<T extends Enum<T> & Localizable> extends StringConverter<T> {
 
     private final ILanguageHelper languageHelper;
     private final Class<T> clazz;

@@ -131,13 +131,13 @@ public class GsdWidgetViewModel implements ViewModel {
 
         gsdProperty().addListener((obj, oldV, newV) -> calculateGSDInfo());
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentFlightPlanProperty)
             .selectReadOnlyObject(FlightPlan::gsdMismatchRangeProperty)
             .addListener((obj, oldV, newV) -> calculateGSDInfo());
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentFlightPlanProperty)
             .selectReadOnlyDouble(FlightPlan::gsdToleranceProperty)
             .addListener((obj, oldV, newV) -> calculateGSDInfo());
@@ -145,7 +145,7 @@ public class GsdWidgetViewModel implements ViewModel {
         calculateGSDInfo();
 
         currentAltMode =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectReadOnlyObject(FlightPlan::currentAltModeProperty);
         altitudeAdjustModesChangeListener = (obj, oldV, newV) -> lblsChanged(applicationContext, aoiType.getValue());
@@ -189,9 +189,9 @@ public class GsdWidgetViewModel implements ViewModel {
             lblGsdProperty.setValue(languageHelper.getString(LABEL_GSD));
         } else {
             boolean isFollowTerrain = AltitudeAdjustModes.FOLLOW_TERRAIN.equals(currentAltMode.get());
-            if (applicationContext.getCurrentMission() == null
-                    || applicationContext.getCurrentMission().getCurrentFlightPlan() == null
-                    || applicationContext.getCurrentMission().getCurrentFlightPlan().getLegacyFlightplan() == null) {
+            if (applicationContext.getCurrentLegacyMission() == null
+                    || applicationContext.getCurrentLegacyMission().getCurrentFlightPlan() == null
+                    || applicationContext.getCurrentLegacyMission().getCurrentFlightPlan().getLegacyFlightplan() == null) {
                 lblAltDistanceProperty.setValue(languageHelper.getString(LABEL_ALT_DISTANCE_2D));
             } else {
                 lblAltDistanceProperty.setValue(
@@ -217,7 +217,7 @@ public class GsdWidgetViewModel implements ViewModel {
             return false;
         }
 
-        var mission = applicationContext.getCurrentMission();
+        var mission = applicationContext.getCurrentLegacyMission();
         if (mission == null) {
             gsdOutSideToleranceProperty().set(false);
             return false;

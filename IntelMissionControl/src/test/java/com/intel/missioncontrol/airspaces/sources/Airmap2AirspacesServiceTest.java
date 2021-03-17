@@ -6,7 +6,7 @@
 
 package com.intel.missioncontrol.airspaces.sources;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.intel.missioncontrol.airspaces.services.Airmap2AirspaceService;
 import org.asyncfx.beans.property.AsyncStringProperty;
@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
+@Disabled
 public class Airmap2AirspacesServiceTest {
 
     private AirspacesProvidersSettings airspaceSettingsMock;
@@ -37,7 +37,7 @@ public class Airmap2AirspacesServiceTest {
 
     IPathProvider pathProvider;
 
-    @Before
+    @BeforeAll
     public void setupAirmap()
             throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException {
         File baseDir = new File(System.getProperty("java.io.tmpdir"));
@@ -90,7 +90,7 @@ public class Airmap2AirspacesServiceTest {
 
     static Sector BAYLANDS_BB = Sector.fromDegrees(37.4104, 37.4147, -122.0033, -121.9868);
 
-    @Ignore("BROKEN TEST, but ignored to get testing in build system")
+    @Disabled("BROKEN TEST, but ignored to get testing in build system")
     @Test
     public void testAirspaceService() {
         Airmap2AirspaceService service =

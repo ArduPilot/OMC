@@ -29,8 +29,8 @@ class PlatformDispatcher implements Dispatcher {
     }
 
     @Override
-    public boolean isSequential() {
-        return true;
+    public void execute(@NotNull Runnable runnable) {
+        run(runnable);
     }
 
     @Override

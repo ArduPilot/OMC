@@ -6,7 +6,12 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Executor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.WeakListener;
@@ -17,7 +22,6 @@ import javafx.beans.value.ObservableValue;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.binding.AsyncExpressionHelper;
 import org.asyncfx.beans.binding.ValueConverter;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -52,7 +56,7 @@ public abstract class AsyncFloatPropertyBase extends AsyncFloatPropertyBaseImpl 
     }
 
     @Override
-    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, Number> converter) {
+    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, ? extends Number> converter) {
         if (source == null) {
             throw new NullPointerException("Cannot bind to null.");
         }
@@ -62,16 +66,15 @@ public abstract class AsyncFloatPropertyBase extends AsyncFloatPropertyBaseImpl 
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         float newValue = 0;
         PropertyMetadata<Number> metadata;
-        AsyncExpressionHelper<Number> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
             if (metadata.getConsistencyGroup() != null) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
@@ -126,34 +129,52 @@ public abstract class AsyncFloatPropertyBase extends AsyncFloatPropertyBaseImpl 
                 invalidate = valid;
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getCore();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
+            final float newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
+
+            Executor executor = metadata.getDispatcher();
+            if (executor == null) {
                 Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
+                executor = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
             }
 
-            if (dispatcher != null) {
-                final float newValueCopy = newValue;
-
-                dispatcher.run(
+            if (executor != null) {
+                executor.execute(
                     () -> {
-                        invalidated();
-                        AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
             } else {
-                invalidated();
-                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+                try {
+                    accessController.changeEventLockOwner(Thread.currentThread());
+                    invalidated();
+                    AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                } finally {
+                    accessController.unlockWrite(EVENT, eventStampCopy);
+                }
             }
         }
     }

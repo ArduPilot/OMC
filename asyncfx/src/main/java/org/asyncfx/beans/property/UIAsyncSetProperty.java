@@ -6,6 +6,8 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
@@ -114,7 +116,7 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
                 }
 
             } finally {
-                accessController.unlockWrite(stamp);
+                accessController.unlockWrite(VALUE, stamp);
             }
         }
 

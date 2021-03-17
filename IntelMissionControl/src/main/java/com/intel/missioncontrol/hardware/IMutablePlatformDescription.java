@@ -87,19 +87,9 @@ public interface IMutablePlatformDescription extends IPlatformDescription {
 
     void setImageFile(String imageFile);
 
-    void setIsCompatibleToLitchi(boolean value);
-
-    void setIsObstacleAvoidanceCapable(boolean value);
-
-    void setPhantomWaypointsLitchiDistance(Quantity<Length> value);
-
     void setConnectionProperties(ConnectionProperties properties);
 
     void setMavlinkFlightPlanOptions(MavlinkFlightPlanOptions mavlinkFlightPlanOptions);
 
     void setFlightValidatorTypes(List<FlightValidatorType> flightValidatorTypes);
-
-    void setJpgMetadataLocationInCameraFrame(boolean isJpgMetadataLocationInCameraFrame);
-
-    void setWaypointLocationInCameraFrame(boolean isWaypointLocationInCameraFrame);
 }

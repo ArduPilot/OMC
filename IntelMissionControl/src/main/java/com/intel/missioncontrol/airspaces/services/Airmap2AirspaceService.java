@@ -105,7 +105,7 @@ public class Airmap2AirspaceService implements LocationAwareAirspaceService, Sou
         File cacheDir = new File(pathProvider.getCacheDirectory().toFile().getAbsolutePath(), AIRMAP2_CACHE_DIR);
 
         config.cacheDir = cacheDir;
-        LOG.info("Using cache directory: {}", cacheDir);
+        LOG.info("Using cache directory: ", cacheDir);
 
         AirMap.init(config);
     }

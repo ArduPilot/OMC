@@ -6,13 +6,10 @@
 
 package com.intel.missioncontrol.ui.menu;
 
-import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.api.IFlightPlanService;
-import com.intel.missioncontrol.api.support.ISupportManager;
 import com.intel.missioncontrol.diagnostics.PerformanceReporter;
 import com.intel.missioncontrol.diagnostics.PerformanceTracker;
-import com.intel.missioncontrol.drone.FlightSegment;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.WindowHelper;
@@ -26,6 +23,7 @@ import com.intel.missioncontrol.mission.MatchingStatus;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.mission.MissionConstants;
 import com.intel.missioncontrol.mission.MissionInfo;
+import com.intel.missioncontrol.project.SuspendedInteractionRequest;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
@@ -33,7 +31,6 @@ import com.intel.missioncontrol.settings.PathSettings;
 import com.intel.missioncontrol.ui.common.components.RenameDialog;
 import com.intel.missioncontrol.ui.controls.StylesheetHelper;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
-import com.intel.missioncontrol.ui.dialogs.IVeryUglyDialogHelper;
 import com.intel.missioncontrol.ui.dialogs.SendSupportDialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.about.AboutDialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.savechanges.SaveChangesDialogViewModel;
@@ -42,7 +39,6 @@ import com.intel.missioncontrol.ui.navigation.SidePanePage;
 import com.intel.missioncontrol.ui.navigation.WorkflowStep;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
-import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import de.saxsys.mvvmfx.ViewModel;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.desktop.helper.FileFilter;
@@ -60,7 +56,6 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.logging.Level;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
@@ -72,22 +67,19 @@ public class MainMenuCommandManager {
 
     private static final String MANUAL_PATH_ARG = "manual_path";
     private static final String DEFAULT_MANUAL_FOLDER = "../manuals";
-    private static final String MANUAL_FILE = "omc-quick-start-guide.pdf";
-    private static final String QUICK_START_GUIDE_FILE = "omc-quick-start-guide.pdf";
+    private static final String MANUAL_FILE = "manual.pdf";
+    private static final String QUICK_START_GUIDE_FILE = "imc-quick-start-guide.pdf";
 
     private final ViewModel ownerViewModel;
     private final IApplicationContext applicationContext;
     private final ILanguageHelper languageHelper;
     private final IMissionManager missionManager;
     private final IFlightPlanService flightPlanService;
-    private final IVeryUglyDialogHelper dialogHelper;
     private final IDialogService dialogService;
     private final INavigationService navigationService;
-    private final ISupportManager supportManager;
     private final ILicenceManager licenceManager;
     private final ISettingsManager settingsManager;
 
-    @Inject
     public MainMenuCommandManager(
             ViewModel ownerViewModel,
             MenuModel menuModel,
@@ -97,78 +89,65 @@ public class MainMenuCommandManager {
             ILanguageHelper languageHelper,
             IMissionManager missionManager,
             IFlightPlanService flightPlanService,
-            IVeryUglyDialogHelper dialogHelper,
-            ISupportManager supportManager,
             ISettingsManager settingsManager,
             ILicenceManager licenceManager,
             IWWMapModel mapModel,
             IWWMapView mapView,
-            IHardwareConfigurationManager hardwareConfigurationManager,
-            FlightScope flightScope) {
+            IHardwareConfigurationManager hardwareConfigurationManager) {
         this.ownerViewModel = ownerViewModel;
         this.applicationContext = applicationContext;
         this.languageHelper = languageHelper;
         this.missionManager = missionManager;
         this.navigationService = navigationService;
         this.flightPlanService = flightPlanService;
-        this.dialogHelper = dialogHelper;
         this.dialogService = dialogService;
-        this.supportManager = supportManager;
         this.licenceManager = licenceManager;
         this.settingsManager = settingsManager;
 
-        BooleanBinding allowProjectChange =
-            Bindings.createBooleanBinding(
-                () -> {
-                    var flightSegment = flightScope.flightSegmentProperty().get();
-                    return flightSegment == null
-                        || flightSegment == FlightSegment.UNKNOWN
-                        || flightSegment == FlightSegment.ON_GROUND;
-                },
-                flightScope.flightSegmentProperty());
-
         BooleanBinding importedBinding =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentMatchingProperty)
                 .selectReadOnlyObject(Matching::statusProperty)
                 .isEqualTo(MatchingStatus.IMPORTED);
 
-        menuModel // this got deleted??
-            .find(MainMenuModel.Help.DOWNLOAD_TICKET)
-            .visibleProperty()
-            .bind(
-                Bindings.createBooleanBinding(
-                    () -> licenceManager.getMaxOperationLevel().compareTo(OperationLevel.TECHNICIAN) >= 0,
-                    licenceManager.maxOperationLevelProperty()));
-
         menuModel
             .find(MainMenuModel.Project.EXIT)
-            .setActionHandler(WindowHelper::closePrimaryStage, allowProjectChange);
+            .setActionHandler(WindowHelper::closePrimaryStage, SuspendedInteractionRequest.activeProperty());
 
-        menuModel.find(MainMenuModel.Project.OPEN).setActionHandler(this::openMission, allowProjectChange);
+        menuModel
+            .find(MainMenuModel.Project.OPEN)
+            .setActionHandler(this::openMission, SuspendedInteractionRequest.activeProperty());
 
         menuModel
             .find(MainMenuModel.Project.CLOSE)
             .setActionHandler(
                 applicationContext::unloadCurrentMission,
-                applicationContext.currentMissionProperty().isNotNull().and(allowProjectChange));
+                applicationContext
+                    .currentLegacyMissionProperty()
+                    .isNotNull()
+                    .and(SuspendedInteractionRequest.activeProperty()));
 
         menuModel
             .find(MainMenuModel.Project.RENAME)
             .setActionHandler(
-                applicationContext::renameCurrentMission, applicationContext.currentMissionProperty().isNotNull());
+                () -> Dispatcher.platform().run(applicationContext::renameCurrentMission),
+                applicationContext
+                    .currentLegacyMissionProperty()
+                    .isNotNull()
+                    .and(SuspendedInteractionRequest.activeProperty()));
 
         menuModel
             .find(MainMenuModel.Project.SHOW)
             .setActionHandler(
                 () -> {
                     try {
-                        Desktop.getDesktop().browse(applicationContext.getCurrentMission().getDirectory().toUri());
+                        Desktop.getDesktop()
+                            .browse(applicationContext.getCurrentLegacyMission().getDirectory().toUri());
                     } catch (IOException e) {
                         Debug.getLog()
                             .log(
                                 Level.WARNING,
-                                "cant browse folder:" + applicationContext.getCurrentMission().getDirectory(),
+                                "cant browse folder:" + applicationContext.getCurrentLegacyMission().getDirectory(),
                                 e);
                         applicationContext.addToast(
                             Toast.of(ToastType.ALERT)
@@ -179,7 +158,7 @@ public class MainMenuCommandManager {
                                 .create());
                     }
                 },
-                applicationContext.currentMissionProperty().isNotNull());
+                applicationContext.currentLegacyMissionProperty().isNotNull());
 
         menuModel
             .find(MainMenuModel.Dataset.OPEN)
@@ -188,7 +167,7 @@ public class MainMenuCommandManager {
                     String title =
                         languageHelper.getString(
                             "com.intel.missioncontrol.ui.analysis.AnalysisView.FileChooser.dialogTitle");
-                    Mission mission = applicationContext.currentMissionProperty().get();
+                    Mission mission = applicationContext.currentLegacyMissionProperty().get();
                     Path matchingFolder = MissionConstants.getMatchingsFolder(mission.getDirectory()).toPath();
                     Path selectedFile =
                         dialogService.requestFileOpenDialog(ownerViewModel, title, matchingFolder, FileFilter.PTG);
@@ -213,7 +192,7 @@ public class MainMenuCommandManager {
                     }
                 },
                 applicationContext
-                    .currentMissionProperty()
+                    .currentLegacyMissionProperty()
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
 
@@ -221,9 +200,9 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.Dataset.CLOSE)
             .setActionHandler(
                 () -> {
-                    ObservableList<Matching> matchings = applicationContext.getCurrentMission().getMatchings();
+                    ObservableList<Matching> matchings = applicationContext.getCurrentLegacyMission().getMatchings();
                     if (!matchings.isEmpty()) {
-                        Mission mission = applicationContext.getCurrentMission();
+                        Mission mission = applicationContext.getCurrentLegacyMission();
                         Matching currentMatching = mission.getCurrentMatching();
                         if (!askToSaveChangesAndProceed(mission, currentMatching)) {
                             return;
@@ -244,10 +223,10 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.Dataset.SAVE)
             .setActionHandler(
                 () -> {
-                    applicationContext.getCurrentMission().getCurrentMatching().saveResourceFile();
+                    applicationContext.getCurrentLegacyMission().getCurrentMatching().saveResourceFile();
                 },
                 importedBinding.and(
-                    PropertyPath.from(applicationContext.currentMissionProperty())
+                    PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                         .select(Mission::currentMatchingProperty)
                         .selectReadOnlyBoolean(Matching::matchingLayerChangedProperty)));
 
@@ -255,7 +234,7 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.FlightPlan.CLOSE)
             .setActionHandler(
                 () -> {
-                    Mission mission = applicationContext.getCurrentMission();
+                    Mission mission = applicationContext.getCurrentLegacyMission();
                     FlightPlan flightPlan = mission.getCurrentFlightPlan();
                     if (!askToSaveChangesAndProceed(mission, flightPlan)) {
                         return;
@@ -268,7 +247,7 @@ public class MainMenuCommandManager {
                         mission.setCurrentFlightPlan(mission.getFirstFlightPlan());
                     }
                 },
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentFlightPlanProperty)
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
@@ -281,7 +260,7 @@ public class MainMenuCommandManager {
                         Desktop.getDesktop()
                             .browse(
                                 applicationContext
-                                    .getCurrentMission()
+                                    .getCurrentLegacyMission()
                                     .getCurrentFlightPlan()
                                     .getLegacyFlightplan()
                                     .getResourceFile()
@@ -293,7 +272,7 @@ public class MainMenuCommandManager {
                                 Level.WARNING,
                                 "cant browse folder:"
                                     + applicationContext
-                                        .getCurrentMission()
+                                        .getCurrentLegacyMission()
                                         .getCurrentFlightPlan()
                                         .getLegacyFlightplan()
                                         .getResourceFile()
@@ -308,7 +287,7 @@ public class MainMenuCommandManager {
                                 .create());
                     }
                 },
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentFlightPlanProperty)
                     .isNotNull());
 
@@ -316,12 +295,12 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.Dataset.SHOW)
             .setActionHandler(
                 () -> {
-                    ObservableList<Matching> matchings = applicationContext.getCurrentMission().getMatchings();
+                    ObservableList<Matching> matchings = applicationContext.getCurrentLegacyMission().getMatchings();
                     if (matchings.isEmpty()) {
                         return;
                     }
 
-                    Matching currentMatching = applicationContext.getCurrentMission().getCurrentMatching();
+                    Matching currentMatching = applicationContext.getCurrentLegacyMission().getCurrentMatching();
 
                     try {
                         Desktop.getDesktop().browse(currentMatching.getResourceFile().getParentFile().toURI());
@@ -331,7 +310,7 @@ public class MainMenuCommandManager {
                                 Level.WARNING,
                                 "cant browse folder:"
                                     + applicationContext
-                                        .getCurrentMission()
+                                        .getCurrentLegacyMission()
                                         .getCurrentMatching()
                                         .getResourceFile()
                                         .getParentFile(),
@@ -351,11 +330,11 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.FlightPlan.NEW)
             .setActionHandler(
                 () -> {
-                    Mission mission = applicationContext.getCurrentMission();
+                    Mission mission = applicationContext.getCurrentLegacyMission();
                     mission.setCurrentFlightPlan(null);
                 },
                 applicationContext
-                    .currentMissionProperty()
+                    .currentLegacyMissionProperty()
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
 
@@ -363,7 +342,7 @@ public class MainMenuCommandManager {
             .find(MainMenuModel.FlightPlan.RENAME)
             .setActionHandler(
                 this::renameFlightPlan,
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentFlightPlanProperty)
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
@@ -388,18 +367,6 @@ public class MainMenuCommandManager {
         menuModel
             .find(MainMenuModel.Help.ABOUT)
             .setActionHandler(() -> dialogService.requestDialogAsync(ownerViewModel, AboutDialogViewModel.class));
-
-        menuModel.find(MainMenuModel.Help.DOWNLOAD_TICKET).setActionHandler(this::handleTicketDownload);
-
-        menuModel
-            .find(MainMenuModel.Help.DOWNLOAD_TICKET)
-            .visibleProperty()
-            .bind(
-                Bindings.createBooleanBinding(
-                    () -> licenceManager.getMaxOperationLevel().compareTo(OperationLevel.TECHNICIAN) >= 0,
-                    licenceManager.maxOperationLevelProperty()));
-
-        menuModel.find(MainMenuModel.Help.UPLOAD_OLD_SUPPORT_REQUESTS).setActionHandler(this::handleOldSupportUpload);
 
         menuModel
             .find(MainMenuModel.Debug.MENU_CAPTION)
@@ -547,7 +514,7 @@ public class MainMenuCommandManager {
     }
 
     private boolean isFlightplanNameValid(String flightPlanName) {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         int duplicates =
             currentMission
                 .flightPlansProperty()
@@ -557,7 +524,7 @@ public class MainMenuCommandManager {
     }
 
     private void renameFlightPlan() {
-        Mission mission = applicationContext.getCurrentMission();
+        Mission mission = applicationContext.getCurrentLegacyMission();
         // mission.closeFlightPlan(mission.getFirstFlightPlan());
 
         FlightPlan flightPlan = mission.getCurrentFlightPlan();
@@ -577,7 +544,7 @@ public class MainMenuCommandManager {
     }
 
     private void openMission() {
-        if (applicationContext.currentMissionProperty().get() != null) {
+        if (applicationContext.currentLegacyMissionProperty().get() != null) {
             // if unloading is cancelled by user input, we also abort open mission
             if (!applicationContext.unloadCurrentMission()) {
                 return;
@@ -667,30 +634,7 @@ public class MainMenuCommandManager {
                         missionManager.refreshRecentMissionInfos();
                     }
                 },
-                Dispatcher.platform()::run);
-    }
-
-    private void handleTicketDownload() {
-        String ticketId =
-            dialogService.requestInputDialogAndWait(
-                ownerViewModel,
-                languageHelper.getString(
-                    "com.intel.missioncontrol.ui.menu.MainMenuCommandManager.downloadTicketDataTitle"),
-                languageHelper.getString(
-                    "com.intel.missioncontrol.ui.menu.MainMenuCommandManager.downloadTicketDataMessage"),
-                false);
-
-        if (ticketId != null) {
-            handleTicketDownload(ticketId);
-        }
-    }
-
-    private void handleTicketDownload(String ticketId) {
-        dialogHelper.createProgressDialogForTicketDownload(ticketId, applicationContext);
-    }
-
-    private void handleOldSupportUpload() {
-        supportManager.scanReportFolder(true);
+                Dispatcher.platform());
     }
 
 }

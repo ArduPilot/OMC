@@ -6,9 +6,7 @@
 
 package eu.mavinci.flightplan.recomputer;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -19,7 +17,6 @@ import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.intel.missioncontrol.FileExtractor;
 import com.intel.missioncontrol.IFileExtractor;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.TestPathProvider;
 import com.intel.missioncontrol.api.ExportService;
 import com.intel.missioncontrol.api.FlightPlanService;
@@ -65,6 +62,7 @@ import com.intel.missioncontrol.utils.DefaultBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import de.saxsys.mvvmfx.MvvmFX;
 import de.saxsys.mvvmfx.guice.internal.MvvmfxModule;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.main.debug.IProfilingManager;
 import eu.mavinci.core.flightplan.FlightplanContainerFullException;
 import eu.mavinci.core.flightplan.FlightplanContainerWrongAddingException;
@@ -90,11 +88,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-@Ignore
+@Disabled
 public class FlightplanRecomputeTest {
 
     private Set<Module> createModules() {
@@ -151,7 +149,7 @@ public class FlightplanRecomputeTest {
         return modules;
     }
 
-    @Before
+    @BeforeAll
     public void setUp() throws Exception {
         IPathProvider pathProvider = new TestPathProvider();
 
@@ -160,10 +158,10 @@ public class FlightplanRecomputeTest {
         Injector injector = Guice.createInjector(modules);
         MvvmFX.setCustomDependencyInjector(key -> injector.getInstance(key));
         // DependencyInjector.getInstance().
-        var settingsManager = StaticInjector.getInstance(ISettingsManager.class);
+        var settingsManager = DependencyInjector.getInstance().getInstanceOf(ISettingsManager.class);
         Path folder = settingsManager.getSection(PathSettings.class).getProjectFolder();
         //        mi = new MissionInfo(folder.toAbsolutePath());
-        //        mavinciObjectFactory = StaticInjector.getInstance(MavinciObjectFactory.class);
+        //        mavinciObjectFactory = DependencyInjector.getInstance().getInstanceOf(MavinciObjectFactory.class);
         //    }
     }
 
@@ -199,7 +197,7 @@ public class FlightplanRecomputeTest {
         fp.doFlightplanCalculation();
 
         // insert any meaningfull check
-        assertThat(picArea.getFlightLines(), not(empty()));
+        assertNotNull(picArea.getFlightLines());
     }
 
     @Test
@@ -234,13 +232,13 @@ public class FlightplanRecomputeTest {
         fp.doFlightplanCalculation();
 
         // insert any meaningful check
-        assertThat(picArea.getFlightLines(), not(empty()));
+        assertNotNull(picArea.getFlightLines());
 
         File targetFile = new File("testexport");
         System.out.println(targetFile.getAbsolutePath());
         IFlightplanExporterFactory flightplanExporter = new FlightplanExporterFactory(null, null, null, null, null);
         IFlightplanExporter exporter = flightplanExporter.createExporter(FlightplanExportTypes.CSV);
-        exporter.export(fp, targetFile, null);
+        exporter.exportLegacy(fp, targetFile, null);
     }
 
 }

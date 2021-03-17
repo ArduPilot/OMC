@@ -6,9 +6,9 @@
 
 package com.intel.missioncontrol.map.geotiff;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
-public enum GeoTiffType implements IKeepAll {
+public enum GeoTiffType implements Localizable {
     ELEVATION,
     IMAGERY,
     UNKNOWN

@@ -7,13 +7,11 @@
 package com.intel.missioncontrol.settings;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Localizable
-public enum OperationLevel implements IKeepAll {
+public enum OperationLevel implements Localizable {
     USER,
     TECHNICIAN,
     DEBUG;
@@ -21,9 +19,10 @@ public enum OperationLevel implements IKeepAll {
     public static List<OperationLevel> getAllowedLevels(OperationLevel maxLevel) {
         List<OperationLevel> allowedLevels = new ArrayList<>();
         // Append values from the top level to the bottom
-        if(maxLevel == null) {
+        if (maxLevel == null) {
             maxLevel = USER;
         }
+
         switch (maxLevel) {
         case DEBUG:
             allowedLevels.add(OperationLevel.DEBUG);

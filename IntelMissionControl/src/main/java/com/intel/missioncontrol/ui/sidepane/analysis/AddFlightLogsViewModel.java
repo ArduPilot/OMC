@@ -14,6 +14,7 @@ import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.settings.DisplaySettings;
+import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
@@ -87,10 +88,7 @@ public class AddFlightLogsViewModel extends DialogViewModel<CopyLogsTask, String
         this.settingsManager = settingsManager;
         this.mapView = mapView;
 
-        // Copy always logs (and images if json!)
-        // do not delete the original data, flag not shown any more in this frame
-        eraseLogs.set(false);
-        // eraseLogs.bindBidirectional(settingsManager.getSection(GeneralSettings.class).eraseLogsAfterCopyProperty());
+        eraseLogs.bindBidirectional(settingsManager.getSection(GeneralSettings.class).eraseLogsAfterCopyProperty());
 
         browseCommand = new DelegateCommand(this::handleBrowse);
         openFolderCommand = new DelegateCommand(this::handleOpenFolder, canOpenFolder());
@@ -173,7 +171,7 @@ public class AddFlightLogsViewModel extends DialogViewModel<CopyLogsTask, String
     }
 
     private void updatePreview() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission == null) {
             return;
         }

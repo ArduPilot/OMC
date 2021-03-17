@@ -6,9 +6,16 @@
 
 package eu.mavinci.desktop.helper.gdal;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.common.IPathProvider;
+import com.intel.missioncontrol.geospatial.ISpatialReference;
+import com.intel.missioncontrol.measure.Dimension;
+import com.intel.missioncontrol.measure.Location;
+import com.intel.missioncontrol.measure.Quantity;
+import com.intel.missioncontrol.measure.Unit;
+import com.intel.missioncontrol.serialization.CompositeSerializationContext;
 import com.intel.missioncontrol.settings.SrsPrivateSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
+import eu.mavinci.core.helper.Pair;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -35,9 +42,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.gdal.osr.CoordinateTransformation;
 import org.gdal.osr.SpatialReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MSpatialReference implements Comparable<MSpatialReference> {
+public class MSpatialReference implements Comparable<MSpatialReference>, ISpatialReference {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MSpatialReference.class);
     public static final String SEPARATOR_ELEMENTS = "</|/|<";
     public static final String SEPARATOR_LINEBREAK = ">/|/|>";
 
@@ -130,6 +140,15 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         initFromSR();
     }
 
+    public MSpatialReference(SpatialReference srs, ISrsManager srsManager) throws Exception {
+        this.srsManager = srsManager;
+        this.id = MSpatialReference.PREFIX_EPSG + (srsManager.getMaxId() + 1);
+        this.sr = srs;
+        this.name = sr.ExportToWkt();
+        this.globe = null;
+        initFromSR();
+    }
+
     public static MSpatialReference getSpatialReferenceFromFile(Globe globe, ISrsManager srsManager, Path file)
             throws Exception {
         String fileString = new String(Files.readAllBytes(file));
@@ -138,7 +157,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
 
         MSpatialReference src =
             new MSpatialReference((String)file.getFileName().toString(), (SpatialReference)srs, srsManager, globe);
-        StaticInjector.getInstance(SrsPrivateSettings.class).add(src);
+        DependencyInjector.getInstance().getInstanceOf(SrsPrivateSettings.class).add(src);
         srsManager.loadFromApp();
 
         return src;
@@ -192,9 +211,9 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         check();
     }
 
-    synchronized SRStransformCacheEntry callGDALtransform(
-            boolean trueIntoFalseFrom, String id, double x0, double x1, double x2, String ppszInput) throws Exception {
-        SRStransformCacheEntry[] resArr;
+    synchronized Vec4 callGDALtransform(
+            boolean trueIntoFalseFrom, String id, double x0, double x1, double x2, String ppszInput) {
+        Vec4[] resArr;
         resArr =
             callGDALtransform(
                 trueIntoFalseFrom, id, new double[] {x0}, new double[] {x1}, new double[] {x2}, ppszInput);
@@ -204,14 +223,13 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
     CoordinateTransformation trafoFrom;
     CoordinateTransformation trafoTo;
 
-    synchronized SRStransformCacheEntry[] callGDALtransform(
+    synchronized Vec4[] callGDALtransform(
             final boolean trueIntoFalseFrom,
             final String id,
             final double[] x0,
             final double[] x1,
             final double[] x2,
-            final String ppszInput)
-            throws Exception {
+            final String ppszInput) {
         SpatialReference srsWgs84 = srsManager.getDefault().getSR();
 
         SpatialReference srs = getSR();
@@ -244,7 +262,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
 
         trafo.TransformPoints(mat);
 
-        SRStransformCacheEntry[] target = new SRStransformCacheEntry[N];
+        Vec4[] target = new Vec4[N];
 
         for (int i = 0; i < N; i++) {
             if (!flat && elev != null) {
@@ -269,10 +287,10 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
 
             if (flat) {
                 //				System.out.println("out: " + mat[i][0] + " " + mat[i][1]);
-                target[i] = new SRStransformCacheEntry(mat[i][0], mat[i][1], Double.NaN);
+                target[i] = new Vec4(mat[i][0], mat[i][1], Double.NaN);
             } else {
                 //				System.out.println("out: " + mat[i][0] + " " + mat[i][1] + " " + mat[i][2]);
-                target[i] = new SRStransformCacheEntry(mat[i][0], mat[i][1], mat[i][2]);
+                target[i] = new Vec4(mat[i][0], mat[i][1], mat[i][2]);
             }
         }
 
@@ -285,12 +303,17 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
 
     LocalElevationModel geoid;
 
-    public LocalElevationModel getGeoid() throws IOException {
+    public LocalElevationModel getGeoid() {
         // if (geoid!=null) return geoid;
         File geoidFile = getGeoidFile();
         if (geoidFile != null) {
             LocalElevationModel elev = new LocalElevationModel();
-            elev.addElevations(geoidFile);
+            try {
+                elev.addElevations(geoidFile);
+            } catch (IOException e) {
+                LOGGER.error("Geoid elevatios error", e);
+            }
+
             geoid = elev;
         }
 
@@ -305,7 +328,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         if ("2005".equals(vertDatum)) {
             File geoid =
                 new File(
-                    StaticInjector.getInstance(IPathProvider.class).getGeoidDirectory().toFile(),
+                    DependencyInjector.getInstance().getInstanceOf(IPathProvider.class).getGeoidDirectory().toFile(),
                     vertDatumName + ".tif");
             // System.out.println("geoid:"+geoid);
             if (geoid.exists()) {
@@ -322,7 +345,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         if ("2005".equals(sr.GetAttrValue("VERT_DATUM", 1))) {
             File geoid =
                 new File(
-                    StaticInjector.getInstance(IPathProvider.class).getGeoidDirectory().toFile(),
+                    DependencyInjector.getInstance().getInstanceOf(IPathProvider.class).getGeoidDirectory().toFile(),
                     sr.GetAttrValue("VERT_DATUM", 0) + ".tif");
             return geoid;
         }
@@ -330,7 +353,28 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         return null;
     }
 
-    public SRStransformCacheEntry fromWgs84(Position p) throws Exception {
+    @Override
+    public String getEpsg() {
+        return id;
+    }
+
+    @Override
+    public com.intel.missioncontrol.geometry.Vec4 fromWgs84(com.intel.missioncontrol.geospatial.Position pos) {
+        Vec4 vec4WW =
+            fromWgs84(
+                new Position(
+                    Angle.fromRadians(pos.getLatitude()), Angle.fromRadians(pos.getLongitude()), pos.getElevation()));
+        return new com.intel.missioncontrol.geometry.Vec4(vec4WW.x, vec4WW.y, vec4WW.z, 0);
+    }
+
+    @Override
+    public com.intel.missioncontrol.geospatial.Position toWgs84(com.intel.missioncontrol.geometry.Vec4 vec) {
+        Position positionWW = toWgs84(new Vec4(vec.x, vec.y, vec.z));
+        return com.intel.missioncontrol.geospatial.Position.fromRadians(
+            positionWW.latitude.radians, positionWW.longitude.radians, positionWW.elevation);
+    }
+
+    public Vec4 fromWgs84(Position p) {
         if (origin.isDefined()) {
             double elevation =
                 globe.getElevation(Angle.fromDegrees(origin.getLat()), Angle.fromDegrees(origin.getLon()));
@@ -344,17 +388,17 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
             Vec4 local =
                 globe.computePointFromPosition(new Position(p, Double.isNaN(p.elevation) ? 0 : p.elevation))
                     .transformBy4(m);
-            return new SRStransformCacheEntry(local.x, local.y, local.z);
+            return new Vec4(local.x, local.y, local.z);
         }
 
-        SRStransformCacheEntry result =
+        Vec4 result =
             callGDALtransform(true, id, p.longitude.degrees, p.latitude.degrees, p.elevation, isPrivate() ? wkt : null);
 
         return result;
     }
 
-    public List<SRStransformCacheEntry> fromWgs84(List<? extends LatLon> ps) throws Exception {
-        ArrayList<SRStransformCacheEntry> result = new ArrayList<>();
+    public List<Vec4> fromWgs84(List<? extends LatLon> ps) throws Exception {
+        ArrayList<Vec4> result = new ArrayList<>();
         int len = ps.size();
         double[] x = new double[len];
         double[] y = new double[len];
@@ -373,17 +417,12 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
             result.add(fromWgs84(new Position(p, z[i])));
             i++;
         }
-        // SRStransformCacheEntry[] result = callGDALtransform(true, id, x, y, z, isPrivate() ? wkt : null);
+        // Vec4[] result = callGDALtransform(true, id, x, y, z, isPrivate() ? wkt : null);
 
         return result;
     }
 
-    public Position toWgs84(SRStransformCacheEntry v) throws Exception {
-        Vec4 vec = new Vec4(v.x, v.y, Double.isNaN(v.z) ? 0 : v.z);
-        return toWgs84(vec);
-    }
-
-    public Position toWgs84(Vec4 v) throws Exception {
+    public Position toWgs84(Vec4 v) {
         if (origin.isDefined()) {
             double elevation =
                 globe.getElevation(Angle.fromDegrees(origin.getLat()), Angle.fromDegrees(origin.getLon()));
@@ -397,8 +436,42 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
             return globe.computePositionFromPoint(ecef);
         }
 
-        SRStransformCacheEntry result = callGDALtransform(false, id, v.x, v.y, v.z, isPrivate() ? wkt : (String)null);
+        Vec4 result = callGDALtransform(false, id, v.x, v.y, v.z, isPrivate() ? wkt : (String)null);
         return Position.fromDegrees(result.y, result.x, result.z);
+    }
+
+    public Location toLocation(Position position) {
+        Pair<Unit<?>, Unit<Dimension.Length>> units = getUnits();
+
+        return new Location(
+            Quantity.of(position.latitude.degrees, units.first),
+            Quantity.of(position.longitude.degrees, units.first),
+            Quantity.of(position.elevation, units.second));
+    }
+
+    public Pair<Unit<?>, Unit<Dimension.Length>> getUnits() {
+        final String xyUnitString = getXyUnit().toLowerCase();
+        final String zUnitString = getZUnit().toLowerCase();
+        Unit<? extends Quantity<?>>[] xyUnits =
+            Unit.parseSymbol(xyUnitString, Dimension.Length.class, Dimension.Angle.class);
+        Unit<? extends Quantity<?>> xyUnit = null;
+
+        if (xyUnits.length == 0) {
+            throw new IllegalArgumentException("Unknown unit symbol: '" + xyUnitString + "'");
+        }
+
+        for (Unit<? extends Quantity<?>> unit : xyUnits) {
+            if (unit.getDimension() == Dimension.LENGTH) {
+                xyUnit = unit;
+                break;
+            }
+        }
+
+        if (xyUnit == null) {
+            xyUnit = xyUnits[0];
+        }
+
+        return new Pair<>(xyUnit, Unit.parseSymbol(zUnitString, Dimension.Length.class));
     }
 
     public String getXLabel() throws Exception {
@@ -475,7 +548,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         try {
             double[] res = getResolutions();
 
-            SRStransformCacheEntry v = fromWgs84(p);
+            Vec4 v = fromWgs84(p);
             return getXLabel()
                 + ":"
                 + MathHelper.roundLike(v.x, res[0])
@@ -745,5 +818,8 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
             return "VERTCS[\"WGS_1984\",DATUM[\"D_WGS_1984\",SPHEROID[\"WGS_1984\",6378137.0,298.257223563]],PARAMETER[\"Vertical_Shift\",0.0],PARAMETER[\"Direction\",1.0],UNIT[\"Meter\",1.0]]";
         }
     }
+
+    @Override
+    public void serialize(CompositeSerializationContext context) {}
 
 }

@@ -10,7 +10,7 @@ import java.awt.Font;
 
 public class FontHelper {
 
-    private static Font baseFont = new Font("Arial", Font.PLAIN, (int)Math.round(ScaleHelper.emsToPixels(1)));
+    private static Font baseFont = new Font("Intel Clear", Font.PLAIN, (int)Math.round(ScaleHelper.emsToPixels(1)));
 
     public static Font getBaseFont(double emsScale) {
         return getBaseFont(emsScale, Font.PLAIN);

@@ -6,9 +6,7 @@
 
 package com.intel.missioncontrol.mission;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.api.IFlightPlanTemplateService;
-import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.flightplantemplate.FlightPlanTemplate;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.helper.Expect;
@@ -22,6 +20,7 @@ import com.intel.missioncontrol.settings.AirspacesProvidersSettings;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.utils.GeoUtils;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
 import eu.mavinci.core.flightplan.CEventList;
 import eu.mavinci.core.flightplan.CFlightplan;
@@ -44,8 +43,6 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,7 +52,6 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -80,16 +76,14 @@ public class FlightPlan implements ISaveable {
 
     private static final Date DATE_MIN = new Date(0);
     private final IFlightPlanTemplateService templateService =
-        StaticInjector.getInstance(IFlightPlanTemplateService.class);
+            DependencyInjector.getInstance().getInstanceOf(IFlightPlanTemplateService.class);
     private final GeneralSettings generalSettings =
-        StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class);
+            DependencyInjector.getInstance().getInstanceOf(ISettingsManager.class).getSection(GeneralSettings.class);
     private final AirspacesProvidersSettings airspacesProvidersSettings =
-        StaticInjector.getInstance(AirspacesProvidersSettings.class);
-    private final IPathProvider pathProvider = StaticInjector.getInstance(IPathProvider.class);
-
+            DependencyInjector.getInstance().getInstanceOf(AirspacesProvidersSettings.class);
     private final ListProperty<AreaOfInterest> areasOfInterest =
-        new SimpleListProperty<>(
-            FXCollections.observableArrayList(aoi -> new Observable[] {aoi.hasEnoughCornersBinding()}));
+            new SimpleListProperty<>(
+                    FXCollections.observableArrayList(aoi -> new Observable[]{aoi.hasEnoughCornersBinding()}));
     private final StringProperty name = new SimpleStringProperty();
     private final StringProperty id = new SimpleStringProperty();
     private final StringProperty notes = new SimpleStringProperty();
@@ -98,7 +92,6 @@ public class FlightPlan implements ISaveable {
     private final ObjectProperty<FlightPlanTemplate> basedOnTemplate = new SimpleObjectProperty<>();
     private final BooleanProperty isTemplate = new SimpleBooleanProperty(false);
     private final BooleanProperty hasUnsavedChanges = new SimpleBooleanProperty(false);
-    private final StringProperty saveDateString = new SimpleStringProperty();
     private final ObjectProperty<AltitudeAdjustModes> currentAltMode = new SimpleObjectProperty<>();
     private final ListProperty<WayPoint> waypoints = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ObjectProperty<Position> refPointPosition = new SimpleObjectProperty<>();
@@ -106,12 +99,12 @@ public class FlightPlan implements ISaveable {
     private final ObjectProperty<Position> landingPosition = new SimpleObjectProperty<>();
     private final ObjectProperty<LandingModes> landingMode = new SimpleObjectProperty<>();
     private final ObjectProperty<FlightplanSpeedModes> maxGroundSpeedAutomatic =
-        new SimpleObjectProperty<>(FlightplanSpeedModes.MANUAL_CONSTANT);
+            new SimpleObjectProperty<>(FlightplanSpeedModes.MANUAL_CONSTANT);
     private final SimpleQuantityProperty<Dimension.Speed> maxGroundSpeed =
-        new SimpleQuantityProperty<>(
-            generalSettings,
-            UnitInfo.INVARIANT_SPEED_MPS,
-            Quantity.of(CPhotoSettings.MIN_SPEED, Unit.METER_PER_SECOND));
+            new SimpleQuantityProperty<>(
+                    generalSettings,
+                    UnitInfo.INVARIANT_SPEED_MPS,
+                    Quantity.of(CPhotoSettings.MIN_SPEED, Unit.METER_PER_SECOND));
     private final BooleanProperty stopAtWaypoints = new SimpleBooleanProperty();
     private final BooleanProperty recalculateOnEveryChange = new SimpleBooleanProperty();
     private final ObjectProperty<MinMaxPair> gsdMismatchRange = new SimpleObjectProperty<>();
@@ -121,10 +114,10 @@ public class FlightPlan implements ISaveable {
     private final DoubleProperty maxStartAltitude = new SimpleDoubleProperty();
     private final ObjectProperty<Duration> rcLinkLossActionDelay = new SimpleObjectProperty<>(Duration.ofSeconds(3));
     private final ObjectProperty<Duration> primaryLinkLossActionDelay =
-        new SimpleObjectProperty<>(Duration.ofSeconds(3));
+            new SimpleObjectProperty<>(Duration.ofSeconds(3));
     private final ObjectProperty<Duration> positionLossActionDelay = new SimpleObjectProperty<>(Duration.ofSeconds(3));
     private final ObjectProperty<Duration> geofenceBreachActionDelay =
-        new SimpleObjectProperty<>(Duration.ofSeconds(0));
+            new SimpleObjectProperty<>(Duration.ofSeconds(0));
     private final ObjectProperty<AirplaneEventActions> rcLinkLossAction = new SimpleObjectProperty<>();
     private final ObjectProperty<AirplaneEventActions> primaryLinkLossAction = new SimpleObjectProperty<>();
     private final ObjectProperty<AirplaneEventActions> gnssLinkLossAction = new SimpleObjectProperty<>();
@@ -136,94 +129,95 @@ public class FlightPlan implements ISaveable {
     private final ObjectProperty<ReferencePointType> refPointType = new SimpleObjectProperty<>();
     private final IntegerProperty refPointOptionIndex = new SimpleIntegerProperty();
     private final SimpleQuantityProperty<Dimension.Length> refPointElevation =
-        new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
+            new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
     private final BooleanProperty allAoisValid = new SimpleBooleanProperty(true); // not updated any more
     private final BooleanProperty saveable = new SimpleBooleanProperty(true); // not updated any more
     private final SimpleQuantityProperty<Dimension.Length> takeoffElevation =
-        new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
+            new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
     private final SimpleQuantityProperty<Dimension.Length> landingHoverElevation =
-        new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
+            new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
     private final BooleanProperty enableJumpOverWaypoints = new SimpleBooleanProperty();
+    private final BooleanProperty addSafetyWaypointsEnabled = new SimpleBooleanProperty(true);
     private final SimpleQuantityProperty<Dimension.Length> minimumDistanceToObject =
-        new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(3, Unit.METER));
+            new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(3, Unit.METER));
     private final BooleanProperty allAoisSizeValid = new SimpleBooleanProperty(true);
     private final BooleanProperty simulatedTimeValid = new SimpleBooleanProperty(true);
     private final BooleanProperty hardwareOACapable = new SimpleBooleanProperty();
-    private final BooleanProperty obstacleAvoidanceEnabled = new SimpleBooleanProperty(false);
+    private final BooleanProperty obstacleAvoidanceEnabled = new SimpleBooleanProperty(true);
     private final BeanAdapter<Flightplan> beanAdapter;
     private final eu.mavinci.flightplan.Flightplan legacyFlightplan;
     private final IRecomputeListener fpSimListener =
-        (recomputer, anotherRecomputeIsWaiting, runNo) ->
-            Dispatcher.platform()
-                .runLater(
-                    () -> {
-                        for (WayPoint wp : waypoints) {
-                            wp.airspaceWarningProperty().set(false);
-                            wp.heightWarningProperty().set(false);
-                            wp.groundDistanceProperty().set(null);
-                        }
+            (recomputer, anotherRecomputeIsWaiting, runNo) ->
+                    Dispatcher.platform()
+                            .runLater(
+                                    () -> {
+                                        for (WayPoint wp : waypoints) {
+                                            wp.airspaceWarningProperty().set(false);
+                                            wp.heightWarningProperty().set(false);
+                                            wp.groundDistanceProperty().set(null);
+                                        }
 
-                        updateWaypointWarnings(waypoints.get());
-                    });
+                                        updateWaypointWarnings(waypoints.get());
+                                    });
     private final IRecomputeListener listenerCoverage =
-        new IRecomputeListener() {
-            @Override
-            public void recomputeReady(Recomputer recomputer, boolean anotherRecomputeIsWaiting, long runNo) {
-                Dispatcher.platform()
-                    .runLater(() -> gsdMismatchRange.set(legacyFlightplan.getFPcoverage().getGsdMissmatchRange()));
-            }
-        };
+            new IRecomputeListener() {
+                @Override
+                public void recomputeReady(Recomputer recomputer, boolean anotherRecomputeIsWaiting, long runNo) {
+                    Dispatcher.platform()
+                            .runLater(() -> gsdMismatchRange.set(legacyFlightplan.getFPcoverage().getGsdMissmatchRange()));
+                }
+            };
     ListChangeListener<AreaOfInterest> areaOfInterestListChangeListener =
-        new ListChangeListener<>() {
+            new ListChangeListener<>() {
 
-            @Override
-            public void onChanged(ListChangeListener.Change<? extends AreaOfInterest> c) {
-                allAoisValid.set(
-                    areasOfInterestProperty().stream().allMatch(aoi -> aoi.hasEnoughCornersBinding().get()));
+                @Override
+                public void onChanged(ListChangeListener.Change<? extends AreaOfInterest> c) {
+                    allAoisValid.set(
+                            areasOfInterestProperty().stream().allMatch(aoi -> aoi.hasEnoughCornersBinding().get()));
 
-                while (c.next()) {
-                    // TODO do we need to add a new PicArea to the map here ???
-                    if (c.wasRemoved()) {
-                        c.getRemoved().forEach(FlightPlan.this::onRemoveAreaOfInterest);
+                    while (c.next()) {
+                        // TODO do we need to add a new PicArea to the map here ???
+                        if (c.wasRemoved()) {
+                            c.getRemoved().forEach(FlightPlan.this::onRemoveAreaOfInterest);
+                        }
                     }
                 }
-            }
-        };
+            };
     private boolean isLoaded;
     private final IFlightplanChangeListener flightplanChangeListeners =
-        new IFlightplanChangeListener() {
+            new IFlightplanChangeListener() {
 
-            @Override
-            public void flightplanValuesChanged(IFlightplanRelatedObject fpObj) {
-                updateProperties();
-            }
+                @Override
+                public void flightplanValuesChanged(IFlightplanRelatedObject fpObj) {
+                    updateProperties();
+                }
 
-            @Override
-            public void flightplanStructureChanged(IFlightplanRelatedObject fp) {
-                updateProperties();
-                updateWaypointList();
-            }
+                @Override
+                public void flightplanStructureChanged(IFlightplanRelatedObject fp) {
+                    updateProperties();
+                    updateWaypointList();
+                }
 
-            @Override
-            public void flightplanElementRemoved(CFlightplan fp, int i, IFlightplanRelatedObject statement) {
-                updateProperties();
-                updateWaypointList();
-            }
+                @Override
+                public void flightplanElementRemoved(CFlightplan fp, int i, IFlightplanRelatedObject statement) {
+                    updateProperties();
+                    updateWaypointList();
+                }
 
-            @Override
-            public void flightplanElementAdded(CFlightplan fp, IFlightplanRelatedObject statement) {
-                updateProperties();
-                updateWaypointList();
-            }
-        };
+                @Override
+                public void flightplanElementAdded(CFlightplan fp, IFlightplanRelatedObject statement) {
+                    updateProperties();
+                    updateWaypointList();
+                }
+            };
 
     public FlightPlan(eu.mavinci.flightplan.Flightplan legacyFlightplan, boolean isTemplate) {
         Expect.notNull(legacyFlightplan, "flightplan");
         this.legacyFlightplan = legacyFlightplan;
         beanAdapter = new BeanAdapter<>(legacyFlightplan);
         this.isTemplate.set(isTemplate);
-
         saveable.bind(allAoisValid.and(this.isTemplate.or(areasOfInterest.sizeProperty().greaterThan(0))));
+
         legacyFlightplan.addFPChangeListener(flightplanChangeListeners);
         if (!isTemplate) {
             legacyFlightplan.getFPcoverage().addRecomputeListener(listenerCoverage);
@@ -235,20 +229,8 @@ public class FlightPlan implements ISaveable {
 
         this.areasOfInterest.addListener(areaOfInterestListChangeListener);
         airspacesProvidersSettings
-            .useAirspaceDataForPlanningProperty()
-            .addListener((observable, oldValue, newValue) -> doFlightplanCalculationIfAutoRecalcIsAvtive());
-
-        maxStartAltitude.bind(
-            Bindings.createDoubleBinding(
-                () -> {
-                    double maxAltitudeAboveGroundM = airspacesProvidersSettings.maxAltitudeAboveGroundProperty().get();
-
-                    // TODO: calculate altitude above takeoff, also check
-                    // airspacesProvidersSettings.maxAltitudeAboveSeaLevelProperty()
-                    return maxAltitudeAboveGroundM;
-                },
-                airspacesProvidersSettings.maxAltitudeAboveGroundProperty()));
-
+                .useAirspaceDataForPlanningProperty()
+                .addListener((observable, oldValue, newValue) -> doFlightplanCalculationIfAutoRecalcIsAvtive());
         bindFlightplan();
     }
 
@@ -273,165 +255,173 @@ public class FlightPlan implements ISaveable {
         beanAdapter.bind(takeoffPosition).to(Flightplan::getTakeoffPosition, Flightplan::setTakeoffPosition);
         beanAdapter.bind(landingPosition).to(Flightplan::getLandingPosition, Flightplan::setLandingPosition);
         beanAdapter
-            .bind(landingMode)
-            .to((f) -> f.getLandingpoint().getMode(), (f, mode) -> f.getLandingpoint().setMode(mode));
+                .bind(landingMode)
+                .to((f) -> f.getLandingpoint().getMode(), (f, mode) -> f.getLandingpoint().setMode(mode));
         beanAdapter
-            .bind(maxGroundSpeedAutomatic)
-            .to(
-                (fp) -> fp.getPhotoSettings().getMaxGroundSpeedAutomatic(),
-                (fp, mode) -> fp.getPhotoSettings().setMaxGroundSpeedAutomatic(mode));
+                .bind(maxGroundSpeedAutomatic)
+                .to(
+                        (fp) -> fp.getPhotoSettings().getMaxGroundSpeedAutomatic(),
+                        (fp, mode) -> fp.getPhotoSettings().setMaxGroundSpeedAutomatic(mode));
         beanAdapter
-            .bind(maxGroundSpeed)
-            .to(
-                (fp) -> Quantity.of(fp.getPhotoSettings().getMaxGroundSpeedMPSec(), Unit.METER_PER_SECOND),
-                (fp, speed) ->
-                    fp.getPhotoSettings()
-                        .setMaxGroundSpeedMPSec(speed.convertTo(Unit.METER_PER_SECOND).getValue().doubleValue()));
+                .bind(maxGroundSpeed)
+                .to(
+                        (fp) -> Quantity.of(fp.getPhotoSettings().getMaxGroundSpeedMPSec(), Unit.METER_PER_SECOND),
+                        (fp, speed) ->
+                                fp.getPhotoSettings()
+                                        .setMaxGroundSpeedMPSec(speed.convertTo(Unit.METER_PER_SECOND).getValue().doubleValue()));
 
         beanAdapter
-            .bind(stopAtWaypoints)
-            .to(
-                (fp) -> fp.getPhotoSettings().isStoppingAtWaypoints(),
-                (fp, stop) -> fp.getPhotoSettings().setStoppingAtWaypoints(stop));
+                .bind(stopAtWaypoints)
+                .to(
+                        (fp) -> fp.getPhotoSettings().isStoppingAtWaypoints(),
+                        (fp, stop) -> fp.getPhotoSettings().setStoppingAtWaypoints(stop));
 
         beanAdapter
-            .bind(currentAltMode)
-            .to(
-                (fp) -> fp.getPhotoSettings().getAltitudeAdjustMode(),
-                (fp, mode) -> fp.getPhotoSettings().setAltitudeAdjustMode(mode));
+                .bind(currentAltMode)
+                .to(
+                        (fp) -> fp.getPhotoSettings().getAltitudeAdjustMode(),
+                        (fp, mode) -> fp.getPhotoSettings().setAltitudeAdjustMode(mode));
         beanAdapter.bind(hasUnsavedChanges).to(Flightplan::isChanged);
         beanAdapter
-            .bind(takeoffAuto)
-            .to((fp) -> fp.getTakeoff().isAuto(), (fp, isAuto) -> fp.getTakeoff().setIsAuto(isAuto));
+                .bind(takeoffAuto)
+                .to((fp) -> fp.getTakeoff().isAuto(), (fp, isAuto) -> fp.getTakeoff().setIsAuto(isAuto));
         beanAdapter
-            .bind(refPointAuto)
-            .to((fp) -> fp.getRefPoint().isAuto(), (fp, isAuto) -> fp.getRefPoint().setIsAuto(isAuto));
+                .bind(refPointAuto)
+                .to((fp) -> fp.getRefPoint().isAuto(), (fp, isAuto) -> fp.getRefPoint().setIsAuto(isAuto));
         beanAdapter
-            .bind(recalculateOnEveryChange)
-            .to(Flightplan::getRecalculateOnEveryChange, Flightplan::setRecalculateOnEveryChange);
+                .bind(recalculateOnEveryChange)
+                .to(Flightplan::getRecalculateOnEveryChange, Flightplan::setRecalculateOnEveryChange);
         beanAdapter
-            .bind(safetyAltitude)
-            .to((fp) -> fp.getEventList().getAltWithinM(), (fp, alt) -> fp.getEventList().setAltWithinM(alt));
+                .bind(safetyAltitude)
+                .to((fp) -> fp.getEventList().getAltWithinM(), (fp, alt) -> fp.getEventList().setAltWithinM(alt));
         // minStartAltitude and maxStartAltitude not available, so just use normal takeoff altitude as min AND max(in m)
         beanAdapter
-            .bind(minStartAltitude)
-            .to(
-                (fp) ->
-                    Math.max(
-                        fp.getEventList().getAltWithinM(),
-                        fp.getHardwareConfiguration()
-                            .getPlatformDescription()
-                            .getMinGroundDistance()
-                            .convertTo(Unit.METER)
-                            .getValue()
-                            .doubleValue()));
+                .bind(minStartAltitude)
+                .to(
+                        (fp) ->
+                                Math.min(
+                                        fp.getEventList().getAltWithinM(),
+                                        fp.getHardwareConfiguration()
+                                                .getPlatformDescription()
+                                                .getMinGroundDistance()
+                                                .convertTo(Unit.METER)
+                                                .getValue()
+                                                .doubleValue()));
+        beanAdapter
+                .bind(maxStartAltitude)
+                .to(
+                        (fp) ->
+                                Math.max(
+                                        fp.getEventList().getAltWithinM(),
+                                        fp.getHardwareConfiguration()
+                                                .getPlatformDescription()
+                                                .getMinGroundDistance()
+                                                .convertTo(Unit.METER)
+                                                .getValue()
+                                                .doubleValue()));
+        beanAdapter
+                .bind(rcLinkLossActionDelay)
+                .to(
+                        (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).getDelay()),
+                        (fp, duration) ->
+                                fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).setDelay((int) duration.getSeconds()));
 
         beanAdapter
-            .bind(rcLinkLossActionDelay)
-            .to(
-                (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).getDelay()),
-                (fp, duration) ->
-                    fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).setDelay((int)duration.getSeconds()));
+                .bind(primaryLinkLossActionDelay)
+                .to(
+                        (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).getDelay()),
+                        (fp, duration) ->
+                                fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).setDelay((int) duration.getSeconds()));
 
         beanAdapter
-            .bind(primaryLinkLossActionDelay)
-            .to(
-                (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).getDelay()),
-                (fp, duration) ->
-                    fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).setDelay((int)duration.getSeconds()));
+                .bind(positionLossActionDelay)
+                .to(
+                        (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).getDelay()),
+                        (fp, duration) ->
+                                fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).setDelay((int) duration.getSeconds()));
 
         beanAdapter
-            .bind(positionLossActionDelay)
-            .to(
-                (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).getDelay()),
-                (fp, duration) ->
-                    fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).setDelay((int)duration.getSeconds()));
+                .bind(geofenceBreachActionDelay)
+                .to(
+                        (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).getDelay()),
+                        (fp, duration) ->
+                                fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).setDelay((int) duration.getSeconds()));
 
         beanAdapter
-            .bind(geofenceBreachActionDelay)
-            .to(
-                (fp) -> Duration.ofSeconds(fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).getDelay()),
-                (fp, duration) ->
-                    fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).setDelay((int)duration.getSeconds()));
+                .bind(rcLinkLossAction)
+                .to(
+                        (fp) -> fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).getAction(),
+                        (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).setAction(alt));
 
         beanAdapter
-            .bind(rcLinkLossAction)
-            .to(
-                (fp) -> fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).getAction(),
-                (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_RCLOSS).setAction(alt));
+                .bind(primaryLinkLossAction)
+                .to(
+                        (fp) -> fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).getAction(),
+                        (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).setAction(alt));
 
         beanAdapter
-            .bind(primaryLinkLossAction)
-            .to(
-                (fp) -> fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).getAction(),
-                (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_DATALOSS).setAction(alt));
+                .bind(gnssLinkLossAction)
+                .to(
+                        (fp) -> fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).getAction(),
+                        (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).setAction(alt));
 
         beanAdapter
-            .bind(gnssLinkLossAction)
-            .to(
-                (fp) -> fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).getAction(),
-                (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_GPSLOSS).setAction(alt));
+                .bind(geofenceBreachAction)
+                .to(
+                        (fp) -> fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).getAction(),
+                        (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).setAction(alt));
 
         beanAdapter
-            .bind(geofenceBreachAction)
-            .to(
-                (fp) -> fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).getAction(),
-                (fp, alt) -> fp.getEventList().getEventByName(CEventList.NAME_RCDATALOSS).setAction(alt));
-
+                .bind(autoComputeSafetyHeight)
+                .to(
+                        (fp) -> fp.getEventList().isAutoComputingSafetyHeight(),
+                        (fp, auto) -> fp.getEventList().setAutoComputeSafetyHeight(auto));
         beanAdapter
-            .bind(autoComputeSafetyHeight)
-            .to(
-                (fp) -> fp.getEventList().isAutoComputingSafetyHeight(),
-                (fp, auto) -> fp.getEventList().setAutoComputeSafetyHeight(auto));
-        beanAdapter
-            .bind(gsdTolerance)
-            .to(
-                (fp) -> fp.getPhotoSettings().getGsdTolerance(),
-                (fp, gsdTolerance) -> fp.getPhotoSettings().setGsdTolerance(gsdTolerance));
+                .bind(gsdTolerance)
+                .to(
+                        (fp) -> fp.getPhotoSettings().getGsdTolerance(),
+                        (fp, gsdTolerance) -> fp.getPhotoSettings().setGsdTolerance(gsdTolerance));
         beanAdapter.bind(refPointType).to(Flightplan::getRefPointType, Flightplan::setRefPointType);
         beanAdapter
-            .bind(refPointOptionIndex)
-            .to(Flightplan::getRefPointOptionIndex, Flightplan::setRefPointOptionIndex);
+                .bind(refPointOptionIndex)
+                .to(Flightplan::getRefPointOptionIndex, Flightplan::setRefPointOptionIndex);
         beanAdapter
-            .bind(refPointElevation)
-            .to(
-                (fp) -> Quantity.of(fp.getRefPoint().getElevation(), Unit.METER),
-                (fp, quantity) ->
-                    fp.getRefPoint().setElevation(quantity.convertTo(Unit.METER).getValue().doubleValue()));
+                .bind(refPointElevation)
+                .to(
+                        (fp) -> Quantity.of(fp.getRefPoint().getElevation(), Unit.METER),
+                        (fp, quantity) ->
+                                fp.getRefPoint().setElevation(quantity.convertTo(Unit.METER).getValue().doubleValue()));
 
         beanAdapter
-            .bind(takeoffElevation)
-            .to(
-                (fp) -> Quantity.of(fp.getTakeoff().getElevation(), Unit.METER),
-                (fp, quantity) ->
-                    fp.getTakeoff().setElevation(quantity.convertTo(Unit.METER).getValue().doubleValue()));
+                .bind(takeoffElevation)
+                .to(
+                        (fp) -> Quantity.of(fp.getTakeoff().getElevation(), Unit.METER),
+                        (fp, quantity) ->
+                                fp.getTakeoff().setElevation(quantity.convertTo(Unit.METER).getValue().doubleValue()));
 
         beanAdapter
-            .bind(landingHoverElevation)
-            .to(
-                (fp) -> Quantity.of(fp.getLandingpoint().getAltInMAboveFPRefPoint(), Unit.METER),
-                (fp, quantity) ->
-                    fp.getLandingpoint()
-                        .setAltInMAboveFPRefPoint(quantity.convertTo(Unit.METER).getValue().doubleValue()));
+                .bind(landingHoverElevation)
+                .to(
+                        (fp) -> Quantity.of(fp.getLandingpoint().getAltInMAboveFPRefPoint(), Unit.METER),
+                        (fp, quantity) ->
+                                fp.getLandingpoint()
+                                        .setAltInMAboveFPRefPoint(quantity.convertTo(Unit.METER).getValue().doubleValue()));
 
         beanAdapter
-            .bind(landAutomatically)
-            .to(
-                (fp) -> fp.getLandingpoint().isLandAutomatically(),
-                (fp, isAuto) -> fp.getLandingpoint().setLandAutomatically(isAuto));
+                .bind(landAutomatically)
+                .to(
+                        (fp) -> fp.getLandingpoint().isLandAutomatically(),
+                        (fp, isAuto) -> fp.getLandingpoint().setLandAutomatically(isAuto));
 
         beanAdapter
-            .bind(enableJumpOverWaypoints)
-            .to(Flightplan::enableJumpOverWaypoints, Flightplan::setEnableJumpOverWaypoints);
+                .bind(enableJumpOverWaypoints)
+                .to(Flightplan::enableJumpOverWaypoints, Flightplan::setEnableJumpOverWaypoints);
         beanAdapter.bind(allAoisSizeValid).to(Flightplan::allAoisSizeValid);
 
-        beanAdapter
-            .bind(hardwareOACapable)
-            .to((fp) -> fp.getHardwareConfiguration().getPlatformDescription().isObstacleAvoidanceCapable());
-
-        beanAdapter
-            .bind(obstacleAvoidanceEnabled)
-            .to(Flightplan::obstacleAvoidanceEnabled, Flightplan::enableObstacleAvoidance);
+        beanAdapter.bind(hardwareOACapable).to((fp) ->
+                fp.getHardwareConfiguration()
+                        .getPlatformDescription()
+                        .isObstacleAvoidanceCapable());
     }
 
     public BooleanProperty isHardwareOACapable() {
@@ -525,38 +515,6 @@ public class FlightPlan implements ISaveable {
         legacyFlightplan.save(null);
     }
 
-    private SimpleDateFormat displayTimeFormatter = new SimpleDateFormat("YYYY-MM-dd HH:mm");
-
-    private void setSaveDateString() {
-        String saveDateString;
-        if (legacyFlightplan.getResourceFile().exists() && !isTemplate.get()) {
-            if (legacyFlightplan
-                    .getResourceFile()
-                    .getParentFile()
-                    .equals(pathProvider.getTemplatesDirectory().toFile())) {
-                saveDateString = "-";
-            } else {
-                saveDateString =
-                    displayTimeFormatter.format(legacyFlightplan.getResourceFile().getAbsoluteFile().lastModified());
-            }
-        } else {
-            int l = name.get() == null ? 0 : name.get().length();
-            if (l > 19) {
-                saveDateString =
-                    name.get().substring(l - 19, l - 9) + " " + name.get().substring(l - 8, l - 3).replace("-", ":");
-                try {
-                    displayTimeFormatter.parse(saveDateString);
-                } catch (ParseException e) {
-                    saveDateString = "-";
-                }
-            } else {
-                saveDateString = "-";
-            }
-        }
-
-        this.saveDateString.set(saveDateString);
-    }
-
     public StringProperty nameProperty() {
         return name;
     }
@@ -575,11 +533,11 @@ public class FlightPlan implements ISaveable {
 
     public LatLon getCenter() {
         return (GeoUtils.computeCenter(
-            areasOfInterest
-                .stream()
-                .map(AreaOfInterest::getCenter)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList())));
+                areasOfInterest
+                        .stream()
+                        .map(AreaOfInterest::getCenter)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())));
     }
 
     public Sector getSector() {
@@ -600,7 +558,7 @@ public class FlightPlan implements ISaveable {
 
     private void onUpdateProperties() {
         beanAdapter.updateValuesFromSource();
-        setSaveDateString();
+
         if (this.isLoaded) {
             return;
         }
@@ -613,9 +571,9 @@ public class FlightPlan implements ISaveable {
         while (it.hasNext()) {
             IFlightplanStatement state = it.next();
             if (state instanceof PicArea) {
-                PicArea picArea = (PicArea)state;
+                PicArea picArea = (PicArea) state;
                 AreaOfInterest areaOfInterest =
-                    new AreaOfInterest(picArea, legacyFlightplan.getPicAreaTemplate(picArea.getPlanType()));
+                        new AreaOfInterest(picArea, legacyFlightplan.getPicAreaTemplate(picArea.getPlanType()));
                 this.areasOfInterest.add(areaOfInterest);
             }
         }
@@ -652,13 +610,13 @@ public class FlightPlan implements ISaveable {
             simulatedTimeValid.set(simRes.simulatedTimeValid);
 
             double minGroundDistanceLimit =
-                legacyFlightplan
-                    .getHardwareConfiguration()
-                    .getPlatformDescription()
-                    .getMinGroundDistance()
-                    .convertTo(Unit.METER)
-                    .getValue()
-                    .doubleValue();
+                    legacyFlightplan
+                            .getHardwareConfiguration()
+                            .getPlatformDescription()
+                            .getMinGroundDistance()
+                            .convertTo(Unit.METER)
+                            .getValue()
+                            .doubleValue();
             Double minGroundDistance = null;
             IFlightplanRelatedObject lastHeadingWp = null;
             WayPoint wpN = null;
@@ -754,10 +712,10 @@ public class FlightPlan implements ISaveable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof FlightPlan)) return false;
-        FlightPlan that = (FlightPlan)o;
+        FlightPlan that = (FlightPlan) o;
         return Objects.equals(name, that.name)
-            && Objects.equals(basedOnTemplate, that.basedOnTemplate)
-            && Objects.equals(legacyFlightplan, that.legacyFlightplan);
+                && Objects.equals(basedOnTemplate, that.basedOnTemplate)
+                && Objects.equals(legacyFlightplan, that.legacyFlightplan);
     }
 
     @Override
@@ -859,26 +817,42 @@ public class FlightPlan implements ISaveable {
         return obstacleAvoidanceEnabled;
     }
 
+    public void setIsObstacleAvoidanceEnabled(boolean status) {
+        obstacleAvoidanceEnabled.setValue(status);
+    }
+
     public SimpleQuantityProperty<Dimension.Length> minimumDistanceToObjectProperty() {
         return minimumDistanceToObject;
     }
 
-    /** Minimum altitude to go to before starting mission (altitude above takeoff height in meters) */
+    public BooleanProperty addSafetyWaypointsEnabledProperty() {
+        return addSafetyWaypointsEnabled;
+    }
+
+    /**
+     * Minimum altitude to go to before starting flight plan (altitude above takeoff height in meters)
+     */
     public double getMinStartAltitude() {
         return minStartAltitude.get();
     }
 
-    /** Minimum altitude to go to before starting mission (altitude above takeoff height in meters) */
+    /**
+     * Minimum altitude to go to before starting flight plan (altitude above takeoff height in meters)
+     */
     public ReadOnlyDoubleProperty minStartAltitudeProperty() {
         return minStartAltitude;
     }
 
-    /** Maximum altitude to go to before starting mission (altitude above takeoff height in meters) */
+    /**
+     * Maximum altitude to go to before starting flight plan (altitude above takeoff height in meters)
+     */
     public double getMaxStartAltitude() {
         return maxStartAltitude.get();
     }
 
-    /** Maximum altitude to go to before starting mission (altitude above takeoff height in meters) */
+    /**
+     * Maximum altitude to go to before starting flight plan (altitude above takeoff height in meters)
+     */
     public ReadOnlyDoubleProperty maxStartAltitudeProperty() {
         return maxStartAltitude;
     }
@@ -917,9 +891,5 @@ public class FlightPlan implements ISaveable {
 
     public StringProperty idProperty() {
         return id;
-    }
-
-    public StringProperty saveDateStringProperty() {
-        return saveDateString;
     }
 }

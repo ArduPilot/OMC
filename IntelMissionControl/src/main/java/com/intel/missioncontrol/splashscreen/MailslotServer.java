@@ -95,8 +95,7 @@ class MailslotServer implements AutoCloseable {
                                 Kernel32.INSTANCE.CloseHandle(hEvent);
                             }
                         }
-                    },
-                    "MailSlotServer");
+                    });
 
             thread.start();
         }

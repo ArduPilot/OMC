@@ -88,7 +88,7 @@ class AsyncSetPropertyTest extends TestBase {
                     awaiter.assertTrue(Platform.isFxApplicationThread());
                     awaiter.signal();
                 },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         try (var view = simpleListProp.lock()) {
             view.add(1);
@@ -122,7 +122,7 @@ class AsyncSetPropertyTest extends TestBase {
                     awaiter.assertTrue(Platform.isFxApplicationThread());
                     awaiter.signal();
                 },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         targetListProp.bind(sourceListProp);
 

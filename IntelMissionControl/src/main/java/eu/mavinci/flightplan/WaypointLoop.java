@@ -6,8 +6,8 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CWaypointLoop;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
@@ -17,6 +17,15 @@ import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.MapLayer;
 import eu.mavinci.flightplan.visitors.SectorVisitor;
 import eu.mavinci.geo.ISectorReferenced;
 import gov.nasa.worldwind.geom.Sector;
+import eu.mavinci.core.flightplan.CWaypointLoop;
+import eu.mavinci.core.flightplan.IFlightplanContainer;
+import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
+import eu.mavinci.core.flightplan.IFlightplanStatement;
+import eu.mavinci.core.helper.VectorNonEqual;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.MapLayer;
+import eu.mavinci.flightplan.visitors.SectorVisitor;
+import eu.mavinci.geo.ISectorReferenced;
+
 import java.util.OptionalDouble;
 
 public class WaypointLoop extends CWaypointLoop implements ISectorReferenced {
@@ -101,7 +110,9 @@ public class WaypointLoop extends CWaypointLoop implements ISectorReferenced {
     }
 
     public String toString() {
-        return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY_TO_STRING, count, time);
+        return DependencyInjector.getInstance()
+            .getInstanceOf(ILanguageHelper.class)
+            .getString(KEY_TO_STRING, count, time);
     }
 
     @Override

@@ -94,7 +94,7 @@ public class TiledRenderableLayer extends AbstractLayer {
         renderableManager.registerRedrawCallback(
             () -> {
                 if (dispatcher != null) {
-                    dispatcher.run(() -> firePropertyChange(AVKey.LAYER, null, TiledRenderableLayer.this));
+                    dispatcher.runLaterAsync(() -> firePropertyChange(AVKey.LAYER, null, TiledRenderableLayer.this));
                 }
             });
         setMaxActiveAltitude(100_000);

@@ -6,8 +6,8 @@
 
 package eu.mavinci.flightplan.computation;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.flightplan.ITransformationProvider;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
@@ -27,7 +27,8 @@ public class LocalTransformationProvider implements ITransformationProvider {
     Angle xAxisYaw;
     double xShift;
     double yShift;
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public LocalTransformationProvider(
             Position referencePoint, Angle xAxisYaw, double xShift, double yShift, boolean transformAlt) {

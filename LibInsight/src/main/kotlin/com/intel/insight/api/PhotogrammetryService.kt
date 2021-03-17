@@ -45,26 +45,26 @@ class PhotogrammetryService {
     var c: InsightContext = InsightContext();
 
     constructor(username: String, password: String) {
-        var targetHost = "https://newdev.ixstack.net"
+        var targetHost = "https://dev.ixstack.net"
         c.authWithInsight(username, password)
         c.oauthResponse.accessToken
         this.targetHost = targetHost
     }
 
-    constructor(username: String, password: String, targetHost: String = "https://newdev.ixstack.net") {
+    constructor(username: String, password: String, targetHost: String = "https://dev.ixstack.net") {
         c.authWithInsight(username, password)
         c.oauthResponse.accessToken
         this.targetHost = targetHost
     }
 
-    constructor(context: InsightContext, targetHost: String = "https://newdev.ixstack.net") {
+    constructor(context: InsightContext, targetHost: String = "https://dev.ixstack.net") {
         c = context
         this.targetHost = targetHost
     }
 
     constructor(context: InsightContext) {
         c = context
-        this.targetHost = "https://newdev.ixstack.net"
+        this.targetHost = "https://dev.ixstack.net"
     }
 
     fun createPhotogrammetryRequest(missionId: String, flightId: String): Photogrammetry {

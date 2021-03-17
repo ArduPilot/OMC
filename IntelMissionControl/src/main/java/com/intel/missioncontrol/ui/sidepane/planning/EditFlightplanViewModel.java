@@ -8,8 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.planning;
 
 import static com.intel.missioncontrol.ui.scope.planning.PlanningScope.EVENT_ON_FLIGHT_PLAN_SAVE;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.SuppressLinter;
@@ -49,9 +47,9 @@ import eu.mavinci.core.flightplan.PlanType;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.flightplan.Flightplan;
 import eu.mavinci.flightplan.PicArea;
-import java.util.Objects;
 import java.util.Optional;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -63,7 +61,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
 import org.asyncfx.concurrent.Dispatcher;
-import org.asyncfx.concurrent.Future;
 
 @SuppressLinter(value = "IllegalViewModelMethod", reviewer = "mstrauss", justification = "legacy file")
 public class EditFlightplanViewModel extends ViewModelBase {
@@ -101,6 +98,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     private Command saveFlightplanAndProceedCommand;
     private Command exportFlightplanCommand;
 
+    private BooleanBinding isEmergencyActionsVisibleBinding;
     private BooleanProperty isLandingVisibleBinding;
     private BooleanBinding isWarningsVisibleBinding;
 
@@ -127,7 +125,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
         this.licenceManager = licenceManager;
 
         this.missionName =
-            PropertyPath.from(applicationContext.currentMissionProperty()).selectReadOnlyString(Mission::nameProperty);
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty()).selectReadOnlyString(Mission::nameProperty);
 
         this.showOnMapCommand =
             new DelegateCommand(
@@ -144,43 +142,15 @@ public class EditFlightplanViewModel extends ViewModelBase {
             new ParameterizedDelegateCommand<>(
                 payload -> {
                     canShowAdvancedDialog.set(false);
-                    final Future<AoiAdvancedParametersViewModel> dialog =
-                        dialogService.requestDialogAsync(
-                            this, AoiAdvancedParametersViewModel.class, () -> payload, false);
-                    dialog.whenDone(
-                        (aoivm) -> {
-                            canShowAdvancedDialog.set(true);
-                        },
-                        Platform::runLater);
-                    dialog.whenSucceeded(
-                        (aoivm) -> {
-                            canShowAdvancedDialog.set(true);
-                        },
-                        Platform::runLater);
-                    dialog.whenFailed(
-                        (aoivm) -> {
-                            canShowAdvancedDialog.set(true);
-                        });
-                    Futures.addCallback(
-                        dialog,
-                        new FutureCallback<>() {
-                            @Override
-                            public void onSuccess(AoiAdvancedParametersViewModel aoiAdvancedParametersViewModel) {
-                                canShowAdvancedDialog.set(true);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                canShowAdvancedDialog.set(true);
-                            }
-
-                        });
+                    dialogService
+                        .requestDialogAsync(this, AoiAdvancedParametersViewModel.class, () -> payload, false)
+                        .whenDone(f -> canShowAdvancedDialog.set(true), Platform::runLater);
                 },
                 canShowAdvancedDialog);
 
         showFlightPlanTemplateFooter.bind(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectReadOnlyBoolean(FlightPlan::isTemplateProperty));
     }
@@ -198,7 +168,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     }
 
     public ReadOnlyObjectProperty<Mission> currentMissionProperty() {
-        return applicationContext.currentMissionProperty();
+        return applicationContext.currentLegacyMissionProperty();
     }
 
     public BooleanBinding chooseAoiModeBinding() {
@@ -239,11 +209,11 @@ public class EditFlightplanViewModel extends ViewModelBase {
                         }
                     }
                 },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
 
         selectionManager
             .currentSelectionProperty()
-            .addListener((observable, oldValue, newValue) -> switchMode(newValue), Dispatcher.platform()::run);
+            .addListener((observable, oldValue, newValue) -> switchMode(newValue), Dispatcher.platform());
 
         selectedAoiProperty()
             .addListener(
@@ -276,13 +246,23 @@ public class EditFlightplanViewModel extends ViewModelBase {
                     toolsAvailableDebug.and(applicationContext.currentMissionIsNoDemo())));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener((observable, oldValue, newValue) -> selectFlightPlan(newValue));
 
         navigationService
             .workflowStepProperty()
             .addListener((observable, oldValue, newValue) -> this.maybeZoomOnSelectionChange());
+
+        isEmergencyActionsVisibleBinding =
+            Bindings.createBooleanBinding(
+                () ->
+                    planningScope
+                        .selectedHardwareConfigurationProperty()
+                        .get()
+                        .getPlatformDescription()
+                        .areEmergencyActionsSettable(),
+                planningScope.selectedHardwareConfigurationProperty());
 
         isLandingVisibleBinding = licenceManager.isGrayHawkEditionProperty();
 
@@ -326,7 +306,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     public void chooseAreaOfInterest(PlanType aoiId) {
         planningScope.generateDefaultName(aoiId);
         navigationService.navigateTo(SidePanePage.EDIT_FLIGHTPLAN);
-        mapModel.addAreaOfInterest(applicationContext.getCurrentMission(), aoiId);
+        mapModel.addAreaOfInterest(applicationContext.getCurrentLegacyMission(), aoiId);
     }
 
     public void changeAoiPosition(int sourceId, int destId) {
@@ -338,7 +318,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
             () -> {
                 areaOfInterest.getPicArea().getParent().removeFromFlightplanContainer(areaOfInterest.getPicArea());
                 applicationContext
-                    .getCurrentMission()
+                    .getCurrentLegacyMission()
                     .currentFlightPlanProperty()
                     .get()
                     .areasOfInterestProperty()
@@ -349,13 +329,13 @@ public class EditFlightplanViewModel extends ViewModelBase {
                 }
 
                 if (applicationContext
-                                .getCurrentMission()
+                                .getCurrentLegacyMission()
                                 .currentFlightPlanProperty()
                                 .get()
                                 .getAreasOfInterest()
                                 .getSize()
                             == 0
-                        && !applicationContext.getCurrentMission().currentFlightPlanProperty().get().isTemplate()) {
+                        && !applicationContext.getCurrentLegacyMission().currentFlightPlanProperty().get().isTemplate()) {
                     navigationService.navigateTo(SidePanePage.CHOOSE_AOI);
                 }
             });
@@ -383,6 +363,10 @@ public class EditFlightplanViewModel extends ViewModelBase {
 
     public ReadOnlyObjectProperty<FlightPlan> currentFlightplanProperty() {
         return planningScope.currentFlightplanProperty();
+    }
+
+    public BooleanBinding isEmergencyActionsVisibleBinding() {
+        return isEmergencyActionsVisibleBinding;
     }
 
     public BooleanProperty isLandingVisibleBinding() {
@@ -473,7 +457,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     private void enterEditingModeFromSelectionManager() {
         AreaOfInterest areaOfInterest = findAoiBySelection(selectionManager.getSelection());
         // if already in edit mode and not switching between editing different aois - return
-        if (editState.get() && Objects.equals(selectedAoi.get(), areaOfInterest)) {
+        if (editState.get() && selectedAoi.get().equals(areaOfInterest)) {
             return;
         }
 
@@ -521,7 +505,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     }
 
     private AreaOfInterest findAoiBySelection(Object selectedObject) {
-        Mission mission = applicationContext.getCurrentMission();
+        Mission mission = applicationContext.getCurrentLegacyMission();
         if (mission == null) {
             return null;
         }
@@ -535,7 +519,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
                 }
 
                 FlightPlan flightPlan = mission.getFlightPlanForLegacy((Flightplan)fpRel.getFlightplan());
-                applicationContext.getCurrentMission().setCurrentFlightPlan(flightPlan);
+                applicationContext.getCurrentLegacyMission().setCurrentFlightPlan(flightPlan);
 
                 while (fpRel != null) {
                     if (fpRel instanceof PicArea) {

@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging.rendering;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.IMapController;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
 import com.intel.missioncontrol.ui.navigation.WorkflowStep;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerPicArea;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
@@ -37,7 +37,8 @@ import org.asyncfx.concurrent.Dispatcher;
 public class TaggingPicAreaLayer extends AbstractLayer implements IMapLayerListener {
 
     public static final double HIGHLIGHT_SCALE = FlightplanLayer.HIGHLIGHT_SCALE;
-    private static final INavigationService navigationService = StaticInjector.getInstance(INavigationService.class);
+    private static final INavigationService navigationService =
+        DependencyInjector.getInstance().getInstanceOf(INavigationService.class);
 
     MapLayerPicArea pic;
 
@@ -76,7 +77,7 @@ public class TaggingPicAreaLayer extends AbstractLayer implements IMapLayerListe
     eu.mavinci.flightplan.Point selectedPoint;
 
     protected void reconstructLayer() {
-        dispatcher.run(
+        dispatcher.runLaterAsync(
             () -> {
                 Object selection = selectionManager.getSelection();
                 isSelected = false;

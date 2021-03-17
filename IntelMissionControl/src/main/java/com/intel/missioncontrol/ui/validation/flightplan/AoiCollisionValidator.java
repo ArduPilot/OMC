@@ -15,7 +15,7 @@ import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import eu.mavinci.flightplan.PicArea;
 import eu.mavinci.flightplan.computation.FPsim;
 
-/** check A-20: check if this mission collides with some 3D PicAreas */
+/** check A-20: check if this flight plan collides with some 3D PicAreas */
 public class AoiCollisionValidator extends OnFlightplanRecomputedValidator {
 
     public interface Factory {

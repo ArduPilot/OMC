@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoFile;
@@ -203,7 +203,10 @@ public class MFileFilter extends FileFilterUniversal {
             }
 
             boolean includeThumps =
-                StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+                DependencyInjector.getInstance()
+                            .getInstanceOf(ISettingsManager.class)
+                            .getSection(GeneralSettings.class)
+                            .getOperationLevel()
                         == OperationLevel.DEBUG
                     ? true
                     : this.includeThumps;

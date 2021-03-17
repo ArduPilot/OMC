@@ -7,7 +7,6 @@
 package com.intel.missioncontrol.ui.sidepane.analysis.tasks;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -17,13 +16,14 @@ import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.measure.Unit;
-import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.mission.MissionConstants;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.OperationLevel;
+import com.intel.missioncontrol.ui.dialogs.DialogResult;
+import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
 import com.intel.missioncontrol.ui.navigation.SidePanePage;
 import com.intel.missioncontrol.ui.navigation.WorkflowStep;
@@ -31,6 +31,7 @@ import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import com.intel.missioncontrol.ui.sidepane.analysis.DataImportHelper;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.main.debug.IProfilingManager;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.StringHelper;
@@ -40,6 +41,7 @@ import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.ITaggingAlgorithm;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoCube;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoFile;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.TaggingAlgorithmA;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.TaggingException;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.TaggingSyncVisWindow;
@@ -57,17 +59,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventType;
 import org.asyncfx.concurrent.Dispatcher;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,8 +88,7 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
     private final List<Flightplan> flightPlans;
     private final boolean allowMultipleFeedbacks;
     private final List<File> logFiles;
-    private final IQuantityStyleProvider quantityStyleProvider;
-    private boolean isAscTecMatching;
+    private final boolean isAscTecMatching;
     private final FileHelper.GetFotosResult getPhotosResult;
     private final String matchingName;
     private final IHardwareConfiguration hardwareConfiguration;
@@ -101,13 +102,10 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
     private final ISelectionManager selectionManager;
     private final Mission mission;
     private final boolean copyImages;
-    private final boolean eraseImages;
-    private final boolean onlyIncludeImagesInPlan;
 
     private MapLayerMatching legacyMatching;
     private Matching matching;
     private TaggingException exception;
-    private MatchingStatus oldMatchingStatus;
 
     public CreateDatasetTask(
             IMapView mapView,
@@ -125,15 +123,12 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
             GeneralSettings generalSettings,
             ISelectionManager selectionManager,
             Mission mission,
-            boolean copyImages,
-            boolean eraseImages,
-            boolean onlyIncludeImagesInPlan,
-            IQuantityStyleProvider quantityStyleProvider) {
-        super(matching.getName());
+            boolean copyImages) {
+        super(generateMatchingName(picFolder, baseFolder, flightPlans, logFiles, getPhotosResult));
         this.picFolder = picFolder;
         this.baseFolder = baseFolder;
-        this.flightPlans = flightPlans == null ? new ArrayList<Flightplan>() : flightPlans;
-        this.logFiles = logFiles == null ? new ArrayList<File>() : logFiles;
+        this.flightPlans = flightPlans;
+        this.logFiles = logFiles;
         this.getPhotosResult = getPhotosResult;
         this.hardwareConfiguration = hardwareConfiguration;
         this.eraseLogsAfterCopying = eraseLogsAfterCopying;
@@ -146,31 +141,50 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
         this.mission = mission;
         this.copyImages = copyImages;
 
-        this.eraseImages = eraseImages && copyImages;
-        this.onlyIncludeImagesInPlan = onlyIncludeImagesInPlan;
-
         matchingName = getName();
         this.name = "Importing " + matchingName;
 
         allowMultipleFeedbacks =
-            hardwareConfiguration != null
-                ? hardwareConfiguration
-                    .getPrimaryPayload(IGenericCameraConfiguration.class)
-                    .getDescription()
-                    .getExifModels()
-                    .contains("RedEdge")
-                : false;
+            hardwareConfiguration
+                .getPrimaryPayload(IGenericCameraConfiguration.class)
+                .getDescription()
+                .getExifModels()
+                .contains("RedEdge");
+        isAscTecMatching = (logFiles.size() > 0) && MFileFilter.ascTecLogFolder.acceptTrinityLog(logFiles.get(0));
         taggingAlgorithm = TaggingAlgorithmA.createNewDefaultTaggingAlgorithm();
         this.languageHelper = languageHelper;
-        this.quantityStyleProvider = quantityStyleProvider;
 
         createDatasetRequest = new CreateDatasetRequest(matchingName);
         legacyMatching = (MapLayerMatching)matching.getLegacyMatching();
     }
 
+    private static String generateMatchingName(
+            File picFolder,
+            File baseFolder,
+            List<Flightplan> flightPlans,
+            List<File> logFiles,
+            FileHelper.GetFotosResult getPhotosRes) {
+        if (picFolder != null
+                && picFolder.getName().equals(AMapLayerMatching.FOLDER_NAME_PICS_SUBFOLDER)
+                && picFolder
+                    .getAbsolutePath()
+                    .startsWith(MissionConstants.getMatchingsFolder(baseFolder).getAbsolutePath())) {
+            return picFolder.getParentFile().getName();
+        } else if (flightPlans.size() >= 1) {
+            return flightPlans.get(0).getName();
+        } else if (getPhotosRes.fotos.isEmpty() == false) {
+            // TODO does it make sense to take here the name and not a path name?
+            return getPhotosRes.fotos.get(0).getName();
+        } else if (MFileFilter.photoJsonFilter.accept(logFiles.get(0).getName())) {
+            return logFiles.get(0).getParentFile().getName();
+        }
+
+        return MFileFilter.photoLogFilter.removeExtension(logFiles.get(0).getName());
+    }
+
     @Override
     protected Void call() throws Exception {
-        StaticInjector.getInstance(IProfilingManager.class).requestStarting(createDatasetRequest);
+        DependencyInjector.getInstance().getInstanceOf(IProfilingManager.class).requestStarting(createDatasetRequest);
         doTransfer();
         // dont check here if legacy matching is loaded, since this will done delayed in the UI thread
         /*if (getLegacyMatching() == null && exception == null && !isCancelled()) {
@@ -187,16 +201,11 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
 
     @Override
     protected void cancelled() {
-        if (matching.getStatus().equals(MatchingStatus.IMPORTED)) {
-            succeeded();
-            return;
-        }
-
         Debug.printStackTrace("cancelled");
-        matching.statusProperty().set(oldMatchingStatus);
+        matching.statusProperty().set(MatchingStatus.NEW);
         super.cancelled();
         fireEvent(FAIL_EVENT);
-        StaticInjector.getInstance(IProfilingManager.class).requestFinished(createDatasetRequest);
+        DependencyInjector.getInstance().getInstanceOf(IProfilingManager.class).requestFinished(createDatasetRequest);
     }
 
     @Override
@@ -204,13 +213,13 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
         Dispatcher dispatcher = Dispatcher.platform();
         dispatcher.run(
             () -> {
-                matching.statusProperty().set(oldMatchingStatus);
+                matching.statusProperty().set(MatchingStatus.NEW);
                 applicationContext.addToast(
                     Toast.of(ToastType.ALERT).setText(getTaskException().getShortMessage()).setShowIcon(true).create());
             });
         super.failed();
         fireEvent(FAIL_EVENT);
-        StaticInjector.getInstance(IProfilingManager.class).requestFinished(createDatasetRequest);
+        DependencyInjector.getInstance().getInstanceOf(IProfilingManager.class).requestFinished(createDatasetRequest);
     }
 
     @Override
@@ -222,7 +231,7 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
                         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferCompleteMessage"));
 
         // if mission was closed in the meantime, dont show the action
-        if (applicationContext.getCurrentMission() == mission) {
+        if (applicationContext.getCurrentLegacyMission() == mission) {
             toastBuilder =
                 toastBuilder.setAction(
                     languageHelper.getString(
@@ -243,7 +252,7 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
 
         super.succeeded();
         fireEvent(DONE_EVENT);
-        StaticInjector.getInstance(IProfilingManager.class).requestFinished(createDatasetRequest);
+        DependencyInjector.getInstance().getInstanceOf(IProfilingManager.class).requestFinished(createDatasetRequest);
     }
 
     private long[] progressOffset = new long[CreateDatasetSubTasks.values().length];
@@ -268,20 +277,115 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
     Toast transferInProgressToast;
 
     private void doTransfer() throws Exception {
-        oldMatchingStatus = matching.getStatus();
         final long constructionTime = System.currentTimeMillis();
 
-        File baseFolder = checkFolder();
-        if (baseFolder == null) return;
+        File folder = new File(MissionConstants.getMatchingsFolder(this.baseFolder), matchingName);
+        if (folder.exists()) {
+            final String KEY = "com.intel.missioncontrol.ui.analysis.CreateDatasetTask";
+            DialogResult result =
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IDialogService.class)
+                    .requestCancelableConfirmation(
+                        languageHelper.getString(KEY + ".datasetExists.title"),
+                        languageHelper.getString(KEY + ".datasetExists.message"));
+            LOGGER.info(languageHelper.getString(KEY + ".datasetExists.message") + " " + result + " " + folder);
+            if (result == DialogResult.CANCEL) {
+                exception = new TaggingException("Dataset creation canceled", "folder " + baseFolder);
+                return;
+            } else if (result == DialogResult.NO) {
+                folder = FileHelper.getNextFreeFilename(folder);
+            } else {
+                mission.removeMatching(matching, folder);
+            }
+        }
 
-        Dispatcher dispatcher = setStatusTransferring();
+        Dispatcher dispatcher = Dispatcher.platform();
+        dispatcher.run(
+            () -> {
+                matching.statusProperty().set(MatchingStatus.TRANSFERRING);
+            });
+        transferInProgressToast =
+            Toast.of(ToastType.INFO)
+                .setText(
+                    languageHelper.getString(
+                        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferInProgressMessage"))
+                .setOnDismissed(t -> transferInProgressToast = null)
+                .create();
+
+        applicationContext.addToast(transferInProgressToast);
+
+        maxValue = 0;
+        for (CreateDatasetSubTasks task : CreateDatasetSubTasks.values()) {
+            progressOffset[task.ordinal()] = maxValue;
+            maxValue += task.duration;
+        }
+
+        updateProgressMessage(CreateDatasetSubTasks.START, 0, 1);
+
+        final List<File> images = getPhotosResult.fotos;
+
+        File baseFolder = folder;
+        if (!baseFolder.exists() && !baseFolder.mkdirs()) {
+            exception = new TaggingException("folder creation failed", "Could not create folder " + baseFolder);
+            return;
+        }
+
+        boolean jsonLogs = false;
 
         // parsing logfile
-        boolean jsonLogs = false;
-        try {
-            jsonLogs = parseLogfiles(jsonLogs);
-        } catch (Exception e) {
-            return;
+        int index = 0;
+        int jsonCount = 0;
+
+        for (File logFile : logFiles) {
+            try {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.PARSE_LOG_FILES,
+                    index,
+                    logFiles.size(),
+                    logFile.getName(),
+                    index,
+                    logFiles.size());
+
+                index++;
+                if (MFileFilter.photoJsonFilter.accept(logFile.getName())) {
+                    jsonCount++;
+                    jsonLogs = true;
+                }
+
+                if (jsonCount != index && jsonCount != 0) {
+                    final String[] message =
+                        new String[] {
+                            "mixed log file types", "not able to process JSON and non JSON logs at the same time"
+                        };
+                    LOGGER.error("{}, {}", message[0], message[1]);
+                    exception = new TaggingException(message[0], message[1]);
+                    return;
+                }
+
+                taggingAlgorithm.loadLogfile(logFile, allowMultipleFeedbacks);
+            } catch (Exception e) {
+                exception = new TaggingException("parsing failed", "unable to parse logfile: " + logFile, e);
+                return;
+            }
+        }
+
+        if (logFiles.size() > 0) { // enabling without logfiles
+            if (taggingAlgorithm.getLogsAll().isEmpty()) {
+                final String[] message =
+                    new String[] {"log data corrupted", "log data corrupted: no log entries found"};
+                LOGGER.error("{}, {}", message[0], message[1]);
+                exception = new TaggingException(message[0], message[1]);
+                return;
+            }
+
+            if (taggingAlgorithm.getLogsAll().first().getTimestamp() <= 0) {
+                CPhotoLogLine photoLogLine = taggingAlgorithm.getLogsAll().first();
+                LOGGER.error("log data corrupted: log timestamps are zero: {}", photoLogLine);
+                exception =
+                    new TaggingException(
+                        "log data corrupted", "log data corrupted: log timestamps are zero:" + photoLogLine);
+                return;
+            }
         }
         // filename for legacyMatching file
         final File save = new File(baseFolder, AMapLayerMatching.DEFAULT_FILENAME);
@@ -294,10 +398,6 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
             return;
         }
 
-        if (oldMatchingStatus.equals(MatchingStatus.NEW)) {
-            legacyMatching.getPicsLayer().removeAllLayers(true);
-        }
-
         // copy flightplans
         File fpFolder = new File(baseFolder, AMapLayerMatching.FOLDER_NAME_FLIGHTPLANS_SUBFOLDER);
         if (!fpFolder.exists() && !fpFolder.mkdirs()) {
@@ -305,52 +405,23 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
             return;
         }
 
-        int index = 0;
-        boolean copiedLogs = false;
-
-        for (Flightplan source : flightPlans) {
-            updateProgressMessage(
-                CreateDatasetSubTasks.COPY_LOG_FILES,
-                index,
-                flightPlans.size(),
-                source.getName(),
-                index,
-                flightPlans.size());
-            index++;
-            try {
-                if (!source.getResourceFile().exists()) {
-                    applicationContext.addToast(
-                        Toast.of(ToastType.INFO)
-                            .setText(
-                                languageHelper.getString(
-                                        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.unableToSave")
-                                    + source.getName())
-                            .create());
-                } else {
-                    source.saveToLocation(new File(fpFolder, source.getResourceFile().getName()));
-                    copiedLogs = true;
-                }
-            } catch (Exception e2) {
-                applicationContext.addToast(
-                    Toast.of(ToastType.INFO)
-                        .setText(
-                            languageHelper.getString(
-                                    "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.unableToSave")
-                                + source.getName())
-                        .create());
-                // exception = new TaggingException("Copy Mission Failes", "Unable to save mission to new
-                // folder", e2);
-                // return;
+        try {
+            index = 0;
+            for (Flightplan source : flightPlans) {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.COPY_LOG_FILES,
+                    index,
+                    flightPlans.size(),
+                    source.getName(),
+                    index,
+                    flightPlans.size());
+                index++;
+                source.saveToLocation(new File(fpFolder, source.getName()));
+                // FileHelper.copyFile(source, new File(fpFolder, source.getName()));
             }
-        }
-
-        if (!flightPlans.isEmpty()) {
-            if (this.onlyIncludeImagesInPlan) {
-                legacyMatching.setFlightplanSelection(setFlightplanSelection(flightPlans));
-            }
-
-            legacyMatching.setAreaEnabled(legacyMatching.getAreaEnabled() || this.onlyIncludeImagesInPlan);
-            legacyMatching.setFlightplanEnabled(legacyMatching.getFlightplanEnabled() || this.onlyIncludeImagesInPlan);
+        } catch (Exception e2) {
+            exception = new TaggingException("Copy Flight Plan Failes", "Unable to save Flightplan to new folder", e2);
+            return;
         }
 
         if (isCancelled()) {
@@ -358,34 +429,24 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
         }
 
         // copy logfile if nessesary
-        boolean deleteLogs = this.eraseLogsAfterCopying;
-        boolean jsonLog = false;
-
-        index = 0;
-
-        File targetFolder = new File(baseFolder, AMapLayerMatching.FOLDER_NAME_PICS_SUBFOLDER);
-        TreeSet<File> targetFiles = getPhotosResult != null ? new TreeSet<>(getPhotosResult.fotos) : new TreeSet<>();
-
-        boolean deletePics = eraseImages;
-        for (File logFile : logFiles) {
-            jsonLog = parseLogfile(logFile);
-            isAscTecMatching = MFileFilter.ascTecLogFolder.acceptTrinityLog(logFile);
-            updateProgressMessage(
-                CreateDatasetSubTasks.COPY_LOG_FILES,
-                index,
-                logFiles.size(),
-                logFile.getName(),
-                index,
-                logFiles.size());
-            index++;
-            if (isAscTecMatching) {
+        boolean deleteLogs = true;
+        if (isAscTecMatching) {
+            index = 0;
+            for (File logFile : logFiles) {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.COPY_LOG_FILES,
+                    index,
+                    logFiles.size(),
+                    logFile.getName(),
+                    index,
+                    logFiles.size());
+                index++;
                 if (logFile.getParentFile().equals(baseFolder)) {
                     deleteLogs = false;
                     continue;
                 }
 
-                String logFileName = logFile.getName();
-                File fTarget = new File(baseFolder, "asctec_log_" + logFileName);
+                File fTarget = new File(baseFolder, "asctec_log_" + logFile.getName());
                 if (fTarget.equals(logFile)) {
                     deleteLogs = false;
                     continue;
@@ -402,7 +463,18 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
                             e2);
                     return;
                 }
-            } else {
+            }
+        } else {
+            index = 0;
+            for (File logFile : logFiles) {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.COPY_LOG_FILES,
+                    index,
+                    logFiles.size(),
+                    logFile.getName(),
+                    index,
+                    logFiles.size());
+                index++;
                 if (!logFile.exists()) {
                     deleteLogs = false;
                     continue;
@@ -416,8 +488,8 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
 
                 File logFileNew = new File(baseFolder, CPhotoLogLine.PREFIX_MATCHED_PLG + logFile.getName());
 
-                if (jsonLog) {
-                    // each image in a json log can be from a differnet folder, different from picFolder!
+                if (jsonLogs) {
+                    // each image in a json log can be from a differnet folder
                     int baseSourcePathStringLen =
                         logFile.getParentFile().getParentFile().getAbsolutePath().length() + 1;
 
@@ -436,161 +508,67 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
                     return;
                 }
             }
+        }
 
-            if (isCancelled()) {
-                return;
-            }
+        if (isCancelled()) {
+            return;
+        }
 
-            // if rededge dataset, copy metadata if possible
-            final File picFolderParent = picFolder != null ? picFolder.getParentFile() : null;
-            if (picFolderParent != null && picFolderParent.exists()) {
-                File[] auxFiles =
-                    new File[] {new File(picFolderParent, "diag.dat"), new File(picFolderParent, "paramlog.dat")};
+        // if rededge dataset, copy metadata if possible
+        final File picFolderParent = picFolder != null ? picFolder.getParentFile() : null;
+        if (picFolderParent != null && picFolderParent.exists()) {
+            File[] auxFiles =
+                new File[] {new File(picFolderParent, "diag.dat"), new File(picFolderParent, "paramlog.dat")};
 
-                index = 0;
-                for (File fAux : auxFiles) {
-                    updateProgressMessage(
-                        CreateDatasetSubTasks.COPY_AUX_FILE,
-                        index,
-                        auxFiles.length,
-                        fAux.getName(),
-                        index,
-                        auxFiles.length);
-                    index++;
-                    if (!fAux.exists()) {
-                        continue;
-                    }
-
-                    try {
-                        File fAuxTarget = new File(baseFolder, fAux.getName());
-                        FileHelper.copyDirectorySynchron(fAux, fAuxTarget);
-                    } catch (IOException e2) {
-                        exception =
-                            new TaggingException("unable to copy aux file", "copying this file failed: " + fAux, e2);
-                        return;
-                    }
-                }
-            }
-
-            if (jsonLog) {
-                // copy potentially falcon payload logfiles for backup
-                File[] auxFiles = new File[] {new File(picFolder, "logs"), new File(picFolder, "occupancy.map")};
-
-                index = 0;
-                for (File fAux : auxFiles) {
-                    updateProgressMessage(
-                        CreateDatasetSubTasks.COPY_AUX_FILE,
-                        index,
-                        auxFiles.length,
-                        fAux.getName(),
-                        index,
-                        auxFiles.length);
-                    index++;
-                    if (!fAux.exists()) {
-                        continue;
-                    }
-
-                    try {
-                        File fAuxTarget = new File(baseFolder, fAux.getName());
-                        FileHelper.copyDirectorySynchron(fAux, fAuxTarget);
-                    } catch (IOException e2) {
-                        exception =
-                            new TaggingException("unable to copy aux file", "copying this file failed: " + fAux, e2);
-                        return;
-                    }
-                }
-            }
-
-            if (isCancelled()) {
-                return;
-            }
-
-            // if nessesary, copy images to new place, make sure that names become unique, since some
-            // compatibleCameraIds are using different folder to keep non unique file names
-
-            if (!this.copyImages) {
-                deletePics = false;
-            }
-
-            if (picFolder != null && !FileHelper.equals(targetFolder, picFolder)) {
-                if (!targetFolder.exists() && !targetFolder.mkdirs()) {
-                    exception =
-                        new TaggingException("folder creation failed", "Could not create folder " + targetFolder);
-                    return;
+            index = 0;
+            for (File fAux : auxFiles) {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.COPY_AUX_FILE,
+                    index,
+                    auxFiles.length,
+                    fAux.getName(),
+                    index,
+                    auxFiles.length);
+                index++;
+                if (!fAux.exists()) {
+                    continue;
                 }
 
                 try {
-                    int baseSourcePathStringLen = getPhotosResult.picFolder.getAbsolutePath().length() + 1;
-                    index = 0;
-                    final List<File> images = getPhotosResult.fotos;
+                    File fAuxTarget = new File(baseFolder, fAux.getName());
+                    FileHelper.copyDirectorySynchron(fAux, fAuxTarget);
+                } catch (IOException e2) {
+                    exception =
+                        new TaggingException("unable to copy aux file", "copying this file failed: " + fAux, e2);
+                    return;
+                }
+            }
+        }
 
-                    for (File f : images) {
-                        updateProgressMessage(
-                            CreateDatasetSubTasks.COPY_IMAGES, index, images.size(), f.getName(), index, images.size());
-                        index++;
-                        if (isCancelled()) {
-                            return;
-                        }
+        if (jsonLogs) {
+            // copy potentially falcon payload logfiles for backup
+            File[] auxFiles = new File[] {new File(picFolder, "logs"), new File(picFolder, "occupancy.map")};
 
-                        if (f.isDirectory()) {
-                            continue;
-                        }
+            index = 0;
+            for (File fAux : auxFiles) {
+                updateProgressMessage(
+                    CreateDatasetSubTasks.COPY_AUX_FILE,
+                    index,
+                    auxFiles.length,
+                    fAux.getName(),
+                    index,
+                    auxFiles.length);
+                index++;
+                if (!fAux.exists()) {
+                    continue;
+                }
 
-                        if (FileHelper.equals(targetFolder, f.getParentFile())) {
-                            LOGGER.info(
-                                "Image already available in dataset, images will not get deleted / removed from targetFiles: "
-                                    + f.getAbsolutePath());
-                            applicationContext.addToast(
-                                Toast.of(ToastType.INFO)
-                                    .setText("Image already available in dataset, images will not get deleted")
-                                    .create());
-                            deletePics = false;
-                            targetFiles.remove(
-                                f); // dont check this file later, belongs already to the dataset, this can be used
-                            continue; // dont rename files if they dont have to be moved to another folder
-                        }
-
-                        if (jsonLog) {
-                            // each image in a json log can be from a differnet folder
-                            baseSourcePathStringLen = f.getParentFile().getParentFile().getAbsolutePath().length() + 1;
-                        }
-
-                        String name1 =
-                            f.getAbsolutePath()
-                                .substring(baseSourcePathStringLen)
-                                .replaceAll(Pattern.quote(File.separator), Matcher.quoteReplacement("_"));
-                        File targetFileTmp = new File(targetFolder.getAbsolutePath(), name1);
-
-                        File targetFile;
-                        if (jsonLog) {
-                            targetFile = targetFileTmp;
-                        } else {
-                            final String imgNameInject =
-                                "_" + Math.round(taggingAlgorithm.getLogsAll().first().getTimestamp() * 1000);
-
-                            if (name1.contains(imgNameInject)) {
-                                targetFile =
-                                    targetFileTmp; // dont copy all images again and again on second legacyMatching
-                                // try
-                            } else {
-                                targetFile = FileHelper.injectIntoFileName(targetFileTmp, imgNameInject);
-                            }
-                        }
-
-                        if (this.copyImages) {
-                            if (targetFile.exists() && f.length() == targetFile.length()) {
-                                // dont overwrite existing file -> speed up
-                                continue;
-                            }
-
-                            FileHelper.copyFile(f, targetFile);
-                        } else {
-                            targetFile = f;
-                        }
-                    }
-
-                } catch (Exception e1) {
-                    exception = new TaggingException("could not move images", "copying images into project failed", e1);
+                try {
+                    File fAuxTarget = new File(baseFolder, fAux.getName());
+                    FileHelper.copyDirectorySynchron(fAux, fAuxTarget);
+                } catch (IOException e2) {
+                    exception =
+                        new TaggingException("unable to copy aux file", "copying this file failed: " + fAux, e2);
                     return;
                 }
             }
@@ -600,335 +578,395 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
             return;
         }
 
-        matching.startTransferring(baseFolder, hardwareConfiguration);
-        // jsonLog = false;
-        {
-            boolean taggingDone = false;
-            index = 0;
-            legacyMatching.getPicsLayer().setMute(true);
-            for (File logFile : logFiles) {
-                jsonLog = parseLogfile(logFile);
-                int missedImages = 0;
-                if (jsonLog) {
-                    // taggingDone=true;
-                    try (InputStream stream = new FileInputStream(logFile);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-                        String strLine;
-                        while ((strLine = br.readLine()) != null) {
-                            updateProgressMessage(
-                                CreateDatasetSubTasks.LOAD_IMAGES,
-                                index,
-                                taggingAlgorithm.getLogsAll().size(),
-                                logFile.getName(),
-                                index,
-                                taggingAlgorithm.getLogsAll().size());
-                            if (isCancelled()) {
-                                return;
-                            }
+        // if nessesary, copy images to new place, make sure that names become unique, since some compatibleCameraIds
+        // are using different
+        // folder to keep non unique file names
+        boolean deletePics = true;
+        if (!this.copyImages) {
+            deletePics = false;
+        }
 
-                            try {
-                                strLine = strLine.trim();
-                                if (strLine.startsWith("[")) {
-                                    strLine = strLine.substring(1, strLine.length());
-                                }
+        File targetFolder = new File(baseFolder, AMapLayerMatching.FOLDER_NAME_PICS_SUBFOLDER);
+        if (picFolder != null && !FileHelper.equals(targetFolder, picFolder)) {
+            if (!targetFolder.exists() && !targetFolder.mkdirs()) {
+                exception = new TaggingException("folder creation failed", "Could not create folder " + targetFolder);
+                return;
+            }
 
-                                if (strLine.endsWith(",") || strLine.endsWith("]")) {
-                                    strLine = strLine.substring(0, strLine.length() - 1);
-                                }
-
-                                strLine = strLine.trim();
-                                if (strLine.isEmpty()) {
-                                    continue;
-                                }
-
-                                Geotag geotag = Geotag.fromJson(strLine);
-                                CPhotoLogLine plg = new CPhotoLogLine(geotag);
-
-                                int baseSourcePathStringLen =
-                                    logFile.getParentFile().getParentFile().getAbsolutePath().length() + 1;
-                                String name1 =
-                                    logFile.getParentFile()
-                                            .getAbsolutePath()
-                                            .substring(baseSourcePathStringLen)
-                                            .replaceAll(Pattern.quote(File.separator), Matcher.quoteReplacement("_"))
-                                        + Matcher.quoteReplacement("_")
-                                        + geotag.filename;
-                                File image;
-                                if (copyImages) {
-                                    image = new File(targetFolder.getAbsolutePath(), name1);
-                                } else {
-                                    image = new File(logFile.getParentFile(), geotag.filename);
-                                }
-                                /*if (!fromMatchedData) {
-                                    final String imgNameInject = logFile.getParentFile().getName();
-                                    image = FileHelper.injectIntoFileName(image, imgNameInject);
-                                }*/
-                                if (image.exists()) {
-                                    PhotoCube photoCube = new PhotoCube(image);
-                                    MapLayerMatch match = new MapLayerMatch(photoCube, plg, legacyMatching);
-                                    photoCube.setMatch(match);
-                                    legacyMatching.getPicsLayer().addMapLayer(match);
-                                    targetFiles.remove(new File(logFile.getParentFile(), geotag.filename));
-                                } else {
-                                    missedImages++;
-                                }
-                            } catch (Throwable e1) {
-                                exception =
-                                    new TaggingException(
-                                        "No image found",
-                                        "Can't add logfile " + logFile + " to dataset, no images found",
-                                        e1);
-                                return;
-                            }
-
-                            index++;
-                        }
-                    } catch (Exception e) {
-                        exception = new TaggingException("log parser err", "can't load parse logfile " + logFile, e);
+            File[] imageFiles = targetFolder.listFiles();
+            List<File> fetchedFiles = imageFiles == null ? Collections.emptyList() : Arrays.asList(imageFiles);
+            TreeSet<File> targetFiles = new TreeSet<>(fetchedFiles);
+            try {
+                int baseSourcePathStringLen = getPhotosResult.picFolder.getAbsolutePath().length() + 1;
+                index = 0;
+                for (File f : images) {
+                    updateProgressMessage(
+                        CreateDatasetSubTasks.COPY_IMAGES, index, images.size(), f.getName(), index, images.size());
+                    index++;
+                    if (isCancelled()) {
                         return;
                     }
 
-                    if (missedImages > 0) {
-                        applicationContext.addToast(
-                            Toast.of(ToastType.ALERT)
-                                .setText(
-                                    "Can't add logfile "
-                                        + logFile
-                                        + "completely to dataset, "
-                                        + missedImages
-                                        + " images not found")
-                                .create());
+                    if (f.isDirectory()) {
+                        continue;
                     }
-                } else {
 
-                    // 1 time or for all logs (non jsons)?
-                    if (!taggingDone) {
-                        taggingDone = true;
-                        // TODO IMC-3137 check what with cameraConfiguration:   I think to be removed. But does it work
-                        // then?
-                        IGenericCameraConfiguration cameraConfiguration =
-                            hardwareConfiguration == null
-                                ? null
-                                : hardwareConfiguration.getPrimaryPayload(IGenericCameraConfiguration.class);
-                        IGenericCameraDescription cameraDescription =
-                            hardwareConfiguration == null ? null : cameraConfiguration.getDescription();
-                        ILensDescription lensDescription =
-                            hardwareConfiguration == null ? null : cameraConfiguration.getLens().getDescription();
-                        IPlatformDescription platformDescription =
-                            hardwareConfiguration == null ? null : hardwareConfiguration.getPlatformDescription();
+                    if (FileHelper.equals(targetFolder, f.getParentFile())) {
+                        deletePics = false;
+                        targetFiles.remove(f); // dont drop existing file
+                        continue; // dont rename files if they dont have to be moved to another folder
+                    }
 
-                        ITaggingAlgorithm.ProgressCallbackImgLoading progressCallbackImgLoading =
-                            new ITaggingAlgorithm.ProgressCallbackImgLoading() {
+                    if (jsonLogs) {
+                        // each image in a json log can be from a differnet folder
+                        baseSourcePathStringLen = f.getParentFile().getParentFile().getAbsolutePath().length() + 1;
+                    }
 
-                                @Override
-                                public void progress(File image, long no, long total) {
-                                    updateProgressMessage(
-                                        CreateDatasetSubTasks.LOAD_IMAGES, no, total, image.getName(), no, total);
-                                }
+                    String name1 =
+                        f.getAbsolutePath()
+                            .substring(baseSourcePathStringLen)
+                            .replaceAll(Pattern.quote(File.separator), Matcher.quoteReplacement("_"));
+                    File targetFileTmp = new File(targetFolder.getAbsolutePath(), name1);
 
-                                @Override
-                                public boolean isCanceled() {
-                                    return CreateDatasetTask.this.isCancelled();
-                                }
-                            };
+                    File targetFile;
+                    if (jsonLogs) {
+                        targetFile = targetFileTmp;
+                    } else { // TODO check
+                        if (logFiles.size() > 0) {
+                            final String imgNameInject =
+                                "_" + Math.round(taggingAlgorithm.getLogsAll().first().getTimestamp() * 1000);
 
-                        try {
-                            File imageFolder;
-                            if (copyImages) {
-                                imageFolder = targetFolder;
+                            if (name1.contains(imgNameInject)) {
+                                targetFile =
+                                    targetFileTmp; // dont copy all images again and again on second legacyMatching try
                             } else {
-                                imageFolder = picFolder;
+                                targetFile = FileHelper.injectIntoFileName(targetFileTmp, imgNameInject);
                             }
+                        } else {
+                            targetFile = targetFileTmp;
+                        }
+                    }
 
-                            taggingAlgorithm.loadPictures(
-                                imageFolder,
-                                true,
-                                cameraDescription.getBandNamesSplit()
-                                    .length, // TODO IMC-3137 ? from hardware description / evtl. for each image type
-                                false,
-                                progressCallbackImgLoading);
-                        } catch (InterruptedByUserException e) {
-                            return;
-                        } catch (Throwable e1) {
-                            exception = new TaggingException("Unable to load images", "Unable to load images", e1);
-                            return;
+                    if (this.copyImages) {
+                        if (targetFile.exists() && f.length() == targetFile.length()) {
+                            // dont overwrite existing file -> speed up
+                            targetFiles.remove(
+                                targetFile); // make sure existing file is not dropped after end of this loop
+                            continue;
                         }
 
+                        FileHelper.copyFile(f, targetFile);
+                        targetFiles.remove(targetFile);
+                    } else {
+                        targetFile = f;
+                        targetFiles.remove(targetFile);
+                    }
+                }
+
+                // cleanup afterwards
+                if (!targetFiles.isEmpty()) {
+                    File photoParent = targetFiles.first().getParentFile();
+                    File targetFolderUnmatched = new File(photoParent, TaggingAlgorithmA.UNMATCHED_FOLDER);
+                    if (!targetFolderUnmatched.exists()) {
+                        targetFolderUnmatched.mkdirs();
+                    }
+
+                    for (File unused : targetFiles) {
+                        if (unused.isFile()) {
+                            try {
+                                if (copyImages) {
+                                    Debug.getLog().fine("move unused target image: " + unused);
+                                    File unusedNew =
+                                        FileHelper.getNextFreeFilename(
+                                            new File(targetFolderUnmatched, unused.getName()));
+                                    FileHelper.move(unused, unusedNew);
+                                } else {
+                                    Debug.getLog().fine("Dont move unused target image: " + unused);
+                                }
+                            } catch (Exception e) {
+                                Debug.getLog().log(Level.WARNING, "Could not move image: " + unused);
+                            }
+                        }
+                    }
+                }
+
+            } catch (Exception e1) {
+                exception = new TaggingException("could not move images", "copying images into project failed", e1);
+                return;
+            }
+        }
+
+        if (isCancelled()) {
+            return;
+        }
+
+        matching.startTransferring(baseFolder, hardwareConfiguration);
+
+        if (jsonLogs) {
+            index = 0;
+            legacyMatching.getPicsLayer().setMute(true);
+            for (File logFile : logFiles) {
+                try (InputStream stream = new FileInputStream(logFile);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+                    String strLine;
+                    while ((strLine = br.readLine()) != null) {
+                        updateProgressMessage(
+                            CreateDatasetSubTasks.LOAD_IMAGES,
+                            index,
+                            taggingAlgorithm.getLogsAll().size(),
+                            logFile.getName(),
+                            index,
+                            taggingAlgorithm.getLogsAll().size());
                         if (isCancelled()) {
                             return;
                         }
 
-                        ITaggingAlgorithm.ProgressCallbackOptimizing progressCallbackOptimizing =
-                            new ITaggingAlgorithm.ProgressCallbackOptimizing() {
-                                @Override
-                                public void progress(String algName, long no, long total) {
-                                    updateProgressMessage(
-                                        CreateDatasetSubTasks.OPTIMIZE_DATASET, no, total, algName, no, total);
-                                }
-
-                                @Override
-                                public boolean isCanceled() {
-                                    return CreateDatasetTask.this.isCancelled();
-                                }
-                            };
-
                         try {
-                            if (!taggingAlgorithm.getPhotosAll().isEmpty()) {
-                                taggingAlgorithm.optimizeMatching(
-                                    lensDescription
-                                        .getMaxTimeVariation()
-                                        .convertTo(Unit.SECOND)
-                                        .getValue()
-                                        .doubleValue(), // TODO IMC-3137 ? from hardware description / evtl. for each
-                                    // image type
-                                    platformDescription
-                                        .getGpsType(), // TODO IMC-3137 ? from hardware description / evtl. for each
-                                    // image type
-                                    null,
-                                    progressCallbackOptimizing);
-                            } else {
-                                int k = 0;
-                                for (CPhotoLogLine log : taggingAlgorithm.getLogsAll()) {
-                                    k++;
-                                    File dummyFile = new File(targetFolder, "dummyImage_" + k + ".png");
-                                    FileHelper.writeResourceToFile(
-                                        "com/intel/missioncontrol/gfx/dummy-video.png", dummyFile);
-                                    ExifInfos exifInfos = new ExifInfos();
-                                    exifInfos.timestamp = log.getTimestamp();
-                                    PhotoCube photo = new PhotoCube(dummyFile, exifInfos);
-                                    photo.logTmp = log;
-                                    taggingAlgorithm.getPhotosMatched().add(photo);
-
-                                    targetFiles.remove(photo); // CHECK correct matched file
-                                }
+                            strLine = strLine.trim();
+                            if (strLine.startsWith("[")) {
+                                strLine = strLine.substring(1, strLine.length());
                             }
 
-                        } catch (InterruptedByUserException e) {
-                            return;
-                        } catch (TaggingException e) {
-                            exception = e;
-                            return;
+                            if (strLine.endsWith(",") || strLine.endsWith("]")) {
+                                strLine = strLine.substring(0, strLine.length() - 1);
+                            }
+
+                            strLine = strLine.trim();
+                            if (strLine.isEmpty()) {
+                                continue;
+                            }
+
+                            Geotag geotag = Geotag.fromJson(strLine);
+                            CPhotoLogLine plg = new CPhotoLogLine(geotag);
+
+                            int baseSourcePathStringLen =
+                                logFile.getParentFile().getParentFile().getAbsolutePath().length() + 1;
+                            String name1 =
+                                logFile.getParentFile()
+                                        .getAbsolutePath()
+                                        .substring(baseSourcePathStringLen)
+                                        .replaceAll(Pattern.quote(File.separator), Matcher.quoteReplacement("_"))
+                                    + Matcher.quoteReplacement("_")
+                                    + geotag.filename;
+                            File image;
+                            if (copyImages) {
+                                image = new File(targetFolder.getAbsolutePath(), name1);
+                            } else {
+                                image = new File(logFile.getParentFile(), geotag.filename);
+                            }
+                            /*if (!fromMatchedData) {
+                                final String imgNameInject = logFile.getParentFile().getName();
+                                image = FileHelper.injectIntoFileName(image, imgNameInject);
+                            }*/
+
+                            PhotoCube photoCube = new PhotoCube(image);
+                            MapLayerMatch match = new MapLayerMatch(photoCube, plg, legacyMatching);
+                            photoCube.setMatch(match);
+                            legacyMatching.getPicsLayer().addMapLayer(match);
+                            match.generatePreview();
                         } catch (Throwable e1) {
                             exception =
                                 new TaggingException(
-                                    "Can't geotag data", "failed to find match between metadata and images", e1);
+                                    "cant add image to dataset", "can't load single legacyMatching", e1);
                             return;
                         }
 
-                        if (isCancelled()) {
-                            return;
-                        }
+                        index++;
+                    }
+                } catch (Exception e) {
+                    exception = new TaggingException("log parser err", "can't load parse logfile " + logFile, e);
+                    return;
+                }
+            }
 
-                        try {
-                            legacyMatching.setRTKAvaiable(taggingAlgorithm);
-                            legacyMatching.setBandNames(
-                                cameraDescription
-                                    .getBandNamesSplit()); // ? from hardware description / evtl. for each image type
-                            index = 0;
-                            for (PhotoCube photoCube : taggingAlgorithm.getPhotosMatched()) {
-                                updateProgressMessage(
-                                    CreateDatasetSubTasks.CREATE_LAYERS,
-                                    index,
-                                    taggingAlgorithm.getPhotosMatched().size(),
-                                    "",
-                                    index,
-                                    taggingAlgorithm.getPhotosMatched().size());
-                                index++;
-                                if (isCancelled()) {
-                                    return;
-                                }
+            legacyMatching.getPicsLayer().setMute(false);
+        } else if (logFiles.size() > 0) {
+            // TODO: use copyImages
+            IGenericCameraConfiguration cameraConfiguration =
+                hardwareConfiguration.getPrimaryPayload(IGenericCameraConfiguration.class);
+            IGenericCameraDescription cameraDescription = cameraConfiguration.getDescription();
+            ILensDescription lensDescription = cameraConfiguration.getLens().getDescription();
+            IPlatformDescription platformDescription = hardwareConfiguration.getPlatformDescription();
 
-                                if (photoCube.logTmp == null) {
-                                    continue;
-                                }
+            ITaggingAlgorithm.ProgressCallbackImgLoading progressCallbackImgLoading =
+                new ITaggingAlgorithm.ProgressCallbackImgLoading() {
 
+                    @Override
+                    public void progress(File image, long no, long total) {
+                        updateProgressMessage(CreateDatasetSubTasks.LOAD_IMAGES, no, total, image.getName(), no, total);
+                    }
+
+                    @Override
+                    public boolean isCanceled() {
+                        return CreateDatasetTask.this.isCancelled();
+                    }
+                };
+
+            try {
+                taggingAlgorithm.loadPictures(
+                    targetFolder, true, cameraDescription.getBandNamesSplit().length, true, progressCallbackImgLoading);
+            } catch (InterruptedByUserException e) {
+                return;
+            } catch (Throwable e1) {
+                exception = new TaggingException("Unable to load images", "Unable to load images", e1);
+                return;
+            }
+
+            if (isCancelled()) {
+                return;
+            }
+
+            ITaggingAlgorithm.ProgressCallbackOptimizing progressCallbackOptimizing =
+                new ITaggingAlgorithm.ProgressCallbackOptimizing() {
+                    @Override
+                    public void progress(String algName, long no, long total) {
+                        updateProgressMessage(CreateDatasetSubTasks.OPTIMIZE_DATASET, no, total, algName, no, total);
+                    }
+
+                    @Override
+                    public boolean isCanceled() {
+                        return CreateDatasetTask.this.isCancelled();
+                    }
+                };
+
+            try {
+                if (!taggingAlgorithm.getPhotosAll().isEmpty()) {
+                    taggingAlgorithm.optimizeMatching(
+                        lensDescription.getMaxTimeVariation().convertTo(Unit.SECOND).getValue().doubleValue(),
+                        platformDescription.getGpsType(),
+                        null,
+                        progressCallbackOptimizing);
+                } else {
+                    int k = 0;
+                    for (CPhotoLogLine log : taggingAlgorithm.getLogsAll()) {
+                        k++;
+                        File dummyFile = new File(targetFolder, "dummyImage_" + k + ".png");
+                        FileHelper.writeResourceToFile("com/intel/missioncontrol/gfx/dummy-video.png", dummyFile);
+                        ExifInfos exifInfos = new ExifInfos();
+                        exifInfos.timestamp = log.getTimestamp();
+                        PhotoCube photo = new PhotoCube(dummyFile, exifInfos);
+                        photo.logTmp = log;
+                        taggingAlgorithm.getPhotosMatched().add(photo);
+                    }
+                }
+            } catch (InterruptedByUserException e) {
+                return;
+            } catch (TaggingException e) {
+                exception = e;
+                return;
+            } catch (Throwable e1) {
+                exception =
+                    new TaggingException("Can't geotag data", "failed to find match between metadata and images", e1);
+                return;
+            }
+
+            if (isCancelled()) {
+                return;
+            }
+
+            try {
+                legacyMatching.setRTKAvaiable(taggingAlgorithm);
+                legacyMatching.setBandNames(cameraDescription.getBandNamesSplit());
+                index = 0;
+                for (PhotoCube photoCube : taggingAlgorithm.getPhotosMatched()) {
+                    updateProgressMessage(
+                        CreateDatasetSubTasks.CREATE_LAYERS,
+                        index,
+                        taggingAlgorithm.getPhotosMatched().size(),
+                        index,
+                        taggingAlgorithm.getPhotosMatched().size());
+                    index++;
+                    if (isCancelled()) {
+                        return;
+                    }
+
+                    if (photoCube.logTmp == null) {
+                        continue;
+                    }
+
+                    try {
+                        MapLayerMatch match = new MapLayerMatch(photoCube, photoCube.logTmp, legacyMatching);
+                        photoCube.setMatch(match);
+                        legacyMatching.getPicsLayer().addMapLayer(match);
+
+                    } catch (Throwable e1) {
+                        exception =
+                            new TaggingException("cant add image to dataset", "can't load single legacyMatching", e1);
+                        return;
+                    }
+                }
+
+                if (isCancelled()) {
+                    return;
+                }
+
+                // if necessary, move unmatchable images to new place
+                try {
+                    if (taggingAlgorithm.getPhotosUnmatched().size() > 0) {
+                        index = -1;
+                        for (PhotoCube photoCube : taggingAlgorithm.getPhotosUnmatched()) {
+                            index++;
+                            for (PhotoFile photo : photoCube) {
                                 try {
-                                    MapLayerMatch match =
-                                        new MapLayerMatch(photoCube, photoCube.logTmp, legacyMatching);
-                                    photoCube.setMatch(match);
-                                    legacyMatching.getPicsLayer().addMapLayer(match);
+                                    File photoParent = photo.getFile().getParentFile();
 
-                                    File sourceFile;
-                                    if (copyImages) {
-                                        //   match.getResourceFile().getName() => get original name! Gets renamed.
-                                        sourceFile = new File(picFolder, match.getResourceFile().getName());
-                                        if (!targetFiles.contains(sourceFile)) {
-                                            final String imgNameInject =
-                                                "_"
-                                                    + Math.round(
-                                                        taggingAlgorithm.getLogsAll().first().getTimestamp() * 1000);
-                                            if (sourceFile.getName().contains(imgNameInject)) {
-                                                String name1 =
-                                                    match.getResourceFile().getName().replace(imgNameInject, "");
-                                                sourceFile = new File(picFolder, name1);
-                                            }
-                                        }
-                                    } else {
-                                        sourceFile = match.getResourceFile();
+                                    updateProgressMessage(
+                                        CreateDatasetSubTasks.MOVE_UNMATCHED_IMAGES,
+                                        index,
+                                        taggingAlgorithm.getPhotosUnmatched().size(),
+                                        photoParent.getName(),
+                                        index,
+                                        taggingAlgorithm.getPhotosUnmatched().size());
+                                    // System.out.println("file:"+file);
+                                    if (photoParent.getName().equalsIgnoreCase(TaggingAlgorithmA.UNMATCHED_FOLDER)) {
+                                        continue;
                                     }
 
-                                    try {
-                                        targetFiles.remove(sourceFile);
-                                    } catch (Throwable e2) {
-                                        LOGGER.info("cant remove matched image from list", e2);
+                                    if (copyImages) {
+                                        File targetFolderUnmatched =
+                                            new File(photoParent, TaggingAlgorithmA.UNMATCHED_FOLDER);
+                                        targetFolderUnmatched.mkdirs();
+                                        FileHelper.move(
+                                            photo.getFile(),
+                                            new File(targetFolderUnmatched, photo.getFile().getName()));
+                                    } else {
+                                        LOGGER.info("do not move file to unmatched folder: " + photo.getFile());
                                     }
                                 } catch (Throwable e1) {
                                     exception =
                                         new TaggingException(
-                                            "cant add image to dataset", "can't load single legacyMatching", e1);
+                                            "image move failed", "can't move unmatchable image:" + photo.getFile(), e1);
                                     return;
                                 }
                             }
-
-                            if (isCancelled()) {
-                                return;
-                            }
-
-                            // create sync statistics and write it to a file. in user level==Debugging, show the window
-                            dispatcher.run(
-                                () -> {
-                                    new TaggingSyncVisWindow(
-                                        taggingAlgorithm,
-                                        new File(baseFolder, "syncPattern-" + System.currentTimeMillis() + ".png"),
-                                        generalSettings.getOperationLevel() == OperationLevel.DEBUG,
-                                        cameraConfiguration,
-                                        hardwareConfiguration);
-                                });
-
-                            if (isCancelled()) {
-                                return;
-                            }
-                        } catch (Throwable e) {
-                            exception =
-                                new TaggingException("finalization failed", "can't initialize final dataset", e);
-                            return;
                         }
                     }
+                } catch (Exception e1) {
+                    exception = new TaggingException("image move failed", "can't move unmatchable images", e1);
+                    return;
                 }
-            }
-        }
 
-        // images are left: put them additionally into it, using different import:
+                // create sync statistics and write it to a file. in user level==Debugging, show the window
+                dispatcher.run(
+                    () -> {
+                        new TaggingSyncVisWindow(
+                            taggingAlgorithm,
+                            new File(baseFolder, "syncPattern-" + System.currentTimeMillis() + ".png"),
+                            generalSettings.getOperationLevel() == OperationLevel.DEBUG,
+                            cameraConfiguration,
+                            hardwareConfiguration);
+                    });
 
-        if (targetFiles.size() > 0) {
-            List<File> a = new ArrayList<File>(targetFiles);
-            DataImportHelper.importImages(
-                a,
-                legacyMatching,
-                this,
-                this::updateProgressMessage,
-                copyImages,
-                languageHelper,
-                quantityStyleProvider);
-        }
-
-        if (legacyMatching.getPicsLayer().sizeMapLayer() == 0 && flightPlans.isEmpty()) {
-            LOGGER.error("No images imported!");
-            deletePics = false;
-            if (oldMatchingStatus.equals(MatchingStatus.NEW)) {
-                exception = new TaggingException("No images imported", "No images imported");
+                if (isCancelled()) {
+                    return;
+                }
+            } catch (Throwable e) {
+                exception = new TaggingException("finalization failed", "can't initialize final dataset", e);
                 return;
             }
+        } else {
+            DataImportHelper.importImages(images, legacyMatching, this, this::updateProgressMessage, copyImages);
+            legacyMatching.getPicsLayer().setMute(false);
         }
 
         // import s from flightplans
@@ -953,31 +991,23 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
             return;
         }
 
-        updateProgressMessage(CreateDatasetSubTasks.CALCULATE_LAYERS, 0, 1);
-        legacyMatching.getCoverage().updateCameraCorners();
-        // dont do the preview generation whith the layer above, because it is only a temporary one for
-        // generating the settings file!
         updateProgressMessage(CreateDatasetSubTasks.SAVE_LAYERS, 0, 1);
-        LOGGER.info("Matching done, will save: " + matchingName);
-        this.legacyMatching.guessGoodFilters();
-        this.legacyMatching.setVisible(true);
-        this.legacyMatching.getPicAreasLayer().setVisible(true);
-        this.legacyMatching.mapLayerVisibilityChanged(this.legacyMatching, true);
+        legacyMatching.getCoverage().updateCameraCorners();
+
         dispatcher.run(
             () -> {
-                matching.saveResourceFile();
-                if (!mission.getMatchings().contains(matching)) {
-                    mission.getMatchings().add(matching);
-                }
+                // dont do the preview generation whith the layer above, because it is only a temporary one for
+                // generating the settings file!
+                this.legacyMatching.guessGoodFilters();
+                this.legacyMatching.setVisible(true);
+                this.legacyMatching.getPicAreasLayer().setVisible(true);
+                this.legacyMatching.mapLayerVisibilityChanged(this.legacyMatching, true);
 
-                mission.save();
-                matching.statusProperty().set(MatchingStatus.IMPORTED);
-                LOGGER.info("saved matching: " + matchingName);
+                matching.saveResourceFile();
             });
 
-        LOGGER.info("removing matched data: " + matchingName);
         if (eraseLogsAfterCopying) {
-            if (deletePics && eraseImages) {
+            if (deletePics) {
                 index = 0;
                 for (File f : getPhotosResult.fotos) {
                     updateProgressMessage(
@@ -990,180 +1020,27 @@ public class CreateDatasetTask extends IBackgroundTaskManager.BackgroundTask {
                     try {
                         FileHelper.deleteDir(languageHelper, f.getParentFile(), true);
                     } catch (Exception e) {
-                        LOGGER.info("issues deleting file", e);
+                        Debug.getLog().log(Level.INFO, "issues deleting file", e);
                     }
                 }
             }
 
             if (deleteLogs) {
                 for (File log : logFiles) {
-                    jsonLog = parseLogfile(log);
                     updateProgressMessage(
                         CreateDatasetSubTasks.ERASE_SD, index, logFiles.size(), log.getName(), index, logFiles.size());
                     try {
-                        FileHelper.deleteDir(languageHelper, (jsonLog) ? log.getParentFile() : log, true);
+                        FileHelper.deleteDir(languageHelper, (jsonLogs) ? log.getParentFile() : log, true);
                     } catch (Exception e) {
-                        LOGGER.info("issues deleting file", e);
+                        Debug.getLog().log(Level.INFO, "issues deleting file", e);
                     }
                 }
             }
         }
 
-        if (isCancelled()) {
-            return;
-        }
-
         final long thisTime = System.currentTimeMillis();
         final long usedTime = thisTime - constructionTime;
         LOGGER.info("Generated dataset, Duration: " + StringHelper.secToShortDHMS(usedTime / 1000.));
-
-        try {
-            LOGGER.info("Started generating previews for the dataset");
-            updateProgressMessage(
-                CreateDatasetSubTasks.GENERATE_THUMBFILES,
-                0,
-                legacyMatching.getPicsLayer().sizeMapLayer(),
-                "",
-                0,
-                legacyMatching.getPicsLayer().sizeMapLayer());
-            legacyMatching.getPicsLayer().generatePreview(this::updateProgressMessage, this);
-            updateProgressMessage(
-                CreateDatasetSubTasks.GENERATE_THUMBFILES,
-                legacyMatching.getPicsLayer().sizeMapLayer(),
-                legacyMatching.getPicsLayer().sizeMapLayer(),
-                "",
-                0,
-                legacyMatching.getPicsLayer().sizeMapLayer());
-        } catch (Exception e) {
-            LOGGER.warn("Error while generating previews for the dataset ", e);
-        }
-    }
-
-    private String setFlightplanSelection(List<Flightplan> flightPlans) {
-        String[] flightplan = new String[1];
-        flightPlans.forEach(
-            f -> {
-                flightplan[0] =
-                    flightplan[0] != null
-                        ? flightplan[0] + f.getResourceFile().getAbsolutePath() + ","
-                        : f.getResourceFile().getAbsolutePath() + ",";
-            });
-        return flightplan[0];
-    }
-
-    private boolean parseLogfile(File logFile) throws Exception {
-        int jsonCount = 0;
-        int indexlogFiles = 0;
-        boolean jsonLog = false;
-        // for (File logFile : logFiles) {
-        try {
-            if (MFileFilter.photoJsonFilter.accept(logFile.getName())) {
-                jsonLog = true;
-            }
-            // taggingAlgorithm.loadLogfile(logFile, allowMultipleFeedbacks);  already tagged using paresLogfile
-        } catch (Exception e) {
-            exception = new TaggingException("parsing failed", "unable to parse logfile: " + logFile, e);
-            throw exception; // return;
-        }
-        // }
-
-        return jsonLog;
-    }
-
-    private boolean parseLogfiles(boolean jsonLogs) throws Exception {
-        int jsonCount = 0;
-        int indexlogFiles = 0;
-
-        for (File logFile : logFiles) {
-            try {
-                updateProgressMessage(
-                    CreateDatasetSubTasks.PARSE_LOG_FILES,
-                    indexlogFiles,
-                    logFiles.size(),
-                    logFile.getName(),
-                    indexlogFiles,
-                    logFiles.size());
-
-                indexlogFiles++;
-                if (MFileFilter.photoJsonFilter.accept(logFile.getName())) {
-                    jsonCount++;
-                    jsonLogs = true;
-                }
-
-                if (jsonCount != indexlogFiles && jsonCount != 0) {
-                    final String[] message =
-                        new String[] {"mixed log file types", "process JSON and non JSON logs at the same time"};
-                    LOGGER.info("{}, {}", message[0], message[1]);
-                    // exception = new TaggingException(message[0], message[1]);
-                    // return;
-                }
-
-                taggingAlgorithm.loadLogfile(logFile, allowMultipleFeedbacks);
-            } catch (Exception e) {
-                exception = new TaggingException("parsing failed", "unable to parse logfile: " + logFile, e);
-                throw exception; // return;
-            }
-        }
-
-        if (logFiles.size() > 0) { // enabling without logfiles
-            if (taggingAlgorithm.getLogsAll().isEmpty()) {
-                final String[] message =
-                    new String[] {"log data corrupted", "log data corrupted: no log entries found"};
-                LOGGER.error("{}, {}", message[0], message[1]);
-                exception = new TaggingException(message[0], message[1]);
-                throw exception; // return;
-            }
-
-            if (taggingAlgorithm.getLogsAll().first().getTimestamp() <= 0) {
-                CPhotoLogLine photoLogLine = taggingAlgorithm.getLogsAll().first();
-                LOGGER.error("log data corrupted: log timestamps are zero: {}", photoLogLine);
-                exception =
-                    new TaggingException(
-                        "log data corrupted", "log data corrupted: log timestamps are zero:" + photoLogLine);
-                throw exception; // return;
-            }
-        }
-
-        return jsonLogs;
-    }
-
-    @Nullable
-    private File checkFolder() {
-        File folder = new File(MissionConstants.getMatchingsFolder(this.baseFolder), matchingName);
-        File baseFolder = folder;
-        if (!baseFolder.exists() && !baseFolder.mkdirs()) {
-            exception = new TaggingException("folder creation failed", "Could not create folder " + baseFolder);
-            return null;
-        }
-
-        return baseFolder;
-    }
-
-    @NonNull
-    private Dispatcher setStatusTransferring() {
-        Dispatcher dispatcher = Dispatcher.platform();
-        dispatcher.run(
-            () -> {
-                matching.statusProperty().set(MatchingStatus.TRANSFERRING);
-            });
-        transferInProgressToast =
-            Toast.of(ToastType.INFO)
-                .setText(
-                    languageHelper.getString(
-                        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferInProgressMessage"))
-                .setOnDismissed(t -> transferInProgressToast = null)
-                .create();
-
-        applicationContext.addToast(transferInProgressToast);
-
-        maxValue = 0;
-        for (CreateDatasetSubTasks task : CreateDatasetSubTasks.values()) {
-            progressOffset[task.ordinal()] = maxValue;
-            maxValue += task.duration;
-        }
-
-        updateProgressMessage(CreateDatasetSubTasks.START, 0, 1);
-        return dispatcher;
     }
 
     public TaggingException getTaskException() {

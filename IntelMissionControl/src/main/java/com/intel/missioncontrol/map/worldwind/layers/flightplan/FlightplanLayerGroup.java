@@ -184,7 +184,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
 
         setName(new LayerName("%" + getClass().getName()));
 
-        currentMission.bind(applicationContext.currentMissionProperty());
+        currentMission.bind(applicationContext.currentLegacyMissionProperty());
 
         datasetLayerVisibilitySettings.showCurrentFlightplanProperty().addListener(observable -> fixVisibility());
         this.aircraftLayerVisibilitySettings.flightPlanProperty().addListener(observable -> fixVisibility());
@@ -193,7 +193,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
         navigationService.workflowStepProperty().addListener(observable -> fixVisibility());
         currentFlightPlan.addListener(observable -> fixVisibility());
         currentFlightPlan.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentFlightPlanProperty));
 
         activeFlightPlan.addListener(observable -> fixVisibility());
@@ -247,7 +247,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
                             }
                         };
                     applicationContext
-                        .currentMissionProperty()
+                        .currentLegacyMissionProperty()
                         .addListener(new WeakChangeListener<>(missionChangeListener));
                     worldWindow.addPositionListener(listenerAdapter);
 
@@ -310,7 +310,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
         subLayersProperty()
             .bindContent(
                 propertyPathStore
-                    .from(applicationContext.currentMissionProperty())
+                    .from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyList(Mission::flightPlansProperty),
                 valueConverter);
     }

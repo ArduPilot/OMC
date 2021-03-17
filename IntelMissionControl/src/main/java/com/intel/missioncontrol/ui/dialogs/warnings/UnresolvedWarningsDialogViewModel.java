@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.dialogs.warnings;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
 import com.intel.missioncontrol.ui.validation.IValidationService;
 import de.saxsys.mvvmfx.utils.commands.Command;
@@ -33,9 +32,8 @@ public class UnresolvedWarningsDialogViewModel extends WarningsViewModel<Boolean
     public UnresolvedWarningsDialogViewModel(
             IValidationService validationService,
             INavigationService navigationService,
-            ILanguageHelper languageHelper,
-            ILinkBoxConnectionService linkBoxConnectionService) {
-        super(validationService, navigationService, linkBoxConnectionService);
+            ILanguageHelper languageHelper) {
+        super(validationService, navigationService);
 
         proceedCommand =
             new DelegateCommand(
@@ -53,7 +51,7 @@ public class UnresolvedWarningsDialogViewModel extends WarningsViewModel<Boolean
                     logger.info(
                         languageHelper.getString(
                             UnresolvedWarningsDialogViewModel.class.getName() + ".logMessage",
-                            importantWarningsProperty().size(),
+                                importantWarningsProperty().size(),
                             comment.get()));
                     setDialogResult(true);
                     getCloseCommand().execute();

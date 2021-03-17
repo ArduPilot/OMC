@@ -7,8 +7,8 @@
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerPhoto;
 import eu.mavinci.core.plane.sendableobjects.PhotoData;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.MapLayerPictures;
@@ -86,7 +86,7 @@ public class MapLayerCoverageLive extends AMapLayerCoverage implements IAirplane
 
     @Override
     public String getTooltipAddon() {
-        return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
+        return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
     }
 
     @Override

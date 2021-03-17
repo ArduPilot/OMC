@@ -91,7 +91,7 @@ public class MatchingLayer extends AbstractLayer {
     }
 
     private void reconstruct() {
-        dispatcher.run(
+        dispatcher.runLaterAsync(
             () -> {
                 // not needed to do this on synchronisation root
                 ArrayList<Layer> innerLayers = new ArrayList<>();
@@ -131,7 +131,7 @@ public class MatchingLayer extends AbstractLayer {
     }
 
     private void flagRedrawNeeded() {
-        dispatcher.run(
+        dispatcher.runLaterAsync(
             () -> {
                 firePropertyChange(AVKey.LAYER, null, this);
             });

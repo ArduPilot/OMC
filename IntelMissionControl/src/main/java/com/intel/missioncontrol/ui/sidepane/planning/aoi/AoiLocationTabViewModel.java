@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.planning.aoi;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.SuppressLinter;
-import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.geometry.AreaOfInterestCorner;
 import com.intel.missioncontrol.helper.ILanguageHelper;
@@ -19,8 +18,6 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
-import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.commands.ParameterizedCommand;
@@ -28,7 +25,6 @@ import de.saxsys.mvvmfx.utils.commands.ParameterizedDelegateCommand;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.flightplan.PicArea;
 import eu.mavinci.flightplan.Point;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -40,9 +36,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.util.converter.DoubleStringConverter;
-import org.asyncfx.beans.property.AsyncObjectProperty;
-import org.asyncfx.beans.property.PropertyPath;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 
 @SuppressLinter(value = "IllegalViewModelMethod", reviewer = "mstrauss", justification = "legacy file")
@@ -65,13 +58,7 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
 
     private ParameterizedCommand<AreaOfInterestCorner> deleteCommand;
     private Command addVertexCommand;
-    private Command addVertexFromUavCommand;
     private Command maximizeAoiCommand;
-
-    @InjectScope
-    private FlightScope flightScope;
-
-    private final AsyncObjectProperty<Position> dronePosition = new SimpleAsyncObjectProperty<>(this);
 
     @Inject
     public AoiLocationTabViewModel(
@@ -89,7 +76,7 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
             settingsManager.getSection(GeneralSettings.class).operationLevelProperty().isEqualTo(OperationLevel.DEBUG));
         selectionManager
             .currentSelectionProperty()
-            .addListener((observable, oldValue, newValue) -> selectionChange(newValue), Dispatcher.platform()::run);
+            .addListener((observable, oldValue, newValue) -> selectionChange(newValue), Dispatcher.platform());
     }
 
     public ObservableValue<? extends ObservableList<AreaOfInterestCorner>> cornersProperty() {
@@ -106,9 +93,6 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
     protected void initializeViewModel(AreaOfInterest aoi) {
         super.initializeViewModel(aoi);
         this.areaOfInterest = aoi;
-
-        dronePosition.bind(
-            PropertyPath.from(flightScope.currentDroneProperty()).selectReadOnlyAsyncObject(IDrone::positionProperty));
 
         aoi.cornerListProperty()
             .addListener(
@@ -138,8 +122,6 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
                     aoi.cornerListProperty(),
                     aoi.typeProperty()));
 
-        addVertexFromUavCommand = new DelegateCommand(this::addVertexFromUav, dronePosition.isNotNull());
-
         selection.addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue != null) {
@@ -151,27 +133,6 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
     private void addVertex() {
         final Position center = mapView.getCenterPosition();
         Point pointNew = areaOfInterest.addVertex(center, selectionProperty().get());
-        selectionManager.setSelection(pointNew);
-    }
-
-    private void addVertexFromUav() {
-        LatLon latLonNew = dronePosition.getValueUncritical();
-        if (latLonNew == null) {
-            return;
-        }
-
-        if (areaOfInterest.getType().isCircular()) {
-            if (areaOfInterest.cornerListProperty().size() > 0) {
-                areaOfInterest
-                    .cornerListProperty()
-                    .get(0)
-                    .getLegacyPoint()
-                    .setLatLon(latLonNew.latitude.degrees, latLonNew.longitude.degrees);
-                return;
-            }
-        }
-
-        Point pointNew = areaOfInterest.addVertex(latLonNew, selectionProperty().get());
         selectionManager.setSelection(pointNew);
     }
 
@@ -207,10 +168,6 @@ public class AoiLocationTabViewModel extends ViewModelBase<AreaOfInterest> {
 
     public Command getAddVertexCommand() {
         return addVertexCommand;
-    }
-
-    public Command getAddVertexFromUavCommand() {
-        return addVertexFromUavCommand;
     }
 
     public Command getMaximizeAoiCommand() {

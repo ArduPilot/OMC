@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.livevideo.WrappedImageView?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml/2019.1"
       fx:controller="com.intel.missioncontrol.ui.livevideo.LiveVideoPaneView"
@@ -23,14 +24,13 @@
       -fx-max-width: 21em;
       -fx-padding: 0 0 3em 1em;
       -fx-border-insets: 0 0 3em 1em;
-      -fx-background-insets: 0 0 3em 1em;
-      -fx-background-color: theme-gray-55"
+      -fx-background-insets: 0 0 3em 1em;"
       maxHeight="-Infinity"
       alignment="CENTER">
     <StackPane.margin>
         <Insets top="20" right="10"/>
     </StackPane.margin>
-    <fx:include source="LiveVideoScreenView.fxml" fx:id="liveVideoScreen"/>
+    <WrappedImageView fx:id="liveVideo" style="-fx-background-color: theme-gray-55"/>
 
     <HBox alignment="CENTER_LEFT">
         <Button onAction="#selectPrevCam"

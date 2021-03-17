@@ -252,7 +252,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
         speedChange =
             new SimpleQuantityProperty<>(generalSettings, INVARIANT_SPEED_MPS, Quantity.of(0, METER_PER_SECOND));
 
-        FlightPlan fp = applicationContext.getCurrentMission().getCurrentFlightPlan();
+        FlightPlan fp = applicationContext.getCurrentLegacyMission().getCurrentFlightPlan();
         maxSpeedMps = fp.getLegacyFlightplan().getHardwareConfiguration().getPlatformDescription().getMaxPlaneSpeed();
         minPitch =
             fp.getLegacyFlightplan().getHardwareConfiguration().getPrimaryPayload().getDescription().getMinPitch();
@@ -280,7 +280,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
             .addListener(
                 ((observable, oldValue, newValue) -> {
                     // if the set of waypoints changes this is typicall due to
-                    // recompuation of mission which will anyway crate new unselected objects,
+                    // recompuation of flight plan which will anyway crate new unselected objects,
                     // or due to deleting of the selection, where is also doen't hurt if we deselect first
                     deselectWaypoints(SelectionFilter.ANY);
                     waypoints.setAll(fp.waypointsProperty());
@@ -305,7 +305,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
             });
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener(
                 new InvalidationListener() {
@@ -315,7 +315,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
                     }
                 });
         applicationContext
-            .currentMissionProperty()
+            .currentLegacyMissionProperty()
             .addListener(
                 new InvalidationListener() {
                     @Override
@@ -554,7 +554,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
             return;
         }
 
-        FlightPlan flightPlan = applicationContext.getCurrentMission().getCurrentFlightPlan();
+        FlightPlan flightPlan = applicationContext.getCurrentLegacyMission().getCurrentFlightPlan();
         flightPlan.deleteWaypoints(wayPoints);
     }
 
@@ -623,7 +623,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
         boolean lonSetErrorShown = false;
         IHardwareConfiguration hardwareConfig =
             applicationContext
-                .getCurrentMission()
+                .getCurrentLegacyMission()
                 .getCurrentFlightPlan()
                 .getLegacyFlightplan()
                 .getHardwareConfiguration();

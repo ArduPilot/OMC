@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.doublepanel.sunangles;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.wwext.sun.SunPositionProviderSingleton;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
@@ -25,7 +25,8 @@ public class SunComputer {
     public final double[] azimuthsDeg = new double[24 * 60 + 1];
     public final long offset;
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
     /**
      * generates a run movage curve for a given location and a given time and day
      *
@@ -102,11 +103,13 @@ public class SunComputer {
         private long timeRise = -1;
         private long timeSet = -1;
 
-        public Instant getSunRise() {
+        public Instant getSunRise()
+        {
             return Instant.ofEpochMilli(timeRise);
         }
 
-        public Instant getSunSet() {
+        public Instant getSunSet()
+        {
             return Instant.ofEpochMilli(timeSet);
         }
     }

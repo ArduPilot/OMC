@@ -6,22 +6,20 @@
 
 package com.intel.missioncontrol.api;
 
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
-import com.intel.insight.InsightContext;
-import com.intel.insight.api.PhotogrammetryService;
-import com.intel.insight.datastructures.Camera;
-import com.intel.insight.datastructures.Coordinates;
-import com.intel.insight.datastructures.Geometries;
-import com.intel.insight.datastructures.IUploadProgress;
-import com.intel.insight.datastructures.Inspection;
-import com.intel.insight.datastructures.Photo;
-import com.intel.insight.datastructures.PhotoGeometry;
-import com.intel.insight.datastructures.PhotoUpload;
-import com.intel.insight.datastructures.ProcessSettings;
-import com.intel.insight.datastructures.Survey;
+// import com.intel.insight.InsightContext;
+// import com.intel.insight.api.PhotogrammetryService;
+// import com.intel.insight.datastructures.Camera;
+// import com.intel.insight.datastructures.Coordinates;
+// import com.intel.insight.datastructures.Geometries;
+// import com.intel.insight.datastructures.IUploadProgress;
+// import com.intel.insight.datastructures.Inspection;
+// import com.intel.insight.datastructures.Photo;
+// import com.intel.insight.datastructures.PhotoGeometry;
+// import com.intel.insight.datastructures.PhotoUpload;
+// import com.intel.insight.datastructures.ProcessSettings;
+// import com.intel.insight.datastructures.Survey;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -43,6 +41,7 @@ import com.intel.missioncontrol.ui.sidepane.analysis.AnalysisSettings;
 import com.intel.missioncontrol.ui.sidepane.analysis.ExportTypes;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.core.flightplan.camera.GPStype;
@@ -69,14 +68,12 @@ import eu.mavinci.desktop.helper.ProcessHelper;
 import eu.mavinci.desktop.helper.WinRegistryQuery;
 import eu.mavinci.desktop.helper.gdal.ISrsManager;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import eu.mavinci.desktop.helper.gdal.SRStransformCacheEntry;
 import eu.mavinci.desktop.main.debug.Debug;
 import eu.mavinci.flightplan.Point;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Matrix;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.geom.Sector;
-import gov.nasa.worldwind.render.SurfacePolygon;
+import gov.nasa.worldwind.geom.Vec4;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -100,14 +97,10 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -201,7 +194,7 @@ public class ExportService implements IExportService {
             ps.add(p);
         }
         // batch gdal transformation
-        List<SRStransformCacheEntry> vs = null;
+        List<Vec4> vs = null;
         try {
             vs = srs.fromWgs84(ps);
         } catch (Exception e1) {
@@ -227,7 +220,7 @@ public class ExportService implements IExportService {
                 }
             }
 
-            SRStransformCacheEntry v = null;
+            Vec4 v = null;
             try {
                 Expect.notNull(vs, "vs");
                 v = vs.get(i);
@@ -235,7 +228,7 @@ public class ExportService implements IExportService {
             }
 
             out.print(
-                (match.isExportPassFilter() ? "1 " : "0 ")
+                (match.isPassFilter() ? "1 " : "0 ")
                     + (i + 1)
                     + " "
                     + imgFile.getName()
@@ -444,10 +437,10 @@ public class ExportService implements IExportService {
                         ps.add(((Point)point).getLatLon());
                     }
 
-                    List<SRStransformCacheEntry> vs = srs.fromWgs84(ps);
+                    List<Vec4> vs = srs.fromWgs84(ps);
                     for (int i = 0; i != ps.size(); i++) {
                         LatLon latLon = ps.get(i);
-                        SRStransformCacheEntry v = vs.get(i);
+                        Vec4 v = vs.get(i);
                         vals =
                             new String[] {
                                 Double.toString(latLon.getLatitude().degrees),
@@ -467,7 +460,7 @@ public class ExportService implements IExportService {
                     xml.start("area", "name", "orthoRoi");
                     for (int i = 0; i != ps.size(); i++) {
                         LatLon latLon = ps.get(i);
-                        SRStransformCacheEntry v = vs.get(i);
+                        Vec4 v = vs.get(i);
                         vals =
                             new String[] {
                                 Double.toString(latLon.getLatitude().degrees),
@@ -500,13 +493,13 @@ public class ExportService implements IExportService {
                 }
             }
 
-            List<SRStransformCacheEntry> vs = srs.fromWgs84(ps);
+            List<Vec4> vs = srs.fromWgs84(ps);
             int i = 0;
             for (IMapLayer layer : currentMatching.getPictures()) {
                 if (layer instanceof MapLayerMatch) {
                     MapLayerMatch match = (MapLayerMatch)layer;
                     CPhotoLogLine line = match.getPhotoLogLine();
-                    SRStransformCacheEntry v = vs.get(i);
+                    Vec4 v = vs.get(i);
                     Position p = ps.get(i);
                     i++;
                     File imgFile = match.getResourceFile();
@@ -518,9 +511,7 @@ public class ExportService implements IExportService {
 
                     attr = new String[] {"path", "type", "enabled"};
                     vals =
-                        new String[] {
-                            path, cameraDesc.getBandNamesSplit()[0].toLowerCase(), match.isExportPassFilter() + ""
-                        };
+                        new String[] {path, cameraDesc.getBandNamesSplit()[0].toLowerCase(), match.isPassFilter() + ""};
 
                     xml.start("image", attr, vals);
 
@@ -595,244 +586,249 @@ public class ExportService implements IExportService {
             });
     }
 
-    @Override
-    public boolean intelInsightUpload(
-            Matching matching, MSpatialReference srs, IUploadProgress uploadProgress, boolean pix4DProcessing)
-            throws Exception {
-        if (!analysisSettings.getInsightLoggedIn()) {
-            return false;
-        }
-
-        Sector boundingSector = matching.getSector();
-        LatLon[] boundingBox = boundingSector.getCorners();
-
-        List<MapLayerMatch> matches = Matching.sortMatches(matching, AMapLayerMatching.comparatorMatchesLineOrder);
-
-        var hardwareConfig = matching.getHardwareConfiguration();
-        IGenericCameraConfiguration cam = hardwareConfig.getPrimaryPayload(IGenericCameraConfiguration.class);
-
-        Survey survey = new Survey();
-        survey.setName(matching.getName());
-        survey.setAddProjectToUsers(true);
-        Geometries geom = new Geometries();
-        geom.setType("GeometryCollection");
-
-        GsonBuilder builder = new GsonBuilder();
-        var gson = builder.create();
-        var coordinates =
-            gson.fromJson(
-                "{\n"
-                    + "        \"type\": \"Polygon\",\n"
-                    + "        \"coordinates\": [\n"
-                    + "          [\n"
-                    + "            [\n"
-                    + "              "
-                    + boundingBox[0].longitude.degrees
-                    + ",\n"
-                    + "              "
-                    + boundingBox[0].latitude.degrees
-                    + "\n"
-                    + "            ],\n"
-                    + "            [\n"
-                    + "              "
-                    + boundingBox[1].longitude.degrees
-                    + ",\n"
-                    + "              "
-                    + boundingBox[1].latitude.degrees
-                    + "\n"
-                    + "            ],\n"
-                    + "            [\n"
-                    + "              "
-                    + boundingBox[2].longitude.degrees
-                    + ",\n"
-                    + "              "
-                    + boundingBox[2].latitude.degrees
-                    + "\n"
-                    + "            ],\n"
-                    + "            [\n"
-                    + "              "
-                    + boundingBox[3].longitude.degrees
-                    + ",\n"
-                    + "              "
-                    + boundingBox[3].latitude.degrees
-                    + "\n"
-                    + "            ],\n"
-                    + "            [\n"
-                    + "              "
-                    + boundingBox[0].longitude.degrees
-                    + ",\n"
-                    + "              "
-                    + boundingBox[0].latitude.degrees
-                    + "\n"
-                    + "            ]\n"
-                    + "          ]\n"
-                    + "        ]\n"
-                    + "      }",
-                Coordinates.class);
-        geom.getGeometries().add(coordinates);
-        survey.setGeometry(geom);
-
-        Camera camera = new Camera();
-        camera.setFocalLength(
-            (int)cam.getLens().getDescription().getFocalLength().convertTo(Unit.MILLIMETER).getValue().doubleValue());
-        camera.setAspectRatio(
-            cam.getDescription().getCcdWidth().convertTo(Unit.MILLIMETER).getValue().doubleValue()
-                / cam.getDescription().getCcdHeight().convertTo(Unit.MILLIMETER).getValue().doubleValue());
-        camera.setWidth(cam.getDescription().getCcdResX());
-        camera.setHeight(cam.getDescription().getCcdResY());
-        camera.setModel(cam.getDescription().getExifModels().get(0));
-        survey.getCameras().add(camera);
-        SurfacePolygon polygon = new SurfacePolygon(Arrays.asList(boundingBox));
-
-        survey.setArea(polygon.getArea(globes.getDefaultGlobe())); // the area covered by the sector
-        var processSettings = new ProcessSettings();
-        processSettings.setMapType("");
-        var inspection = new Inspection();
-        inspection.setVideo(false);
-        processSettings.setInspection(inspection);
-        DateTimeFormatter formatter =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH).withZone(ZoneId.of("UTC"));
-        survey.setSurveyDate(
-            formatter.format(
-                new Date(Math.round(1000 * matches.get(0).getPhotoLogLine().getTimestamp()))
-                    .toInstant())); // "2018-04-12T00:00:00.000Z");
-        survey.setNumberOfPhotos(matches.size());
-        survey.setIndustry("Geospatial");
-        survey.setProcessSettings(processSettings);
-
-        var context = new InsightContext();
-        context.authWithInsight(analysisSettings.getInsightUsername(), analysisSettings.getInsightPassword());
-        System.out.println(context.oauthResponse.getAccessToken());
-        var createdProject = context.createNewProject(survey);
-
-        ArrayList<Position> ps = new ArrayList<>();
-        for (MapLayerMatch match : matches) {
-            Position p = match.getShiftedPositionExport(hardwareConfig);
-            ps.add(p);
-        }
-        // batch gdal transformation
-        List<SRStransformCacheEntry> vs = srs.fromWgs84(ps);
-
-        PhotoUpload photoUpload = new PhotoUpload();
-        photoUpload.setFlight(createdProject.getFlight().getId());
-        photoUpload.setMission(createdProject.getMission().getId());
-        photoUpload.setProject(createdProject.getProject().getId());
-
-        List<Photo> photos = new ArrayList<>();
-
-        String vertCS = srs.getWktOnlyVertical();
-        String horCS = srs.getWktWithoutVertical();
-
-        int i = -1;
-        for (MapLayerMatch match : matches) {
-            i++;
-            if (match.isExportPassFilter()) {
-                CPhotoLogLine line = match.getPhotoLogLine();
-                Position p = ps.get(i);
-                SRStransformCacheEntry v = vs.get(i);
-                File imgFile = match.getResourceFile();
-                PhotoFile photoFile = match.getCurPhotoFile();
-                Matrix m = CameraHelper.getCorrectedStateTransform(line, hardwareConfig).getTranspose();
-                double[] rollPitchYaw = MathHelper.transformationToRollPitchYaw(m);
-
-                ExifInfos exif = photoFile.getExif();
-
-                var photo = new Photo();
-                photo.setAltitude(v.z);
-                photo.setUtc(formatter.format(new Date(Math.round(1000 * line.getTimestamp())).toInstant()));
-                photo.setShutter(exif.exposureSec);
-                photo.setSharpened(false);
-                photo.setStatus("uploading");
-                photo.setRtc(4); // ????
-                photo.setCamera(createdProject.getCameras().get(0).getId());
-                photo.setWidth(cam.getDescription().getCcdResX());
-                photo.setHeight(cam.getDescription().getCcdResY());
-                PhotoGeometry photoGeom = new PhotoGeometry();
-                List<Double> coord = new ArrayList<>();
-                coord.add(v.x);
-                coord.add(v.y);
-                photoGeom.setCoordinates(coord);
-                photo.setGeometry(photoGeom);
-                // photo.setVerticalSrsWkt(srs.getWkt());
-                // TODO: the vertical srs uses a different syntax
-                photo.setVerticalSrsWkt(
-                    "VERT_CS[\\\"EGM96 geoid (meters)\\\",VERT_DATUM[\\\"EGM96 geoid\\\",2005,EXTENSION[\\\"PROJ4_GRIDS\\\",\\\"egm96_15.gtx\\\"],AUTHORITY[\\\"EPSG\\\",\\\"5171\\\"]],UNIT[\\\"metre\\\",1,AUTHORITY[\\\"EPSG\\\",\\\"9001\\\"]],AXIS[\\\"Up\\\",UP]]");
-                photo.setHorizontalSrsWkt(srs.getWkt());
-                // SONY_UMC-R10C_24_5c4ffb256bb2a051df3bdf35_2018-04-12T09:56:53.000Z
-                photo.setUploadId(
-                    createdProject.getCameras().get(0).getId()
-                        + createdProject.getMission().getId()
-                        + "2018-05-29T10:07:25.000Z"); // TODO from timestamp
-                photo.setFlight(createdProject.getFlight().getId()); // TODO
-                // photo.setPhi(rollPitchYaw[0]);
-                // photo.setPsi(rollPitchYaw[2]);
-                // photo.setTheta(rollPitchYaw[1]);
-                /*{
-                    "seq": "5c529fac3869981964933bd7",
-                        "altitude": 159.63428174878555,
-                        "ground_footprint": {},
-                    "UTC": "2018-05-29T10:07:25.000Z",
-                        "shutter": 12.5,
-                        "sharpened": false,
-                        "status": "uploading",
-                        "RTC": 4,
-                        "camera": "5c4061b494eed129d59678ab",
-                        "width": 7360,
-                        "height": 4912,
-                        "geometry": {
-                    "type": "Point",
-                            "coordinates": [
-                    23.685973158360568,
-                            61.51935263322394
-                ]
-                },
-                    "phi": 0,
-                        "psi": 45.17,
-                        "theta": 0,
-                        "vertical_srs_wkt": "VERT_CS[\"EGM96 geoid (meters)\",VERT_DATUM[\"EGM96 geoid\",2005,EXTENSION[\"PROJ4_GRIDS\",\"egm96_15.gtx\"],AUTHORITY[\"EPSG\",\"5171\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Up\",UP]]",
-                        "horizontal_srs_wkt": "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]]",
-                        "upload_id": "SONY_ILCE-7R_35_5c529fac3869981964933bd7_2018-05-29T10:07:25.000Z",
-                        "flight": "5c6bf5a9a39853197efc7208"
-                },*/
-                // match.getResourceFile().getAbsolutePath();
-                photo.setSeq(match.getResourceFile().getPath());
-                photo.setVerticalSrsWkt(vertCS);
-                photo.setHorizontalSrsWkt(horCS);
-                photo.setUploadId(
-                    createdProject.getCameras().get(0).getId()
-                        + createdProject.getMission().getId()
-                        + formatter.format(new Date(Math.round(1000 * line.getTimestamp())).toInstant()));
-                photo.setFlight(createdProject.getFlight().getId());
-                photo.setPhi(rollPitchYaw[2]);
-                photo.setPsi(rollPitchYaw[0]);
-                photo.setTheta(rollPitchYaw[1]);
-                photos.add(photo);
-            }
-        }
-
-        photoUpload.setPhotos(photos);
-
-        context.preparePhotoUpload(gson, photoUpload, uploadProgress);
-
-        if (pix4DProcessing) {
-            var photoService = new PhotogrammetryService(context);
-            survey.setProcessSettings(photoService.createPix4DProcessSettings());
-
-            var p =
-                photoService.createPhotogrammetryRequest(
-                    createdProject.getMission().getId(), createdProject.getFlight().getId());
-            photoService.requestPhotogrammetry(p);
-        }
-
-        return true;
-    }
+    //    @Override
+    //    public boolean intelInsightUpload(
+    //            Matching matching, MSpatialReference srs, IUploadProgress uploadProgress, boolean pix4DProcessing)
+    //            throws Exception {
+    //        if (!analysisSettings.getInsightLoggedIn()) {
+    //            return false;
+    //        }
+    //
+    //        Sector boundingSector = matching.getSector();
+    //        LatLon[] boundingBox = boundingSector.getCorners();
+    //
+    //        List<MapLayerMatch> matches = Matching.sortMatches(matching,
+    // AMapLayerMatching.comparatorMatchesLineOrder);
+    //
+    //        var hardwareConfig = matching.getHardwareConfiguration();
+    //        IGenericCameraConfiguration cam = hardwareConfig.getPrimaryPayload(IGenericCameraConfiguration.class);
+    //
+    //        Survey survey = new Survey();
+    //        survey.setName(matching.getName());
+    //        survey.setAddProjectToUsers(true);
+    //        Geometries geom = new Geometries();
+    //        geom.setType("GeometryCollection");
+    //
+    //        GsonBuilder builder = new GsonBuilder();
+    //        var gson = builder.create();
+    //        var coordinates =
+    //            gson.fromJson(
+    //                "{\n"
+    //                    + "        \"type\": \"Polygon\",\n"
+    //                    + "        \"coordinates\": [\n"
+    //                    + "          [\n"
+    //                    + "            [\n"
+    //                    + "              "
+    //                    + boundingBox[0].longitude.degrees
+    //                    + ",\n"
+    //                    + "              "
+    //                    + boundingBox[0].latitude.degrees
+    //                    + "\n"
+    //                    + "            ],\n"
+    //                    + "            [\n"
+    //                    + "              "
+    //                    + boundingBox[1].longitude.degrees
+    //                    + ",\n"
+    //                    + "              "
+    //                    + boundingBox[1].latitude.degrees
+    //                    + "\n"
+    //                    + "            ],\n"
+    //                    + "            [\n"
+    //                    + "              "
+    //                    + boundingBox[2].longitude.degrees
+    //                    + ",\n"
+    //                    + "              "
+    //                    + boundingBox[2].latitude.degrees
+    //                    + "\n"
+    //                    + "            ],\n"
+    //                    + "            [\n"
+    //                    + "              "
+    //                    + boundingBox[3].longitude.degrees
+    //                    + ",\n"
+    //                    + "              "
+    //                    + boundingBox[3].latitude.degrees
+    //                    + "\n"
+    //                    + "            ],\n"
+    //                    + "            [\n"
+    //                    + "              "
+    //                    + boundingBox[0].longitude.degrees
+    //                    + ",\n"
+    //                    + "              "
+    //                    + boundingBox[0].latitude.degrees
+    //                    + "\n"
+    //                    + "            ]\n"
+    //                    + "          ]\n"
+    //                    + "        ]\n"
+    //                    + "      }",
+    //                Coordinates.class);
+    //        geom.getGeometries().add(coordinates);
+    //        survey.setGeometry(geom);
+    //
+    //        Camera camera = new Camera();
+    //        camera.setFocalLength(
+    //
+    // (int)cam.getLens().getDescription().getFocalLength().convertTo(Unit.MILLIMETER).getValue().doubleValue());
+    //        camera.setAspectRatio(
+    //            cam.getDescription().getCcdWidth().convertTo(Unit.MILLIMETER).getValue().doubleValue()
+    //                / cam.getDescription().getCcdHeight().convertTo(Unit.MILLIMETER).getValue().doubleValue());
+    //        camera.setWidth(cam.getDescription().getCcdResX());
+    //        camera.setHeight(cam.getDescription().getCcdResY());
+    //        camera.setModel(cam.getDescription().getExifModels().get(0));
+    //        survey.getCameras().add(camera);
+    //        SurfacePolygon polygon = new SurfacePolygon(Arrays.asList(boundingBox));
+    //
+    //        survey.setArea(polygon.getArea(globes.getDefaultGlobe())); // the area covered by the sector
+    //        var processSettings = new ProcessSettings();
+    //        processSettings.setMapType("");
+    //        var inspection = new Inspection();
+    //        inspection.setVideo(false);
+    //        processSettings.setInspection(inspection);
+    //        DateTimeFormatter formatter =
+    //            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+    // Locale.ENGLISH).withZone(ZoneId.of("UTC"));
+    //        survey.setSurveyDate(
+    //            formatter.format(
+    //                new Date(Math.round(1000 * matches.get(0).getPhotoLogLine().getTimestamp()))
+    //                    .toInstant())); // "2018-04-12T00:00:00.000Z");
+    //        survey.setNumberOfPhotos(matches.size());
+    //        survey.setIndustry("Geospatial");
+    //        survey.setProcessSettings(processSettings);
+    //
+    //        var context = new InsightContext();
+    //        context.authWithInsight(analysisSettings.getInsightUsername(), analysisSettings.getInsightPassword());
+    //        System.out.println(context.oauthResponse.getAccessToken());
+    //        var createdProject = context.createNewProject(survey);
+    //
+    //        ArrayList<Position> ps = new ArrayList<>();
+    //        for (MapLayerMatch match : matches) {
+    //            Position p = match.getShiftedPositionExport(hardwareConfig);
+    //            ps.add(p);
+    //        }
+    //        // batch gdal transformation
+    //        List<Vec4> vs = srs.fromWgs84(ps);
+    //
+    //        PhotoUpload photoUpload = new PhotoUpload();
+    //        photoUpload.setFlight(createdProject.getFlight().getId());
+    //        photoUpload.setMission(createdProject.getMission().getId());
+    //        photoUpload.setProject(createdProject.getProject().getId());
+    //
+    //        List<Photo> photos = new ArrayList<>();
+    //
+    //        String vertCS = srs.getWktOnlyVertical();
+    //        String horCS = srs.getWktWithoutVertical();
+    //
+    //        int i = -1;
+    //        for (MapLayerMatch match : matches) {
+    //            i++;
+    //            if (match.isPassFilter()) {
+    //                CPhotoLogLine line = match.getPhotoLogLine();
+    //                Position p = ps.get(i);
+    //                Vec4 v = vs.get(i);
+    //                File imgFile = match.getResourceFile();
+    //                PhotoFile photoFile = match.getCurPhotoFile();
+    //                Matrix m = CameraHelper.getCorrectedStateTransform(line, hardwareConfig).getTranspose();
+    //                double[] rollPitchYaw = MathHelper.transformationToRollPitchYaw(m);
+    //
+    //                ExifInfos exif = photoFile.getExif();
+    //
+    //                var photo = new Photo();
+    //                photo.setAltitude(v.z);
+    //                photo.setUtc(formatter.format(new Date(Math.round(1000 * line.getTimestamp())).toInstant()));
+    //                photo.setShutter(exif.exposureSec);
+    //                photo.setSharpened(false);
+    //                photo.setStatus("uploading");
+    //                photo.setRtc(4); // ????
+    //                photo.setCamera(createdProject.getCameras().get(0).getId());
+    //                photo.setWidth(cam.getDescription().getCcdResX());
+    //                photo.setHeight(cam.getDescription().getCcdResY());
+    //                PhotoGeometry photoGeom = new PhotoGeometry();
+    //                List<Double> coord = new ArrayList<>();
+    //                coord.add(v.x);
+    //                coord.add(v.y);
+    //                photoGeom.setCoordinates(coord);
+    //                photo.setGeometry(photoGeom);
+    //                // photo.setVerticalSrsWkt(srs.getWkt());
+    //                // TODO: the vertical srs uses a different syntax
+    //                photo.setVerticalSrsWkt(
+    //                    "VERT_CS[\\\"EGM96 geoid (meters)\\\",VERT_DATUM[\\\"EGM96
+    // geoid\\\",2005,EXTENSION[\\\"PROJ4_GRIDS\\\",\\\"egm96_15.gtx\\\"],AUTHORITY[\\\"EPSG\\\",\\\"5171\\\"]],UNIT[\\\"metre\\\",1,AUTHORITY[\\\"EPSG\\\",\\\"9001\\\"]],AXIS[\\\"Up\\\",UP]]");
+    //                photo.setHorizontalSrsWkt(srs.getWkt());
+    //                // SONY_UMC-R10C_24_5c4ffb256bb2a051df3bdf35_2018-04-12T09:56:53.000Z
+    //                photo.setUploadId(
+    //                    createdProject.getCameras().get(0).getId()
+    //                        + createdProject.getMission().getId()
+    //                        + "2018-05-29T10:07:25.000Z"); // TODO from timestamp
+    //                photo.setFlight(createdProject.getFlight().getId()); // TODO
+    //                // photo.setPhi(rollPitchYaw[0]);
+    //                // photo.setPsi(rollPitchYaw[2]);
+    //                // photo.setTheta(rollPitchYaw[1]);
+    //                /*{
+    //                    "seq": "5c529fac3869981964933bd7",
+    //                        "altitude": 159.63428174878555,
+    //                        "ground_footprint": {},
+    //                    "UTC": "2018-05-29T10:07:25.000Z",
+    //                        "shutter": 12.5,
+    //                        "sharpened": false,
+    //                        "status": "uploading",
+    //                        "RTC": 4,
+    //                        "camera": "5c4061b494eed129d59678ab",
+    //                        "width": 7360,
+    //                        "height": 4912,
+    //                        "geometry": {
+    //                    "type": "Point",
+    //                            "coordinates": [
+    //                    23.685973158360568,
+    //                            61.51935263322394
+    //                ]
+    //                },
+    //                    "phi": 0,
+    //                        "psi": 45.17,
+    //                        "theta": 0,
+    //                        "vertical_srs_wkt": "VERT_CS[\"EGM96 geoid (meters)\",VERT_DATUM[\"EGM96
+    // geoid\",2005,EXTENSION[\"PROJ4_GRIDS\",\"egm96_15.gtx\"],AUTHORITY[\"EPSG\",\"5171\"]],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Up\",UP]]",
+    //                        "horizontal_srs_wkt": "GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS
+    // 84\",6378137,298.257223563,AUTHORITY[\"EPSG\",\"7030\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4326\"]]",
+    //                        "upload_id": "SONY_ILCE-7R_35_5c529fac3869981964933bd7_2018-05-29T10:07:25.000Z",
+    //                        "flight": "5c6bf5a9a39853197efc7208"
+    //                },*/
+    //                // match.getResourceFile().getAbsolutePath();
+    //                photo.setSeq(match.getResourceFile().getPath());
+    //                photo.setVerticalSrsWkt(vertCS);
+    //                photo.setHorizontalSrsWkt(horCS);
+    //                photo.setUploadId(
+    //                    createdProject.getCameras().get(0).getId()
+    //                        + createdProject.getMission().getId()
+    //                        + formatter.format(new Date(Math.round(1000 * line.getTimestamp())).toInstant()));
+    //                photo.setFlight(createdProject.getFlight().getId());
+    //                photo.setPhi(rollPitchYaw[2]);
+    //                photo.setPsi(rollPitchYaw[0]);
+    //                photo.setTheta(rollPitchYaw[1]);
+    //                photos.add(photo);
+    //            }
+    //        }
+    //
+    //        photoUpload.setPhotos(photos);
+    //
+    //        context.preparePhotoUpload(gson, photoUpload, uploadProgress);
+    //
+    //        if (pix4DProcessing) {
+    //            var photoService = new PhotogrammetryService(context);
+    //            survey.setProcessSettings(photoService.createPix4DProcessSettings());
+    //
+    //            var p =
+    //                photoService.createPhotogrammetryRequest(
+    //                    createdProject.getMission().getId(), createdProject.getFlight().getId());
+    //            photoService.requestPhotogrammetry(p);
+    //        }
+    //
+    //        return true;
+    //    }
 
     @Override
     public void openIntelInsightAccount(Matching matching) {
         try {
             // FileHelper.openFileOrURL("https://insightplatform.intel.com");
-            var context = new InsightContext();
-            FileHelper.openFileOrURL(context.getTargetHost());
+            FileHelper.openFileOrURL("$targetHost"); // TODO get from Kotlin
         } catch (IOException e) {
             LOG.error("cant open insight URL in browser", e);
         }
@@ -925,7 +921,7 @@ public class ExportService implements IExportService {
     private String getPix4dProjectName(File target, Matching currentMatching) {
         String projectName;
         projectName = MFileFilter.pix4dMatchingExportFilter.removeExtension(target.getName());
-        projectName = applicationContext.getCurrentMission().getDirectory() + "_" + projectName;
+        projectName = applicationContext.getCurrentLegacyMission().getDirectory() + "_" + projectName;
         projectName = projectName.toLowerCase().replaceAll("[^a-zA-Z0-9_]", Matcher.quoteReplacement(""));
         return projectName;
     }
@@ -1049,10 +1045,6 @@ public class ExportService implements IExportService {
         final IGenericCameraDescription cameraDesc = cameraConfig.getDescription();
         final ILensDescription lensDesc = cameraConfig.getLens().getDescription();
 
-        if (platformDesc.isJpgMetadataLocationInCameraFrame()) {
-            usePhotoScanLevelArmProcessing = false;
-        }
-
         File fCal = new File(cameraDesc.getAgisoftCalibFile());
 
         boolean useMasks = lensDesc.getLensType() == LensTypes.FISH_EYE;
@@ -1083,7 +1075,7 @@ public class ExportService implements IExportService {
             int gpsAccuracyCnt = 0;
             ArrayList<Position> ps = new ArrayList<>();
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1098,7 +1090,7 @@ public class ExportService implements IExportService {
                 }
             }
             // batch gdal transformation
-            List<SRStransformCacheEntry> vs = srsWithoutVertical.fromWgs84(ps);
+            List<Vec4> vs = srsWithoutVertical.fromWgs84(ps);
 
             if (gpsAccuracyCnt == 0) {
                 gpsAccuracyXY = 2;
@@ -1194,8 +1186,8 @@ public class ExportService implements IExportService {
                     boolean first = true;
 
                     // batch gdal transformation
-                    List<SRStransformCacheEntry> vsCorners = srsWithoutVertical.fromWgs84(picArea.getCorners());
-                    for (SRStransformCacheEntry corner : vsCorners) {
+                    List<Vec4> vsCorners = srsWithoutVertical.fromWgs84(picArea.getCorners());
+                    for (Vec4 corner : vsCorners) {
                         if (first) {
                             first = false;
                         } else {
@@ -1549,17 +1541,14 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
                 File img = match.getResourceFile();
 
                 args = new String[] {"id", "label", "sensor_id", "enabled"};
-                vals =
-                    new String[] {
-                        Integer.toString(i), img.getName(), "0", match.isExportPassFilter() ? "true" : "false"
-                    };
+                vals = new String[] {Integer.toString(i), img.getName(), "0", match.isPassFilter() ? "true" : "false"};
                 xml.start("camera", args, vals);
 
                 xml.contentTag("orientation", "1");
@@ -1583,7 +1572,7 @@ public class ExportService implements IExportService {
 
                 args = new String[] {"x", "y", "z", "yaw", "pitch", "roll", "enabled"};
 
-                SRStransformCacheEntry v = vs.get(i);
+                Vec4 v = vs.get(i);
 
                 vals =
                     new String[] {
@@ -1664,7 +1653,7 @@ public class ExportService implements IExportService {
             xml.start("cameras");
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1813,7 +1802,7 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1860,7 +1849,7 @@ public class ExportService implements IExportService {
 
                 i = 0;
                 for (MapLayerMatch match : matches) {
-                    if (!match.isExportPassFilter()) {
+                    if (!match.isPassFilter()) {
                         continue;
                     }
 
@@ -1979,17 +1968,14 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
                 File img = match.getResourceFile();
 
                 args = new String[] {"id", "label", "sensor_id", "enabled"};
-                vals =
-                    new String[] {
-                        Integer.toString(i), img.getName(), "0", match.isExportPassFilter() ? "true" : "false"
-                    };
+                vals = new String[] {Integer.toString(i), img.getName(), "0", match.isPassFilter() ? "true" : "false"};
                 xml.start("camera", args, vals);
 
                 args = new String[] {"width", "height"};
@@ -2053,7 +2039,7 @@ public class ExportService implements IExportService {
             int gpsAccuracyCnt = 0;
             ArrayList<Position> ps = new ArrayList<>();
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -2061,10 +2047,10 @@ public class ExportService implements IExportService {
                 ps.add(p);
             }
             // batch gdal transformation
-            List<SRStransformCacheEntry> vs = srsWithoutVertical.fromWgs84(ps);
+            List<Vec4> vs = srsWithoutVertical.fromWgs84(ps);
 
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -2073,12 +2059,12 @@ public class ExportService implements IExportService {
 
                 args = new String[] {"camera_id", "enabled", "x", "y", "z", "yaw", "pitch", "roll"};
 
-                SRStransformCacheEntry v = vs.get(i);
+                Vec4 v = vs.get(i);
 
                 vals =
                     new String[] {
                         Integer.toString(i),
-                        String.valueOf(match.isExportPassFilter()),
+                        String.valueOf(match.isPassFilter()),
                         Double.toString(v.x),
                         Double.toString(v.y),
                         Double.toString(v.z),
@@ -2242,9 +2228,7 @@ public class ExportService implements IExportService {
                     return;
                 }
 
-                if (pf.getMatch().isExportPassFilter()) {
-                    pf.writeMetadata(hardwareConfiguration);
-                }
+                pf.writeMetadata(hardwareConfiguration);
             }
 
             firer.setCurrentStage(counter.getAndAdd(1));
@@ -2577,7 +2561,7 @@ public class ExportService implements IExportService {
 
         ArrayList<Position> ps = new ArrayList<>();
         for (MapLayerMatch match : matches) {
-            if (!match.isExportPassFilter()) {
+            if (!match.isPassFilter()) {
                 continue;
             }
 
@@ -2585,7 +2569,7 @@ public class ExportService implements IExportService {
             ps.add(p);
         }
         // batch gdal transformation
-        List<SRStransformCacheEntry> vs = srsNonVert.fromWgs84(ps);
+        List<Vec4> vs = srsNonVert.fromWgs84(ps);
 
         if (target.exists()) {
             if (!target.delete()) {
@@ -2658,7 +2642,7 @@ public class ExportService implements IExportService {
         int i = 0;
 
         for (MapLayerMatch match : matches) {
-            if (!match.isExportPassFilter()) {
+            if (!match.isPassFilter()) {
                 continue;
             }
 
@@ -2707,7 +2691,7 @@ public class ExportService implements IExportService {
 
             xml.start("Center");
 
-            SRStransformCacheEntry v = vs.get(i);
+            Vec4 v = vs.get(i);
             xml.contentTag("x", Double.toString(v.x));
             xml.contentTag("y", Double.toString(v.y));
             xml.contentTag("z", Double.toString(v.z));
@@ -2758,9 +2742,8 @@ public class ExportService implements IExportService {
             });
     }
 
-    private static AtomicInteger gobblerThreadCounter = new AtomicInteger(0);
     private void runBentley(File target) throws Exception {
-        int threadCount = gobblerThreadCounter.incrementAndGet();
+
         /*
          * Class for redirecting the stdout of the called batch and python files to Java's stdout
          */
@@ -2770,7 +2753,6 @@ public class ExportService implements IExportService {
             private final String gobblerType;
 
             private StreamGobbler(InputStream inputStream, String gobblerType) {
-                super("StreamGobbler-" + threadCount + "-" + target.getName() + "-" + gobblerType);
                 this.inputStream = inputStream;
                 this.gobblerType = gobblerType;
             }
@@ -2904,11 +2886,13 @@ public class ExportService implements IExportService {
 
                 File input = match.getResourceFile();
                 if (MFileFilter.rawFilterNonTiff.accept(input)) {
-                    StaticInjector.getInstance(IApplicationContext.class)
+                    DependencyInjector.getInstance()
+                        .getInstanceOf(IApplicationContext.class)
                         .addToast(
                             Toast.of(ToastType.ALERT)
                                 .setText(
-                                    StaticInjector.getInstance(ILanguageHelper.class)
+                                    DependencyInjector.getInstance()
+                                        .getInstanceOf(ILanguageHelper.class)
                                         .getString(
                                             "eu.mavinci.desktop.gui.doublepanel.planemain.ActionManager"
                                                 + ".matchingContainsRaw",

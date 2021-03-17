@@ -59,6 +59,8 @@ public class DisplaySettingsView extends ViewBase<DisplaySettingsViewModel> {
     @FXML
     private ToggleSwitch newsSwitch;
 
+    @FXML
+    private ToggleSwitch demoDatasetHelp;
 
     @Override
     public void initializeView() {
@@ -71,6 +73,7 @@ public class DisplaySettingsView extends ViewBase<DisplaySettingsViewModel> {
         datatransferSwitch.selectedProperty().bindBidirectional(viewModel.dataTransferWorkflowHintEnabledProperty());
         srsCheckSwitch.selectedProperty().bindBidirectional(viewModel.srsCheckEnabledProperty());
         newsSwitch.selectedProperty().bindBidirectional(viewModel.showNewsProperty());
+        demoDatasetHelp.selectedProperty().bindBidirectional(viewModel.demoDatasetHelpProperty());
 
         newsSwitch.visibleProperty().bind(viewModel.showNewsVisibleProperty());
         newsSwitch.managedProperty().bind(viewModel.showNewsVisibleProperty());

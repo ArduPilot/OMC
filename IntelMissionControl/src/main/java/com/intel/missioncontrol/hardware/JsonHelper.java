@@ -98,7 +98,7 @@ class JsonHelper {
             return T.valueOf(enumType, str);
 
         } catch (IllegalArgumentException e) {
-            LOGGER.warn("Illegal value for key " + key + ": " + e.getMessage());
+            LOGGER.warn("Illegal value for key " + key, e);
             return null;
         }
     }

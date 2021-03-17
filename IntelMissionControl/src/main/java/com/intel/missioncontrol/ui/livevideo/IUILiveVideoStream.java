@@ -7,12 +7,14 @@
 package com.intel.missioncontrol.ui.livevideo;
 
 import java.nio.ByteBuffer;
+import javafx.beans.property.Property;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 
 public interface IUILiveVideoStream {
     interface IUILiveVideoStreamListener {
         void updateFrame(ImageFrame frame);
 
-        // FIXME: is this function ever called?
         void cancelled();
     }
 
@@ -20,19 +22,11 @@ public interface IUILiveVideoStream {
         final ByteBuffer pixelBuffer;
         public final int width;
         public final int height;
-        public Event event;
-        public enum Event {
-            NEW_DATA,
-            CONNECTING,
-            RECONNECTING,
-            CONNECTION_LOST
-        }
 
-        public ImageFrame(ByteBuffer pixelBuffer, int width, int height, Event event) {
+        public ImageFrame(ByteBuffer pixelBuffer, int width, int height) {
             this.pixelBuffer = pixelBuffer;
             this.width = width;
             this.height = height;
-            this.event = event;
         }
     }
 
@@ -40,7 +34,24 @@ public interface IUILiveVideoStream {
 
     void removeVideoStreamListener(IUILiveVideoStreamListener handler);
 
-    boolean isDefaultStream();
+    static IUILiveVideoStreamListener createStreamListener(Property<WritableImage> frameBuffer) {
+        return new IUILiveVideoStream.IUILiveVideoStreamListener() {
+            @Override
+            public void updateFrame(IUILiveVideoStream.ImageFrame frame) {
+                final int width = frame.width;
+                final int height = frame.height;
+                WritableImage wi = frameBuffer.getValue();
+                if (wi == null || wi.getWidth() != width || wi.getHeight() != height) {
+                    wi = new WritableImage(width, height);
+                    frameBuffer.setValue(wi);
+                }
 
-    boolean isSameLiveVideoStream(IUILiveVideoStream other);
+                wi.getPixelWriter()
+                        .setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), frame.pixelBuffer, 4 * width);
+            }
+
+            @Override
+            public void cancelled() {}
+        };
+    }
 }

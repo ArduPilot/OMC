@@ -6,17 +6,14 @@
 
 package com.intel.missioncontrol.ui.sidepane.planning.summary;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.helper.Expect;
-import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Dimension.Area;
+import com.intel.missioncontrol.measure.Dimension.Length;
 import com.intel.missioncontrol.measure.Dimension.Time;
 import com.intel.missioncontrol.measure.Quantity;
-import com.intel.missioncontrol.measure.QuantityFormat;
 import com.intel.missioncontrol.measure.SystemOfMeasurement;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.measure.UnitInfo;
@@ -29,7 +26,6 @@ import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.MainScope;
 import com.intel.missioncontrol.ui.ViewModelBase;
-import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsViewModel;
 import de.saxsys.mvvmfx.InjectScope;
@@ -44,7 +40,7 @@ import eu.mavinci.desktop.helper.IRecomputeListener;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.flightplan.Flightplan;
 import eu.mavinci.flightplan.computation.FPsim;
-import java.text.SimpleDateFormat;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -55,7 +51,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.asyncfx.beans.property.PropertyPathStore;
-import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,29 +59,20 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
     @InjectScope
     private MainScope mainScope;
 
-    private SimpleDateFormat displayTimeFormatter = new SimpleDateFormat("YYYY-MM-dd HH:mm");
-    private static final String KEY = "com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView";
-
-    private final QuantityFormat quantityFormat;
     private final IApplicationContext applicationContext;
     private final IQuantityStyleProvider quantityStyleProvider;
-    private final ILanguageHelper languageHelper;
 
     private final QuantityProperty<Time> flightTime;
+    private final QuantityProperty<Length> distance;
     private final QuantityProperty<Area> trueOrthoArea;
     private final QuantityProperty<Area> pseudoOrthoArea;
     private final IntegerProperty imageCount = new SimpleIntegerProperty();
-    private final IntegerProperty waypointsCount = new SimpleIntegerProperty();
-    private final StringProperty altitudeAGL = new SimpleStringProperty();
-    private final StringProperty savedOn = new SimpleStringProperty();
-
     private final DoubleProperty dataSize = new SimpleDoubleProperty();
     private final DoubleProperty trueOrthoCoverageRatio = new SimpleDoubleProperty();
     private final DoubleProperty pseudoOrthoCoverageRatio = new SimpleDoubleProperty();
     private final BooleanProperty trueOrthoCoverageRatioEnabled = new SimpleBooleanProperty();
     private final BooleanProperty pseudoOrthoCoverageRatioEnabled = new SimpleBooleanProperty();
     private final StringProperty notes = new SimpleStringProperty();
-    private final UIAsyncObjectProperty<FlightPlan> selectedFlightPlan = new UIAsyncObjectProperty<>(this);
 
     private final IRecomputeListener recomputeReadyListener;
     private final IFlightplanChangeListener flightplanChangeListener =
@@ -126,18 +112,13 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
 
     @Inject
     public FlightplanSummaryViewModel(
-            IApplicationContext applicationContext,
-            ISettingsManager settingsManager,
-            IDialogService dialogService,
-            ILanguageHelper languageHelper,
-            IQuantityStyleProvider quantityStyleProvider) {
-        this.quantityFormat = new AdaptiveQuantityFormat(quantityStyleProvider);
+            IApplicationContext applicationContext, ISettingsManager settingsManager, IDialogService dialogService) {
         this.applicationContext = applicationContext;
         this.quantityStyleProvider = settingsManager.getSection(GeneralSettings.class);
         this.flightTime = new SimpleQuantityProperty<>(quantityStyleProvider, UnitInfo.TIME_MINUTES);
+        this.distance = new SimpleQuantityProperty<>(quantityStyleProvider, UnitInfo.LOCALIZED_LENGTH);
         this.trueOrthoArea = new SimpleQuantityProperty<>(quantityStyleProvider, UnitInfo.LOCALIZED_AREA);
         this.pseudoOrthoArea = new SimpleQuantityProperty<>(quantityStyleProvider, UnitInfo.LOCALIZED_AREA);
-        this.languageHelper = languageHelper;
         this.recomputeReadyListener =
             (a, b, c) -> {
                 Dispatcher.platform().runLater(this::updateRecomputedValues);
@@ -147,26 +128,15 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
             new DelegateCommand(
                 () -> {
                     canShowEditWayointsDialogCommand.set(false);
-                    Futures.addCallback(
-                        dialogService.requestDialogAsync(this, EditWaypointsViewModel.class, false),
-                        new FutureCallback<>() {
-                            @Override
-                            public void onSuccess(EditWaypointsViewModel editWaypointsViewModel) {
-                                canShowEditWayointsDialogCommand.set(true);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                canShowEditWayointsDialogCommand.set(true);
-                            }
-
-                        });
+                    dialogService
+                        .requestDialogAsync(this, EditWaypointsViewModel.class, false)
+                        .whenDone(f -> canShowEditWayointsDialogCommand.set(true), Platform::runLater);
                 },
                 canShowEditWayointsDialogCommand);
 
         notes.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectString(FlightPlan::notesProperty));
     }
@@ -177,7 +147,7 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
 
         Expect.notNull(mainScope, "mainScope");
 
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission == null) {
             return;
         }
@@ -190,6 +160,10 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
         return flightTime;
     }
 
+    public QuantityProperty<Length> distanceProperty() {
+        return distance;
+    }
+
     public QuantityProperty<Area> trueOrthoAreaProperty() {
         return trueOrthoArea;
     }
@@ -200,18 +174,6 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
 
     public IntegerProperty imageCountProperty() {
         return imageCount;
-    }
-
-    public IntegerProperty waypointsCountProperty() {
-        return waypointsCount;
-    }
-
-    public StringProperty altitudeAGLProperty() {
-        return altitudeAGL;
-    }
-
-    public StringProperty savedOnProperty() {
-        return savedOn;
     }
 
     public DoubleProperty dataSizeProperty() {
@@ -230,6 +192,10 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
         return flightTime.get();
     }
 
+    public Quantity<Length> getDistance() {
+        return distance.get();
+    }
+
     public Quantity<Area> getTrueOrthoArea() {
         return trueOrthoArea.get();
     }
@@ -240,10 +206,6 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
 
     public int getImageCount() {
         return imageCount.get();
-    }
-
-    public int getWaypointsCount() {
-        return waypointsCount.get();
     }
 
     public double getDataSize() {
@@ -277,9 +239,6 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
             legacyFlightplan.addFPChangeListener(flightplanChangeListener);
             currentLegacyFlightplan = legacyFlightplan;
             updateRecomputedValues();
-            selectedFlightPlan.set(newValue);
-            waypointsCountProperty().bind(selectedFlightPlan.get().waypointsProperty().sizeProperty());
-            savedOn.bind(selectedFlightPlan.get().saveDateStringProperty());
         }
     }
 
@@ -310,16 +269,15 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
             pseudoOrthoCoverageRatioEnabled.set(false);
         }
 
+        double distanceInMeters = 0;
         double flightTimeInSeconds = 0;
         int images = 0;
         double estimatedSizeInMb = 0;
         FPsim.SimResultData simResultData = fpSim.getSimResult();
-        String altitude = "-";
-
         if (simResultData != null) {
+            distanceInMeters = simResultData.distance;
             flightTimeInSeconds = simResultData.flightTime;
             images = simResultData.pic_count;
-
             estimatedSizeInMb =
                 images
                     * legacyFlightplan
@@ -327,15 +285,6 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
                         .getPrimaryPayload(IGenericCameraConfiguration.class)
                         .getDescription()
                         .getPictureSizeInMB();
-            if (simResultData.minMaxDistanceToGround.min != Double.POSITIVE_INFINITY
-                    && simResultData.minMaxDistanceToGround.max != Double.NEGATIVE_INFINITY) {
-                String min = new String("" + MathHelper.round(simResultData.minMaxDistanceToGround.min, 2));
-                String max =
-                    quantityFormat.format(
-                        Quantity.of(MathHelper.round(simResultData.minMaxDistanceToGround.max, 2), Unit.METER));
-
-                altitude = languageHelper.getString(KEY + ".altitude", min, max);
-            }
         }
 
         imageCount.set(images);
@@ -343,6 +292,10 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
         flightTime.set(Quantity.of(flightTimeInSeconds, Unit.SECOND).convertTo(Unit.MINUTE));
 
         SystemOfMeasurement systemOfMeasurement = quantityStyleProvider.getSystemOfMeasurement();
+
+        distance.set(
+            Quantity.of(distanceInMeters, Unit.METER)
+                .convertTo(distance.getUnitInfo().getPreferredUnit(systemOfMeasurement)));
 
         this.trueOrthoArea.set(
             Quantity.of(trueOrthoArea, Unit.SQUARE_METER)
@@ -354,7 +307,6 @@ public class FlightplanSummaryViewModel extends ViewModelBase {
 
         this.trueOrthoCoverageRatio.set(trueOrthoCoverageRatio);
         this.pseudoOrthoCoverageRatio.set(pseudoOrthoCoverageRatio);
-        this.altitudeAGL.set(altitude);
     }
 
     public Command getShowEditWayointsDialogCommand() {

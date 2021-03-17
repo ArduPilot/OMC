@@ -8,6 +8,8 @@ package com.intel.missioncontrol.ui.navbar.settings.connection.dialog;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import org.asyncfx.beans.binding.ConversionBindings;
+import org.asyncfx.beans.binding.Converters;
 import com.intel.missioncontrol.drone.connection.TcpIpTransportType;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.ScaleHelper;
@@ -38,8 +40,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import org.asyncfx.beans.binding.ConversionBindings;
-import org.asyncfx.beans.binding.Converters;
 
 public class ConnectionDialogView extends DialogView<ConnectionDialogViewModel> {
 
@@ -55,7 +55,8 @@ public class ConnectionDialogView extends DialogView<ConnectionDialogViewModel> 
                 PlatformItemType.MULTICOPTER,
                 "com.intel.missioncontrol.ui.common.hardware.HardwareSelectionView.multicopters")
             .build();
-    private static final double UAV_IMAGE_FIT_HEIGHT = ScaleHelper.emsToPixels(1.1);
+    // TODO same as HardwareSelectionView?
+    private static final double UAV_IMAGE_FIT_HEIGHT = ScaleHelper.emsToPixels(2.67);
 
     @FXML
     private Pane root;
@@ -132,23 +133,6 @@ public class ConnectionDialogView extends DialogView<ConnectionDialogViewModel> 
         uavComboBox.disableProperty().bind(viewModel.fixedPlatformItemProperty());
         uavComboBox.itemsProperty().bind(viewModel.availablePlatformItemsProperty());
         uavComboBox.valueProperty().bindBidirectional(viewModel.selectedPlatformItemProperty());
-
-        uavComboBox
-            .valueProperty()
-            .addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue != null && oldValue != null) {
-                        if (newValue.isCaption()) {
-                            if (uavComboBox.itemsProperty().get().indexOf(newValue)
-                                    > uavComboBox.itemsProperty().get().indexOf(oldValue)) {
-                                updateUavComboBox(1);
-                            } else {
-                                updateUavComboBox(-1);
-                            }
-                        }
-                    }
-                });
-
         uavComboBox.setCellFactory(
             param ->
                 new ListCell<>() {
@@ -216,21 +200,6 @@ public class ConnectionDialogView extends DialogView<ConnectionDialogViewModel> 
                         return msg.isPresent() ? msg.get().getMessage() : "";
                     },
                     viewModel.getFormValidationStatus().validProperty()));
-    }
-
-    private void updateUavComboBox(int i) {
-        int a = uavComboBox.itemsProperty().get().indexOf(uavComboBox.valueProperty().get());
-        if (a + i < 0 && uavComboBox.itemsProperty().get().get(0).isCaption()) {
-            uavComboBox.setValue(uavComboBox.itemsProperty().get().get(1));
-        } else if (a < 0 || uavComboBox.itemsProperty().get().get(a + i).isCaption()) {
-            if (a + 2 * i > 0 && a + 2 * i < uavComboBox.itemsProperty().get().size()) {
-                uavComboBox.setValue(uavComboBox.itemsProperty().get().get(a + 2 * i));
-            } else {
-                uavComboBox.setValue(uavComboBox.itemsProperty().get().get(a));
-            }
-        } else {
-            uavComboBox.setValue(uavComboBox.itemsProperty().get().get(a + i));
-        }
     }
 
     private void setTransportToggle(TcpIpTransportType transportType) {

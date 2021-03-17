@@ -6,9 +6,9 @@
 
 package eu.mavinci.core.plane;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
-public enum AirplaneEventActions implements IKeepAll {
+public enum AirplaneEventActions implements Localizable {
     ignore(0, "ignore"), // ==0
     circleDown(1, "circleDown"), // ==1
     positionHold(2, "positionHold"), // ==2

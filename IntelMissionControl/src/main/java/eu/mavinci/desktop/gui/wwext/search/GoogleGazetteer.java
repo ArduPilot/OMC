@@ -39,7 +39,7 @@ public class GoogleGazetteer implements Gazetteer, IReaderFromCache {
     String url;
 
     private static final String URL_GOOGLE = "https://maps.googleapis.com/maps/api/geocode/xml";
-    private static final String MAVINCI_API_KEY = "TODO API Key";
+    private static final String MAVINCI_API_KEY = "TODO Key";
 
     // TODO language e.g. de, en-AU, see https://developers.google.com/maps/faq?hl=de#languagesupport
     // what's the limit for our API-Key? 2500 // Web service APIs: 2500, Web APIs: 25000

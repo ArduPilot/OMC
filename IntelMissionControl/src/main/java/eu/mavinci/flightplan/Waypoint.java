@@ -132,7 +132,7 @@ public class Waypoint extends CWaypoint implements IPositionReferenced {
     /**
      * Get a target position (point of interest) from this waypoint's orientation and target distance,
      * or, if not set, the given default target distance.
-     * //TODO use target positions from planning
+     * //TODO use target positions from flight planning
      */
     public Position getTargetPosition(double defaultTargetDistance)
     {

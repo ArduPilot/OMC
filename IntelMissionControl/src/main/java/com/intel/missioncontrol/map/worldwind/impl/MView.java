@@ -9,7 +9,6 @@ import com.intel.missioncontrol.PublishSource;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.ViewMode;
-import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.mission.Drone;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.core.plane.AirplaneCacheEmptyException;
@@ -46,6 +45,8 @@ public class MView extends MView2d
             IAirplaneListenerStartPos,
             IAirplaneListenerPowerOn {
 
+    private double lastZoom = getZoom();
+    private Angle lastHeading = getHeading();
     private Angle lastPitch = getPitch();
 
     public static final int MAX_COMMON_ZOOM = 15000;
@@ -59,7 +60,7 @@ public class MView extends MView2d
     private static final int MAX_ZOOM_LIMIT = 20000000; // 2000 km
 
     public MView() {
-        super(null, null);
+        super(null);
 
         fieldOfViewDef = getFieldOfView();
 
@@ -71,14 +72,13 @@ public class MView extends MView2d
         this.viewport = new java.awt.Rectangle(0, 0, width, height);
     }
 
-    public MView(ReadOnlyObjectProperty<Drone> uav, Dispatcher dispatcher, IElevationModel elevationModel) {
-        super(null, elevationModel);
+    public MView(ReadOnlyObjectProperty<Drone> uav, Dispatcher dispatcher) {
+        super(null);
         this.uav = uav; // if this is just a property path selection, it would get garbage collected.... so lets store a
         // reference
         fieldOfViewDef = getFieldOfView();
         uav.addListener(
-            (observable, oldValue, newValue) ->
-                dispatcher.runLater(() -> setPlane(newValue != null ? newValue.getLegacyPlane() : null)));
+            (observable, oldValue, newValue) -> dispatcher.runLaterAsync(() -> setPlane(newValue.getLegacyPlane())));
         Drone uavIns = uav.get();
         setPlane(uavIns != null ? uavIns.getLegacyPlane() : null);
         getOrbitViewLimits().setZoomLimits(MIN_ZOOM_LIMIT, MAX_ZOOM_LIMIT);

@@ -119,7 +119,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
@@ -758,11 +757,6 @@ public class Drone
 
     @Override
     public ReadOnlyAsyncObjectProperty<? extends IRemoteControl> remoteControlProperty() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty() {
         return null;
     }
 
@@ -1563,7 +1557,7 @@ public class Drone
             .runLaterAsync(() -> getLegacyPlane().setFlightPhase(AirplaneFlightphase.startFlight))
             .whenSucceeded(
                 (v) -> {
-                    // TODO: start mission
+                    // TODO: start flight plan
                     flightSegment.setValue(FlightSegment.PLAN_RUNNING);
                 });
     }
@@ -1583,7 +1577,7 @@ public class Drone
             .runLaterAsync(() -> getLegacyPlane().setFlightPhase(AirplaneFlightphase.startFlight))
             .whenSucceeded(
                 (v) -> {
-                    // TODO: resume mission
+                    // TODO: resume flight plan
                     flightSegment.setValue(FlightSegment.PLAN_RUNNING);
                 });
     }

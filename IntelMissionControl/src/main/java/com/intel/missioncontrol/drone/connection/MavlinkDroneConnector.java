@@ -6,12 +6,9 @@
 
 package com.intel.missioncontrol.drone.connection;
 
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.intel.missioncontrol.drone.ArduCopterDrone;
-import com.intel.missioncontrol.drone.ArduPlaneDrone;
-import com.intel.missioncontrol.drone.ArdupilotQuadPlaneDrone;
 import com.intel.missioncontrol.drone.DroneConnectionException;
 import com.intel.missioncontrol.drone.GrayhawkDrone;
 import com.intel.missioncontrol.drone.MavlinkDrone;
@@ -24,7 +21,6 @@ import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.hardware.IMavlinkConnectionProperties;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import io.dronefleet.mavlink.AbstractMavlinkDialect;
 import io.dronefleet.mavlink.ardupilotmega.ArdupilotmegaDialect;
 import io.dronefleet.mavlink.common.CommonDialect;
 import io.dronefleet.mavlink.common.Heartbeat;
@@ -36,7 +32,6 @@ import io.dronefleet.mavlink.util.EnumValue;
 import org.apache.commons.lang3.NotImplementedException;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
-import org.asyncfx.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +64,7 @@ public class MavlinkDroneConnector extends MavlinkConnector<MavlinkDrone, Mavlin
     }
 
     @Override
-    protected Future<MavlinkDrone> createComponentAsync(
+    protected MavlinkDrone create(
             Heartbeat heartbeat,
             MavlinkDroneConnectionItem connectionItem,
             MavlinkHandler mavlinkHandler,
@@ -84,15 +79,21 @@ public class MavlinkDroneConnector extends MavlinkConnector<MavlinkDrone, Mavlin
 
         String platformId = connectionItem.getPlatformId();
 
-        // TODO: get actual configuration, not just the default
+        //TODO: get actual configuration, not just the default
         IHardwareConfiguration hardwareConfiguration =
             hardwareConfigurationManager.getHardwareConfiguration(platformId);
 
         IConnectionProperties connectionProperties =
             hardwareConfiguration.getPlatformDescription().getConnectionProperties();
 
+        var invalidPlatformException =
+            new DroneConnectionException(
+                MavlinkDroneConnector.class,
+                false,
+                languageHelper.getString(MavlinkDroneConnector.class, "incompatibleModel"));
+
         if (!(connectionProperties instanceof IMavlinkConnectionProperties)) {
-            return invalidPlatformExceptionAsync();
+            throw invalidPlatformException;
         }
 
         String mavTypeString = ((IMavlinkConnectionProperties)connectionProperties).getMavlinkType();
@@ -101,7 +102,7 @@ public class MavlinkDroneConnector extends MavlinkConnector<MavlinkDrone, Mavlin
             platformDefMavType = MavType.valueOf(mavTypeString);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Error in platform definition for " + platformId + ": " + mavTypeString, e);
-            return invalidPlatformExceptionAsync();
+            throw invalidPlatformException;
         }
 
         String mavAutopilotString = ((IMavlinkConnectionProperties)connectionProperties).getMavlinkAutopilot();
@@ -110,93 +111,54 @@ public class MavlinkDroneConnector extends MavlinkConnector<MavlinkDrone, Mavlin
             platformDefMavAutopilot = MavAutopilot.valueOf(mavAutopilotString);
         } catch (IllegalArgumentException e) {
             LOGGER.error("Error in platform definition for " + platformId + ": " + mavAutopilotString, e);
-            return invalidPlatformExceptionAsync();
+            throw invalidPlatformException;
         }
 
         if (mavType != platformDefMavType || mavAutopilot != platformDefMavAutopilot) {
-            return invalidPlatformExceptionAsync();
+            throw invalidPlatformException;
         }
 
         // Select specific MavlinkDrone factory method and dialect
         String droneType = connectionProperties.getDroneType();
-
-        AbstractMavlinkDialect dialect;
         switch (droneType) {
         case "GrayhawkDrone":
-            dialect = new GrayhawkDialect();
-            break;
-
-        case "ArduCopterDrone":
-        case "ArduPlaneDrone":
-        case "ArdupilotQuadPlaneDrone":
-            dialect = new ArdupilotmegaDialect();
-            break;
-
-        case "PX4Drone":
-        default:
-            dialect = new CommonDialect();
-            break;
-        }
-
-        MavlinkDroneConnection droneConnection;
-        switch (droneType) {
-        case "GrayhawkDrone":
-            droneConnection =
+            return GrayhawkDrone.create(
                 new GrayhawkDroneConnection(
                     connectionItem,
                     mavlinkHandler,
-                    mavType,
-                    dialect,
+                    new GrayhawkDialect(),
                     targetEndpoint,
                     cancellationSource,
                     connectionProtocolSender,
                     heartbeatSenderFuture,
-                    mavlinkCameraListener);
-            break;
+                    mavlinkCameraListener),
+                hardwareConfiguration);
         case "PX4Drone":
-        case "ArduCopterDrone":
-        case "ArduPlaneDrone":
-        case "ArdupilotQuadPlaneDrone":
-        default:
-            droneConnection =
+            return PX4Drone.create(
                 new MavlinkDroneConnection(
                     connectionItem,
                     mavlinkHandler,
-                    mavType,
-                    dialect,
+                    new CommonDialect(),
                     targetEndpoint,
                     cancellationSource,
                     connectionProtocolSender,
                     heartbeatSenderFuture,
-                    mavlinkCameraListener);
-            break;
-        }
-
-        switch (droneType) {
-        case "GrayhawkDrone":
-            return Futures.successful(GrayhawkDrone.create(droneConnection, hardwareConfiguration));
-        case "PX4Drone":
-            return Futures.successful(PX4Drone.create(droneConnection, hardwareConfiguration));
+                    mavlinkCameraListener),
+                hardwareConfiguration);
         case "ArduCopterDrone":
-            return Futures.successful(ArduCopterDrone.create(droneConnection, hardwareConfiguration));
-        case "ArduPlaneDrone":
-            return Futures.successful(ArduPlaneDrone.create(droneConnection, hardwareConfiguration));
-        case "ArdupilotQuadPlaneDrone":
-            return Futures.successful(ArdupilotQuadPlaneDrone.create(droneConnection, hardwareConfiguration));
+            return ArduCopterDrone.create(
+                new MavlinkDroneConnection(
+                    connectionItem,
+                    mavlinkHandler,
+                    new ArdupilotmegaDialect(),
+                    targetEndpoint,
+                    cancellationSource,
+                    connectionProtocolSender,
+                    heartbeatSenderFuture,
+                    mavlinkCameraListener),
+                hardwareConfiguration);
         default:
             throw new NotImplementedException("Drone type " + droneType + " is not supported");
         }
-    }
-
-    private Future<MavlinkDrone> invalidPlatformExceptionAsync() {
-        var invalidPlatformException =
-            new DroneConnectionException(
-                MavlinkDroneConnector.class,
-                false,
-                languageHelper.getString(MavlinkDroneConnector.class, "incompatibleModel"));
-        SettableFuture<MavlinkDrone> future = SettableFuture.create();
-        future.setException(invalidPlatformException);
-        return Futures.fromListenableFuture(future);
-        // throw invalidPlatformException;
     }
 }

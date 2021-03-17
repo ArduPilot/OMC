@@ -21,7 +21,7 @@ public abstract class AFlightplanContainer
      *
      * <p>The error checking provided by these methods usually causes the entire FlightPlan object tree to be traversed,
      * each time a FlightPlanStatement is added via {@link #addToFlightplanContainer}. In the case of recalculating a
-     * mission, this can cause the object tree to be traversed as many times as there are FlightPlanStatements
+     * flight plan, this can cause the object tree to be traversed as many times as there are FlightPlanStatements
      *
      * <p>This runtime checking is very expensive way to uncover logic errors. Therefore these checks should be treated
      * like assertions: Only enabled in certain debug builds. Anyways, these errors aren't being handled meaningfully:

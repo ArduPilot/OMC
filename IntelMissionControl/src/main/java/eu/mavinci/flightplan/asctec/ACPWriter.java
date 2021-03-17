@@ -6,7 +6,6 @@
 
 package eu.mavinci.flightplan.asctec;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.ILensDescription;
@@ -18,6 +17,7 @@ import com.intel.missioncontrol.ui.validation.IValidationService;
 import com.intel.missioncontrol.ui.validation.ResolvableValidationMessage;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
@@ -397,7 +397,10 @@ public class ACPWriter {
 
     public File getTargetCsv() {
         File falcon8CsvPath =
-            new File(StaticInjector.getInstance(FalconDataExportSettings.class).getFalcon8CsvExportPath());
+            new File(
+                DependencyInjector.getInstance()
+                    .getInstanceOf(FalconDataExportSettings.class)
+                    .getFalcon8CsvExportPath());
         chooser = ACPWriter.getChooserFile(falcon8CsvPath, plan, parentFile, MFileFilter.csvAscTecFpExportFilter);
         if (chooser == null) {
             ready = true;
@@ -480,7 +483,7 @@ public class ACPWriter {
                 Debug.getLog()
                     .log(
                         Level.INFO,
-                        "Can not send mission with absolute altitude while no start elevation of UAV is known",
+                        "Can not send flight plan with absolute altitude while no start elevation of UAV is known",
                         e);
             }
 
@@ -534,10 +537,11 @@ public class ACPWriter {
     }
 
     private void executeAscTecNavigator(File csv, File map) throws IOException {
-        final File asctecNavExe = new File(StaticInjector.getInstance(FalconDataExportSettings.class).getFalcon8Path());
+        final File asctecNavExe =
+            new File(DependencyInjector.getInstance().getInstanceOf(FalconDataExportSettings.class).getFalcon8Path());
         // if(target==null ){
         final Process p;
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isLinux()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isLinux()) {
             // is not running with wine
             // if(asctecNavExe==null || (csv==null)){
             if (csv != null) {
@@ -557,7 +561,7 @@ public class ACPWriter {
             // "+asctecNavExe.getName());
             // }
 
-        } else if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isMac()) {
+        } else if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isMac()) {
             // not implemented;
         } else {
             if (asctecNavExe == null || !asctecNavExe.exists() || (csv == null)) {
@@ -586,7 +590,7 @@ public class ACPWriter {
         String line;
         Process p;
         boolean isRunning = false;
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isWindows()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isWindows()) {
             String fileNameInTasklist = asctecNavExe.getName().replace(" ", "");
             String exec = "tasklist /NH /FI \"imagename eq " + fileNameInTasklist + "\"";
             p = Runtime.getRuntime().exec(exec);
@@ -610,7 +614,8 @@ public class ACPWriter {
 
     private void executeAscTecNavigator(File acp) throws IOException {
         final File asctecNavExe =
-            new File(StaticInjector.getInstance(FalconDataExportSettings.class).getFalcon8PlusPath());
+            new File(
+                DependencyInjector.getInstance().getInstanceOf(FalconDataExportSettings.class).getFalcon8PlusPath());
         if (asctecNavExe == null || !asctecNavExe.exists()) {
             FileHelper.openFile(acp);
 
@@ -618,9 +623,9 @@ public class ACPWriter {
         }
         // TODO
         final Process p;
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isLinux()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isLinux()) {
             p = ProcessHelper.exec(new String[] {"wine", asctecNavExe.getAbsolutePath()});
-        } else if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isMac()) {
+        } else if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isMac()) {
             // not implemented
         } else {
             p = ProcessHelper.exec(new String[] {asctecNavExe.getAbsolutePath()});
@@ -653,7 +658,8 @@ public class ACPWriter {
         if (target != null) {
             FileHelper.zipManyFiles(target, files);
 
-            if (StaticInjector.getInstance(GeneralSettings.class).getOperationLevel() != OperationLevel.DEBUG) {
+            if (DependencyInjector.getInstance().getInstanceOf(GeneralSettings.class).getOperationLevel()
+                    != OperationLevel.DEBUG) {
                 for (File f : files) {
                     f.delete();
                 }
@@ -688,7 +694,7 @@ public class ACPWriter {
     }
 
     public File getTarget() {
-        var settings = StaticInjector.getInstance(FalconDataExportSettings.class);
+        var settings = DependencyInjector.getInstance().getInstanceOf(FalconDataExportSettings.class);
 
         if (writerType != null
                 && (writerType.equals(MFileFilter.anpFPExportFilter)
@@ -762,7 +768,7 @@ public class ACPWriter {
 
     private void writeFlightPlanHash(CFlightplan plan, JsonGenerator gen) throws IOException, JsonGenerationException {
         int hash = plan.hashCode();
-        gen.writeNumberField("mission hash", hash);
+        gen.writeNumberField("flight plan hash", hash);
     }
 
     private void writeTakeoff(CFlightplan plan, JsonGenerator gen) throws IOException, JsonGenerationException {
@@ -794,7 +800,7 @@ public class ACPWriter {
     }
 
     public void writeDescription(CFlightplan plan, JsonGenerator gen) throws IOException, JsonGenerationException {
-        String winSeparator = "\r\n"; // cockpit
+        String winSeparator = "\r\n"; //cockpit
         StringBuilder warningsBuilder = new StringBuilder();
         List<ResolvableValidationMessage> warnings =
             validationService
@@ -812,13 +818,13 @@ public class ACPWriter {
             }
         }
 
+
         Date date;
-        if (plan.isChanged()) {
+        if(plan.isChanged()){
             date = new Date(); // now
-        } else {
+        }else{
             date = new Date(plan.getFile().lastModified());
         }
-
         SimpleDateFormat form = new SimpleDateFormat("HH:mm:ss dd.MM.yyyy", Locale.ENGLISH);
         String savedOn = "Saved on " + form.format(date);
 
@@ -853,7 +859,7 @@ public class ACPWriter {
         final IGenericCameraDescription cameraDesc = cameraConfig.getDescription();
         final ILensDescription lensDescription = cameraConfig.getLens().getDescription();
 
-        gen.writeStringField("@comment", StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+        gen.writeStringField("@comment", DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
         gen.writeFieldName("camera");
         gen.writeStartObject();
 
@@ -907,7 +913,7 @@ public class ACPWriter {
             Debug.getLog()
                 .log(
                     Level.INFO,
-                    "Can not send mission with abolute altitude while no start elevation of UAV is known",
+                    "Can not send flight plan with abolute altitude while no start elevation of UAV is known",
                     e);
         }*/
 

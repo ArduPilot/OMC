@@ -6,10 +6,10 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.mission.ReferencePointType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanPositionReferenced;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
@@ -178,7 +178,7 @@ public class ReferencePoint extends Point
         return isDefined;
     }
 
-    /** this method shifts the entire mission after while an change of the origin */
+    /** this method shifts the entire flight plan after while an change of the origin */
 
     /*
     private void originChanged(double lat, double lon, double alt, double yaw, boolean isDefined) {
@@ -431,8 +431,8 @@ public class ReferencePoint extends Point
 
     // updating alt wgs84 at the current latlon
     public double updateAltitudeWgs84() {
-        IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-        IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+        IElevationModel elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+        IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
 
         LatLon latlon = getLatLon();
         altitudeWgs84 = elevationModel.getElevationAsGoodAsPossible(latlon);

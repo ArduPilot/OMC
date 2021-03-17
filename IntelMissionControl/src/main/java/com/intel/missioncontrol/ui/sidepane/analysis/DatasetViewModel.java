@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.analysis;
 
 import com.google.common.io.PatternFilenameFilter;
 import com.google.inject.Inject;
-import com.intel.insight.datastructures.IUploadProgress;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.SuppressLinter;
 import com.intel.missioncontrol.api.IExportService;
@@ -18,7 +17,6 @@ import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.ISelectionManager;
-import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
@@ -29,7 +27,7 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.settings.PathSettings;
 import com.intel.missioncontrol.ui.MainScope;
-import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
+import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.dialogs.warnings.UnresolvedWarningsDialogViewModel;
 import com.intel.missioncontrol.ui.menu.MainMenuModel;
@@ -47,6 +45,7 @@ import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.licence.ILicenceManager;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatching;
 import eu.mavinci.desktop.helper.FileFilter;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
@@ -81,12 +80,11 @@ import org.asyncfx.beans.property.PropertyPathStore;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressLinter(value = "IllegalViewModelMethod", reviewer = "mstrauss", justification = "legacy file")
-public class DatasetViewModel extends DialogViewModel {
+public class DatasetViewModel extends ViewModelBase {
 
     private static Logger LOGGER = LoggerFactory.getLogger(DatasetViewModel.class);
     private final PropertyPathStore propertyPathStore = new PropertyPathStore();
@@ -99,7 +97,6 @@ public class DatasetViewModel extends DialogViewModel {
     private Command showOnMapCommand;
     private final Command renameMissionCommand;
     private final ILanguageHelper languageHelper;
-    private final IQuantityStyleProvider quantityStyleProvider;
     private final IDialogService dialogService;
     private final IMissionManager missionManager;
 
@@ -144,8 +141,7 @@ public class DatasetViewModel extends DialogViewModel {
             IExportService exportService,
             ISelectionManager selectionManager,
             IHardwareConfigurationManager hardwareConfigurationManager,
-            ILicenceManager licenceManager,
-            IQuantityStyleProvider quantityStyleProvider) {
+            ILicenceManager licenceManager) {
         this.mapView = mapView;
         this.taskManager = taskManager;
         this.exportService = exportService;
@@ -155,11 +151,10 @@ public class DatasetViewModel extends DialogViewModel {
         this.generalSettings = settingsManager.getSection(GeneralSettings.class);
 
         missionSrs.bind(
-            propertyPathStore.from(applicationContext.currentMissionProperty()).selectObject(Mission::srsProperty));
+            propertyPathStore.from(applicationContext.currentLegacyMissionProperty()).selectObject(Mission::srsProperty));
 
         this.hardwareConfigurationManager = hardwareConfigurationManager;
         this.languageHelper = languageHelper;
-        this.quantityStyleProvider = quantityStyleProvider;
         this.dialogService = dialogService;
         this.missionManager = missionManager;
         this.applicationContext = applicationContext;
@@ -178,7 +173,7 @@ public class DatasetViewModel extends DialogViewModel {
                 validationService.datasetValidationMessagesProperty()));
 
         currentMatching =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty);
 
         lastExportTypeProperty()
@@ -317,7 +312,7 @@ public class DatasetViewModel extends DialogViewModel {
             .setActionHandler(
                 this::importExif,
                 applicationContext
-                    .currentMissionProperty()
+                    .currentLegacyMissionProperty()
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
 
@@ -353,24 +348,6 @@ public class DatasetViewModel extends DialogViewModel {
         currentMatchingProperty().get().saveResourceFile();
     }
 
-    public void saveToCloud() {
-        // TODO IMC-3137 implement: save to cloud
-        // TODO saves the entire dataset to the cloud storage.
-        // ALL images within the dataset should be uploaded, so that the user could change the filtering criteria
-        // afterwards.
-        // The linked images (not within the project folder) should be copied to the project when this button is
-        // pressed.
-
-        // Saving to cloud should be done as a background task, and resume automatically if IMC is restarted.
-        // Upon starting this, a blue toast message should be shown with the following content:
-
-        // Uploading dataset to Intel Insight Platform...  Cancel
-        // Where pressing Cancel cancels the upload and removes the corresponding BG task.
-
-        // use from menu:UPLOAD_INSIGHT_PROCESSING
-        Debug.getLog().log(Level.WARNING, "not yet implemented");
-    }
-
     public void goToDefineAppPaths() {
         navigationService.navigateTo(SettingsPage.FILES_FOLDERS);
     }
@@ -386,7 +363,7 @@ public class DatasetViewModel extends DialogViewModel {
         if (selectedFile != null) {
             try {
                 Matching matching = new Matching(selectedFile.toFile(), hardwareConfigurationManager);
-                Mission mission = applicationContext.getCurrentMission();
+                Mission mission = applicationContext.getCurrentLegacyMission();
                 mission.getMatchings().add(matching);
                 mission.currentMatchingProperty().set(matching);
                 navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
@@ -406,7 +383,7 @@ public class DatasetViewModel extends DialogViewModel {
     }
 
     private Path getMatchingsFolder() {
-        return MissionConstants.getMatchingsFolder(applicationContext.getCurrentMission().getDirectory()).toPath();
+        return MissionConstants.getMatchingsFolder(applicationContext.getCurrentLegacyMission().getDirectory()).toPath();
     }
 
     public BooleanBinding canExport() {
@@ -541,13 +518,6 @@ public class DatasetViewModel extends DialogViewModel {
         Exporter exp = exporters.get(exportType);
         Expect.notNull(exp, "exp");
         return exp;
-    }
-
-    public void sparseDataset() {
-        // TODO IMC-3137 creates a subset of the current dataset containing only the exported images (as set in <9>) and
-        // all
-        // filters removed.
-        Debug.getLog().log(Level.WARNING, "not yet implemented");
     }
 
     interface ExportHandler {
@@ -741,21 +711,21 @@ public class DatasetViewModel extends DialogViewModel {
 
                 @Override
                 protected Void call() throws Exception {
-                    boolean ret =
-                        exportService.intelInsightUpload(
-                            currentMatching.get(),
-                            missionSrs.get(),
-                            new IUploadProgress() {
-                                @Override
-                                public void progressMessage(@NotNull String msg, double progress) {
-                                    updateProgress(progress, 1);
-                                    updateMessage(msg);
-                                }
-                            },
-                            pix4DProcessing);
-                    if (!ret) {
-                        cancel();
-                    }
+//                    boolean ret =
+//                        exportService.intelInsightUpload(
+//                            currentMatching.get(),
+//                            missionSrs.get(),
+//                            new IUploadProgress() {
+//                                @Override
+//                                public void progressMessage(@NotNull String msg, double progress) {
+//                                    updateProgress(progress, 1);
+//                                    updateMessage(msg);
+//                                }
+//                            },
+//                            pix4DProcessing);
+//                    if (!ret) {
+//                        cancel();
+//                    }
 
                     return null;
                 }
@@ -800,8 +770,7 @@ public class DatasetViewModel extends DialogViewModel {
                 languageHelper.getString("com.intel.missioncontrol.ui.analysis.AnalysisView.browseImages.title"),
                 null,
                 FileFilter.JPEG,
-                FileFilter.RAW,
-                FileFilter.JPEG_RAW_XMP);
+                FileFilter.RAW);
         if (files == null || files.length == 0 || (files.length == 1 && files[0] == null)) {
             return;
         }
@@ -820,29 +789,29 @@ public class DatasetViewModel extends DialogViewModel {
                                     "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferCompleteMessage"));
 
                     // if mission was closed in the meantime, don't show the action
-                    if (applicationContext.getCurrentMission() == mission) {
+                    if (applicationContext.getCurrentLegacyMission() == mission) {
                         toastBuilder =
                             toastBuilder
                                 .setTimeout(Toast.LONG_TIMEOUT)
                                 .setAction(
-                                    languageHelper.getString(
-                                        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferActionLinkMessage"),
-                                    false,
-                                    true,
-                                    () -> {
-                                        Ensure.notNull(matching, "matching");
-                                        selectionManager.setSelection(matching.getLegacyMatching());
-                                        if (!mission.getMatchings().contains(matching)) {
-                                            mission.getMatchings().add(matching);
-                                        }
+                                languageHelper.getString(
+                                    "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferActionLinkMessage"),
+                                false,
+                                true,
+                                () -> {
+                                    Ensure.notNull(matching, "matching");
+                                    selectionManager.setSelection(matching.getLegacyMatching());
+                                    if (!mission.getMatchings().contains(matching)) {
+                                        mission.getMatchings().add(matching);
+                                    }
 
-                                        mission.setCurrentMatching(matching);
+                                    mission.setCurrentMatching(matching);
 
-                                        navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
-                                        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
-                                        mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());
-                                    },
-                                    Platform::runLater);
+                                    navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
+                                    navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+                                    mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());
+                                },
+                                Platform::runLater);
                     }
 
                     return toastBuilder.create();
@@ -852,12 +821,17 @@ public class DatasetViewModel extends DialogViewModel {
 
                 @Override
                 protected Void call() throws Exception {
-                    mission = applicationContext.getCurrentMission();
+                    mission = applicationContext.getCurrentLegacyMission();
 
-                    final Matching matching = new Matching(mission.getDirectory(), hardwareConfigurationManager);
+                    final String matchingName = "import_" + System.currentTimeMillis();
+                    final File matchingFolder = MissionConstants.getMatchingsFolder(mission.getDirectory());
+                    final File baseFolder = new File(matchingFolder, matchingName);
+                    final File save = new File(baseFolder, AMapLayerMatching.DEFAULT_FILENAME);
+
+                    final Matching matching = new Matching(save, hardwareConfigurationManager);
                     final MapLayerMatching legacyMatching = (MapLayerMatching)matching.getLegacyMatching();
 
-                    DataImportHelper.importImages(files, languageHelper, legacyMatching, this, quantityStyleProvider);
+                    DataImportHelper.importImages(files, languageHelper, legacyMatching, this);
 
                     legacyMatching.getCoverage().updateCameraCorners();
                     legacyMatching.getPicsLayer().setMute(false);
@@ -885,7 +859,7 @@ public class DatasetViewModel extends DialogViewModel {
 
                             mission.setCurrentMatching(matching);
                             missionManager.makeDefaultScreenshot(mission);
-                            if (applicationContext.getCurrentMission() == mission) {
+                            if (applicationContext.getCurrentLegacyMission() == mission) {
                                 navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
                                 navigationService.navigateTo(SidePanePage.VIEW_DATASET);
                                 mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());

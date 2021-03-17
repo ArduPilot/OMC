@@ -497,14 +497,14 @@ public class MissionManager implements IMissionManager {
                                         + MissionConstants.FLIGHT_PLAN_EXT);
                             fp.getLegacyFlightplan().setFile(newFile);
                             fp.getLegacyFlightplan().save(null);
-                            LOGGER.info("Mission: " + fp.nameProperty().get() + " -> saved");
+                            LOGGER.info("Flight plan: " + fp.nameProperty().get() + " -> saved");
                         } else {
-                            LOGGER.info("Mission: " + fp.nameProperty().get() + " -> not saveable");
+                            LOGGER.info("Flight plan: " + fp.nameProperty().get() + " -> not saveable");
                             mission.flightPlansProperty().remove(fp);
                         }
                     } else {
                         LOGGER.info(
-                            "Mission: "
+                            "Flight plan: "
                                 + fp.nameProperty().get()
                                 + " -> already saved "
                                 + fp.getLegacyFlightplan().getFile());
@@ -521,12 +521,12 @@ public class MissionManager implements IMissionManager {
         if (sourceFiles != null && sourceFiles.length > 0) {
             for (File source : sourceFiles) {
                 File target = new File(newFlightplansFolder, source.getName());
-                LOGGER.info("Copy mission: " + source + " -> " + target);
+                LOGGER.info("Copy flight plan: " + source + " -> " + target);
                 try {
                     FileHelper.copyFile(source, target);
                 } catch (IOException e) {
                     LOGGER.info(
-                        "Copy mission: " + source + " -> " + target + " -> saved with error", e); // Add Toast
+                        "Copy flight plan: " + source + " -> " + target + " -> saved with error", e); // Add Toast
                 }
             }
         }
@@ -592,7 +592,7 @@ public class MissionManager implements IMissionManager {
         }
 
         pathSettings.getReferencedProjects().remove(sourceMissionFolder);
-        mission.setDirectory(targetMissionFolder);
+        Dispatcher.platform().runLaterAsync(() -> mission.setDirectory(targetMissionFolder)).getUnchecked();
         mission.flightPlansProperty().forEach(fp -> updateFlightPlanLocation(mission, fp, flightplansFolder));
         mission.matchingsProperty().forEach(matching -> updateMatchingLocation(mission, matching, matchingsFolder));
         updateflightLogsLocation(mission, flightLogsFolder);
@@ -627,7 +627,7 @@ public class MissionManager implements IMissionManager {
             legacyFlightplan.setFile(
                 new File(MissionConstants.getFlightplanFolder(mission.getDirectory()), fpFileName));
         } catch (IllegalStateException e) {
-            LOGGER.warn("Failed to update mission location: {}", flightPlan.getName(), e);
+            LOGGER.warn("Failed to update flight plan location: {}", flightPlan.getName(), e);
         }
     }
 
@@ -774,7 +774,7 @@ public class MissionManager implements IMissionManager {
     }
 
     private boolean isCurrentMission(MissionInfo missionInfo) {
-        Mission currentMission = applicationContext.currentMissionProperty().get();
+        Mission currentMission = applicationContext.currentLegacyMissionProperty().get();
         if (currentMission == null) {
             return false;
         }
@@ -1015,48 +1015,36 @@ public class MissionManager implements IMissionManager {
             return;
         }
 
-        File folder = MissionConstants.getScreenshotFolder(mission.getDirectory());
-        if (folder == null || !folder.exists()) {
-            // the mission was deleted since it was empty... so no screenshot needed
-            return;
-        }
-
-        screenshotManager.get().makeAllLayersScreenshotAsync().whenSucceeded(image -> {
-            try {
-                File file = new File(folder, MissionConstants.MISSION_SCREENSHOT_FILENAME);
-                File fileLowRes = new File(folder, MissionConstants.MISSION_SCREENSHOT_LOW_RES_FILENAME);
-
-                if (!javax.imageio.ImageIO.write(image, "jpeg", file)) {
-                    BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-                    Graphics2D graphics = newImage.createGraphics();
-
-                    try {
-                        graphics.drawImage(image, 0, 0, java.awt.Color.WHITE, null);
-                        image = newImage;
-                    } finally {
-                        graphics.dispose();
-                    }
-                }
-
-                BufferedImage bufImgLowRes =
-                    new BufferedImage(
-                        ProjectItemViewModel.MAX_THUMBNAIL_WIDTH,
-                        ProjectItemViewModel.MAX_THUMBNAIL_HEIGHT,
-                        image.getType());
-                Graphics2D g = bufImgLowRes.createGraphics();
-                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-                g.drawImage(
-                    image, 0, 0, ProjectItemViewModel.MAX_THUMBNAIL_WIDTH, ProjectItemViewModel.MAX_THUMBNAIL_HEIGHT, null);
-                g.dispose();
-                ImageIO.write(bufImgLowRes, "jpeg", fileLowRes);
-
-                LOGGER.info("Created screenshot of mission: " + mission.getDirectory());
-            } catch (Exception e) {
-                LOGGER.warn("Cannot create screenshot of mission: " + mission.getDirectory(), e);
+        try {
+            File folder = MissionConstants.getScreenshotFolder(mission.getDirectory());
+            if (folder == null || !folder.exists()) {
+                // the mission was deleted since it was empty... so no screenshot needed
+                return;
             }
-        });
+
+            BufferedImage image = screenshotManager.get().makeAllLayersScreenshot();
+            File file = new File(folder, MissionConstants.MISSION_SCREENSHOT_FILENAME);
+            File fileLowRes = new File(folder, MissionConstants.MISSION_SCREENSHOT_LOW_RES_FILENAME);
+            javax.imageio.ImageIO.write(image, "jpeg", file);
+
+            BufferedImage bufImgLowRes =
+                new BufferedImage(
+                    ProjectItemViewModel.MAX_THUMBNAIL_WIDTH,
+                    ProjectItemViewModel.MAX_THUMBNAIL_HEIGHT,
+                    image.getType());
+            Graphics2D g = bufImgLowRes.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+            g.drawImage(
+                image, 0, 0, ProjectItemViewModel.MAX_THUMBNAIL_WIDTH, ProjectItemViewModel.MAX_THUMBNAIL_HEIGHT, null);
+            g.dispose();
+            ImageIO.write(bufImgLowRes, "jpeg", fileLowRes);
+
+            LOGGER.info("Created screenshot of mission: " + mission.getDirectory());
+        } catch (Exception e) {
+            LOGGER.warn("Cannot create screenshot of mission: " + mission.getDirectory(), e);
+        }
     }
 
     @Override

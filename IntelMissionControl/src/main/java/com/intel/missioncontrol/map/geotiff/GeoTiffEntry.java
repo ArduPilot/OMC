@@ -9,7 +9,6 @@ package com.intel.missioncontrol.map.geotiff;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.ILayer;
 import com.intel.missioncontrol.map.IMapView;
@@ -229,24 +228,23 @@ public class GeoTiffEntry {
         this.mapView = mapView;
 
         file = new File(geoTiffSettings.pathProperty().get());
-        Platform.runLater(() -> {
-                    enabled.bindBidirectional(geoTiffSettings.enabledProperty());
-                    name.bindBidirectional(geoTiffSettings.nameProperty());
-                    shift.bindBidirectional(
-                            getGeoTiffSettings().manualElevationShiftProperty(),
-                            new BidirectionalValueConverter<>() {
-                                @Override
-                                public Number convertBack(Quantity<Dimension.Length> value) {
-                                    return value.convertTo(Unit.METER).getValue().doubleValue();
-                                }
+        enabled.bindBidirectional(geoTiffSettings.enabledProperty());
+        name.bindBidirectional(geoTiffSettings.nameProperty());
+        shift.bindBidirectional(
+            getGeoTiffSettings().manualElevationShiftProperty(),
+            new BidirectionalValueConverter<>() {
+                @Override
+                public Number convertBack(Quantity<Dimension.Length> value) {
+                    return value.convertTo(Unit.METER).getValue().doubleValue();
+                }
 
-                                @Override
-                                public Quantity<Dimension.Length> convert(Number value) {
-                                    return Quantity.of(value, Unit.METER);
-                                }
-                            });
-                    elevationModelShiftType.bindBidirectional(getGeoTiffSettings().elevationModelShiftTypeProperty());
-                };
+                @Override
+                public Quantity<Dimension.Length> convert(Number value) {
+                    return Quantity.of(value, Unit.METER);
+                }
+            });
+        elevationModelShiftType.bindBidirectional(getGeoTiffSettings().elevationModelShiftTypeProperty());
+
         load();
     }
 
@@ -564,7 +562,7 @@ public class GeoTiffEntry {
                         mapLayer.set(fxLayer);
                         this.type.set(GeoTiffType.IMAGERY);
                     },
-                    Dispatcher.platform()::run);
+                    Dispatcher.platform());
         } else if (type.equalsIgnoreCase("ElevationModel")) {
             createElevationLayer(domElement, params);
         }
@@ -597,7 +595,7 @@ public class GeoTiffEntry {
         BasicElevationModel slave = (BasicElevationModel)factory.createFromConfigSource(domElement, params);
         slave.setDetailHint(0.4);
 
-        IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+        IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
         elevationModelShiftWrapper = new ElevationModelShiftWrapper(slave, getSector(), egmModel);
         IElevationLayer layer = new GeoTiffElevationLayer();
         elevationLayer.set(layer);

@@ -19,25 +19,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="OpenMissionControl" />
-        <module name="IntelMissionControl" />
-        <module name="WorldWindJava" />
-        <module name="LibInsight" />
-        <module name="InsightService" />
-        <module name="asyncfx" />
-        <module name="missioncontrol.worldwind" />
-        <module name="missioncontrol.asyncfx" />
-        <module name="missioncontrol.imc-presentation" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="WorldWindJavaAmalgamated" target="10" />
-    </bytecodeTargetLevel>
-  </component>
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="InsightService" options="--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.prism=ALL-UNNAMED" />
-      <module name="LibInsight" options="" />
-    </option>
   </component>
 </project>

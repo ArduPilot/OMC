@@ -59,8 +59,6 @@ public class ObstacleAvoidanceTelemetryView extends DialogView<ObstacleAvoidance
         obstacleAvoidanceToggleSwitch
             .selectedProperty()
             .bindBidirectional(viewModel.obstacleAvoidanceEnabledProperty());
-        obstacleAvoidanceToggleSwitch.disableProperty().bind(viewModel.hardwareOACapableProperty().not());
-
         title.set(languageHelper.getString(ObstacleAvoidanceTelemetryView.class, "title"));
     }
 }

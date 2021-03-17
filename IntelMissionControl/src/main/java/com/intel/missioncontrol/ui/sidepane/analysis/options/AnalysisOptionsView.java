@@ -6,10 +6,13 @@
 
 package com.intel.missioncontrol.ui.sidepane.analysis.options;
 
-import com.intel.missioncontrol.mission.MatchingStatus;
 import com.intel.missioncontrol.ui.ViewBase;
+import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -25,12 +28,6 @@ public class AnalysisOptionsView extends ViewBase<AnalysisOptionsViewModel> {
     @FXML
     private TabPane optionsTabPane;
 
-    @FXML
-    private Tab annotationsTab;
-
-    @FXML
-    private Tab statisticsTab;
-
     @InjectViewModel
     private AnalysisOptionsViewModel viewModel;
 
@@ -38,12 +35,12 @@ public class AnalysisOptionsView extends ViewBase<AnalysisOptionsViewModel> {
     public void initializeView() {
         super.initializeView();
 
-        locationTab.disableProperty().bind(viewModel.rtkAvailableProperty().not());
+        if (!viewModel.rtkVisibleProperty().get()) {
+            // this way of hiding the RTK location tab requires restart of IMC to response to Level Change
+            optionsTabPane.getTabs().remove(locationTab);
+        }
 
-        // TODO IMC-3132 Annotations
-        // annotationsTab.disableProperty().bind(viewModel.matchingStatusProperty().isEqualTo(MatchingStatus.NEW));
-        annotationsTab.disableProperty().set(true);
-        statisticsTab.disableProperty().bind(viewModel.matchingStatusProperty().isEqualTo(MatchingStatus.NEW));
+        locationTab.disableProperty().bind(viewModel.rtkAvailableProperty().not());
 
         viewModel
             .currentMatchingProperty()

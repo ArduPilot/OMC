@@ -6,14 +6,13 @@
 
 package com.intel.missioncontrol.ui.sidepane.planning.widgets;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.sidepane.planning.EditPowerpolePointsViewModel;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,33 +27,17 @@ public class PowerPoleWidgetViewModel extends ViewModelBase {
     public AreaOfInterest areaOfInterest;
     private DelegateCommand showEditPowerPoleDialogCommand;
 
-
-
-
     @Inject
     public PowerPoleWidgetViewModel(IDialogService dialogService) {
         this.dialogService = dialogService;
-
 
         showEditPowerPoleDialogCommand =
             new DelegateCommand(
                 () -> {
                     canShowEditPowerPoleDialogCommand.set(false);
-                    Futures.addCallback(
-                        dialogService.requestDialogAsync(
-                            this, EditPowerpolePointsViewModel.class, () -> areaOfInterest, false),
-                        new FutureCallback<>() {
-                            @Override
-                            public void onSuccess(EditPowerpolePointsViewModel editPowerpolePointsViewModel) {
-                                canShowEditPowerPoleDialogCommand.set(true);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                canShowEditPowerPoleDialogCommand.set(true);
-                            }
-
-                        });
+                    dialogService
+                        .requestDialogAsync(this, EditPowerpolePointsViewModel.class, () -> areaOfInterest, false)
+                        .whenDone(f -> canShowEditPowerPoleDialogCommand.set(true), Platform::runLater);
                 },
                 canShowEditPowerPoleDialogCommand);
     }

@@ -165,9 +165,7 @@ public class CommandProtocolSender extends PayloadSender {
                 commandLong.targetSystem(),
                 commandLong.targetComponent());
 
-        int repetitions= 1;
-        return sendCommandAndExpectResponseAsync(commandLong, receiverFnc, repetitions,
-                PayloadSender.defaultResponseTimeoutPerRepetition)
+        return sendCommandAndExpectResponseAsync(commandLong, receiverFnc)
             .thenApply(
                 messageInterval -> {
                     int intervalUs = messageInterval.intervalUs();
@@ -303,12 +301,7 @@ public class CommandProtocolSender extends PayloadSender {
             .runWithRetriesAsync(
                 repetition -> sendCommandAndExpectAckAsync(commandLong),
                 mavResult -> (mavResult == MavResult.MAV_RESULT_TEMPORARILY_REJECTED))
-            .thenAccept(
-                mavResult -> {
-                    if (!mavResult.equals(MavResult.MAV_RESULT_ACCEPTED)) {
-                        throw new MavResultException(commandLong, mavResult);
-                    }
-                });
+            .thenGet(() -> null);
     }
 
     /**

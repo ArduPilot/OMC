@@ -18,10 +18,8 @@ public enum CreateDatasetSubTasks {
     CREATE_LAYERS(100),
     MOVE_UNMATCHED_IMAGES(1000),
     IMPORT_FLIGHT_PLANS(300),
-    CALCULATE_LAYERS(300),
     SAVE_LAYERS(300),
-    ERASE_SD(300),
-    GENERATE_THUMBFILES(60000);
+    ERASE_SD(300);
 
     final long duration;
 

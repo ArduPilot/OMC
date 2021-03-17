@@ -81,10 +81,14 @@ public final class PropertyHelper {
         property.getExecutor().execute(property::reset);
     }
 
-    static Dispatcher verifyAccess(ReadOnlyAsyncProperty property, PropertyMetadata metadata) {
+    static void verifyAccess(ReadOnlyAsyncProperty property, PropertyMetadata metadata) {
+        if (!AsyncFX.isVerifyPropertyAccess()) {
+            return;
+        }
+
         Dispatcher metadataDispatcher = metadata.getDispatcher();
         if (metadataDispatcher != null) {
-            if (AsyncFX.isVerifyPropertyAccess() && !metadataDispatcher.hasAccess()) {
+            if (!metadataDispatcher.hasAccess()) {
                 throw new IllegalStateException(
                     "Illegal cross-thread access: expected = "
                         + metadataDispatcher
@@ -92,13 +96,11 @@ public final class PropertyHelper {
                         + Dispatcher.fromThread(Thread.currentThread())
                         + ".");
             }
-
-            return metadataDispatcher;
         } else {
             Object bean = property.getBean();
             Dispatcher dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
 
-            if (AsyncFX.isVerifyPropertyAccess() && dispatcher != null && !dispatcher.hasAccess()) {
+            if (dispatcher != null && !dispatcher.hasAccess()) {
                 throw new IllegalStateException(
                     "Illegal cross-thread access: expected = "
                         + dispatcher
@@ -106,8 +108,6 @@ public final class PropertyHelper {
                         + Dispatcher.fromThread(Thread.currentThread())
                         + ".");
             }
-
-            return dispatcher;
         }
     }
 
@@ -209,25 +209,32 @@ public final class PropertyHelper {
 
         if (property instanceof AsyncObjectPropertyBaseImpl) {
             AsyncObjectPropertyBaseImpl propertyImpl = ((AsyncObjectPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncBooleanPropertyBaseImpl) {
             AsyncBooleanPropertyBaseImpl propertyImpl = ((AsyncBooleanPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncIntegerPropertyBaseImpl) {
             AsyncIntegerPropertyBaseImpl propertyImpl = ((AsyncIntegerPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncLongPropertyBaseImpl) {
             AsyncLongPropertyBaseImpl propertyImpl = ((AsyncLongPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncFloatPropertyBaseImpl) {
             AsyncFloatPropertyBaseImpl propertyImpl = ((AsyncFloatPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncDoublePropertyBaseImpl) {
             AsyncDoublePropertyBaseImpl propertyImpl = ((AsyncDoublePropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncStringPropertyBaseImpl) {
             AsyncStringPropertyBaseImpl propertyImpl = ((AsyncStringPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
+            propertyImpl.helper =
+                AsyncExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
         } else if (property instanceof AsyncListPropertyBase) {
             AsyncListPropertyBase propertyImpl = ((AsyncListPropertyBase)property);
             propertyImpl.helper =

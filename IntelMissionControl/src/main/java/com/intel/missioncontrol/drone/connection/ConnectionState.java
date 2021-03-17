@@ -8,8 +8,7 @@ package com.intel.missioncontrol.drone.connection;
 
 import com.intel.missioncontrol.Localizable;
 
-@Localizable
-public enum ConnectionState {
+public enum ConnectionState implements Localizable {
     NOT_CONNECTED,
     CONNECTING,
     CONNECTED

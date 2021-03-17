@@ -7,7 +7,6 @@
 package eu.mavinci.geo;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.settings.GeneralSettings;
@@ -15,6 +14,7 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.IGeoFenceDetector;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.geom.LatLon;
@@ -194,14 +194,16 @@ public class CountryDetector implements ICountryDetector {
 
     public static final String KEY = "eu.mavinci.geo.CountryDetector";
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public String getRestrictedI18N() {
         return languageHelper.getString(KEY + ".restricted");
     }
 
     private void showWarning(Country c) {
-        StaticInjector.getInstance(IApplicationContext.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(IApplicationContext.class)
             .addToast(
                 Toast.of(ToastType.ALERT)
                     .setText(languageHelper.getString(KEY + ".msg", c == null ? "UNDEFINED" : c.name))
@@ -219,12 +221,15 @@ public class CountryDetector implements ICountryDetector {
             return true;
         }
 
-        if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+        if (DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
+                    .getSection(GeneralSettings.class)
+                    .getOperationLevel()
                 == OperationLevel.DEBUG) {
             return true;
         }
         // if (Licence.activeLicence != null && Licence.activeLicence.isOverwritingRestrictions()) return true;
-        if (!StaticInjector.getInstance(IGeoFenceDetector.class).isGeoFencingRestrictionOn()) {
+        if (!DependencyInjector.getInstance().getInstanceOf(IGeoFenceDetector.class).isGeoFencingRestrictionOn()) {
             return true;
         }
 
@@ -262,12 +267,15 @@ public class CountryDetector implements ICountryDetector {
             return true;
         }
 
-        if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+        if (DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
+                    .getSection(GeneralSettings.class)
+                    .getOperationLevel()
                 == OperationLevel.DEBUG) {
             return true;
         }
         // if (Licence.activeLicence != null && Licence.activeLicence.isOverwritingRestrictions()) return true;
-        if (!StaticInjector.getInstance(IGeoFenceDetector.class).isGeoFencingRestrictionOn()) {
+        if (!DependencyInjector.getInstance().getInstanceOf(IGeoFenceDetector.class).isGeoFencingRestrictionOn()) {
             return true;
         }
 

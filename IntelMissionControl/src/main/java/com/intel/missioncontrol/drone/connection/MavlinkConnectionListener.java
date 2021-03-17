@@ -246,7 +246,7 @@ public class MavlinkConnectionListener implements IConnectionListener {
         case MAV_COMP_ID_CAMERA6:
             return createCameraConnectionItem(receivedPayload, 6);
         default:
-            LOGGER.debug("Received unsupported mavlink heartbeat component id " + compId);
+            LOGGER.debug("Received unknown mavlink heartbeat component id " + compId);
             return null;
         }
     }
@@ -308,7 +308,7 @@ public class MavlinkConnectionListener implements IConnectionListener {
     }
 
     private Future<Void> stopListeningAsync() {
-        LOGGER.info("Stopping MavlinkConnectionListener, dropping all connection items");
+        LOGGER.debug("Stopping MavlinkConnectionListener");
         listenerError.set(null);
         if (listenerCancellationSource != null) {
             listenerCancellationSource.cancel();

@@ -6,6 +6,9 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,117 +44,96 @@ import org.asyncfx.beans.AccessControllerImpl;
 public final class Critical {
 
     @SuppressWarnings("ComparatorCombinators")
-    private static final Comparator<ReadOnlyAsyncProperty<?>> propertyComparator =
+    private static final Comparator<ReadOnlyAsyncProperty> propertyComparator =
         (left, right) -> Long.compare(left.getUniqueId(), right.getUniqueId());
 
     private static final ThreadLocal<AccessControllerImpl.GroupLock> currentLockGroup = new ThreadLocal<>();
 
     private Critical() {}
 
-    public static void lock(ReadOnlyAsyncProperty<?> property0, Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+    public static void lock(ReadOnlyAsyncProperty property0, Runnable runnable) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         lock(properties, runnable);
     }
 
-    public static void lock(ReadOnlyAsyncProperty<?> property0, ReadOnlyAsyncProperty<?> property1, Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+    public static void lock(ReadOnlyAsyncProperty property0, ReadOnlyAsyncProperty property1, Runnable runnable) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         lock(properties, runnable);
     }
 
     public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
             Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        lock(properties, runnable);
-    }
-
-    public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
-        addProperties(properties, property3);
         lock(properties, runnable);
     }
 
     public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
             Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
         addProperties(properties, property3);
-        addProperties(properties, property4);
         lock(properties, runnable);
     }
 
     public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
             Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
         addProperties(properties, property3);
         addProperties(properties, property4);
-        addProperties(properties, property5);
         lock(properties, runnable);
     }
 
     public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
-            ReadOnlyAsyncProperty<?> property6,
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
             Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
         addProperties(properties, property3);
         addProperties(properties, property4);
         addProperties(properties, property5);
-        addProperties(properties, property6);
         lock(properties, runnable);
     }
 
     public static void lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
-            ReadOnlyAsyncProperty<?> property6,
-            ReadOnlyAsyncProperty<?> property7,
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
+            ReadOnlyAsyncProperty property6,
             Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
@@ -159,133 +141,20 @@ public final class Critical {
         addProperties(properties, property4);
         addProperties(properties, property5);
         addProperties(properties, property6);
-        addProperties(properties, property7);
         lock(properties, runnable);
     }
 
-    public static void lock(ReadOnlyAsyncProperty<?>[] properties, Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> props = new TreeSet<>(propertyComparator);
-        for (ReadOnlyAsyncProperty<?> property : properties) {
-            addProperties(props, property);
-        }
-
-        lock(props, runnable);
-    }
-
-    public static void lock(Iterable<ReadOnlyAsyncProperty<?>> properties, Runnable runnable) {
-        TreeSet<ReadOnlyAsyncProperty<?>> props = new TreeSet<>(propertyComparator);
-        for (ReadOnlyAsyncProperty<?> property : properties) {
-            addProperties(props, property);
-        }
-
-        lock(props, runnable);
-    }
-
-    public static <T> T lock(ReadOnlyAsyncProperty<?> property0, Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0, ReadOnlyAsyncProperty<?> property1, Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        addProperties(properties, property3);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        addProperties(properties, property3);
-        addProperties(properties, property4);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        addProperties(properties, property3);
-        addProperties(properties, property4);
-        addProperties(properties, property5);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
-            ReadOnlyAsyncProperty<?> property6,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
-        addProperties(properties, property0);
-        addProperties(properties, property1);
-        addProperties(properties, property2);
-        addProperties(properties, property3);
-        addProperties(properties, property4);
-        addProperties(properties, property5);
-        addProperties(properties, property6);
-        return lock(properties, supplier);
-    }
-
-    public static <T> T lock(
-            ReadOnlyAsyncProperty<?> property0,
-            ReadOnlyAsyncProperty<?> property1,
-            ReadOnlyAsyncProperty<?> property2,
-            ReadOnlyAsyncProperty<?> property3,
-            ReadOnlyAsyncProperty<?> property4,
-            ReadOnlyAsyncProperty<?> property5,
-            ReadOnlyAsyncProperty<?> property6,
-            ReadOnlyAsyncProperty<?> property7,
-            Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> properties = new TreeSet<>(propertyComparator);
+    public static void lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
+            ReadOnlyAsyncProperty property6,
+            ReadOnlyAsyncProperty property7,
+            Runnable runnable) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
         addProperties(properties, property0);
         addProperties(properties, property1);
         addProperties(properties, property2);
@@ -294,28 +163,161 @@ public final class Critical {
         addProperties(properties, property5);
         addProperties(properties, property6);
         addProperties(properties, property7);
+        lock(properties, runnable);
+    }
+
+    public static void lock(ReadOnlyAsyncProperty[] properties, Runnable runnable) {
+        TreeSet<ReadOnlyAsyncProperty> props = new TreeSet<>(propertyComparator);
+        for (ReadOnlyAsyncProperty property : properties) {
+            addProperties(props, property);
+        }
+
+        lock(props, runnable);
+    }
+
+    public static void lock(Iterable<ReadOnlyAsyncProperty> properties, Runnable runnable) {
+        TreeSet<ReadOnlyAsyncProperty> props = new TreeSet<>(propertyComparator);
+        for (ReadOnlyAsyncProperty property : properties) {
+            addProperties(props, property);
+        }
+
+        lock(props, runnable);
+    }
+
+    public static <T> T lock(ReadOnlyAsyncProperty property0, Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
         return lock(properties, supplier);
     }
 
-    public static <T> T lock(ReadOnlyAsyncProperty<?>[] properties, Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> props = new TreeSet<>(propertyComparator);
-        for (ReadOnlyAsyncProperty<?> property : properties) {
+    public static <T> T lock(ReadOnlyAsyncProperty property0, ReadOnlyAsyncProperty property1, Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        addProperties(properties, property3);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        addProperties(properties, property3);
+        addProperties(properties, property4);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        addProperties(properties, property3);
+        addProperties(properties, property4);
+        addProperties(properties, property5);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
+            ReadOnlyAsyncProperty property6,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        addProperties(properties, property3);
+        addProperties(properties, property4);
+        addProperties(properties, property5);
+        addProperties(properties, property6);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(
+            ReadOnlyAsyncProperty property0,
+            ReadOnlyAsyncProperty property1,
+            ReadOnlyAsyncProperty property2,
+            ReadOnlyAsyncProperty property3,
+            ReadOnlyAsyncProperty property4,
+            ReadOnlyAsyncProperty property5,
+            ReadOnlyAsyncProperty property6,
+            ReadOnlyAsyncProperty property7,
+            Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> properties = new TreeSet<>(propertyComparator);
+        addProperties(properties, property0);
+        addProperties(properties, property1);
+        addProperties(properties, property2);
+        addProperties(properties, property3);
+        addProperties(properties, property4);
+        addProperties(properties, property5);
+        addProperties(properties, property6);
+        addProperties(properties, property7);
+        return lock(properties, supplier);
+    }
+
+    public static <T> T lock(ReadOnlyAsyncProperty[] properties, Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> props = new TreeSet<>(propertyComparator);
+        for (ReadOnlyAsyncProperty property : properties) {
             addProperties(props, property);
         }
 
         return lock(props, supplier);
     }
 
-    public static <T> T lock(Iterable<ReadOnlyAsyncProperty<?>> properties, Supplier<T> supplier) {
-        TreeSet<ReadOnlyAsyncProperty<?>> props = new TreeSet<>(propertyComparator);
-        for (ReadOnlyAsyncProperty<?> property : properties) {
+    public static <T> T lock(Iterable<ReadOnlyAsyncProperty> properties, Supplier<T> supplier) {
+        TreeSet<ReadOnlyAsyncProperty> props = new TreeSet<>(propertyComparator);
+        for (ReadOnlyAsyncProperty property : properties) {
             addProperties(props, property);
         }
 
         return lock(props, supplier);
     }
 
-    private static void lock(TreeSet<ReadOnlyAsyncProperty<?>> properties, Runnable runnable) {
+    private static void lock(TreeSet<ReadOnlyAsyncProperty> properties, Runnable runnable) {
         long[] stamps = writeLock(properties);
         AccessControllerImpl.GroupLock groupLock = new AccessControllerImpl.GroupLock(properties);
 
@@ -348,7 +350,7 @@ public final class Critical {
         }
     }
 
-    private static <T> T lock(TreeSet<ReadOnlyAsyncProperty<?>> properties, Supplier<T> supplier) {
+    private static <T> T lock(TreeSet<ReadOnlyAsyncProperty> properties, Supplier<T> supplier) {
         long[] stamps = writeLock(properties);
         AccessControllerImpl.GroupLock groupLock = new AccessControllerImpl.GroupLock(properties);
 
@@ -381,8 +383,7 @@ public final class Critical {
         }
     }
 
-    private static void addProperties(
-            Collection<? super ReadOnlyAsyncProperty<?>> c, ReadOnlyAsyncProperty<?> property) {
+    private static void addProperties(Collection<ReadOnlyAsyncProperty> c, ReadOnlyAsyncProperty property) {
         c.add(property);
         ConsistencyGroup group = property.getMetadata().getConsistencyGroup();
         if (group != null) {
@@ -390,30 +391,30 @@ public final class Critical {
         }
     }
 
-    private static long[] writeLock(TreeSet<ReadOnlyAsyncProperty<?>> properties) {
+    private static long[] writeLock(TreeSet<ReadOnlyAsyncProperty> properties) {
         long[] stamps = new long[properties.size()];
         int i = 0;
 
-        for (ReadOnlyAsyncProperty<?> property : properties) {
+        for (ReadOnlyAsyncProperty property : properties) {
             AccessControllerImpl accessController = (AccessControllerImpl)property.getAccessController();
-            stamps[i++] = accessController.writeLock(true);
+            stamps[i++] = accessController.writeLock(VALUE, GROUP);
         }
 
         return stamps;
     }
 
-    private static void unlockWrite(TreeSet<ReadOnlyAsyncProperty<?>> properties, long[] stamps) {
-        Iterator<ReadOnlyAsyncProperty<?>> it = properties.descendingIterator();
+    private static void unlockWrite(TreeSet<ReadOnlyAsyncProperty> properties, long[] stamps) {
+        Iterator<ReadOnlyAsyncProperty> it = properties.descendingIterator();
         int i = stamps.length;
         while (it.hasNext()) {
-            ((AccessControllerImpl)it.next().getAccessController()).unlockWrite(stamps[--i]);
+            ((AccessControllerImpl)it.next().getAccessController()).unlockWrite(VALUE, stamps[--i]);
             stamps[i] = 0;
         }
     }
 
     private static void setGroupLock(
-            TreeSet<ReadOnlyAsyncProperty<?>> properties, AccessControllerImpl.GroupLock groupLock) {
-        for (ReadOnlyAsyncProperty<?> property : properties) {
+            TreeSet<ReadOnlyAsyncProperty> properties, AccessControllerImpl.GroupLock groupLock) {
+        for (ReadOnlyAsyncProperty property : properties) {
             ((AccessControllerImpl)property.getAccessController()).setGroupLock(groupLock);
         }
     }

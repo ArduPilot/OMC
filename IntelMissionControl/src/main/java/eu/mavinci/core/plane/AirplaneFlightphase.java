@@ -6,10 +6,10 @@
 
 package eu.mavinci.core.plane;
 
-import com.intel.missioncontrol.StaticInjector;
+import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
-import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.util.Vector;
 
 public enum AirplaneFlightphase {
@@ -107,7 +107,10 @@ public enum AirplaneFlightphase {
     }
 
     public boolean isVisible() {
-        if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+        if (DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
+                    .getSection(GeneralSettings.class)
+                    .getOperationLevel()
                 == OperationLevel.DEBUG) {
             return true;
         }

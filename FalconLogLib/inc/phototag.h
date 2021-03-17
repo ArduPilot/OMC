@@ -43,7 +43,7 @@ public:
   asl::Vector3D rpy;            ///< camera orientation roll-pitch-yaw
   int number;                   ///< number of waypoint
   TriggerSource source;         ///< source of trigger \sa TriggerSource
-  std::string project;          ///< project name or source of mission (e.x. Navigator project name)
+  std::string project;          ///< project name or source of flightplan (e.x. Navigator project name)
 };
 
 #pragma warning(pop)

@@ -18,8 +18,6 @@ public class AreaFilter {
 
     private final StringProperty name = new SimpleStringProperty();
     private final BooleanProperty enabled = new SimpleBooleanProperty();
-    private final BooleanProperty deleteDisabledProperty = new SimpleBooleanProperty();
-
     private final MapLayerPicArea legacyArea;
     private final Matching parent;
 
@@ -28,7 +26,6 @@ public class AreaFilter {
         this.legacyArea = legacyArea;
         enabled.setValue(legacyArea.isVisible());
         enabled.addListener((observable, oldValue, newValue) -> legacyArea.setVisible(newValue));
-        deleteDisabledProperty.bindBidirectional(legacyArea.getDeleteDisabled());
         name.set(legacyArea.getName());
         name.addListener((observable, oldValue, newValue) -> legacyArea.setName(newValue));
     }
@@ -43,10 +40,6 @@ public class AreaFilter {
 
     public BooleanProperty enabledProperty() {
         return enabled;
-    }
-
-    public BooleanProperty deleteDisabledPropery(){
-        return deleteDisabledProperty;
     }
 
     public StringProperty nameProperty() {

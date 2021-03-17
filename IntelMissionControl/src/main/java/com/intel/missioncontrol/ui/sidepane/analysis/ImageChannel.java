@@ -6,9 +6,9 @@
 
 package com.intel.missioncontrol.ui.sidepane.analysis;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
-public enum ImageChannel implements IKeepAll {
+public enum ImageChannel implements Localizable {
     RGB("rgb"),
     R("r"),
     G("g"),

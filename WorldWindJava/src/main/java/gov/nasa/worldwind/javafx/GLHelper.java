@@ -11,11 +11,6 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 import gov.nasa.worldwind.util.Logging;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
 
 class GLHelper implements AutoCloseable {
 
@@ -140,40 +135,6 @@ class GLHelper implements AutoCloseable {
         gl.glBindTexture(GL.GL_TEXTURE_2D, params[2]);
         gl.glBindFramebuffer(GL.GL_READ_FRAMEBUFFER, params[0]);
         gl.glFlush();
-    }
-
-    Image getTextureImage(int texture) {
-        Dimension dim = getTextureSize(texture);
-        final int width = dim.getWidth();
-        final int height = dim.getHeight();
-        final int stride = width * 4;
-
-        int[] binding = new int[1];
-        byte[] buffer = new byte[width * height * 4];
-        gl.glGetIntegerv(GL.GL_TEXTURE_BINDING_2D, binding, 0);
-        gl.glBindTexture(GL.GL_TEXTURE_2D, texture);
-        gl.glGetTexImage(GL.GL_TEXTURE_2D, 0, GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(buffer));
-        checkError("glGetTexImage");
-        gl.glBindTexture(GL.GL_TEXTURE_2D, binding[0]);
-
-        for (int y = 0; y < height / 2; ++y) {
-            int yTop = y * stride;
-            int yBottom = (height - y - 1) * stride;
-
-            for (int x = 0; x < stride; ++x) {
-                int top = yTop + x;
-                int bottom = yBottom + x;
-                byte temp = buffer[top];
-                buffer[top] = buffer[bottom];
-                buffer[bottom] = temp;
-            }
-        }
-
-        WritableImage image = new WritableImage(width, height);
-        image.getPixelWriter().setPixels(
-            0, 0, width, height, PixelFormat.getByteBgraInstance(), buffer, 0, stride);
-
-        return image;
     }
 
 }

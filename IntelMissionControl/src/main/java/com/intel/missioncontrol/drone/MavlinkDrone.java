@@ -16,13 +16,11 @@ import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IMavlinkFlightPlanOptions;
 import com.intel.missioncontrol.hardware.MavlinkFlightPlanOptions;
 import com.intel.missioncontrol.mission.FlightPlan;
-import eu.mavinci.core.flightplan.CFlightplan;
-import eu.mavinci.core.flightplan.IFlightplanChangeListener;
-import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Quaternion;
 import io.dronefleet.mavlink.common.Attitude;
+import io.dronefleet.mavlink.common.FlightInformation;
 import io.dronefleet.mavlink.common.GlobalPositionInt;
 import io.dronefleet.mavlink.common.GpsFixType;
 import io.dronefleet.mavlink.common.GpsRawInt;
@@ -37,6 +35,7 @@ import io.dronefleet.mavlink.common.MissionItemReached;
 import io.dronefleet.mavlink.common.Statustext;
 import io.dronefleet.mavlink.common.SysStatus;
 import io.dronefleet.mavlink.util.EnumValue;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -45,22 +44,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import javafx.beans.value.ObservableValue;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
-import org.asyncfx.beans.property.AsyncDoubleProperty;
 import org.asyncfx.beans.property.AsyncIntegerProperty;
 import org.asyncfx.beans.property.AsyncListProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
-import org.asyncfx.beans.property.SimpleAsyncDoubleProperty;
 import org.asyncfx.beans.property.SimpleAsyncIntegerProperty;
 import org.asyncfx.beans.property.SimpleAsyncListProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
@@ -100,14 +95,11 @@ public abstract class MavlinkDrone implements IDrone {
     private final AsyncObjectProperty<AutopilotState> autopilotState =
         new SimpleAsyncObjectProperty<>(
             this, new PropertyMetadata.Builder<AutopilotState>().initialValue(AutopilotState.UNKNOWN).create());
-    private final AsyncObjectProperty<ArmedState> armedState =
+    private final AsyncObjectProperty<Duration> flightTime =
         new SimpleAsyncObjectProperty<>(
-            this, new PropertyMetadata.Builder<ArmedState>().initialValue(ArmedState.UNKNOWN).create());
-    private final AsyncObjectProperty<Duration> flightTime = new SimpleAsyncObjectProperty<>(this);
-
-    private final AsyncDoubleProperty flightPlanUploadProgress =
-        new SimpleAsyncDoubleProperty(this, new PropertyMetadata.Builder<Number>().initialValue(Double.NaN).create());
+            this, new PropertyMetadata.Builder<Duration>().initialValue(Duration.ZERO).create());
     private final AsyncObjectProperty<FlightPlan> activeFlightPlan = new SimpleAsyncObjectProperty<>(this);
+
     private final AsyncIntegerProperty activeFlightPlanWaypointIndex = new SimpleAsyncIntegerProperty(this);
 
     private final AsyncObjectProperty<MavLandedState> mavLandedState =
@@ -131,12 +123,10 @@ public abstract class MavlinkDrone implements IDrone {
 
     final IMavlinkDroneConnection droneConnection;
 
-    private final FlightTimeTimer flightTimeTimer;
-
     MavlinkDrone(IMavlinkDroneConnection droneConnection, IHardwareConfiguration hardwareConfiguration) {
         this.droneConnection = droneConnection;
 
-        LOGGER.info("new MavlinkDrone");
+        System.out.println("create new MavlinkDrone");
 
         battery.setValue(new Battery());
         gnssInfo.setValue(new GnssInfo());
@@ -146,41 +136,10 @@ public abstract class MavlinkDrone implements IDrone {
 
         this.hardwareConfiguration.set(hardwareConfiguration);
 
-        flightTimeTimer = new FlightTimeTimer(droneConnection.getCancellationSource());
-
         droneConnection
             .getHeartbeatSenderFuture()
             .whenFailed(
                 e -> raiseDroneConnectionExceptionEvent(new DroneConnectionException(Heartbeat.class, false, e)));
-
-        // TODO this should be removed with IMC-2806
-        IFlightplanChangeListener clearActiveFlightPlanOnEditsListener = new IFlightplanChangeListener() {
-            @Override
-            public void flightplanStructureChanged(IFlightplanRelatedObject fp) {
-                clearActiveFlightPlan();
-            }
-
-            @Override
-            public void flightplanValuesChanged(IFlightplanRelatedObject fpObj) {
-                clearActiveFlightPlan();
-            }
-
-            @Override
-            public void flightplanElementRemoved(CFlightplan fp, int i, IFlightplanRelatedObject statement) {
-                clearActiveFlightPlan();
-            }
-
-            @Override
-            public void flightplanElementAdded(CFlightplan fp, IFlightplanRelatedObject statement) {
-                clearActiveFlightPlan();
-            }
-        };
-        activeFlightPlan.addListener(
-                (obs, from, to) -> {
-                    if(from != null) from.getLegacyFlightplan().removeFPChangeListener(clearActiveFlightPlanOnEditsListener);
-                    if(to != null) to.getLegacyFlightplan().addFPChangeListener(clearActiveFlightPlanOnEditsListener);
-                }
-        );
     }
 
     void initializeBindings() {
@@ -192,24 +151,11 @@ public abstract class MavlinkDrone implements IDrone {
             .getConnectionProtocolReceiver()
             .registerHeartbeatHandlerAsync(
                 receivedPayload -> {
-                    Heartbeat heartbeat = receivedPayload.getPayload();
-                    if (heartbeat.type().entry() != droneConnection.getMavType()) {
-                        raiseDroneConnectionExceptionEvent(
-                            new DroneConnectionException(Heartbeat.class, true, "Invalid vehicle type"));
-                    }
-
-                    EnumValue<MavModeFlag> baseMode = heartbeat.baseMode();
-                    armedState.set(
-                        baseMode.flagsEnabled(MavModeFlag.MAV_MODE_FLAG_SAFETY_ARMED)
-                            ? ArmedState.ARMED
-                            : ArmedState.DISARMED);
-
-                    // more handlers in subclasses
+                    // handled in subclasses
                 },
                 linkLostTimeoutSeconds,
                 () -> {
                     // timeout
-                    armedState.set(ArmedState.UNKNOWN);
                     raiseDroneConnectionExceptionEvent(
                         new DroneConnectionException(Heartbeat.class, true, "Connection timeout"));
                 })
@@ -275,7 +221,9 @@ public abstract class MavlinkDrone implements IDrone {
                     remoteControl.get().statusProperty().set(remoteControlStatus);
                 },
                 // timeout
-                () -> battery.get().telemetryOldProperty().set(true))
+                () -> {
+                    battery.get().telemetryOldProperty().set(true);
+                })
             .whenFailed(
                 e -> raiseDroneConnectionExceptionEvent(new DroneConnectionException(SysStatus.class, false, e)));
 
@@ -353,7 +301,9 @@ public abstract class MavlinkDrone implements IDrone {
                     gnssInfo.get().gnssStateProperty().set(gnssState);
                 },
                 // timeout
-                () -> gnssInfo.get().telemetryOldProperty().set(true))
+                () -> {
+                    gnssInfo.get().telemetryOldProperty().set(true);
+                })
             .whenFailed(
                 e -> raiseDroneConnectionExceptionEvent(new DroneConnectionException(GpsRawInt.class, false, e)));
 
@@ -384,16 +334,22 @@ public abstract class MavlinkDrone implements IDrone {
                     Function<MavSeverity, DroneMessage.Severity> getSeverity =
                         (MavSeverity ms) -> {
                             switch (ms) {
+                            case MAV_SEVERITY_EMERGENCY:
+                                return DroneMessage.Severity.ERROR;
+                            case MAV_SEVERITY_ALERT:
+                                return DroneMessage.Severity.ERROR;
+                            case MAV_SEVERITY_CRITICAL:
+                                return DroneMessage.Severity.ERROR;
+                            case MAV_SEVERITY_ERROR:
+                                return DroneMessage.Severity.ERROR;
                             case MAV_SEVERITY_WARNING:
                                 return DroneMessage.Severity.WARNING;
                             case MAV_SEVERITY_NOTICE:
+                                return DroneMessage.Severity.INFO;
                             case MAV_SEVERITY_INFO:
+                                return DroneMessage.Severity.INFO;
                             case MAV_SEVERITY_DEBUG:
                                 return DroneMessage.Severity.INFO;
-                            case MAV_SEVERITY_EMERGENCY:
-                            case MAV_SEVERITY_ALERT:
-                            case MAV_SEVERITY_CRITICAL:
-                            case MAV_SEVERITY_ERROR:
                             default:
                                 return DroneMessage.Severity.ERROR;
                             }
@@ -412,47 +368,43 @@ public abstract class MavlinkDrone implements IDrone {
             .whenFailed(
                 e -> raiseDroneConnectionExceptionEvent(new DroneConnectionException(Statustext.class, false, e)));
 
+        // Flight information:
+        droneConnection
+            .getTelemetryReceiver()
+            .periodicallyRequestFlightInformationAsync(
+                Duration.ofMillis(500),
+                payload -> {
+                    flightTimeTelemetryOld.set(false);
+                    FlightInformation flightInformation = payload.getPayload();
+                    if (flightInformation.takeoffTimeUtc().intValue() == 0) {
+                        flightTime.set(Duration.ZERO);
+                    } else {
+                        // FlightInformation is marked as subject to change in mavlink docs, and definition does not
+                        // match results with PX4 implementation as of 03/2019.
+                        long dt =
+                            BigInteger.valueOf(flightInformation.timeBootMs())
+                                .subtract(flightInformation.takeoffTimeUtc())
+                                .longValue();
+
+                        flightTime.set(dt >= 0 ? Duration.ofMillis(dt) : null);
+                    }
+                },
+                // timeout
+                () -> flightTimeTelemetryOld.set(true))
+            .whenFailed(
+                e ->
+                    raiseDroneConnectionExceptionEvent(
+                        new DroneConnectionException(FlightInformation.class, false, e)));
+
         // cameras
         cameras.bind(droneConnection.connectedCamerasProperty());
 
-        // flight time
-        flightTime.bind(flightTimeTimer.flightTimeProperty());
-        flightTimeTelemetryOld.set(false);
-        requestFlightStartTimeAsync()
-            .whenSucceeded(flightTimeTimer::update)
-            .whenFailed(
-                () -> {
-                    flightTimeTelemetryOld.set(true);
-                    flightTimeTimer.update(null);
-                });
-        flightSegment.addListener(
-            (o, oldValue, newValue) -> {
-                if (newValue == FlightSegment.ON_GROUND) {
-                    // change to ground detected
-                    flightTimeTimer.update(null);
-                    flightTimeTelemetryOld.set(false);
-                } else if (oldValue == FlightSegment.ON_GROUND && newValue != FlightSegment.UNKNOWN) {
-                    // change from ground to airborne detected
-                    requestFlightStartTimeAsync()
-                        .thenAccept(
-                            flightStartTime -> {
-                                flightTimeTimer.update(flightStartTime != null ? flightStartTime : Instant.now());
-                                flightTimeTelemetryOld.set(false);
-                            })
-                        .whenFailed(
-                            () -> {
-                                flightTimeTelemetryOld.set(true);
-                                flightTimeTimer.update(Instant.now());
-                            });
-                }
-            });
-
-        // mission cleanup
+        // flight plan cleanup
         flightSegment.bind(createFlightSegmentBinding());
         flightSegment.addListener(
             (observable, oldValue, newValue) -> {
                 if (newValue == FlightSegment.ON_GROUND && activeFlightPlan.get() != null) {
-                    clearActiveFlightPlan();
+                    clearActiveFlightPlanProperties();
                 }
             });
 
@@ -462,10 +414,6 @@ public abstract class MavlinkDrone implements IDrone {
         autopilotStateTelemetryOld.bind(createAutopilotStateTelemetryOldBinding());
         mavLandedState.bind(createMavLandedStateBinding());
         mavLandedStateOld.bind(createMavLandedStateOldBinding());
-    }
-
-    protected Future<Instant> requestFlightStartTimeAsync() {
-        return Futures.successful(null);
     }
 
     /**
@@ -523,7 +471,7 @@ public abstract class MavlinkDrone implements IDrone {
                         if (autopilotState.get() == AutopilotState.AUTOPILOT
                                 && flightSegment.get() == FlightSegment.PLAN_RUNNING
                                 && !mavlinkFlightPlan.getLandAutomatically()) {
-                            clearActiveFlightPlan();
+                            clearActiveFlightPlanProperties();
                             pauseFlightPlanAsync();
                         }
                     }
@@ -599,11 +547,6 @@ public abstract class MavlinkDrone implements IDrone {
         for (IDroneMessageListener listener : droneMessageListeners) {
             listener.onDroneMessage(this, message);
         }
-    }
-
-    @Override
-    public ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty() {
-        return flightPlanUploadProgress;
     }
 
     @Override
@@ -714,53 +657,22 @@ public abstract class MavlinkDrone implements IDrone {
         return mavLandedStateOld;
     }
 
-    ReadOnlyAsyncObjectProperty<ArmedState> armedStateProperty() {
-        return armedState;
-    }
-
     @Override
     public Future<Void> takeOffAsync(FlightPlanWithWayPointIndex flightPlanWithWayPointIndex) {
         if (!autopilotState.get().equals(AutopilotState.AUTOPILOT)) {
             return Futures.failed(new IllegalStateException("Drone not in Automatic mode"));
         }
 
-        if (!flightSegment.get().equals(FlightSegment.ON_GROUND)) {
-            return Futures.failed(new IllegalStateException("Drone not on ground"));
-        }
-
         if (flightPlanWithWayPointIndex.getFlightPlan() == null) {
-            return Futures.failed(new IllegalArgumentException("No mission given for execution"));
+            return Futures.failed(new IllegalArgumentException("No flight plan given for execution"));
         }
 
-        // disarm if armed (and allowed via flightplan options):
-        Future<Void> disarmFuture;
-        if (armedState.get() != ArmedState.DISARMED) {
-            if (hardwareConfiguration
-                    .get()
-                    .getPlatformDescription()
-                    .getMavlinkFlightPlanOptions()
-                    .getAutoDisarmBeforeTakeoff()) {
-                disarmFuture =
-                    droneConnection
-                        .getCommandProtocolSender()
-                        .sendArmDisarmAsync(false)
-                        .whenSucceeded(() -> LOGGER.debug("takeOffAsync: Disarmed"))
-                        .whenFailed(e -> LOGGER.debug("takeOffAsync: Disarm failed, " + e));
-            } else {
-                disarmFuture = Futures.failed(new IllegalStateException("Drone must be disarmed before takeoff"));
-            }
-        } else {
-            disarmFuture = Futures.successful(null);
-        }
-
-        // upload flight plan and start:
-        return disarmFuture
+        return droneConnection
+            .getCommandProtocolSender()
+            .sendArmDisarmAsync(false)
             .thenRunAsync(() -> setActiveFlightPlanAsync(flightPlanWithWayPointIndex))
-            .whenSucceeded(() -> LOGGER.debug("takeOffAsync: Active flightplan was set"))
             .thenRunAsync(this::runPreArmActionsAsync)
-            .whenSucceeded(() -> LOGGER.debug("takeOffAsync: Ran pre arm actions"))
             .thenRunAsync(() -> droneConnection.getCommandProtocolSender().sendArmDisarmAsync(true))
-            .whenSucceeded(() -> LOGGER.debug("takeOffAsync: Armed"))
             .thenRunAsync(
                 () -> {
                     if (!autopilotState.get().equals(AutopilotState.AUTOPILOT)) {
@@ -772,12 +684,7 @@ public abstract class MavlinkDrone implements IDrone {
             .whenDone(
                 f -> {
                     if (!f.isSuccess()) {
-                        clearActiveFlightPlan();
-                        if (f.isFailed()) {
-                            LOGGER.debug("takeOffAsync error: " + f.getException());
-                        }
-                    } else {
-                        LOGGER.debug("takeOffAsync: Mission mode set");
+                        clearActiveFlightPlanProperties();
                     }
                 })
             .whenCancelled(() -> LOGGER.debug("takeOffAsync cancelled"));
@@ -824,7 +731,7 @@ public abstract class MavlinkDrone implements IDrone {
     @Override
     public Future<Void> startFlightPlanAsync(FlightPlanWithWayPointIndex flightPlanWithWayPointIndex) {
         if (flightPlanWithWayPointIndex.getFlightPlan() == null) {
-            return Futures.failed(new IllegalArgumentException("No mission given for execution"));
+            return Futures.failed(new IllegalArgumentException("No flight plan given for execution"));
         }
 
         if (!autopilotState.get().equals(AutopilotState.AUTOPILOT)) {
@@ -862,98 +769,82 @@ public abstract class MavlinkDrone implements IDrone {
         return sendSetReturnHomeModeAsync();
     }
 
-    /** Set the active flightplan, uploading data to the drone. */
+    /**
+     * Set the active flightplan, uploading data to the drone. The flightPlanTransferPercentageProperty shows progress
+     * of the upload until the result future completes.
+     */
     Future<Void> setActiveFlightPlanAsync(FlightPlanWithWayPointIndex flightPlanWithWayPointIndex) {
-        return Dispatcher.background()
-            .runLaterAsync(this::clearActiveFlightPlan)
-            .thenRunAsync(() -> droneConnection.getMissionProtocolSender().sendClearMissionAsync())
-            .thenRunAsync(
+        // TODO post
+        if (flightPlanWithWayPointIndex == null) {
+            clearActiveFlightPlanProperties();
+            return droneConnection.getMissionProtocolSender().sendClearMissionAsync();
+        }
+
+        final IMavlinkFlightPlanOptions mavlinkFlightPlanOptions =
+            hardwareConfiguration.get().getPlatformDescription().getMavlinkFlightPlanOptions();
+
+        try {
+            MavlinkFlightPlanOptions.verify(mavlinkFlightPlanOptions);
+        } catch (HardwareConfigurationException e) {
+            return Futures.failed(e);
+        }
+
+        Position currentPosition = position.get();
+        if (currentPosition == null
+                && mavlinkFlightPlanOptions.getPrependMissionItem()
+                    != IMavlinkFlightPlanOptions.PrependMissionItem.NONE) {
+            return Futures.failed(new IllegalStateException("Current position unavailable"));
+        }
+
+        // TODO: posting to UI because of FlightPlan properties. Should make those properties async instead.
+
+        Dispatcher dispatcher = Dispatcher.platform();
+        return dispatcher
+            .getLaterAsync(
                 () -> {
-                    if (flightPlanWithWayPointIndex == null) {
-                        return Futures.successful();
-                    }
-
-                    final IMavlinkFlightPlanOptions mavlinkFlightPlanOptions =
-                        hardwareConfiguration.get().getPlatformDescription().getMavlinkFlightPlanOptions();
-
-                    try {
-                        MavlinkFlightPlanOptions.verify(mavlinkFlightPlanOptions);
-                    } catch (HardwareConfigurationException e) {
-                        return Futures.failed(e);
-                    }
-
-                    Position currentPosition = position.get();
-                    if (currentPosition == null) {
-                        return Futures.failed(new IllegalStateException("Current position unavailable"));
-                    }
-
-                    // TODO: posting to UI because of FlightPlan properties. Should make those properties async instead.
-
-                    Dispatcher dispatcher = Dispatcher.platform();
-                    return dispatcher
-                        .getLaterAsync(
-                            () -> {
-                                Position startAltitudePosition =
-                                    getStartAltitudePosition(
-                                        flightPlanWithWayPointIndex.getFlightPlan(), currentPosition);
-                                return MavlinkFlightPlan.fromFlightPlanWithWayPointIndex(
-                                    flightPlanWithWayPointIndex, mavlinkFlightPlanOptions, startAltitudePosition);
-                            })
-                        .thenApplyAsync(
-                            mavlinkFlightPlan ->
-                                setAutopilotParametersAsync(mavlinkFlightPlan).thenGet(() -> mavlinkFlightPlan))
-                        .thenApplyAsync( // set active FlightPlan and upload
-                            mavlinkFlightPlan -> {
-                                clearActiveFlightPlan();
-                                LOGGER.info("Uploading: " + mavlinkFlightPlan.getDebugDescription());
-                                Future<Void> f =
-                                    droneConnection
-                                        .getMissionProtocolSender()
-                                        .sendMissionItemsAsync(
-                                            MavMissionType.MAV_MISSION_TYPE_MISSION,
-                                            mavlinkFlightPlan.getMissionItems())
-                                        .whenSucceeded(
-                                            v ->
-                                                updateActiveFlightPlanProperties(
-                                                    flightPlanWithWayPointIndex.getFlightPlan(),
-                                                    flightPlanWithWayPointIndex.getWayPointIndex(),
-                                                    mavlinkFlightPlan));
-                                f.addProgressListener(flightPlanUploadProgress::set);
-                                return f;
-                            })
-                        .whenCancelled(() -> LOGGER.debug("setActiveFlightPlanAsync cancelled"))
-                        .whenDone(
-                            f -> {
-                                if (!f.isSuccess()) {
-                                    flightPlanUploadProgress.set(Double.NaN);
-                                }
-                            });
-                });
+                    Position startAltitudePosition =
+                        currentPosition != null
+                            ? getStartAltitudePosition(flightPlanWithWayPointIndex.getFlightPlan(), currentPosition)
+                            : null;
+                    return MavlinkFlightPlan.fromFlightPlanWithWayPointIndex(
+                        flightPlanWithWayPointIndex, mavlinkFlightPlanOptions, startAltitudePosition);
+                })
+            .thenApplyAsync(
+                mavlinkFlightPlan -> setAutopilotParametersAsync(mavlinkFlightPlan).thenGet(() -> mavlinkFlightPlan))
+            .thenApplyAsync( // set active FlightPlan and upload
+                mavlinkFlightPlan -> {
+                    clearActiveFlightPlanProperties();
+                    LOGGER.info("Uploading: " + mavlinkFlightPlan.getDebugDescription());
+                    return droneConnection
+                        .getMissionProtocolSender()
+                        .sendMissionItemsAsync(
+                            MavMissionType.MAV_MISSION_TYPE_MISSION, mavlinkFlightPlan.getMissionItems())
+                        .whenSucceeded(
+                            v ->
+                                updateActiveFlightPlanProperties(
+                                    flightPlanWithWayPointIndex.getFlightPlan(),
+                                    flightPlanWithWayPointIndex.getWayPointIndex(),
+                                    mavlinkFlightPlan));
+                })
+            .whenCancelled(() -> LOGGER.debug("setActiveFlightPlanAsync cancelled"));
     }
 
     /** Get position between minStartAltitude and maxStartAltitude closest to current Altitude */
     private Position getStartAltitudePosition(FlightPlan flightPlan, Position currentPosition) {
         double altitude = currentPosition.getAltitude();
-
-        if (altitude > flightPlan.getMaxStartAltitude()
-                && this.mavLandedState.get() != MavLandedState.MAV_LANDED_STATE_IN_AIR) {
-            altitude = flightPlan.getMaxStartAltitude();
-        }
-
         if (altitude < flightPlan.getMinStartAltitude()) {
             altitude = flightPlan.getMinStartAltitude();
+        }
+
+        if (altitude > flightPlan.getMaxStartAltitude()) {
+            altitude = flightPlan.getMaxStartAltitude();
         }
 
         return new Position(currentPosition.latitude, currentPosition.longitude, altitude);
     }
 
-    private void clearActiveFlightPlan() {
+    private void clearActiveFlightPlanProperties() {
         updateActiveFlightPlanProperties(null, 0, null);
-        try (LockedList<MavlinkCamera> cams = cameras.lock()) {
-            for (MavlinkCamera cam : cams) {
-                cam.imageCountProperty().set(0);
-            }
-        }
     }
 
     private void updateActiveFlightPlanProperties(
@@ -965,7 +856,6 @@ public abstract class MavlinkDrone implements IDrone {
 
             activeFlightPlan.set(flightPlan);
             activeFlightPlanWaypointIndex.set(wayPointIndex);
-            flightPlanUploadProgress.set(flightPlan == null ? Double.NaN : 1.0);
             this.mavlinkFlightPlan = mavlinkFlightPlan;
 
             if (flightPlan != null) {

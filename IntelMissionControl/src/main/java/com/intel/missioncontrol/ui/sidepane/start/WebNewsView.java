@@ -111,14 +111,14 @@ public class WebNewsView extends ViewBase<WebNewsViewModel> {
         // refreshing the news if network status changes to online
         networkInformation
             .networkAvailableProperty()
-            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform());
         networkInformation
             .internetAvailableProperty()
-            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform());
         // refreshing the news if proxy init finished
         proxyManager
             .proxyInitializedProperty()
-            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(networkChangeListener), Dispatcher.platform());
     }
 
     @Override

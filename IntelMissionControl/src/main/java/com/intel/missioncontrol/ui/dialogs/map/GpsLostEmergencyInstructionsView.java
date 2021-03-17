@@ -41,7 +41,7 @@ public class GpsLostEmergencyInstructionsView extends ViewBase<GpsLostEmergencyI
     public void initializeView() {
         super.initializeView();
         alertImage.setFitWidth(ScaleHelper.emsToPixels(ALERT_ICON_WIDTH_EM));
-        closeButton.setOnMouseClicked((event) -> viewModel.closeDelegateProperty().getValue().run());
+        closeButton.setOnMouseClicked((event) -> viewModel.closeDelegateProperty().getValue().execute());
     }
 
     @Override

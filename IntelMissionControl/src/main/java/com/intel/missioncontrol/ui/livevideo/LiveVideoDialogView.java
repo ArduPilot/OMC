@@ -38,7 +38,7 @@ public class LiveVideoDialogView extends DialogView<LiveVideoDialogViewModel> {
     private ComboBox<IUILiveVideoStream> comboBoxStreams;
 
     @FXML
-    private LiveVideoScreenView liveVideoScreenController;
+    private WrappedImageView liveVideo;
 
     @FXML
     protected void selectPrevCam() { comboBoxStreams.getSelectionModel().selectPrevious(); }
@@ -143,9 +143,7 @@ public class LiveVideoDialogView extends DialogView<LiveVideoDialogViewModel> {
         StreamComboBoxHelper.setupComboBox(comboBoxStreams, languageHelper);
         StreamComboBoxHelper.bindBidirectional(comboBoxStreams.getSelectionModel(), viewModel.selectedStreamProperty());
 
-        ((LiveVideoScreenViewModel)liveVideoScreenController.getViewModel())
-                .streamProperty()
-                .bind(viewModel.selectedStreamProperty());
+        liveVideo.imageProperty().bind(viewModel.currentFrameProperty());
     }
 
     @Override

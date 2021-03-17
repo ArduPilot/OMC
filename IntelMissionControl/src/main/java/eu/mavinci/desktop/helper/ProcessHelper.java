@@ -6,7 +6,7 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class ProcessHelper {
     }
 
     public static Process exec(String args[], String[] envp, File folder) throws IOException {
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isWindows()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isWindows()) {
             for (int i = 0; i != args.length; i++) {
                 args[i] = args[i].replaceAll(Pattern.quote("\""), Matcher.quoteReplacement("\\\""));
             }

@@ -82,23 +82,23 @@ public class NavBarViewModel extends ViewModelBase {
         this.sendSupportRequestCommand =
             mainScope.mainMenuModelProperty().get().find(MainMenuModel.Help.SUPPORT_REQUEST).getCommand();
 
-        bindAvailableAndEnabledState(WorkflowStep.PLANNING, applicationContext.currentMissionProperty().isNotNull());
+        bindAvailableAndEnabledState(WorkflowStep.PLANNING, applicationContext.currentLegacyMissionProperty().isNotNull());
         bindAvailableAndEnabledState(
             WorkflowStep.FLIGHT,
             applicationContext
-                .currentMissionProperty()
+                .currentLegacyMissionProperty()
                 .isNotNull()
                 .and(
                     settings.operationLevelProperty()
                         .isEqualTo(OperationLevel.DEBUG)
                         .or(licenceManager.isGrayHawkEditionProperty())));
         bindAvailableAndEnabledState(
-            WorkflowStep.DATA_PREVIEW, applicationContext.currentMissionProperty().isNotNull());
+            WorkflowStep.DATA_PREVIEW, applicationContext.currentLegacyMissionProperty().isNotNull());
 
         bindAvailableAndEnabledState(
             WorkflowStep.FLIGHT,
             applicationContext
-                .currentMissionProperty()
+                .currentLegacyMissionProperty()
                 .isNotNull()
                 .and(
                     settings.operationLevelProperty()
@@ -108,7 +108,7 @@ public class NavBarViewModel extends ViewModelBase {
         bindAvailableAndEnabledState(
             NavBarDialog.TOOLS,
             applicationContext
-                .currentMissionProperty()
+                .currentLegacyMissionProperty()
                 .isNotNull()
                 .and(
                     settings.operationLevelProperty()

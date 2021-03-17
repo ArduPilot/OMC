@@ -239,7 +239,7 @@ public class InspectionPointBulkSettingsViewModel extends DialogViewModel<Void, 
         speedChange =
             new SimpleQuantityProperty<>(generalSettings, INVARIANT_SPEED_MPS, Quantity.of(0, METER_PER_SECOND));
 
-        FlightPlan fp = applicationContext.getCurrentMission().getCurrentFlightPlan();
+        FlightPlan fp = applicationContext.getCurrentLegacyMission().getCurrentFlightPlan();
         maxSpeedMps = fp.getLegacyFlightplan().getHardwareConfiguration().getPlatformDescription().getMaxPlaneSpeed();
         minPitch =
             fp.getLegacyFlightplan().getHardwareConfiguration().getPrimaryPayload().getDescription().getMinPitch();
@@ -260,7 +260,7 @@ public class InspectionPointBulkSettingsViewModel extends DialogViewModel<Void, 
         //            });
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener(
                 new InvalidationListener() {
@@ -271,7 +271,7 @@ public class InspectionPointBulkSettingsViewModel extends DialogViewModel<Void, 
                 });
 
         applicationContext
-            .currentMissionProperty()
+            .currentLegacyMissionProperty()
             .addListener(
                 new InvalidationListener() {
                     @Override
@@ -521,7 +521,7 @@ public class InspectionPointBulkSettingsViewModel extends DialogViewModel<Void, 
         boolean lonSetErrorShown = false;
         IHardwareConfiguration hardwareConfig =
             applicationContext
-                .getCurrentMission()
+                .getCurrentLegacyMission()
                 .getCurrentFlightPlan()
                 .getLegacyFlightplan()
                 .getHardwareConfiguration();

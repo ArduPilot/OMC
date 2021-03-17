@@ -6,6 +6,8 @@
 
 package eu.mavinci.flightplan.exporter;
 
+import com.intel.missioncontrol.NotImplementedException;
+import com.intel.missioncontrol.project.FlightPlan;
 import eu.mavinci.core.flightplan.visitors.ExtractTypeVisitor;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.flightplan.Flightplan;
@@ -24,8 +26,7 @@ public class QGroundControlExporter implements IFlightplanExporter {
 
     public QGroundControlExporter() {}
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         try (FileWriter fs = new FileWriter(target);
             BufferedWriter bw = new BufferedWriter(fs)) {
             ExtractTypeVisitor<Waypoint> vis = new ExtractTypeVisitor<>(Waypoint.class);
@@ -140,5 +141,10 @@ public class QGroundControlExporter implements IFlightplanExporter {
         } catch (Exception e) {
             LOGGER.error("cant export to " + target, e);
         }
+    }
+
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
     }
 }

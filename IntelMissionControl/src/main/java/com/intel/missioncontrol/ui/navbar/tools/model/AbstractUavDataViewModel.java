@@ -56,7 +56,7 @@ public abstract class AbstractUavDataViewModel<T> extends ViewModelBase {
 
         preInitialize();
         if (mainScope != null && getMission() == null) {
-            mission.bind(applicationContext.currentMissionProperty());
+            mission.bind(applicationContext.currentLegacyMissionProperty());
         }
 
         postInitialize();

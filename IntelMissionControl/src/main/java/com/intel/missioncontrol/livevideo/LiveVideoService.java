@@ -7,7 +7,7 @@
 package com.intel.missioncontrol.livevideo;
 
 import com.google.inject.Inject;
-import com.google.protobuf.InvalidProtocolBufferException;
+import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.drone.ICamera;
 import com.intel.missioncontrol.drone.IVideoStream;
 import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
@@ -18,19 +18,25 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Vector;
+import java.util.stream.Collectors;
 import javafx.collections.ListChangeListener;
 import org.asyncfx.beans.property.AsyncListProperty;
+import org.asyncfx.beans.property.AsyncProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.SimpleAsyncListProperty;
+import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
@@ -40,8 +46,6 @@ import org.slf4j.LoggerFactory;
 public class LiveVideoService implements ILiveVideoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LiveVideoService.class);
-
-    private static AtomicInteger liveVideoServiceThreadCounter = new AtomicInteger(0);
 
     private final AsyncListProperty<LiveVideoStream> streamList =
         new SimpleAsyncListProperty<>(
@@ -57,7 +61,9 @@ public class LiveVideoService implements ILiveVideoService {
                 .initialValue(FXAsyncCollections.observableArrayList())
                 .create());
 
-    private final Thread runner = new Thread(new MinAvRunner(), "LiveVideoService-MinAvRunner-" + liveVideoServiceThreadCounter.incrementAndGet());
+    private final Collection<LiveVideoStream> streamsToRelease = new Vector<>();
+
+    private final Thread runner = new Thread(new MinAvRunner());
 
     // TODO: this might connection/videostream mapping might belong somewhere else and should be checked for
     // race-conditions
@@ -70,6 +76,10 @@ public class LiveVideoService implements ILiveVideoService {
             final ConnectionItem parent;
             private final ReadOnlyAsyncListProperty<? extends IVideoStream> streamsProperty;
             Map<IVideoStream, LiveVideoStream> streamItems = new HashMap<>();
+            final AsyncProperty<IVideoStream> stream =
+                new SimpleAsyncObjectProperty<>(
+                    this, new PropertyMetadata.Builder<IVideoStream>().initialValue(null).create());
+            LiveVideoStream liveVideoStream = null;
 
             CameraItem(ICamera camera, ConnectionItem connectionItem) {
                 parent = connectionItem;
@@ -93,7 +103,7 @@ public class LiveVideoService implements ILiveVideoService {
 
                     for (IVideoStream item : change.getRemoved()) {
                         final LiveVideoStream deletedStream = streamItems.remove(item);
-                        deletedStream.release();
+                        streamList.remove(deletedStream);
                     }
                 }
             }
@@ -109,10 +119,11 @@ public class LiveVideoService implements ILiveVideoService {
 
             void forget() {
                 streamsProperty.removeListener(this::streamListChangeHandler);
-                for (LiveVideoStream stream: streamItems.values()) {
-                    stream.release();
-                }
-                streamItems.clear();
+                streamItems.entrySet().removeIf(
+                        e -> {
+                            streamList.remove(e.getValue());
+                            return true;
+                        });
             }
         }
 
@@ -139,10 +150,13 @@ public class LiveVideoService implements ILiveVideoService {
 
             void forget() {
                 camerasProperty.removeListener(this::cameraListChangeHandler);
-                for (CameraItem item: cameraItems.values()) {
-                    item.forget();
-                }
-                cameraItems.clear();
+                cameraItems
+                    .entrySet()
+                    .removeIf(
+                        e -> {
+                            e.getValue().forget();
+                            return true;
+                        });
             }
 
             private void cameraListChangeHandler(ListChangeListener.Change<? extends ICamera> change) {
@@ -184,8 +198,40 @@ public class LiveVideoService implements ILiveVideoService {
     private final StreamListHelper streamListHelper;
 
     @Inject
-    public LiveVideoService(IDroneConnectionService droneConnectionService) {
+    public LiveVideoService(IPathProvider pathProvider, IDroneConnectionService droneConnectionService) {
+        final Path sdpFilePath = pathProvider.getSettingsDirectory().resolve("livevideo.sdp");
+        if (Files.exists(sdpFilePath)) {
+            sdpFilePath.toFile().delete();
+        }
+        // we need to create it
+        File sdpFile = sdpFilePath.toFile();
+
+        String sdpConfig =
+            String.join(
+                "\n",
+                "v=0",
+                "o=grayhawk 0 0 IN IP4 127.0.0.1",
+                "s=Blackfly S BFS-U3-200S6C live view stream",
+                "c=IN IP4 224.1.1.1",
+                "t=0 0",
+                "m=video 1234 RTP/AVP 96",
+                "a=rtpmap:96 H264/90000",
+                "a=fmtp:96 profile-level-id=640020; sprop-parameter-sets=Z2QAIKzSAVgc2X/8AAQABEAAAAMAQAAADzgAAAtxsAACJVFve9yg\\,aM48MA\\=\\=");
+
+        try {
+            FileWriter sdpConfigWriter = new FileWriter(sdpFile);
+            sdpConfigWriter.write(sdpConfig);
+            sdpConfigWriter.close();
+        } catch (IOException e) {
+            LOGGER.error("cant write SDP file: " + sdpFile, e);
+        }
+
         uiStreamList.bindContent(streamList);
+
+        LiveVideoStream localhostStream = new LiveVideoStream(null);
+        localhostStream.setDescription("Example local stream");
+        localhostStream.setUri(sdpFilePath.toString());
+        streamList.add(localhostStream);
 
         streamListHelper = new StreamListHelper(droneConnectionService);
 
@@ -205,13 +251,18 @@ public class LiveVideoService implements ILiveVideoService {
     interface IMinAv extends Library {
         IMinAv instance = Native.load("minav", IMinAv.class);
 
+        int PIXFMT_BGRA = 1; // FIMXE this needs to stay in sync with minav.h
+        int LOGLVL_QUIET = 0;
+        int LOGLVL_INFO = 1;
+        int LOVLVL_VERBOSE = 2;
+
         void init(int loglevel);
 
         Pointer start(String uri, int timeout);
 
         int get(Pointer ctx, Memory buf, int width, int height, int format);
 
-        int get_state(Pointer ctx, byte[] buf, IntByReference size);
+        int get_dimension(Pointer ctx, IntByReference width, IntByReference height);
 
         int check(Pointer[] ctxs, int[] status, int count, int timeout);
 
@@ -223,67 +274,52 @@ public class LiveVideoService implements ILiveVideoService {
     private class MinAvRunner implements Runnable {
 
         private final IMinAv minAvHandle = IMinAv.instance;
+
         private final int LOOP_SLEEP_MS = 50;
-        private final int MAX_PROTOBUF_SIZE = 4096;
-        private final byte[] protobuf = new byte[MAX_PROTOBUF_SIZE];
-        private final IntByReference pbSize = new IntByReference();
 
         @Override
         public void run() {
-            minAvHandle.init(MinAvProtobuf.LogLevel.QUIET_VALUE);
+            minAvHandle.init(IMinAv.LOGLVL_INFO);
 
             while (!Thread.interrupted()) {
                 Collection<LiveVideoStream> streamsToActivate = new ArrayList<>();
-                Collection<LiveVideoStream> streamsToStop = new ArrayList<>();
+                Collection<LiveVideoStream> streamsToDisable = new ArrayList<>();
                 List<LiveVideoStream> streamsToPoll = new ArrayList<>(); // we need it to be ordered
                 try (LockedList<LiveVideoStream> streams = streamList.lock()) {
-                    Iterator<LiveVideoStream> streamIterator = streams.iterator();
-                    while (streamIterator.hasNext()) {
-                        LiveVideoStream stream = streamIterator.next();
+                    for (LiveVideoStream stream : streams) {
                         switch (stream.getAction()) {
-                            case ACTIVATE:
-                                streamsToActivate.add(stream);
-                                break;
-                            case DEACTIVATE:
-                                streamsToStop.add(stream);
-                                break;
-                            case POLL:
-                                streamsToPoll.add(stream);
-                                break;
-                            case REMOVE:
-                                streamsToStop.add(stream);
-                                streamIterator.remove();
+                        case ACTIVATE:
+                            streamsToActivate.add(stream);
+                            break;
+                        case DEACTIVATE:
+                            streamsToDisable.add(stream);
+                            break;
+                        case POLL:
+                            streamsToPoll.add(stream);
+                            break;
                         }
                     }
                 }
 
                 for (LiveVideoStream stream : streamsToActivate) {
-                    final LiveVideoStream.StartSettings settings = stream.getStartSettings();
-                    final Pointer minavCtx = minAvHandle.start(settings.uri, settings.timeout);
+                    stream.activate(minAvHandle);
+                }
 
-                    if (minavCtx != Pointer.NULL) {
-                        stream.setMinAvCtx(minavCtx);
-                        stream.setActive(true);
-                    } else {
-                        throw new RuntimeException("MinAv context couldn't be created");
+                for (LiveVideoStream stream : streamsToDisable) {
+                    stream.stop();
+                }
+
+                if (!streamsToPoll.isEmpty()) pollStreams(streamsToPoll);
+
+                synchronized (streamsToRelease) {
+                    for (LiveVideoStream stream : streamsToRelease) {
+                        stream.release();
                     }
+
+                    streamsToRelease.clear();
                 }
 
-                for (LiveVideoStream stream : streamsToStop) {
-                    final Pointer minavCtx = stream.getMinAvCtx();
-                    minAvHandle.stop(minavCtx);
-                    stream.setActive(false);
-                }
-
-                if (!streamsToPoll.isEmpty()) {
-                    try {
-                        pollStreams(streamsToPoll);
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (streamsToActivate.isEmpty() && streamsToPoll.isEmpty() && streamsToStop.isEmpty()) {
+                if (streamsToActivate.isEmpty() && streamsToPoll.isEmpty() && streamsToDisable.isEmpty()) {
                     try {
                         Thread.sleep(LOOP_SLEEP_MS);
                     } catch (InterruptedException ignore) {
@@ -295,8 +331,17 @@ public class LiveVideoService implements ILiveVideoService {
             minAvHandle.deinit();
         }
 
-        private void pollStreams(List<LiveVideoStream> streams) throws InvalidProtocolBufferException {
-            Pointer[] actCtxs = streams.stream().map(LiveVideoStream::getMinAvCtx).toArray(Pointer[]::new);
+        private void pollStreams(List<LiveVideoStream> streams) {
+            // do get on every thing to pass its own stuff
+            for (LiveVideoStream stream : streams) {
+                stream.request();
+            }
+
+            // do check on all waiting ones
+            List<LiveVideoStream> activeStreams =
+                streams.stream().filter(LiveVideoStream::isRequestActive).collect(Collectors.toList());
+
+            Pointer[] actCtxs = activeStreams.stream().map(LiveVideoStream::getMinavCtx).toArray(Pointer[]::new);
 
             int[] statusCtxs = new int[actCtxs.length];
 
@@ -305,35 +350,7 @@ public class LiveVideoService implements ILiveVideoService {
             // check for new data
             if (newDataCount == 0) return;
             for (int i = 0; i < actCtxs.length; ++i) {
-                MinAvProtobuf.SelectStatus status = MinAvProtobuf.SelectStatus.forNumber(statusCtxs[i]);
-                LiveVideoStream stream = streams.get(i);
-
-                if (status == MinAvProtobuf.SelectStatus.NO_UPDATE) continue;
-
-                boolean callGet = false;
-
-                if (status == MinAvProtobuf.SelectStatus.STATE_UPDATE) {
-                    pbSize.setValue(MAX_PROTOBUF_SIZE);
-                    if (MinAvProtobuf.ReturnStatus.OK_VALUE != minAvHandle.get_state(actCtxs[i], protobuf, pbSize))
-                        throw new InvalidProtocolBufferException("get_state() error: MAX_PROTOBUF_SIZE to small");
-                    callGet = stream
-                        .stateUpdate(
-                            MinAvProtobuf.StateDescription.parseFrom(
-                                ByteBuffer.wrap(protobuf, 0, pbSize.getValue())));
-                } else if (status == MinAvProtobuf.SelectStatus.NEW_DATA) {
-                    callGet = stream.newData();
-                }
-
-                if (callGet) {
-                    LiveVideoStream.GetSettings getSettings = stream.getGetSettings();
-                    minAvHandle.get(
-                            stream.getMinAvCtx(),
-                            getSettings.getMemory(),
-                            getSettings.getWidth(),
-                            getSettings.getHeight(),
-                            getSettings.getFormat()
-                    );
-                }
+                if (statusCtxs[i] != 0) activeStreams.get(i).feed();
             }
         }
     }

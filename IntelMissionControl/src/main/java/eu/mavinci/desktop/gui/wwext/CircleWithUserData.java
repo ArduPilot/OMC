@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.wwext;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.Globe;
@@ -25,7 +25,8 @@ public class CircleWithUserData extends PolylineWithUserData {
 
     public static final int NUMBER_OF_SEGMENTS = 32;
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public CircleWithUserData(Object userData, Position center, double radius) {
         setUserData(userData);

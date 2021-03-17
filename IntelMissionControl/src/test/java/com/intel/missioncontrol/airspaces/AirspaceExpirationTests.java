@@ -6,14 +6,14 @@
 
 package com.intel.missioncontrol.airspaces;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import eu.mavinci.airspace.Airspace;
 import eu.mavinci.airspace.AirspaceTypes;
-import org.junit.Test;
 
 import java.time.LocalDateTime;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class AirspaceExpirationTests {
     @Test
@@ -23,7 +23,7 @@ public class AirspaceExpirationTests {
         Airspace airspace = new Airspace("ID", AirspaceTypes.TFR);
         airspace.updateExpiration(dateTimeEffective);
 
-        assertThat(airspace.isExpired(), is(false));
+        assertFalse(airspace.isExpired());
     }
 
     @Test
@@ -33,13 +33,13 @@ public class AirspaceExpirationTests {
         Airspace airspace = new Airspace("ID", AirspaceTypes.TFR);
         airspace.updateExpiration(dateTimeEffective);
 
-        assertThat(airspace.isExpired(), is(true));
+        assertTrue(airspace.isExpired());
     }
 
     @Test
     public void testNotExpired_ifAirspaceWithoutDateEffective() throws Exception {
         Airspace airspace = new Airspace("ID", AirspaceTypes.TFR);
 
-        assertThat(airspace.isExpired(), is(false));
+        assertFalse(airspace.isExpired());
     }
 }

@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.drone;
 
-import java.util.UUID;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncStringProperty;
 import org.asyncfx.concurrent.Future;
@@ -33,8 +32,4 @@ public interface IVideoStream {
     Future<Void> StartStreamingAsync();
 
     Future<Void> StopStreamingAsync();
-
-    boolean isDefaultStream();
-
-    boolean isSameVideoStream(IVideoStream other);
 }

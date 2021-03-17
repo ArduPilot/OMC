@@ -46,7 +46,7 @@ class Insight : CliktCommand() {
         var continueIfPreviousUpload = continueIfPreviousUp
 //        var continueIfPreviousUpload = false
         //var targetHost = "http://192.168.5.97:81/"
-        var targetHost = "https://newdev.ixstack.net/"
+        var targetHost = "https://dev.ixstack.net/"
         var bentleyProcessing = bentleyProcessingI
         var pix4DProcessing = pix4DProcessingI
         if(bentleyProcessing && pix4DProcessing) {

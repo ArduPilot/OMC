@@ -22,8 +22,8 @@ class BackgroundDispatcher implements Dispatcher {
     }
 
     @Override
-    public boolean isSequential() {
-        return false;
+    public void execute(@NotNull Runnable runnable) {
+        run(runnable);
     }
 
     @Override

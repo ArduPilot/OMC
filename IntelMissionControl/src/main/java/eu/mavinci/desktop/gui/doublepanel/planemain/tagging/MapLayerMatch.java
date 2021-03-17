@@ -97,17 +97,6 @@ public class MapLayerMatch extends MapLayer
     }
 
     boolean isPassFilter = true;
-    boolean areaPassFilter = true;
-    boolean rangePassFilter = true;
-    boolean rollPassFilter = true;
-    boolean pitchPassFilter = true;
-    boolean yawPassFilter = true;
-
-    public boolean isExportPassFilter() { // TODO IMC-3133 string/integer
-        if (matching.getSelectedExportFilterFlag().equals("0")) return true;
-        if (matching.getSelectedExportFilterFlag().equals("2")) return !isPassFilter;
-        return isPassFilter;
-    }
 
     public boolean isPassFilter() {
         return isPassFilter;
@@ -131,46 +120,6 @@ public class MapLayerMatch extends MapLayer
         }
 
         return filterChanged;
-    }
-
-    public void setAreaPassFilter(boolean pass) {
-        areaPassFilter = pass;
-    }
-
-    public void setRangePassFilter(boolean pass) {
-        rangePassFilter = pass;
-    }
-
-    public void setRollPassFilter(boolean pass) {
-        rollPassFilter = pass;
-    }
-
-    public void setPitchPassFilter(boolean pass) {
-        pitchPassFilter = pass;
-    }
-
-    public void setYawPassFilter(boolean pass) {
-        yawPassFilter = pass;
-    }
-
-    public boolean getAreaPassFilter() {
-        return areaPassFilter;
-    }
-
-    public boolean getRangePassFilter() {
-        return rangePassFilter;
-    }
-
-    public boolean getRollPassFilter() {
-        return rollPassFilter;
-    }
-
-    public boolean getPitchPassFilter() {
-        return pitchPassFilter;
-    }
-
-    public boolean getYawPassFilter() {
-        return yawPassFilter;
     }
 
     protected CPhotoLogLine line;

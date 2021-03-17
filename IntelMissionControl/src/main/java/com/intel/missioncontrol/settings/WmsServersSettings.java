@@ -17,7 +17,7 @@ import org.asyncfx.collections.FXAsyncCollections;
 public class WmsServersSettings implements ISettings {
 
     public static final String SENTINEL_URL =
-        "TODO sentinel hub URL";
+        "TODO SentinelHub URL";
 
     private AsyncListProperty<WmsServerSettings> wmss =
         new SimpleAsyncListProperty<>(

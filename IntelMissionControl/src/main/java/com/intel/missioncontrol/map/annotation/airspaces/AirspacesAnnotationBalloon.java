@@ -51,7 +51,7 @@ class AirspacesAnnotationBalloon extends GlobeBaloonAnnotation {
         attributes.setOpacity(BALOON_OPACITY);
         getAttributes().setDefaults(attributes);
 
-        setAltitudeMode(WorldWind.ABSOLUTE);
+        setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);
         setAlwaysOnTop(true);
 
         setLayout(new AnnotationFlowLayout(AVKey.VERTICAL, AVKey.LEFT, 1, 4));

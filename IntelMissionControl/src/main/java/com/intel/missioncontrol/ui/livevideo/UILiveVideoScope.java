@@ -8,16 +8,12 @@ package com.intel.missioncontrol.ui.livevideo;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.livevideo.ILiveVideoService;
 import de.saxsys.mvvmfx.Scope;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
-import org.asyncfx.beans.property.UIAsyncListProperty;
 
 public class UILiveVideoScope implements Scope {
 
@@ -32,42 +28,12 @@ public class UILiveVideoScope implements Scope {
     }
 
     private final ObjectProperty<WidgetState> widgetState = new SimpleObjectProperty<>(WidgetState.INACTIVE);
-    private final UIAsyncListProperty<IUILiveVideoStream> videoStreamList = new UIAsyncListProperty<>(this);
-
-    private IUILiveVideoStream lastSelectedStream = null;
 
     @Inject
-    public UILiveVideoScope(IApplicationContext applicationContext, ILiveVideoService liveVideoService) {
+    public UILiveVideoScope(IApplicationContext applicationContext) {
         liveVideoActive.bindBidirectional(applicationContext.liveVideoActive);
+
         liveVideoActive.addListener((obs, oldVal, newVal) -> activate(newVal));
-
-        this.videoStreamList.addListener((ListChangeListener.Change<? extends IUILiveVideoStream> change) -> {
-            while(change.next()) {
-                for (IUILiveVideoStream item: change.getAddedSubList()) {
-                    if (selectedStream.get() == null) {
-                        if (lastSelectedStream != null) {
-                            if (item.isSameLiveVideoStream(lastSelectedStream)) {
-                                selectedStream.set(item);
-                                liveVideoActive.set(true);
-                            }
-                        } else if (item.isDefaultStream()) {
-                            selectedStream.set(item);
-                            liveVideoActive.set(true);
-                        }
-                    }
-                }
-
-                for (IUILiveVideoStream item: change.getRemoved()) {
-                    if (item == selectedStream.get()) {
-                        lastSelectedStream = item;
-                        selectedStream.set(null);
-                    }
-                }
-            }
-        });
-
-        this.videoStreamList.bind(liveVideoService.streamListProperty());
-
     }
 
     private void activate(boolean value) {
@@ -132,9 +98,5 @@ public class UILiveVideoScope implements Scope {
 
     Property<IUILiveVideoStream> selectedStreamProperty() {
         return selectedStream;
-    }
-
-    ReadOnlyListProperty<IUILiveVideoStream> getStreamList() {
-        return videoStreamList.getReadOnlyProperty();
     }
 }

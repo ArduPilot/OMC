@@ -6,7 +6,7 @@
 
 package eu.mavinci.core.helper;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -158,7 +158,8 @@ public class MProperties extends Properties implements IProperties {
     }
 
     public synchronized void storeToXML(File file) throws IOException {
-        storeToXML(file, StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore(), "UTF-8");
+        storeToXML(
+            file, DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore(), "UTF-8");
     }
 
     public synchronized void storeToXML(File file, String comment, String encoding) throws IOException {
@@ -200,7 +201,7 @@ public class MProperties extends Properties implements IProperties {
             fileCur = file;
             doLoad();
             // org file was fine! store it as backup!
-            FileHelper.copyFile(fileCur, fileBackup, false);
+            FileHelper.copyFile(fileCur, fileBackup,false);
         } catch (LoadErrorException e) {
             // try loading backup if org seams corrupt
             fileCur = fileBackup;
@@ -260,7 +261,7 @@ public class MProperties extends Properties implements IProperties {
             fileCur = file;
             doLoadXML();
             // org file was fine! store it as backup!
-            FileHelper.copyFile(fileCur, fileBackup, false);
+            FileHelper.copyFile(fileCur, fileBackup,false);
         } catch (LoadErrorException e) {
             // try loading backup if org seams corrupt
             fileCur = fileBackup;
@@ -405,7 +406,7 @@ public class MProperties extends Properties implements IProperties {
 
     public synchronized void removeWeakPropertyChangeListener(IPropertyChangeListener listener) {
         Iterator<PropertyChangeListenerPair> it = listeners.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext()){
             PropertyChangeListenerPair ll = it.next();
             if (ll.slave.get() == listener) {
                 it.remove();

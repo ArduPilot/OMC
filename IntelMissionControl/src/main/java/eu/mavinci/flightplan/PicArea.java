@@ -7,7 +7,6 @@
 package eu.mavinci.flightplan;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -25,6 +24,7 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AFlightplanContainer;
 import eu.mavinci.core.flightplan.AltAssertModes;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
@@ -93,7 +93,7 @@ import java.util.stream.IntStream;
 import org.asyncfx.concurrent.Dispatcher;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-/** Represents an Area of Interest and also provides methods for calculating missions. */
+/** Represents an Area of Interest and also provides methods for calculating flight plans. */
 public class PicArea extends CPicArea implements ISectorReferenced, ITransformationProvider {
 
     public static final String KEY = "eu.mavinci.flightplan.PicArea";
@@ -115,14 +115,17 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
     private boolean optimizeWayPoints;
     private final SectorVisitor secVis; // unknown
     private final AtomicBoolean needsRecomputeSector = new AtomicBoolean(false); // unknown
-    private final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
-    private final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
-    private final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+    private final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private final Globe globe = DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
+    private final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
     // put some safety maring here for numerical stability
-    private final int MAX_NUM_PICS = 50000;
+    private final int MAX_NUM_PICS = 10000;
     private final String jumpOver =
-        StaticInjector.getInstance(ILanguageHelper.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(ILanguageHelper.class)
             .getString("com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.jumpOver");
     public boolean validAOI = true;
     public VoxelGrid voxelGridTmp;
@@ -179,7 +182,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
 
     public PicArea(IFlightplanContainer parent) {
         super(parent);
-        StaticInjector.getInstance(ISettingsManager.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(ISettingsManager.class)
             .getSection(GeneralSettings.class)
             .operationLevelProperty()
             .addListener(
@@ -192,7 +196,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
 
     public PicArea(int id, IFlightplanContainer parent) {
         super(id, parent);
-        StaticInjector.getInstance(ISettingsManager.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(ISettingsManager.class)
             .getSection(GeneralSettings.class)
             .operationLevelProperty()
             .addListener(
@@ -1004,7 +1009,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
             if (!silent) {
                 Debug.getLog()
                     .severe(
-                        "normal ids are already as large as autoMultiFP IDs. try to restart with an new empty mission!");
+                        "normal ids are already as large as autoMultiFP IDs. try to restart with an new empty flightplan!");
                 lastError = RecomputeErrors.MSG_TOO_MANY_POINTS;
             }
 
@@ -1196,7 +1201,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
                     Debug.getLog()
                         .log(
                             Debug.WARNING,
-                            "Could not compute mission for picture Area. Maybe it is too small to be rastered");
+                            "Could not compute flightplan for picture Area. Maybe it is too small to be rastered");
                     return false;
                 }
 
@@ -1923,7 +1928,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
         if (flightLines.isEmpty()) {
             lastError = RecomputeErrors.MSG_AREA_TOO_SMALL;
             Debug.getLog()
-                .log(Level.INFO, "Could not compute mission for picture Area. Maybe it is too small to be rastered");
+                .log(Level.INFO, "Could not compute flightplan for picture Area. Maybe it is too small to be rastered");
             return false;
         }
 
@@ -2003,7 +2008,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
         if (flightLines.isEmpty()) {
             lastError = RecomputeErrors.MSG_AREA_TOO_SMALL;
             Debug.getLog()
-                .log(Level.INFO, "Could not compute mission for picture Area. Maybe it is too small to be rastered");
+                .log(Level.INFO, "Could not compute flightplan for picture Area. Maybe it is too small to be rastered");
             return false;
         }
 
@@ -2079,7 +2084,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
             double windmillBladePitch,
             int windmillNumberOfBlades) {
 
-        // blade waypoints are for waypoint locations in mission
+        // blade waypoints are for waypoint locations in flight plan
         List<List<TemporaryWaypoint>> bladeWaypoints = new ArrayList<>();
         generateWaypointsWindmillBlade(
             bladeWaypoints,
@@ -3169,7 +3174,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
                                         Debug.getLog()
                                             .log(
                                                 Debug.WARNING,
-                                                "Mission will contain too many points, please reduce size: " + this,
+                                                "Flight plan will contain too many points, please reduce size: " + this,
                                                 e);
                                         validAOI = false;
                                     } catch (Exception e) {
@@ -3186,7 +3191,7 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
                         }
                     };
 
-                StaticInjector.getInstance(IBackgroundTaskManager.class).submitTask(task);
+                DependencyInjector.getInstance().getInstanceOf(IBackgroundTaskManager.class).submitTask(task);
             } else if (planType == PlanType.INSPECTION_POINTS) {
                 processInspectionPoints();
             } else {
@@ -3195,7 +3200,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
         } catch (FlightplanContainerFullException e) {
             this.elements.clear();
             lastError = RecomputeErrors.MSG_TOO_MANY_POINTS;
-            Debug.getLog().log(Debug.WARNING, "Mission will contain too many points, please reduce size: " + this, e);
+            Debug.getLog()
+                .log(Debug.WARNING, "Flight plan will contain too many points, please reduce size: " + this, e);
             validAOI = false;
         } catch (Exception e) {
             this.elements.clear();
@@ -3732,7 +3738,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
                 double time = estimateTimeSpiral(radiusBest);
                 double bestArea = getArea();
 
-                StaticInjector.getInstance(IApplicationContext.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.INFO)
                             .setText(
@@ -3773,7 +3780,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
             double[] effectiveFootprint = CameraHelper.getSizeInFlight(alt, hardwareConfig);
             if (effectiveFootprint.length == 0) {
                 lastError = RecomputeErrors.MSG_CAM_NOT_MATCHABLE;
-                StaticInjector.getInstance(IApplicationContext.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.INFO)
                             .setText(languageHelper.getString(KEY + ".msgcamnotmatchable"))
@@ -3914,7 +3922,8 @@ public class PicArea extends CPicArea implements ISectorReferenced, ITransformat
                 throw new Exception("No solution found");
             }
 
-            StaticInjector.getInstance(IApplicationContext.class)
+            DependencyInjector.getInstance()
+                .getInstanceOf(IApplicationContext.class)
                 .addToast(
                     Toast.of(ToastType.INFO)
                         .setText(

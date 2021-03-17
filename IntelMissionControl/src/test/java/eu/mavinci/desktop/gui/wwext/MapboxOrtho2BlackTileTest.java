@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MapboxOrtho2BlackTileTest {
 

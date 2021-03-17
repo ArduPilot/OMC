@@ -6,18 +6,47 @@
 
 package com.intel.missioncontrol;
 
-import com.intel.missioncontrol.mission.Mission;
+import com.intel.missioncontrol.project.Dataset;
+import com.intel.missioncontrol.project.FlightPlan;
+import com.intel.missioncontrol.project.Mission;
+import com.intel.missioncontrol.project.Project;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import java.lang.ref.WeakReference;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import org.asyncfx.beans.property.AsyncObjectProperty;
+import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /** Encapsulates application-wide state. */
 public interface IApplicationContext {
+
+    ReadOnlyAsyncObjectProperty<Project> currentProjectProperty();
+
+    AsyncObjectProperty<Mission> currentMissionProperty();
+
+    AsyncObjectProperty<FlightPlan> currentFlightPlanProperty();
+
+    AsyncObjectProperty<Dataset> currentDatasetProperty();
+
+    default @Nullable Project getCurrentProject() {
+        return currentProjectProperty().get();
+    }
+
+    default @Nullable Mission getCurrentMission() {
+        return currentMissionProperty().get();
+    }
+
+    default @Nullable FlightPlan getCurrentFlightPlan() {
+        return currentFlightPlanProperty().get();
+    }
+
+    default @Nullable Dataset getCurrentDataset() {
+        return currentDatasetProperty().get();
+    }
 
     boolean checkDroneConnected(boolean execute);
 
@@ -118,38 +147,42 @@ public interface IApplicationContext {
 
     void removeClosingListener(IClosingListener listener);
 
-    ReadOnlyObjectProperty<Mission> currentMissionProperty();
-
-    @Nullable
-    Mission getCurrentMission();
-
-    boolean unloadCurrentMission();
-
-    /**
-     * if there is a open mission, ask the user if he likes to save changes and execute them
-     *
-     * @return true if there is no loaded mission at all or if user NOT clicked cancel
-     */
-    boolean askUserForMissionSave();
-
-    boolean renameCurrentMission();
-
-    BooleanExpression currentMissionIsNoDemo();
-
-    Future<Void> ensureMissionAsync();
-
-    Future<Void> loadMissionAsync(Mission mission);
-
-    Future<Void> loadNewMissionAsync();
-
-    Future<Void> loadClonedMissionAsync(Mission mission);
-
     ReadOnlyListProperty<Toast> toastsProperty();
 
+    @Deprecated
+    ReadOnlyObjectProperty<com.intel.missioncontrol.mission.Mission> currentLegacyMissionProperty();
 
-    /**
-     * Miscellaneous variables/properties that are used from different (mostly independent) parts of the application
-     */
+    @Deprecated
+    com.intel.missioncontrol.mission.Mission getCurrentLegacyMission();
+
+    @Deprecated
+    boolean unloadCurrentMission();
+
+    @Deprecated
+    boolean askUserForMissionSave();
+
+    @Deprecated
+    boolean renameCurrentMission();
+
+    @Deprecated
+    BooleanExpression currentMissionIsNoDemo();
+
+    @Deprecated
+    Future<Void> ensureMissionAsync();
+
+    @Deprecated
+    Future<Void> loadMissionAsync(com.intel.missioncontrol.mission.Mission mission);
+
+    @Deprecated
+    Future<Void> loadNewMissionAsync();
+
+    @Deprecated
+    Future<Void> loadClonedMissionAsync(com.intel.missioncontrol.mission.Mission mission);
+
+    void revertProjectChange();
+
+    /** Miscellaneous variables/properties that are used from different (mostly independent) parts of the application */
     // non-persistent setting for live video widget visibility
     SimpleBooleanProperty liveVideoActive = new SimpleBooleanProperty(false);
+
 }

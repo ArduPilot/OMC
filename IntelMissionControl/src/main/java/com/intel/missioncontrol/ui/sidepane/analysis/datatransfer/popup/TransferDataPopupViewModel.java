@@ -119,7 +119,7 @@ public class TransferDataPopupViewModel extends ViewModelBase {
     }
 
     public ReadOnlyObjectProperty<Mission> currentMissionProperty() {
-        return applicationContext.currentMissionProperty();
+        return applicationContext.currentLegacyMissionProperty();
     }
 
     public Drone getCurrentUav() {
@@ -146,11 +146,11 @@ public class TransferDataPopupViewModel extends ViewModelBase {
     }
 
     public void getSampleMatchings() {
-        if (!applicationContext.getCurrentMission().checkAndRenameDemo()) {
+        if (!applicationContext.getCurrentLegacyMission().checkAndRenameDemo()) {
             return;
         }
 
-        mission = applicationContext.getCurrentMission();
+        mission = applicationContext.getCurrentLegacyMission();
         matchingsFolder = MissionConstants.getMatchingsFolder(mission.getDirectoryFile());
         setExecutingProperty(true);
         ProgressTask progressMonitor =
@@ -250,7 +250,7 @@ public class TransferDataPopupViewModel extends ViewModelBase {
                         () -> {
                             mission.setCurrentMatching(matching);
                             missionManager.makeDefaultScreenshot(mission);
-                            if (applicationContext.getCurrentMission() == mission) {
+                            if (applicationContext.getCurrentLegacyMission() == mission) {
                                 navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
                                 navigationService.navigateTo(SidePanePage.VIEW_DATASET);
                                 mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());
@@ -277,7 +277,7 @@ public class TransferDataPopupViewModel extends ViewModelBase {
 
     public void closeMe() {
         settings.dataTransferPopupEnabledProperty().set(false);
-        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+        navigationService.navigateTo(SidePanePage.DATA_IMPORT);
     }
 
     public ObservableValue<Boolean> isExecutingProperty() {

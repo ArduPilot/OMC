@@ -81,8 +81,6 @@ class PlatformDescription extends NotificationObject implements IMutablePlatform
             description.setIsInFixedWingEditionMode(helper.getBoolean("isInFixedWingMode"));
             description.setIsInMannedEditionMode(helper.getBoolean("isInMannedEditionMode"));
             description.setAirplaneType(AirplaneType.valueOf(helper.getString("airplaneType")));
-            description.setJpgMetadataLocationInCameraFrame(helper.getBoolean("isJpgMetadataLocationInCameraFrame"));
-            description.setWaypointLocationInCameraFrame(helper.getBoolean("isWaypointLocationInCameraFrame"));
 
             String imageFile = helper.getNullableString("imageFile");
             if (imageFile != null) {
@@ -197,8 +195,6 @@ class PlatformDescription extends NotificationObject implements IMutablePlatform
     private ConnectionProperties connectionProperties;
     private MavlinkFlightPlanOptions mavlinkFlightPlanOptions;
     private boolean isObstacleAvoidanceCapable;
-    private boolean isJpgMetadataLocationInCameraFrame = false;
-    private boolean isWaypointLocationInCameraFrame = false;
 
     @Override
     public void setId(String value) {
@@ -689,28 +685,6 @@ class PlatformDescription extends NotificationObject implements IMutablePlatform
     }
 
     @Override
-    public void setJpgMetadataLocationInCameraFrame(boolean value) {
-        Expect.notNull(value, "value");
-        verifyMutable();
-        if (this.isJpgMetadataLocationInCameraFrame != value) {
-            boolean oldValue = this.isJpgMetadataLocationInCameraFrame;
-            this.isJpgMetadataLocationInCameraFrame = value;
-            notifyPropertyChanged(IS_JPG_METADATA_LOCATION_IN_CAMERA_FRAME, oldValue, value);
-        }
-    }
-
-    @Override
-    public void setWaypointLocationInCameraFrame(boolean value) {
-        Expect.notNull(value, "value");
-        verifyMutable();
-        if (this.isWaypointLocationInCameraFrame != value) {
-            boolean oldValue = this.isWaypointLocationInCameraFrame;
-            this.isWaypointLocationInCameraFrame = value;
-            notifyPropertyChanged(IS_WAYPOINT_LOCATION_IN_CAMERA_FRAME, oldValue, value);
-        }
-    }
-
-    @Override
     public boolean isCompatibleToLitchi() {
         return compatibleToLitchi;
     }
@@ -740,6 +714,7 @@ class PlatformDescription extends NotificationObject implements IMutablePlatform
             this.isObstacleAvoidanceCapable = value;
             notifyPropertyChanged(IS_OBSTACLE_AVOIDANCE_CAPABLE, oldValue, value);
         }
+
     }
 
     @Override
@@ -761,16 +736,6 @@ class PlatformDescription extends NotificationObject implements IMutablePlatform
             this.phantomWaypointsLitchiDistance = value;
             notifyPropertyChanged(PHANTOM_WAYPOINTS_LITCHI_DISTANCE_PROPERTY, oldValue, value);
         }
-    }
-
-    @Override
-    public boolean isJpgMetadataLocationInCameraFrame() {
-        return isJpgMetadataLocationInCameraFrame;
-    }
-
-    @Override
-    public boolean isWaypointLocationInCameraFrame() {
-        return isWaypointLocationInCameraFrame;
     }
 
     @Override

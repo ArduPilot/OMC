@@ -8,6 +8,7 @@ package com.intel.missioncontrol.ui.validation.flightplan;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
+import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.Quantity;
@@ -24,6 +25,8 @@ import com.intel.missioncontrol.ui.validation.SimpleResolveAction;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import eu.mavinci.airspace.GolfUpperBoundAirspace;
 import eu.mavinci.flightplan.computation.FPsim;
+import java.io.File;
+import java.nio.file.Path;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 
@@ -43,19 +46,25 @@ public class AirspaceDistanceValidator extends OnFlightplanRecomputedValidator {
     private final GeneralSettings generalSettings;
     private final AirspacesProvidersSettings settings;
     private final QuantityFormat quantityFormat;
+    private final AirmapLaancService airmapLaancService;
+    private final IApplicationContext applicationContext;
 
     @Inject
     public AirspaceDistanceValidator(
+            IApplicationContext applicationContext,
             ILanguageHelper languageHelper,
             IElevationModel elevationModel,
             GeneralSettings generalSettings,
             AirspacesProvidersSettings settings,
+            AirmapLaancService airmapLaancService,
             @Assisted FlightPlan flightplan) {
         super(flightplan, generalSettings);
+        this.applicationContext = applicationContext;
         this.languageHelper = languageHelper;
         this.elevationModel = elevationModel;
         this.generalSettings = generalSettings;
         this.settings = settings;
+        this.airmapLaancService = airmapLaancService;
         this.quantityFormat = new AdaptiveQuantityFormat(generalSettings);
         maxAltASLChangeListener = (a, b, c) -> invalidate();
         maxAltASLChangeListenerBool = (a, b, c) -> invalidate();
@@ -75,7 +84,15 @@ public class AirspaceDistanceValidator extends OnFlightplanRecomputedValidator {
         IResolveAction resolveAirmapLaanc =
             new SimpleResolveAction(
                 languageHelper.getString(className + ".approveAirmapLAANC"),
-                () -> StartPlanningViewModel.airmapLaancApprove(flightplan, elevationModel));
+                () -> {
+                    AirmapLaancService.LaancApprovalQr qr =
+                        airmapLaancService.airmapLaancApprove(applicationContext.getCurrentMission(), elevationModel);
+                    // TODO show qr ??
+                    /*
+                         LaancAirmapDialogViewModel vm =
+                    dialogService.requestDialogAndWait(this, LaancAirmapDialogViewModel.class, () -> qrCode);
+                         */
+                });
 
         IResolveAction[] allResolveActions = new IResolveAction[] {resolveAirmapLaanc};
 

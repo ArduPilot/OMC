@@ -7,13 +7,12 @@
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
-import eu.mavinci.WeakRunnable;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
 import eu.mavinci.desktop.gui.doublepanel.planemain.wwd.ComputeCornerData;
 import eu.mavinci.desktop.helper.FileHelper;
@@ -34,6 +33,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import org.asyncfx.concurrent.Dispatcher;
+import eu.mavinci.WeakRunnable;
 
 public class MapLayerMatching extends AMapLayerMatching implements ComputeCornerData.IAerialPinholeImageContext {
 
@@ -82,8 +82,9 @@ public class MapLayerMatching extends AMapLayerMatching implements ComputeCorner
     public static final String DEFAULT_FILENAME = "dataset." + MFileFilter.ptgFilter.getExtension();
 
     protected final IHardwareConfigurationManager hardwareConfigurationManager =
-        StaticInjector.getInstance(IHardwareConfigurationManager.class);
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+        DependencyInjector.getInstance().getInstanceOf(IHardwareConfigurationManager.class);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
     protected IHardwareConfiguration hardwareConfiguration;
 
     private final INotificationObject.ChangeListener hwConfigListener =
@@ -279,7 +280,7 @@ public class MapLayerMatching extends AMapLayerMatching implements ComputeCorner
             return list;
         }
 
-        if (!areaEnabled) {
+        if (useAll || !onlyInPicArea) {
             return list;
         }
 
@@ -312,8 +313,7 @@ public class MapLayerMatching extends AMapLayerMatching implements ComputeCorner
 
     @Override
     public void cloneMyValuesTo(MapLayerMatching other) throws Exception {
-        // TODO add other fields?
-        other.areaEnabled = areaEnabled;
+        other.onlyInPicArea = onlyInPicArea;
         other.cover.resolution = cover.resolution;
 
         other.rtkAltMSL = rtkAltMSL;
@@ -350,15 +350,15 @@ public class MapLayerMatching extends AMapLayerMatching implements ComputeCorner
 
         other.filterChanged();
     }
-    /* // TODO where to now?
-        public void setOnlyInPicArea(boolean onlyInPicArea) {
-            super.setOnlyInPicArea(onlyInPicArea);
-            if (onlyInPicArea) {
-                // ensure that they are shown as well
-                getPicAreasLayer().setVisible(true);
-            }
+
+    public void setOnlyInPicArea(boolean onlyInPicArea) {
+        super.setOnlyInPicArea(onlyInPicArea);
+        if (onlyInPicArea) {
+            // ensure that they are shown as well
+            getPicAreasLayer().setVisible(true);
         }
-    */
+    }
+
     public boolean isConnectorAvgPosAvaliable() {
         return connectorAvgPosAvaliable;
     }
@@ -572,32 +572,6 @@ public class MapLayerMatching extends AMapLayerMatching implements ComputeCorner
         }
 
         rtkShiftChanged();
-    }
-
-    public void setRTKAvaiable(Position baseStation) {
-        if (baseStation == null) {
-            setRTKUnavaiable();
-            return;
-        }
-        // TODO evtl improve the 0 values
-        rtkAltMSL = baseStation.getAltitude();
-        rtkAvgTime = 0;
-        rtkGeoidSep = 0;
-        rtkLat = baseStation.getLatitude().getDegrees();
-        rtkLon = baseStation.getLongitude().getDegrees();
-        rtkTimestamp = 0;
-
-        realLat = rtkLat;
-        realLon = rtkLon;
-        realAltWgs84 = rtkAltMSL;
-        realAntennaAlt = 0;
-
-        connectorAvgLat = rtkLat;
-        connectorAvgLon = rtkLon;
-        connectorAvgAltWGS84 = rtkAltMSL;
-        connectorAvgPosAvaliable = true;
-
-        setRTKAvaiable();
     }
 
     public void setRTKAvaiable(ITaggingAlgorithm alg) {

@@ -8,19 +8,18 @@ package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.Orientation;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.Metadata;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.MetadataAdapter;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.MetadataTagMapper;
-import eu.mavinci.desktop.helper.MFileFilter;
 import eu.mavinci.desktop.helper.MathHelper;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -42,7 +41,7 @@ public class ExifInfos {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExifInfos.class);
 
-    public static final int MIN_SIZE_TO_TEST_EXIF = 10 * 124; // 1024
+    public static final int MIN_SIZE_TO_TEST_EXIF = 10 * 1024;
     public static final int FOCAL_LENGTH_UNKNOWABLE = -2;
     public static final String TIME_PREFIX = "time_";
 
@@ -65,11 +64,10 @@ public class ExifInfos {
     public int meteringMode = -1;
 
     private Position position;
-    private Position baseStationPosition;
-    private String baseStationFixType;
     private File file;
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     /** generating empty default class */
     public ExifInfos() {}
@@ -122,7 +120,10 @@ public class ExifInfos {
                     "Unable to extract timestamp from a image which filename looks like it contains it" + file, e);
             }
 
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
+                        .getSection(GeneralSettings.class)
+                        .getOperationLevel()
                     != OperationLevel.DEBUG) {
                 if (!file.exists()) {
                     throw new FileNotFoundException(file.getAbsolutePath());
@@ -211,19 +212,15 @@ public class ExifInfos {
                         dateOriginal = valueMap.get(Tag.DATE_TIME_ORIGINAL);
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
                         datetime = formatter.parse(dateOriginal);
-                    } catch (Exception e1) {
-                        try {
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-                            datetime = formatter.parse(dateOriginal);
-                        } catch (Exception e2) { // TODO d = null; change error level
-                            dateOriginal = null;
-                        }
+                    } catch (Exception e1) { // TODO d = null; change error level
+                        dateOriginal = null;
                     }
                 }
             }
 
             if (datetime == null) {
                 String dateCreated = null;
+
                 try {
                     dateCreated = valueMap.get(Tag.DATE_TIME_CREATED);
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
@@ -407,7 +404,7 @@ public class ExifInfos {
                     try {
                         embeddedLog = new CPhotoLogLine(userComment);
                     } catch (Exception e) {
-                        LOGGER.info("Problems parsing command EXIF-user comment for embeddedLog: " + userComment, e);
+                        LOGGER.warn("Problems parsing command EXIF-user comment: " + userComment, e);
                     }
                 }
             }
@@ -440,18 +437,16 @@ public class ExifInfos {
 
         double lat = Double.parseDouble(valueMap.get(Tag.GPS_LATITUDE));
         double lon = Double.parseDouble(valueMap.get(Tag.GPS_LONGITUDE));
-        double alt = Double.parseDouble(valueMap.get(Tag.GPS_ALTITUDE)); // TODO for GH /100
-
-        /** Seems like exiftool already takes care of the format of the lat/lon/alt depending on the type */
-        if (valueMap.get(Tag.GPS_ALTITUDE_REF).equals("1") && alt > 0) {
+        double alt = Double.parseDouble(valueMap.get(Tag.GPS_ALTITUDE));
+        if (valueMap.get(Tag.GPS_ALTITUDE_REF).equals("1")) {
             alt = -alt;
         }
 
-        if (valueMap.get(Tag.GPS_LONGITUDE_REF).equals("W") && lon > 0) {
+        if (valueMap.get(Tag.GPS_LONGITUDE_REF).equals("W")) {
             lon = -lon;
         }
 
-        if (valueMap.get(Tag.GPS_LATITUDE_REF).equals("S") && lat > 0) {
+        if (valueMap.get(Tag.GPS_LATITUDE_REF).equals("S")) {
             lat = -lat;
         }
 
@@ -530,13 +525,13 @@ public class ExifInfos {
         }
 
         try {
-            pitch = 90 + Double.parseDouble(valueMap.get(Tag.PITCH)); // for GH jpg correct/equal to other function
+            pitch = 90 + Double.parseDouble(valueMap.get(Tag.PITCH));
             // pitch = Double.parseDouble(valueMap.get(Tag.PITCH));
             parsed = true;
         } catch (Exception e) {
             try {
                 pitch = 90 + Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE));
-                pitch = Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE)); // TODO check
+                // pitch = Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE));
                 parsed = true;
             } catch (Exception e1) {
             }
@@ -575,7 +570,7 @@ public class ExifInfos {
         if (orientation != null) {
             return orientation;
         }
-        // for DJI
+
         Map<Tag, String> valueMap =
             getMetadata(
                 file,
@@ -588,6 +583,7 @@ public class ExifInfos {
         double roll = 0;
         double pitch = 0;
         double yaw = 0;
+        boolean parsed = false;
         try {
             // TODO: verify
             roll = -Double.parseDouble(valueMap.get(Tag.XMP_GIMBAL_ROLL_DEGREE));
@@ -603,88 +599,6 @@ public class ExifInfos {
 
         orientation = new Orientation(roll, pitch, yaw);
         return orientation;
-    }
-
-    /**
-     * warning, this call is maybe slow..
-     *
-     * @return
-     * @throws IOException
-     * @throws SecurityException
-     * @throws IllegalArgumentException
-     */
-    public Orientation getOrientationFromGH() throws Exception {
-        if (orientation != null) {
-            return orientation;
-        }
-
-        Map<Tag, String> valueMap =
-            getMetadata(
-                file,
-                Tag.AIRFRAME_ROLL_DEGREE,
-                Tag.AIRFRAME_PITCH_DEGREE,
-                Tag.AIRFRAME_YAW_DEGREE,
-                Tag.GIMBAL_PITCH_DEGREE,
-                Tag.GIMBAL_ROLL_DEGREE,
-                Tag.GIMBAL_YAW_DEGREE);
-        double roll = 0;
-        double pitch = 0;
-        double yaw = 0;
-
-        try {
-            // TODO: verify
-            roll = -Double.parseDouble(valueMap.get(Tag.GIMBAL_ROLL_DEGREE));
-            // roll = Double.parseDouble(valueMap.get(Tag.GIMBAL_ROLL_DEGREE));
-            pitch = 90 + Double.parseDouble(valueMap.get(Tag.GIMBAL_PITCH_DEGREE));
-            // pitch = Double.parseDouble(valueMap.get(Tag.GIMBAL_PITCH_DEGREE));
-            yaw = Double.parseDouble(valueMap.get(Tag.GIMBAL_YAW_DEGREE));
-
-            // roll = roll + Double.parseDouble(valueMap.get(Tag.AIRFRAME_ROLL_DEGREE));
-            // pitch = pitch + Double.parseDouble(valueMap.get(Tag.AIRFRAME_PITCH_DEGREE));
-            // yaw = Double.parseDouble(valueMap.get(Tag.AIRFRAME_YAW_DEGREE));
-        } catch (Exception e) {
-            throw new Exception("cannot read orientation from xmp metadata: " + file);
-        }
-
-        orientation = new Orientation(roll, pitch, yaw);
-        return orientation;
-    }
-    /**
-     * warning, this call is maybe slow..
-     *
-     * @return
-     * @throws IOException
-     * @throws SecurityException
-     * @throws IllegalArgumentException
-     */
-    public Position getBaseStationPosition() throws IllegalArgumentException, SecurityException, IOException {
-        if (baseStationPosition != null) {
-            return baseStationPosition;
-        }
-
-        try {
-            Map<Tag, String> valueMap =
-                getMetadata(
-                    file, Tag.MODEL, Tag.BASE_STATION_ALTITUDE, Tag.BASE_STATION_LATITUDE, Tag.BASE_STATION_LONGITUDE);
-            double lat = Double.parseDouble(valueMap.get(Tag.BASE_STATION_LATITUDE));
-            double lon = Double.parseDouble(valueMap.get(Tag.BASE_STATION_LONGITUDE));
-            double alt = Double.parseDouble(valueMap.get(Tag.BASE_STATION_ALTITUDE));
-            baseStationPosition = Position.fromDegrees(lat, lon, alt);
-        } catch (Exception e) {
-            baseStationPosition = null;
-        }
-
-        return baseStationPosition;
-    }
-
-    public String getBaseStationFixType() throws IllegalArgumentException, SecurityException, IOException {
-        if (baseStationFixType != null) {
-            return baseStationFixType;
-        }
-
-        Map<Tag, String> valueMap = getMetadata(file, Tag.MODEL, Tag.BASE_STATION_FIX_TYPE);
-        baseStationFixType = valueMap.get(Tag.BASE_STATION_FIX_TYPE);
-        return baseStationFixType;
     }
 
     @Override
@@ -797,39 +711,28 @@ public class ExifInfos {
     private Map<Tag, String> getMetadata(final File image, final Tag... tags)
             throws IllegalArgumentException, SecurityException, IOException {
         /* request image description tag */
-        if (MFileFilter.tiffFilter.accept(image)) {
-            return applyImageDescription(image, Tag.IMAGE_DESCRIPTION, tags);
-        } else if (MFileFilter.jpegFilter.accept(image)) { // TODO add only if GH
-            return applyImageDescription(image, Tag.USER_COMMENT, tags);
-        } else {
-            Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(image, tags);
-            return valueMap;
-        }
-    }
-
-    private Map<Tag, String> applyImageDescription(File image, Tag sourceTag, Tag[] tags)
-            throws IllegalArgumentException, SecurityException, IOException {
         Tag[] tagsWithDescription = Arrays.copyOf(tags, tags.length + 1);
-        tagsWithDescription[tags.length] = sourceTag;
+        tagsWithDescription[tags.length] = Tag.IMAGE_DESCRIPTION;
+
         Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(image, tagsWithDescription);
-        var imageDescription = valueMap.get(sourceTag);
+
+        var imageDescription = valueMap.get(Tag.IMAGE_DESCRIPTION);
         if ((imageDescription != null) && (imageDescription.length() != 0)) {
-            applyImageDescription(valueMap, sourceTag, tags);
+            applyImageDescription(valueMap, tags);
         }
 
         return valueMap;
     }
 
-    private void applyImageDescription(final Map<Tag, String> valueMap, Tag sourceTag, final Tag... tags) {
+    private void applyImageDescription(final Map<Tag, String> valueMap, final Tag... tags) {
         var serializer = new Gson();
-        if (valueMap.get(sourceTag).isEmpty() || valueMap.get(sourceTag).equals("default")) {
+        if (valueMap.get(Tag.IMAGE_DESCRIPTION).isEmpty() || valueMap.get(Tag.IMAGE_DESCRIPTION).equals("default")) {
             return;
         }
 
-        // LOGGER.warn("JSON TAG: " + valueMap.get(sourceTag));
         Metadata metadata = null;
         try {
-            metadata = serializer.fromJson(valueMap.get(sourceTag), Metadata.class);
+            metadata = serializer.fromJson(valueMap.get(Tag.IMAGE_DESCRIPTION), Metadata.class);
             if (metadata == null) {
                 return;
             }
@@ -842,13 +745,7 @@ public class ExifInfos {
 
         for (Tag tag : tags) {
             try {
-                // dont overwrite if already available or new value is empty
-                if ((valueMap.get(tag) == null) || (valueMap.get(tag).length() == 0)) {
-                    var value = mapper.getValueByTag(tag);
-                    if (value != null) {
-                        valueMap.put(tag, value);
-                    }
-                }
+                valueMap.put(tag, mapper.getValueByTag(tag));
             } catch (NullPointerException ignored) {
             }
         }

@@ -24,10 +24,10 @@ public interface IAirplane extends ICAirplane {
     @Override
     public FlightplanManager getFPmanager();
 
-    /** @return configuration of the platform from the current mission */
+    /** @return configuration of the platform from the current flight plane */
     public IHardwareConfiguration getHardwareConfiguration();
 
-    /** @return description of the current mission */
+    /** @return description of the current flight plane */
     public CPicArea getPicAreaTemplate(PlanType type);
 
     // public void setSession(AirplaneSession session);

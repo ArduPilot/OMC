@@ -9,7 +9,6 @@ package com.intel.missioncontrol.api;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.flightplantemplate.FlightPlanTemplate;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.helper.ILanguageHelper;
@@ -18,6 +17,7 @@ import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.mission.MissionConstants;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CFMLWriter;
 import eu.mavinci.core.flightplan.PlanType;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -79,7 +79,8 @@ public class FlightPlanService implements IFlightPlanService {
                     new File(
                         MissionConstants.getFlightplanFolder(mission.getDirectoryFile()).getAbsolutePath(),
                         buildFileName(flightPlan)));
-                StaticInjector.getInstance(IApplicationContext.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.INFO)
                             .setText(
@@ -87,8 +88,9 @@ public class FlightPlanService implements IFlightPlanService {
                                     "com.intel.missioncontrol.ui.planning.FlightplanView.saved", flightPlan.getName()))
                             .create());
             } catch (IllegalStateException e) {
-                LOGGER.warn("cant save mission", e);
-                StaticInjector.getInstance(IApplicationContext.class)
+                LOGGER.warn("cant save flight plan", e);
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.ALERT)
                             .setText(
@@ -98,7 +100,8 @@ public class FlightPlanService implements IFlightPlanService {
                             .create());
             }
         } else {
-            StaticInjector.getInstance(IApplicationContext.class)
+            DependencyInjector.getInstance()
+                .getInstanceOf(IApplicationContext.class)
                 .addToast(
                     Toast.of(ToastType.INFO)
                         .setText(
@@ -121,7 +124,7 @@ public class FlightPlanService implements IFlightPlanService {
             writer.writeFlightplan(flightPlan, new File(cloneFilePath + FML));
             return cloneFilePath;
         } catch (IOException e) {
-            LOGGER.warn("cant clone mission", e);
+            LOGGER.warn("cant clone flight plan", e);
         }
 
         return null;
@@ -175,7 +178,7 @@ public class FlightPlanService implements IFlightPlanService {
         File fpFile = flightPlan.getLegacyFlightplan().getFile();
         if (fpFile.exists()) {
             if (!fpFile.delete()) {
-                LOGGER.error("Unable to delete mission " + fpFile.getAbsolutePath());
+                LOGGER.error("Unable to delete flight plan " + fpFile.getAbsolutePath());
             }
         }
     }

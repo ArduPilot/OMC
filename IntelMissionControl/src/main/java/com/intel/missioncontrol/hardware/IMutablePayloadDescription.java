@@ -55,7 +55,5 @@ public interface IMutablePayloadDescription extends IPayloadDescription {
 
     void setMavlinkParams(List<MavlinkParam> values);
 
-    void setMavlinkCameraSpecifications(List<MavlinkCameraSpecification> values);
-
 
 }

@@ -6,6 +6,11 @@
 
 package org.asyncfx.beans.binding;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.concurrent.Executor;
@@ -31,80 +36,117 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
     private boolean valid = false;
     private AsyncBindingHelperObserver observer;
     private AsyncExpressionHelper<$numberType> helper = null;
+    private Queue<DeferredListener<? super $numberType>> deferredListeners;
 
     @Override
     public void addListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(InvalidationListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncExpressionHelper.removeListener(helper, listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super $numberType> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super $numberType> listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(ChangeListener<? super $numberType> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncExpressionHelper.removeListener(helper, listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
@@ -144,10 +186,10 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
         boolean read = true;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
                 $primType value = this.value;
-                if (accessController.validate(true, stamp)) {
+                if (accessController.validate(VALUE, GROUP, stamp)) {
                     if (valid) {
                         return value;
                     }
@@ -157,23 +199,23 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
             }
 
             if (read) {
-                stamp = accessController.readLock(true);
+                stamp = accessController.readLock(VALUE, GROUP);
                 if (valid) {
                     return value;
                 }
             }
 
-            long newStamp = accessController.tryConvertToWriteLock(true, stamp);
+            long newStamp = accessController.tryConvertToWriteLock(VALUE, GROUP, stamp);
             if (newStamp == 0) {
-                accessController.unlockRead(stamp);
-                stamp = accessController.writeLock(true);
+                accessController.unlockRead(VALUE, stamp);
+                stamp = accessController.writeLock(VALUE, GROUP);
             } else {
                 stamp = newStamp;
             }
 
             return getCore();
         } finally {
-            accessController.unlock(stamp);
+            accessController.unlock(VALUE, stamp);
         }
     }
 
@@ -190,9 +232,9 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
 
     @Override
     public final void invalidate() {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate;
-        AsyncExpressionHelper helper;
 
     #if($isNumberType)
         $primType currentValue = 0;
@@ -203,31 +245,41 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
     #end
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((valueStamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
-                if (accessController.validate(true, stamp) && !valid) {
+                if (accessController.validate(VALUE, GROUP, valueStamp) && !valid) {
                     return;
                 }
             }
 
-            stamp = accessController.writeLock(true);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncExpressionHelper.validatesValue(helper)) {
-                    currentValue = getCore();
+                    try {
+                        currentValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            onInvalidating();
-            AsyncExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            try {
+                onInvalidating();
+                AsyncExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
@@ -236,21 +288,124 @@ public abstract class Async${boxedType}Binding$!{genericType} extends ${boxedTyp
         long stamp = 0;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 boolean valid = this.valid;
-                if (accessController.validate(false, stamp)) {
+                if (accessController.validate(VALUE, INSTANCE, stamp)) {
                     return valid;
                 }
             }
 
-            stamp = accessController.readLock(false);
+            stamp = accessController.readLock(VALUE, INSTANCE);
             return this.valid;
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(VALUE, stamp);
         }
     }
 
     protected abstract $primType computeValue();
+
+    private void addListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(ChangeListener<? super $numberType> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, true));
+    }
+
+    private void removeListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(ChangeListener<? super $numberType> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListener<>(listener, false));
+    }
+
+    private void resolveDeferredListeners() {
+        if (deferredListeners == null) {
+            return;
+        }
+
+        $primType value = getCore();
+
+        while (!deferredListeners.isEmpty()) {
+            DeferredListener<? super $numberType> deferredListener = deferredListeners.remove();
+            if (deferredListener.getInvalidationListener() != null) {
+                if (deferredListener.wasAdded()) {
+                    helper = AsyncExpressionHelper.addListener(helper, this, value, deferredListener.getInvalidationListener());
+                } else {
+                    helper = AsyncExpressionHelper.removeListener(helper, value, deferredListener.getInvalidationListener());
+                }
+            } else if (deferredListener.getSubInvalidationListener() != null) {
+                if (deferredListener.wasAdded()) {
+                    helper = AsyncExpressionHelper.addListener(helper, this, value, deferredListener.getSubInvalidationListener());
+                } else {
+                    helper = AsyncExpressionHelper.removeListener(helper, value, deferredListener.getSubInvalidationListener());
+                }
+            } else if (deferredListener.getChangeListener() != null) {
+                if (deferredListener.wasAdded()) {
+                    helper = AsyncExpressionHelper.addListener(helper, this, value, deferredListener.getChangeListener());
+                } else {
+                    helper = AsyncExpressionHelper.removeListener(helper, value, deferredListener.getChangeListener());
+                }
+            } else if (deferredListener.getSubChangeListener() != null) {
+                if (deferredListener.wasAdded()) {
+                    helper = AsyncExpressionHelper.addListener(helper, this, value, deferredListener.getSubChangeListener());
+                } else {
+                    helper = AsyncExpressionHelper.removeListener(helper, value, deferredListener.getSubChangeListener());
+                }
+            }
+        }
+
+        deferredListeners = null;
+    }
 
     @Override
     public String toString() {

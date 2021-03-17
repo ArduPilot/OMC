@@ -132,7 +132,7 @@ class DefaultFutureFactory implements Executor {
                         boolean cancelled = false;
                         boolean failed = false;
 
-                        for (Future<?> future : futures) {
+                        for (Future future : futures) {
                             if (future.isFailed()) {
                                 failed = true;
                                 exceptions.add(future.getException());

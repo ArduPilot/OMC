@@ -6,8 +6,8 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CEventList;
 import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
@@ -38,13 +38,13 @@ public class EventList extends CEventList {
             this.elements.add((IFlightplanStatement)statementCopy);
             statementCopy.setParent(this);
         }
-
         this.safetyAltitude_CM = source.safetyAltitude_CM;
     }
 
     @Override
     public String toString() {
-        return StaticInjector.getInstance(ILanguageHelper.class)
+        return DependencyInjector.getInstance()
+            .getInstanceOf(ILanguageHelper.class)
             .getString(KEY_TO_STRING, (getAltWithinCM() / 100.) + "m");
     }
 

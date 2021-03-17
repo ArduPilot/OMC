@@ -6,7 +6,7 @@
 
 package com.intel.missioncontrol.api;
 
-import com.intel.insight.datastructures.IUploadProgress;
+//import com.intel.insight.datastructures.IUploadProgress;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.ui.sidepane.analysis.ExportTypes;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
@@ -30,9 +30,9 @@ public interface IExportService {
 
     void openInPix4d(Matching matching);
 
-    boolean intelInsightUpload(
-            Matching matching, MSpatialReference srs, IUploadProgress uploadProgress, boolean pix4DProcessing)
-            throws Exception;
+//    boolean intelInsightUpload(
+//            Matching matching, MSpatialReference srs, IUploadProgress uploadProgress, boolean pix4DProcessing)
+//            throws Exception;
 
     void openIntelInsightAccount(Matching matching);
 

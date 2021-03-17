@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.planning.starting;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.map.IMapController;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.map.InputMode;
@@ -27,38 +26,32 @@ import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.SrsSettings;
 import com.intel.missioncontrol.ui.ViewModelBase;
-import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
-import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 
-/** View model used to integrate "Start" mission settings section with FlightPlan domain object. */
+/** View model used to integrate "Start" flight plan settings section with FlightPlan domain object. */
 public class StartingViewModel extends ViewModelBase {
 
     private final BooleanProperty autoEnabled = new SimpleBooleanProperty(true);
     private final BooleanProperty showTakeoffElevation = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty takeoffButtonPressed = new SimpleBooleanProperty();
+    private final QuantityProperty<Dimension.Length> takeoffElevation;
     private final BooleanProperty recalculateOnEveryChange;
     private final ReadOnlyObjectProperty<AltitudeAdjustModes> currentAltMode;
 
     private final PropertyPathStore propertyPathStore = new PropertyPathStore();
     private final IApplicationContext applicationContext;
     private final Command toggleChooseTakeOffPositionCommand;
-    private final Command takeOffPositionFromUavCommand;
     private final ISelectionManager selectionManager;
     private final ChangeListener<MSpatialReference> spatialReferenceChangeListener;
     private SrsPosition takeoffPositionWrapper;
@@ -73,11 +66,6 @@ public class StartingViewModel extends ViewModelBase {
 
     private final IMapController mapController;
 
-    @InjectScope
-    private FlightScope flightScope;
-
-    private final AsyncObjectProperty<Position> dronePosition = new SimpleAsyncObjectProperty<>(this);
-
     @Inject
     public StartingViewModel(
             IApplicationContext applicationContext,
@@ -90,7 +78,7 @@ public class StartingViewModel extends ViewModelBase {
         GeneralSettings generalSettings = settingsManager.getSection(GeneralSettings.class);
 
         recalculateOnEveryChange =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectBoolean(FlightPlan::recalculateOnEveryChangeProperty);
 
@@ -102,10 +90,12 @@ public class StartingViewModel extends ViewModelBase {
         srsSettings.applicationSrsProperty().addListener(new WeakChangeListener<>(spatialReferenceChangeListener));
 
         toggleChooseTakeOffPositionCommand = new DelegateCommand(this::toggleChooseTakeOffPosition);
-        takeOffPositionFromUavCommand = new DelegateCommand(this::takeOffPositionFromUav, dronePosition.isNotNull());
+
+        takeoffElevation =
+            new SimpleQuantityProperty<>(generalSettings, UnitInfo.LOCALIZED_LENGTH, Quantity.of(0.0, Unit.METER));
 
         currentAltMode =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectReadOnlyObject(FlightPlan::currentAltModeProperty);
     }
@@ -114,26 +104,23 @@ public class StartingViewModel extends ViewModelBase {
     protected void initializeViewModel() {
         super.initializeViewModel();
 
-        dronePosition.bind(
-            PropertyPath.from(flightScope.currentDroneProperty()).selectReadOnlyAsyncObject(IDrone::positionProperty));
-
         mapController
             .mouseModeProperty()
-            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform());
 
-        Mission m = applicationContext.currentMissionProperty().get();
+        Mission m = applicationContext.currentLegacyMissionProperty().get();
         if (m != null && m.getCurrentFlightPlan() != null) {
             takeoffPositionWrapper
                 .positionProperty()
                 .bindBidirectional(
                     propertyPathStore
-                        .from(applicationContext.currentMissionProperty())
+                        .from(applicationContext.currentLegacyMissionProperty())
                         .select(Mission::currentFlightPlanProperty)
                         .selectObject(FlightPlan::takeoffPositionProperty));
 
             autoEnabled.bindBidirectional(
                 propertyPathStore
-                    .from(applicationContext.currentMissionProperty())
+                    .from(applicationContext.currentLegacyMissionProperty())
                     .select(Mission::currentFlightPlanProperty)
                     .selectBoolean(FlightPlan::takeoffAutoProperty));
         }
@@ -147,6 +134,11 @@ public class StartingViewModel extends ViewModelBase {
                     }
                 });
 
+        takeoffElevation.bindBidirectional(
+            propertyPathStore
+                .from(applicationContext.currentLegacyMissionProperty())
+                .select(Mission::currentFlightPlanProperty)
+                .selectObject(FlightPlan::takeoffElevationProperty));
     }
 
     public BooleanProperty recalculateOnEveryChangeProperty() {
@@ -168,48 +160,43 @@ public class StartingViewModel extends ViewModelBase {
     public SimpleBooleanProperty takeoffButtonPressedProperty() {
         return takeoffButtonPressed;
     }
-    
+
+    public QuantityProperty<Dimension.Length> takeoffElevationProperty() {
+        return takeoffElevation;
+    }
+
+    public VariantQuantity getTakeOffLatitude() {
+        return takeOffLatitudeProperty().get();
+    }
+
+    public void setTakeOffLatitude(VariantQuantity value) {
+        takeOffLatitudeProperty().set(value);
+    }
+
     public VariantQuantityProperty takeOffLongitudeProperty() {
         return takeoffPositionWrapper.longitudeQuantity();
+    }
+
+    public VariantQuantity getTakeOffLongitude() {
+        return takeOffLongitudeProperty().get();
+    }
+
+    public void setTakeOffLongitude(VariantQuantity value) {
+        takeOffLongitudeProperty().set(value);
     }
 
     public Command getToggleChooseTakeOffPositionCommand() {
         return toggleChooseTakeOffPositionCommand;
     }
 
-    public Command getTakeOffPositionFromUavCommand() {
-        return takeOffPositionFromUavCommand;
-    }
-
     private void toggleChooseTakeOffPosition() {
         if (mapController.getMouseMode() != InputMode.SET_TAKEOFF_POINT) {
             selectionManager.setSelection(
-                applicationContext.getCurrentMission().getCurrentFlightPlan().getLegacyFlightplan().getTakeoff());
+                applicationContext.getCurrentLegacyMission().getCurrentFlightPlan().getLegacyFlightplan().getTakeoff());
             mapController.setMouseMode(InputMode.SET_TAKEOFF_POINT);
         } else {
             mapController.tryCancelMouseModes(InputMode.SET_TAKEOFF_POINT);
         }
-    }
-
-    private void takeOffPositionFromUav() {
-        Mission currentMission = applicationContext.getCurrentMission();
-        if (currentMission == null) {
-            return;
-        }
-
-        LatLon latLonNew = dronePosition.getValueUncritical();
-        if (latLonNew == null) {
-            return;
-        }
-
-        FlightPlan fp = currentMission.currentFlightPlanProperty().get();
-        if (fp == null) {
-            return;
-        }
-
-        Position oldPos = fp.takeoffPositionProperty().get();
-        Position newPos = new Position(latLonNew, oldPos == null ? 0 : oldPos.elevation);
-        fp.takeoffPositionProperty().set(newPos);
     }
 
     public ReadOnlyObjectProperty<AltitudeAdjustModes> currentAltModeProperty() {

@@ -96,6 +96,18 @@ public class MavlinkCameraListener {
             return;
         }
 
+        if (camItem.getDescriptionId() == null) {
+            // TODO auto-detect camera description id
+            // for now, use platform default
+            String cameraDescriptionId =
+                hardwareConfigurationManager
+                    .getHardwareConfiguration(droneConnectionItem.getPlatformId())
+                    .getPrimaryPayload(IGenericCameraConfiguration.class)
+                    .getDescription()
+                    .getId();
+            camItem.descriptionIdProperty().set(cameraDescriptionId);
+        }
+
         MavlinkCameraConnector cameraConnector = cameraConnectorFactory.create(camItem);
         cameraConnector
             .connectAsync()

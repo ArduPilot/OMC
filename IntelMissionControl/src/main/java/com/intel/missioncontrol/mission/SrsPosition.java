@@ -8,7 +8,6 @@ package com.intel.missioncontrol.mission;
 
 import com.intel.missioncontrol.measure.Dimension;
 import com.intel.missioncontrol.measure.Dimension.Length;
-import com.intel.missioncontrol.measure.Location;
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.QuantityFormat;
 import com.intel.missioncontrol.measure.Unit;
@@ -24,12 +23,12 @@ import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
 import eu.mavinci.core.helper.Pair;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import eu.mavinci.desktop.helper.gdal.SRStransformCacheEntry;
 import eu.mavinci.desktop.main.debug.Debug;
 import eu.mavinci.flightplan.Point;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import java.text.NumberFormat;
 import java.util.logging.Level;
 import javafx.beans.property.DoubleProperty;
@@ -209,9 +208,7 @@ public class SrsPosition {
 
     private void updatePositionFromQuantitiesWithSrs(
             MSpatialReference srs, VariantQuantity lat, VariantQuantity lon, Quantity<Length> alt) {
-        SRStransformCacheEntry entry =
-            new SRStransformCacheEntry(
-                lon.getValue().doubleValue(), lat.getValue().doubleValue(), alt.getValue().doubleValue());
+        Vec4 entry = new Vec4(lon.getValue().doubleValue(), lat.getValue().doubleValue(), alt.getValue().doubleValue());
 
         try {
             Position wgs84 = srs.toWgs84(entry);
@@ -275,7 +272,7 @@ public class SrsPosition {
         }
 
         try {
-            SRStransformCacheEntry fromWgs84 = srs.fromWgs84(position);
+            Vec4 fromWgs84 = srs.fromWgs84(position);
             srsCacheContainer = new SrsCacheContainer(srs, fromWgs84);
         } catch (Exception ex) {
             Debug.getLog().log(Level.WARNING, "problem transforming into this SRS: " + srs + " Pos:" + position, ex);
@@ -353,7 +350,7 @@ public class SrsPosition {
         }
 
         try {
-            Pair<Unit<?>, Unit<Length>> units = Location.getUnits(srs);
+            Pair<Unit<?>, Unit<Length>> units = srs.getUnits();
             latitudeQuantity.setValue(Quantity.of(srsCacheContainer.getY(), units.first).toVariant());
             longitudeQuantity.setValue(Quantity.of(srsCacheContainer.getX(), units.first).toVariant());
 
@@ -440,9 +437,9 @@ public class SrsPosition {
     private static class SrsCacheContainer {
 
         private final MSpatialReference srs;
-        private final SRStransformCacheEntry srsCache;
+        private final Vec4 srsCache;
 
-        public SrsCacheContainer(MSpatialReference srs, SRStransformCacheEntry srsCache) {
+        public SrsCacheContainer(MSpatialReference srs, Vec4 srsCache) {
             this.srs = srs;
             this.srsCache = srsCache;
         }

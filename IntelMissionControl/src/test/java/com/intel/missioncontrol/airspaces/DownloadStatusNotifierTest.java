@@ -6,15 +6,13 @@
 
 package com.intel.missioncontrol.airspaces;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import com.intel.missioncontrol.networking.MapTileDownloadStatusSubscriber;
 import com.intel.missioncontrol.networking.MapTileDownloadStatusNotifier;
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class DownloadStatusNotifierTest {
     private MapTileDownloadStatusSubscriber subscriber;
@@ -24,7 +22,7 @@ public class DownloadStatusNotifierTest {
     private final int STARTED = 0;
     private final int STOPPED = 1;
 
-    @Before
+    @BeforeAll
     public void setUp() throws Exception {
         subscriber = new MapTileDownloadStatusSubscriber() {
             public void downloadStarted(String downloadSessionId) {
@@ -46,12 +44,8 @@ public class DownloadStatusNotifierTest {
         // pretend we have some downloading process here
         downloadStatusNotifier.downloadFinished(downloadSessionId);
 
-        assertThat(downloadStateHolder[STARTED], isChangedFor("placeholder_started"));
-        assertThat(downloadStateHolder[STOPPED], isChangedFor("placeholder_stopped"));
-    }
-
-    private Matcher<String> isChangedFor(String placeholder) {
-        return is(not(placeholder));
+        assertNotEquals(downloadStateHolder[STARTED], "placeholder_started");
+        assertNotEquals(downloadStateHolder[STOPPED], "placeholder_stopped");
     }
 
     @Test
@@ -62,7 +56,7 @@ public class DownloadStatusNotifierTest {
         // pretend we have some downloading process here
         downloadStatusNotifier.downloadFinished(downloadSessionId);
 
-        assertThat(downloadStateHolder[STARTED], is(downloadStateHolder[STOPPED]));
+        assertEquals(downloadStateHolder[STARTED], downloadStateHolder[STOPPED]);
     }
 
     @Test
@@ -75,6 +69,6 @@ public class DownloadStatusNotifierTest {
         String anotherDownloadSessionId = downloadStatusNotifier.downloadStarted();
         downloadStatusNotifier.downloadFinished(anotherDownloadSessionId);
 
-        assertThat(downloadSessionId, is(not(anotherDownloadSessionId)));
+        assertNotEquals(downloadSessionId, anotherDownloadSessionId);
     }
 }

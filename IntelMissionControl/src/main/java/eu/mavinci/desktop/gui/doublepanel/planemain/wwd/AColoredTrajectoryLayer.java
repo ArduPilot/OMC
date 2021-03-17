@@ -6,10 +6,8 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
-import com.intel.missioncontrol.map.worldwind.IWWMapView;
-import com.intel.missioncontrol.modules.MapModule;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.wwext.PolylineWithUserData;
 import eu.mavinci.desktop.helper.ColorHelper;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -53,17 +51,16 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
     private Object userData;
     private boolean withShadows;
     private final boolean doubleBuffered;
-    private final IWWMapView mapView;
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
-    private final Dispatcher dispatcher = StaticInjector.getNamedInstance(Dispatcher.class, MapModule.DISPATCHER);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
+    private final Dispatcher dispatcher =
+        DependencyInjector.getInstance().getInstanceOf(Dispatcher.class);
 
-    public AColoredTrajectoryLayer(
-            Object userData, String name, boolean withShadows, boolean doubleBuffered, IWWMapView mapView) {
+    public AColoredTrajectoryLayer(Object userData, String name, boolean withShadows, boolean doubleBuffered) {
         this.userData = userData;
         this.withShadows = withShadows;
         this.doubleBuffered = doubleBuffered;
-        this.mapView = mapView;
         setName(name);
         setPickEnabled(false);
     }
@@ -76,7 +73,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
         if (doubleBuffered) {
             addPositionInt(pos, color);
         } else {
-            dispatcher.run(
+            dispatcher.runLater(
                 () -> {
                     addPositionInt(pos, color);
                     notifyRedraw();
@@ -198,7 +195,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
         if (doubleBuffered) {
             nextRenderables.add(renderable);
         } else {
-            dispatcher.run(
+            dispatcher.runLater(
                 () -> {
                     super.addRenderable(renderable);
                 });
@@ -212,7 +209,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
             latestToBeRenderedDoubleBuffered = nextRenderables;
         }
 
-        dispatcher.run(
+        dispatcher.runLater(
             () -> {
                 if (doubleBuffered) {
                     setRenderables(latestToBeRenderedDoubleBuffered);
@@ -226,7 +223,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
         if (doubleBuffered) {
             clearInt();
         } else {
-            dispatcher.run(() -> clearInt());
+            dispatcher.runLater(() -> clearInt());
         }
     }
 
@@ -245,7 +242,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
 
     @Override
     public void removeAllRenderables() {
-        dispatcher.run(
+        dispatcher.runLater(
             () -> {
                 super.removeAllRenderables();
             });
@@ -296,7 +293,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
             }
 
             // Modify the projection transform to shift the depth values slightly toward the camera in order to
-            // ensure the lines are rendered on top of planned flight lines
+            // ensure the lines are rendered on top of planned flight plan lines
             dc.pushProjectionOffest(0.99);
             super.drawOrderedRenderable(dc);
             dc.popProjectionOffest();
@@ -314,7 +311,7 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
     }
 
     public void clearOldStuffAsync() {
-        dispatcher.run(
+        dispatcher.runLater(
             () -> {
                 long cutInterval = getCutIntervalInMs();
                 if (cutInterval < 0) {
@@ -356,24 +353,4 @@ public abstract class AColoredTrajectoryLayer extends RenderableLayer {
             });
     }
 
-    @Override
-    public void render(DrawContext dc) {
-        if (polylineShadow != null) {
-            if (mapView.isFlatEarth()) {
-                polylineShadow.setFollowTerrain(true);
-            } else {
-                polylineShadow.setFollowTerrain(false);
-            }
-        }
-
-        if (polyline != null) {
-            if (mapView.isFlatEarth()) {
-                polyline.setFollowTerrain(true);
-            } else {
-                polyline.setFollowTerrain(false);
-            }
-        }
-
-        super.render(dc);
-    }
 }

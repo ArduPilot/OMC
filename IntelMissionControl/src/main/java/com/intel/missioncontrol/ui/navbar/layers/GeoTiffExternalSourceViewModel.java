@@ -19,24 +19,18 @@ import de.saxsys.mvvmfx.utils.commands.ParameterizedCommand;
 import de.saxsys.mvvmfx.utils.commands.ParameterizedDelegateCommand;
 import eu.mavinci.desktop.helper.FileFilter;
 import java.nio.file.Path;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.asyncfx.beans.property.UIAsyncListProperty;
-import org.asyncfx.beans.property.UIPropertyMetadata;
-import org.asyncfx.collections.AsyncObservableList;
-import org.asyncfx.collections.FXAsyncCollections;
 
 public class GeoTiffExternalSourceViewModel extends DialogViewModel {
 
-    private final UIAsyncListProperty<GeoTiffEntry> geoTiffFiles =
-        new UIAsyncListProperty<>(
-            this,
-            new UIPropertyMetadata.Builder<AsyncObservableList<GeoTiffEntry>>()
-                .initialValue(FXAsyncCollections.observableArrayList())
-                .create());
+    private final ListProperty<GeoTiffEntry> geoTiffFiles =
+        new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final ObjectProperty<GeoTiffEntry> selectedGeoTiff = new SimpleObjectProperty<>();
     private final ParameterizedCommand<GeoTiffEntry> unloadCommand;
@@ -58,7 +52,7 @@ public class GeoTiffExternalSourceViewModel extends DialogViewModel {
         this.dialogService = dialogService;
         this.languageHelper = languageHelper;
         this.geoTiffHelper = geoTiffHelper;
-        geoTiffFiles.bindContent(geoTiffHelper.geoTiffEntriesProperty());
+        geoTiffFiles.set(geoTiffHelper.geoTiffEntriesProperty());
 
         unloadCommand = new ParameterizedDelegateCommand<>(this::unloadGeoTiff);
         autoDetectManualOffsetCommand = new ParameterizedDelegateCommand<>(this::autoDetectManualOffset);
@@ -76,8 +70,8 @@ public class GeoTiffExternalSourceViewModel extends DialogViewModel {
             });
     }
 
-    public ReadOnlyListProperty<GeoTiffEntry> geoTiffFilesProperty() {
-        return geoTiffFiles.getReadOnlyProperty();
+    public ObservableValue<? extends ObservableList<GeoTiffEntry>> geoTiffFilesProperty() {
+        return geoTiffFiles;
     }
 
     public ObjectProperty<GeoTiffEntry> selectedGeoTiffProperty() {

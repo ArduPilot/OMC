@@ -8,9 +8,11 @@ package eu.mavinci.flightplan.exporter;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
+import com.intel.missioncontrol.NotImplementedException;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.impl.IScreenshotManager;
+import com.intel.missioncontrol.project.FlightPlan;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import com.intel.missioncontrol.ui.validation.IValidationService;
@@ -51,8 +53,7 @@ public class AcpExporter implements IFlightplanExporter {
         this.applicationContext = applicationContext;
     }
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         // do a screenshot, on success continue writing a file
         Future<Pair<BufferedImage, Sector>> result =
             mapScreenshotManager.makeBackgroundScreenshotAsync(flightplan.getSector());
@@ -92,5 +93,10 @@ public class AcpExporter implements IFlightplanExporter {
         acpWriter.setProgressMonitor(progressMonitor);
         acpWriter.flightplanToACP(flightplan, flightPlanFolder, null);
         progressMonitor.close();
+    }
+
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
     }
 }

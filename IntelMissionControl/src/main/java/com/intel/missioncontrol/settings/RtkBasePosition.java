@@ -8,8 +8,8 @@ package com.intel.missioncontrol.settings;
 
 import eu.mavinci.desktop.helper.gdal.ISrsManager;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import eu.mavinci.desktop.helper.gdal.SRStransformCacheEntry;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import java.util.Objects;
 import javafx.beans.Observable;
 import javafx.beans.property.DoubleProperty;
@@ -157,8 +157,8 @@ public class RtkBasePosition {
             return;
         }
 
-        SRStransformCacheEntry entry =
-            new SRStransformCacheEntry(lonOrX.getValue(), latOrY.getValue(), altOrZ.getValue());
+        Vec4 entry =
+            new Vec4(lonOrX.getValue(), latOrY.getValue(), altOrZ.getValue());
 
         try {
             position = srs.toWgs84(entry);

@@ -7,10 +7,8 @@
 package com.intel.missioncontrol.settings;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 
-@Localizable
-public enum MapRotationStyle implements IKeepAll {
+public enum MapRotationStyle implements Localizable {
     DEFAULT,
     INVERTED;
 

@@ -7,6 +7,7 @@
 package com.intel.missioncontrol.ui.search;
 
 import com.google.inject.Inject;
+import com.intel.missioncontrol.geospatial.Position;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.Location;
@@ -14,11 +15,13 @@ import com.intel.missioncontrol.measure.LocationFormat;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.ViewModelBase;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.desktop.gui.wwext.search.ISearchManagerListener;
 import eu.mavinci.desktop.gui.wwext.search.SearchManager;
 import eu.mavinci.desktop.gui.wwext.search.SearchResult;
+import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Sector;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -71,7 +74,6 @@ public class SearchViewModel extends ViewModelBase {
     private final Command clearCommand;
     private final Command goToCommand;
     private final IMapView mapView;
-    private final IElevationModel elevationModel;
     private final SearchManager searchManager;
     private final GeneralSettings generalSettings;
     private AtomicBoolean searchLater = new AtomicBoolean();
@@ -79,13 +81,8 @@ public class SearchViewModel extends ViewModelBase {
     private boolean getCoordinates = false;
 
     @Inject
-    public SearchViewModel(
-            IMapView mapView,
-            IElevationModel elevationModel,
-            SearchManager searchManager,
-            ISettingsManager settingsManager) {
+    public SearchViewModel(IMapView mapView, SearchManager searchManager, ISettingsManager settingsManager) {
         this.mapView = mapView;
-        this.elevationModel = elevationModel;
         this.searchManager = searchManager;
         this.generalSettings = settingsManager.getSection(GeneralSettings.class);
         this.lastSearchResults.putAll(generalSettings.lastSearchResultsProperty());
@@ -176,7 +173,13 @@ public class SearchViewModel extends ViewModelBase {
         for (SearchResult result : searchManager.getSearchResult()) {
             places.add(
                 new PlaceResultViewModel(
-                    new Location(result.getLatLon()), result.getLocationName(), "", result.getSector(), result));
+                    new Location(
+                        Position.fromRadians(
+                            result.getLatLon().latitude.radians, result.getLatLon().longitude.radians)),
+                    result.getLocationName(),
+                    "",
+                    result.getSector(),
+                    result));
         }
 
         List<IResultViewModel> newSearchResults = new ArrayList<>();
@@ -260,7 +263,13 @@ public class SearchViewModel extends ViewModelBase {
                 if (sector != null) {
                     mapView.goToSectorAsync(sector, OptionalDouble.empty());
                 } else {
-                    mapView.goToPositionAsync(elevationModel.getPositionOverGround(result.getLocation().toPosition()));
+                    Position pos = result.getLocation().toPosition();
+                    mapView.goToPositionAsync(
+                        DependencyInjector.getInstance()
+                            .getInstanceOf(IElevationModel.class)
+                            .getPositionOverGround(
+                                new gov.nasa.worldwind.geom.Position(
+                                    Angle.fromDegrees(pos.getLatitude()), Angle.fromDegrees(pos.getLongitude()), 0)));
                 }
             }
         } else {

@@ -8,8 +8,8 @@ package com.intel.missioncontrol.ui.sidepane.analysis;
 
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.JavaView;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -25,13 +25,9 @@ public class AreaFilterView extends HBox implements FxmlView<AreaFilterViewModel
     @FXML
     private CheckBox checkBox;
 
-    @FXML
-    public Button deleteButton;
-
     public void initialize() {
         checkBox.selectedProperty().bindBidirectional(viewModel.enabledProperty());
         label.textProperty().bind(viewModel.nameProperty());
-        deleteButton.disableProperty().bindBidirectional(viewModel.deleteDisabledProperty());
     }
 
     @FXML

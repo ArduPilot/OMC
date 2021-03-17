@@ -18,7 +18,6 @@ public class AreaFilterViewModel implements ViewModel {
 
     private final BooleanProperty enabled = new SimpleBooleanProperty();
     private final StringProperty name = new SimpleStringProperty();
-    private final BooleanProperty deleteDisabled = new SimpleBooleanProperty();
 
     private AreaFilter areaFilter;
 
@@ -26,15 +25,10 @@ public class AreaFilterViewModel implements ViewModel {
         this.areaFilter = areaFilter;
         enabled.bindBidirectional(areaFilter.enabledProperty());
         name.bindBidirectional(areaFilter.nameProperty());
-        deleteDisabled.bindBidirectional(areaFilter.deleteDisabledPropery());
     }
 
     public BooleanProperty enabledProperty() {
         return enabled;
-    }
-
-    public BooleanProperty deleteDisabledProperty() {
-        return deleteDisabled;
     }
 
     public StringProperty nameProperty() {

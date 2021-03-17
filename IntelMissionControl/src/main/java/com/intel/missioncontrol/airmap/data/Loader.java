@@ -60,7 +60,6 @@ public class Loader {
         typeMap.put("Polygon", GeoJson.PolygonGeom.class);
         typeMap.put("MultiPolygon", GeoJson.MultiPolygonGeom.class);
         typeMap.put("Feature", GeoJson.Feature.class);
-        typeMap.put("geometry",GeoJson.Geometry.class);
 
         GeoJson.TypedObjectAdapter<GeoJson.Geometry> adapter = new GeoJson.TypedObjectAdapter<>(typeMap);
         builder.registerTypeAdapter(GeoJson.Geometry.class, adapter);

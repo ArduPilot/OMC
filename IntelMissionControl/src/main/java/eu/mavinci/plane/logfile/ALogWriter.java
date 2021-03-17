@@ -6,7 +6,7 @@
 
 package eu.mavinci.plane.logfile;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.plane.AirplaneCacheEmptyException;
 import eu.mavinci.core.plane.AirplaneFlightphase;
@@ -28,7 +28,8 @@ import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public abstract class ALogWriter implements IAirplaneListenerGuiClose, Closeable, AutoCloseable {
+public abstract class ALogWriter
+        implements IAirplaneListenerGuiClose, Closeable, AutoCloseable {
 
     private boolean m_zip;
     protected boolean m_do_log = false;
@@ -154,7 +155,7 @@ public abstract class ALogWriter implements IAirplaneListenerGuiClose, Closeable
             }
 
             m_writer = new BufferedWriter(new OutputStreamWriter(out, ProtocolTokens.encoding));
-            m_writer.write(StaticInjector.getInstance(ILicenceManager.class).getExportHeader());
+            m_writer.write(DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeader());
             String header = getHeader();
             if (header != null) {
                 write(header);
@@ -299,5 +300,6 @@ public abstract class ALogWriter implements IAirplaneListenerGuiClose, Closeable
 
     @Override
     public void storeToSessionNow() {}
+
 
 }

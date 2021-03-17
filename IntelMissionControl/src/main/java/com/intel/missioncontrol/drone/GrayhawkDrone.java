@@ -135,8 +135,6 @@ public class GrayhawkDrone extends PX4Drone {
 
     @Override
     protected void applyFlightPlanInitialSettings(MavlinkFlightPlan mavlinkFlightPlan) {
-        if(hardwareConfigurationProperty().get().getPlatformDescription().isObstacleAvoidanceCapable()){
-            obstacleAvoidance.get().enableAsync(mavlinkFlightPlan.getFlightPlan().obstacleAvoidanceEnabledProperty().get());
-        }
+        obstacleAvoidance.get().enableAsync(mavlinkFlightPlan.getFlightPlan().obstacleAvoidanceEnabledProperty().get());
     }
 }

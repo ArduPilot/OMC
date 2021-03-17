@@ -6,17 +6,17 @@
 
 package com.intel.missioncontrol.flightplantemplate;
 
+import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Expect;
 import eu.mavinci.core.flightplan.PlanType;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public enum AreasOfInterestType implements IKeepAll {
-    AOI_2D(PlanType.POLYGON, PlanType.CITY, PlanType.CORRIDOR, PlanType.SPIRAL, PlanType.SEARCH),
+public enum AreasOfInterestType implements Localizable {
+    AOI_2D(PlanType.POLYGON, PlanType.CORRIDOR, PlanType.CITY, PlanType.SPIRAL, PlanType.SEARCH),
     AOI_3D(
         PlanType.TOWER,
         PlanType.BUILDING,
@@ -25,8 +25,8 @@ public enum AreasOfInterestType implements IKeepAll {
         PlanType.PANORAMA,
         PlanType.COPTER3D,
         PlanType.WINDMILL),
-    AOI_OTHER(PlanType.NO_FLY_ZONE_POLY, PlanType.GEOFENCE_CIRC, PlanType.GEOFENCE_POLY, PlanType.MANUAL, PlanType.INSPECTION_POINTS),
-    AOI_2D_COPTER(PlanType.POLYGON, PlanType.CITY, PlanType.CORRIDOR, PlanType.SPIRAL, PlanType.SEARCH);
+    AOI_OTHER(PlanType.NO_FLY_ZONE_POLY, PlanType.GEOFENCE_POLY, PlanType.MANUAL, PlanType.INSPECTION_POINTS),
+    AOI_2D_COPTER(PlanType.POLYGON, PlanType.CORRIDOR, PlanType.CITY, PlanType.SPIRAL, PlanType.SEARCH);
 
     private final List<PlanType> areasOfInterests;
 

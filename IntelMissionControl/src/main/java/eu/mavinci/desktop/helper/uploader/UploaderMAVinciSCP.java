@@ -25,7 +25,7 @@ public class UploaderMAVinciSCP extends UploaderSCP {
     @Override
     public HostKey getExpectedHostKey() throws JSchException {
         String keyB64 =
-                "TODO server key";
+            "TODO server key";
         return new HostKey("mavinci.de", HostKey.SSHRSA, Base64.decode(keyB64, Base64.DEFAULT));
     }
 

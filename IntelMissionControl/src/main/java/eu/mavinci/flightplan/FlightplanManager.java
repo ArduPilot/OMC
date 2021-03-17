@@ -68,7 +68,7 @@ public class FlightplanManager extends CFlightplanManager implements IAirplaneLi
         }
 
         // Automatically store every flightplanchange to disk
-        // also store empty flightplans, to document there wasnt a mission in
+        // also store empty flightplans, to document there wasnt a flightplan in
         // the plane at that time
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String prefix = "";
@@ -91,7 +91,7 @@ public class FlightplanManager extends CFlightplanManager implements IAirplaneLi
             // plan = CDump.removeHashDumpAndCommentsFromXML(plan);
             out.write(plan);
         } catch (Exception e1) {
-            Debug.getLog().log(Level.WARNING, "Error Writing mission on receive", e1);
+            Debug.getLog().log(Level.WARNING, "Error Writing Flightplan on receive", e1);
             return;
         }
     }
@@ -136,7 +136,7 @@ public class FlightplanManager extends CFlightplanManager implements IAirplaneLi
     public void sendFP(CFlightplan fp0, int reentryPoint) {
         Flightplan fp = (Flightplan)fp0;
         Debug.getLog()
-            .log(Level.FINE, "try send mission (not hashed now) reentryPoint=" + reentryPoint + ":\n" + fp0.toXML());
+            .log(Level.FINE, "try send FP (not hashed now) reentryPoint=" + reentryPoint + ":\n" + fp0.toXML());
 
         try {
             ((Flightplan)fp).getLandingpoint().updateFromUAV(getPlane());
@@ -144,7 +144,7 @@ public class FlightplanManager extends CFlightplanManager implements IAirplaneLi
             Debug.getLog()
                 .log(
                     Level.SEVERE,
-                    "Can not send mission with abolute altitude while no start elevation of UAV is known",
+                    "Can not send flight plan with abolute altitude while no start elevation of UAV is known",
                     e);
             return;
         }
@@ -160,7 +160,7 @@ public class FlightplanManager extends CFlightplanManager implements IAirplaneLi
         visR.startVisit(fp);
         if (!visR.wasValid()) {
             // TODO FIXME reinclude this test for productive version
-            Debug.getLog().log(Level.INFO, "mission had duplicated IDs which had been fixed");
+            Debug.getLog().log(Level.INFO, "flightplan had duplicated IDs which had been fixed");
         }*/
 
         // try {

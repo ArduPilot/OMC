@@ -8,54 +8,24 @@ package com.intel.missioncontrol.map.worldwind;
 
 import gov.nasa.worldwind.javafx.WWGLNode;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
 import org.asyncfx.concurrent.FutureCompletionSource;
+import org.jetbrains.annotations.NotNull;
 
 public class WWDispatcher implements Dispatcher {
 
-    private List<Runnable> deferredActions = new ArrayList<>();
     private WWGLNode worldWindNode;
 
-    private final Consumer<Runnable> worldWindNodeWrapper =
-        new Consumer<>() {
-            @Override
-            public synchronized void accept(Runnable runnable) {
-                if (worldWindNode == null) {
-                    deferredActions.add(runnable);
-                } else {
-                    worldWindNode.accept(runnable, false);
-                }
-            }
-        };
-
     public void setWWNode(WWGLNode worldWindNode) {
-        synchronized (worldWindNodeWrapper) {
-            this.worldWindNode = worldWindNode;
-
-            for (Runnable runnable : deferredActions) {
-                worldWindNode.accept(runnable, false);
-            }
-
-            deferredActions = null;
-        }
+        this.worldWindNode = worldWindNode;
     }
 
     @Override
     public boolean hasAccess() {
-        synchronized (worldWindNodeWrapper) {
-            return worldWindNode != null && Thread.currentThread() == worldWindNode.getRenderThread();
-        }
-    }
-
-    @Override
-    public boolean isSequential() {
-        return true;
+        return worldWindNode != null && Thread.currentThread() == worldWindNode.getRenderThread();
     }
 
     @Override
@@ -63,13 +33,13 @@ public class WWDispatcher implements Dispatcher {
         if (hasAccess()) {
             runnable.run();
         } else {
-            worldWindNodeWrapper.accept(runnable);
+            worldWindNode.accept(runnable);
         }
     }
 
     @Override
     public void runLater(Runnable runnable) {
-        worldWindNodeWrapper.accept(runnable);
+        worldWindNode.accept(runnable);
     }
 
     @Override
@@ -80,7 +50,7 @@ public class WWDispatcher implements Dispatcher {
     @Override
     public Future<Void> runLaterAsync(Runnable runnable) {
         FutureCompletionSource<Void> futureCompletionSource = new FutureCompletionSource<>();
-        worldWindNodeWrapper.accept(
+        worldWindNode.accept(
             () -> {
                 runnable.run();
                 futureCompletionSource.setResult(null);
@@ -95,7 +65,7 @@ public class WWDispatcher implements Dispatcher {
         Dispatcher.background()
             .runLaterAsync(
                 () ->
-                    worldWindNodeWrapper.accept(
+                    worldWindNode.accept(
                         () -> {
                             runnable.run();
                             futureCompletionSource.setResult(null);
@@ -107,13 +77,13 @@ public class WWDispatcher implements Dispatcher {
 
     @Override
     public Future<Void> runLaterAsync(Runnable runnable, Duration delay, Duration period) {
-        return Dispatcher.background().runLaterAsync(() -> worldWindNodeWrapper.accept(runnable), delay, period);
+        return Dispatcher.background().runLaterAsync(() -> worldWindNode.accept(runnable), delay, period);
     }
 
     @Override
     public Future<Void> runLaterAsync(Runnable runnable, CancellationSource cancellationSource) {
         FutureCompletionSource<Void> futureCompletionSource = new FutureCompletionSource<>(cancellationSource);
-        worldWindNodeWrapper.accept(
+        worldWindNode.accept(
             () -> {
                 runnable.run();
                 futureCompletionSource.setResult(null);
@@ -128,7 +98,7 @@ public class WWDispatcher implements Dispatcher {
         Dispatcher.background()
             .runLaterAsync(
                 () ->
-                    worldWindNodeWrapper.accept(
+                    worldWindNode.accept(
                         () -> {
                             runnable.run();
                             futureCompletionSource.setResult(null);
@@ -143,7 +113,7 @@ public class WWDispatcher implements Dispatcher {
     public Future<Void> runLaterAsync(
             Runnable runnable, Duration delay, Duration period, CancellationSource cancellationSource) {
         return Dispatcher.background()
-            .runLaterAsync(() -> worldWindNodeWrapper.accept(runnable), delay, period, cancellationSource);
+            .runLaterAsync(() -> worldWindNode.accept(runnable), delay, period, cancellationSource);
     }
 
     @Override
@@ -184,7 +154,7 @@ public class WWDispatcher implements Dispatcher {
     @Override
     public <T> Future<T> getLaterAsync(Supplier<T> supplier) {
         FutureCompletionSource<T> futureCompletionSource = new FutureCompletionSource<>();
-        worldWindNodeWrapper.accept(() -> futureCompletionSource.setResult(supplier.get()));
+        worldWindNode.accept(() -> futureCompletionSource.setResult(supplier.get()));
         return futureCompletionSource.getFuture();
     }
 
@@ -193,14 +163,14 @@ public class WWDispatcher implements Dispatcher {
         FutureCompletionSource<T> futureCompletionSource = new FutureCompletionSource<>();
         Dispatcher.background()
             .runLaterAsync(() -> {}, delay)
-            .thenRun(() -> worldWindNodeWrapper.accept(() -> futureCompletionSource.setResult(supplier.get())));
+            .thenRun(() -> worldWindNode.accept(() -> futureCompletionSource.setResult(supplier.get())));
         return futureCompletionSource.getFuture();
     }
 
     @Override
     public <T> Future<T> getLaterAsync(Supplier<T> supplier, CancellationSource cancellationSource) {
         FutureCompletionSource<T> futureCompletionSource = new FutureCompletionSource<>(cancellationSource);
-        worldWindNodeWrapper.accept(() -> futureCompletionSource.setResult(supplier.get()));
+        worldWindNode.accept(() -> futureCompletionSource.setResult(supplier.get()));
         return futureCompletionSource.getFuture();
     }
 
@@ -209,7 +179,7 @@ public class WWDispatcher implements Dispatcher {
         FutureCompletionSource<T> futureCompletionSource = new FutureCompletionSource<>(cancellationSource);
         Dispatcher.background()
             .runLaterAsync(() -> {}, delay, cancellationSource)
-            .thenRun(() -> worldWindNodeWrapper.accept(() -> futureCompletionSource.setResult(supplier.get())));
+            .thenRun(() -> worldWindNode.accept(() -> futureCompletionSource.setResult(supplier.get())));
         return futureCompletionSource.getFuture();
     }
 
@@ -232,6 +202,11 @@ public class WWDispatcher implements Dispatcher {
     public <T> Future<T> getLaterAsync(
             Future.SupplierWithProgress<T> supplier, Duration delay, CancellationSource cancellationSource) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void execute(@NotNull Runnable command) {
+        run(command);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class GlobeSelector implements Globe {
                     // trigger redraw:
                     mapView.firePropertyChange(AVKey.VIEW, null, this);
                 },
-                dispatcher::run);
+                dispatcher);
     }
 
     public void setGlobe(Globe globe) {

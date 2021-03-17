@@ -380,27 +380,30 @@ public class ConnectionSettingsView extends ViewBase<ConnectionSettingsViewModel
                     protected void updateItem(TRow item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item == null || empty) {
-                            textProperty().unbind();
-                            graphicProperty().unbind();
-                            setText(null);
-                            setGraphic(null);
+                            if (textBinding != null) {
+                                textProperty().unbind();
+                                setText(null);
+                                setTooltip(null);
+                            }
+
+                            if (graphicBinding != null) {
+                                graphicProperty().unbind();
+                                setGraphic(null);
+                            }
                         } else {
                             if (textBinding != null) {
                                 textProperty().bind(textBinding.apply(item));
-
+                                Tooltip tooltip = new Tooltip();
                                 setWrapText(true);
-                                tooltipProperty()
+                                tooltip.textProperty()
                                     .bind(
-                                        Bindings.createObjectBinding(
+                                        Bindings.createStringBinding(
                                             () -> {
                                                 String text = textProperty().get();
-                                                if (text != null && !text.isEmpty()) {
-                                                    return new Tooltip(text);
-                                                }
-
-                                                return null;
+                                                return text == null || text.isEmpty() ? null : text;
                                             },
                                             textProperty()));
+                                setTooltip(tooltip);
                             }
 
                             if (graphicBinding != null) {

@@ -144,14 +144,11 @@ public class WWWidgetMouseAdapter extends MouseAdapter {
             if (lastAlt == Float.NEGATIVE_INFINITY
                     || mapModel.getAltitudeModeForNewNodes() == AltitudeModes.clampToGround
                     || mapView.isFlatEarth()) {
-                var terrain = wwd.getSceneController().getTerrain();
-                intersections = terrain != null ? terrain.intersect(ray) : null;
+                intersections = wwd.getSceneController().getTerrain().intersect(ray);
                 if (intersections != null && intersections.length > 0) {
                     p = globes.getActiveGlobe().computePositionFromPoint(intersections[0].getIntersectionPoint());
                 } else {
-                    p =
-                        RayCastingSupport.intersectRayWithTerrain(
-                            globes.getActiveGlobe(), ray.getOrigin(), ray.getDirection(), 1000, 2);
+                    break;
                 }
 
                 final Position pFinal = p;
@@ -185,8 +182,7 @@ public class WWWidgetMouseAdapter extends MouseAdapter {
         case SET_MODEL_ORIGIN:
         case SET_SIMULATION_TAKEOFF:
             // compute p as point at terrain where the mouse points to
-            var terrain = wwd.getSceneController().getTerrain();
-            intersections = terrain != null ? terrain.intersect(ray) : null;
+            intersections = wwd.getSceneController().getTerrain().intersect(ray);
             if (intersections != null && intersections.length > 0) {
                 p = globes.getActiveGlobe().computePositionFromPoint(intersections[0].getIntersectionPoint());
             } else {

@@ -60,9 +60,6 @@ public class MatchingDataHandler extends DefaultHandler implements Tokens {
     ExifInfos lastExif;
     Vector<String> bandNames = new Vector<String>();
 
-    private static final double ALT_MIN = 0.0;
-    private static final double ALT_MAX = 10000.0;
-
     public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         qName = localName;
 
@@ -71,130 +68,20 @@ public class MatchingDataHandler extends DefaultHandler implements Tokens {
 
         if (qName.equals(ALTFILTER)) {
             data.altitudeAGLEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-            if (atts.getValue(FROM) != null) {
-                data.altitudeFrom = Double.parseDouble(atts.getValue(FROM));
-            } else {
-                data.altitudeFrom =
-                    Double.parseDouble(atts.getValue(VALUE)) - Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(TO) != null) {
-                data.altitudeTo = Double.parseDouble(atts.getValue(TO));
-            } else {
-                data.altitudeTo = Double.parseDouble(atts.getValue(VALUE)) + Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(MIN) != null) {
-                data.altitudeMin = Double.parseDouble(atts.getValue(MIN));
-            } else {
-                data.altitudeMin = ALT_MIN;
-            }
-
-            if (atts.getValue(MAX) != null) {
-                data.altitudeMax = Double.parseDouble(atts.getValue(MAX));
-            } else {
-                data.altitudeMax = ALT_MAX;
-            }
+            data.altitudeValue = Double.parseDouble(atts.getValue(VALUE));
+            data.altitudeSpread = Double.parseDouble(atts.getValue(SPREAD));
         } else if (qName.equals(ROLLFILTER)) {
             data.rollEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-            if (atts.getValue(FROM) != null) {
-                data.rollFrom = Double.parseDouble(atts.getValue(FROM));
-            } else {
-                data.rollFrom = Double.parseDouble(atts.getValue(VALUE)) - Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(TO) != null) {
-                data.rollTo = Double.parseDouble(atts.getValue(TO));
-            } else {
-                data.rollTo = Double.parseDouble(atts.getValue(VALUE)) + Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(MIN) != null) {
-                data.rollMin = Double.parseDouble(atts.getValue(MIN));
-            } else {
-                data.rollMin = -180.;
-            }
-
-            if (atts.getValue(MAX) != null) {
-                data.rollMax = Double.parseDouble(atts.getValue(MAX));
-            } else {
-                data.rollMax = 180.;
-            }
+            data.rollValue = Double.parseDouble(atts.getValue(VALUE));
+            data.rollSpread = Double.parseDouble(atts.getValue(SPREAD));
         } else if (qName.equals(PITCHFILTER)) {
             data.pitchEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-            if (atts.getValue(FROM) != null) {
-                data.pitchFrom = Double.parseDouble(atts.getValue(FROM));
-            } else {
-                data.pitchFrom = Double.parseDouble(atts.getValue(VALUE)) - Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(TO) != null) {
-                data.pitchTo = Double.parseDouble(atts.getValue(TO));
-            } else {
-                data.pitchTo = Double.parseDouble(atts.getValue(VALUE)) + Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(MIN) != null) {
-                data.pitchMin = Double.parseDouble(atts.getValue(MIN));
-            } else {
-                data.pitchMin = -180.;
-            }
-
-            if (atts.getValue(MAX) != null) {
-                data.pitchMax = Double.parseDouble(atts.getValue(MAX));
-            } else {
-                data.pitchMax = 180.;
-            }
+            data.pitchValue = Double.parseDouble(atts.getValue(VALUE));
+            data.pitchSpread = Double.parseDouble(atts.getValue(SPREAD));
         } else if (qName.equals(YAWFILTER)) {
             data.yawEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-            if (atts.getValue(FROM) != null) {
-                data.yawFrom = Double.parseDouble(atts.getValue(FROM));
-            } else {
-                data.yawFrom = Double.parseDouble(atts.getValue(VALUE)) - Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(TO) != null) {
-                data.yawTo = Double.parseDouble(atts.getValue(TO));
-            } else {
-                data.yawTo = Double.parseDouble(atts.getValue(VALUE)) + Double.parseDouble(atts.getValue(SPREAD));
-            }
-
-            if (atts.getValue(MIN) != null) {
-                data.yawMin = Double.parseDouble(atts.getValue(MIN));
-            } else {
-                data.yawMin = 0;
-            }
-
-            if (atts.getValue(MAX) != null) {
-                data.yawMax = Double.parseDouble(atts.getValue(MAX));
-            } else {
-                data.yawMax = 360;
-            }
-        } else if (qName.equals(ISOFILTER)) {
-            data.isoEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(EXPOSIURETIMEFILTER)) {
-            data.exposureTimeEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(EXPOSIUREFILTER)) {
-            data.exposureEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(IMAGETYPEFILTER)) {
-            data.imageTypeEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(ANNOTATIONFILTER)) {
-            data.annotationEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(AREAFILTER)) {
-            data.areaEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-        } else if (qName.equals(FLIGHTPLANFILTER)) {
-            data.flightplanEnabled = Boolean.parseBoolean(atts.getValue(ENABLED));
-            data.flightplanSelection = (atts.getValue(VALUE));
-
-        } else if (qName.equals(SELECTEDEXPORTFILTER)) {
-            if (atts.getValue(NAME) == null) {
-                data.selectedExportFilter =  "All except filtered";
-                data.selectedExportFilterFlag="1";
-            } else {
-                data.selectedExportFilter = atts.getValue(NAME);
-                data.selectedExportFilterFlag = atts.getValue(VALUE);
-            }
-            // TODO IMC-3043 add new fields
+            data.yawValue = Double.parseDouble(atts.getValue(VALUE));
+            data.yawSpread = Double.parseDouble(atts.getValue(SPREAD));
         } else if (qName.equals(FUZZYNESS_FILTER)) {
             data.maxPixelFuzzyness = Double.parseDouble(atts.getValue(PIXEL));
         } else if (qName.equals(VIEW)) {
@@ -231,6 +118,13 @@ public class MatchingDataHandler extends DefaultHandler implements Tokens {
                             + data.getMatchingFolder(),
                         e);
             }
+        } else if (qName.equals(USE_ALL)) {
+            data.useAll = Boolean.parseBoolean(atts.getValue(ENABLED));
+        } else if (qName.equals(DIRECTION_FILTER)) {
+            try {
+                data.onlyInPicArea = Boolean.parseBoolean(atts.getValue(ONLY_IN_PIC_AREA));
+            } catch (Exception e) {
+            }
         } else if (qName.equals(COVERAGE)) {
             data.cover.resolution = Double.parseDouble(atts.getValue(RESOLUTION));
         } else if (qName.equals(MATCH) || qName.equals(MMATCH)) {
@@ -239,7 +133,7 @@ public class MatchingDataHandler extends DefaultHandler implements Tokens {
             line.lineNumber = Integer.parseInt(atts.getValue(LINE_NUMBER));
             line.lat = Double.parseDouble(atts.getValue(LAT));
             line.lon = Double.parseDouble(atts.getValue(LON));
-            line.alt = Double.parseDouble(atts.getValue(ALT));
+            line.alt = (int)Double.parseDouble(atts.getValue(ALT));
             line.groundSpeed_cms = (int)Double.parseDouble(atts.getValue(GROUNDSPEED));
             line.cameraRollRate = Double.parseDouble(atts.getValue(ROLLRATE));
             line.cameraPitchRate = Double.parseDouble(atts.getValue(PITCHRATE));
@@ -318,7 +212,7 @@ public class MatchingDataHandler extends DefaultHandler implements Tokens {
             try {
                 lastExif.aperture = Double.parseDouble(atts.getValue(APERTURE_EXIF));
             } catch (Exception e) {
-                lastExif.aperture = -2; // mark as never read out in a previous version of Open Mission Control
+                lastExif.aperture = -2; // mark as never read out in a previous version of Intel Mission Control
             }
 
             try {

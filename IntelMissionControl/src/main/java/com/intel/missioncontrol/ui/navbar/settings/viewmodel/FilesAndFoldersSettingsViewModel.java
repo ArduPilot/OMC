@@ -7,6 +7,8 @@
 package com.intel.missioncontrol.ui.navbar.settings.viewmodel;
 
 import com.google.inject.Inject;
+import org.asyncfx.beans.binding.Converters;
+import org.asyncfx.beans.property.UIAsyncStringProperty;
 import com.intel.missioncontrol.export.ExternalApplication;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.IMissionManager;
@@ -14,6 +16,7 @@ import com.intel.missioncontrol.settings.PathSettings;
 import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.DialogResult;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.ParameterizedCommand;
 import de.saxsys.mvvmfx.utils.commands.ParameterizedDelegateCommand;
 import eu.mavinci.desktop.helper.FileFilter;
@@ -22,8 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
-import org.asyncfx.beans.binding.Converters;
-import org.asyncfx.beans.property.UIAsyncStringProperty;
 
 public class FilesAndFoldersSettingsViewModel extends ViewModelBase {
 
@@ -37,13 +38,13 @@ public class FilesAndFoldersSettingsViewModel extends ViewModelBase {
 
     private final IDialogService dialogService;
     private final PathSettings pathSettings;
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+    private final IMissionManager missionManager =
+        DependencyInjector.getInstance().getInstanceOf(IMissionManager.class);
 
     @Inject
-    public FilesAndFoldersSettingsViewModel(
-            IMissionManager missionManager,
-            PathSettings pathSettings,
-            IDialogService dialogService,
-            ILanguageHelper languageHelper) {
+    public FilesAndFoldersSettingsViewModel(PathSettings pathSettings, IDialogService dialogService) {
         this.dialogService = dialogService;
         this.pathSettings = pathSettings;
 

@@ -6,19 +6,23 @@
 
 package com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic;
 
-import com.intel.missioncontrol.ui.controls.Hyperlink;
+import com.google.inject.Inject;
 import com.intel.missioncontrol.ui.controls.RotatingImageView;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
 import de.saxsys.mvvmfx.InjectViewModel;
 import de.saxsys.mvvmfx.JavaView;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 
 // Class needs to be public, otherwise it can't be properly initialized.
 public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemViewModel> {
+
 
     private static final String ICON_LOADING = "/com/intel/missioncontrol/icons/icon_progress.svg";
     private static final String ICON_COMPLETE_CLASS = "icon-complete";
@@ -31,11 +35,11 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
 
     private Image loadingIcon;
 
+
     private Image getLoadingIcon() {
         if (loadingIcon == null) {
             loadingIcon = new Image(ICON_LOADING);
         }
-
         return loadingIcon;
     }
 
@@ -62,8 +66,7 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
                             alertType = AlertType.LOADING;
                         }
 
-                        getStyleClass()
-                            .removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_COMPLETE_CLASS, ICON_WARNING_CLASS);
+                        getStyleClass().removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_COMPLETE_CLASS, ICON_WARNING_CLASS);
                         rotatingImageView.setVisible(false);
                         rotatingImageView.setManaged(false);
 
@@ -102,30 +105,8 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
         Label label = new Label();
         label.setWrapText(true);
         label.textProperty().bind(viewModel.messageStringProperty());
-        // getChildren().add(label);
+        getChildren().add(label);
 
-        HBox actions = new HBox();
-        actions.setSpacing(10);
-
-        var firstResolveActionCommand = viewModel.getFirstResolveActionCommand();
-        if (firstResolveActionCommand != null) {
-            Hyperlink link = new Hyperlink();
-            link.textProperty().bind(viewModel.firstResolveActionTextProperty());
-            link.setOnAction(event -> firstResolveActionCommand.execute());
-            actions.getChildren().add(link);
-        }
-
-        var secondResolveActionCommand = viewModel.getSecondResolveActionCommand();
-        if (secondResolveActionCommand != null) {
-            Hyperlink link = new Hyperlink();
-            link.textProperty().bind(viewModel.secondResolveActionTextProperty());
-            link.setOnAction(event -> secondResolveActionCommand.execute());
-            actions.getChildren().add(link);
-        }
-
-        VBox container = new VBox(label, actions);
-        container.setMaxWidth(Double.POSITIVE_INFINITY);
-        getChildren().add(container);
     }
 
 }

@@ -8,7 +8,7 @@
 
 # User-specific stuff:
 .idea/*
-target
+target/
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
@@ -20,9 +20,10 @@ target
 .idea/**/uiDesigner.xml
 
 # Gradle:
-.idea/**/gradle.xml
-.idea/**/libraries
-
+.gradle/
+build/
+**/out/production/*
+**/out/test/*
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
 

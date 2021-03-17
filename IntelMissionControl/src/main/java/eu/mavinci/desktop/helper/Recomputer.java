@@ -100,7 +100,8 @@ public class Recomputer implements IRecomputerListenerManager {
                             // its crucial that we wait here, otherwise we might do another computation round before
                             // this post is fullfilled, and then make this post for both of them directly after each
                             // other
-                            Dispatcher.platform().runLaterAsync(rUI::runLaterOnUIThread).getUnchecked();
+                            Dispatcher.platform()
+                                .runLaterAsync(rUI::runLaterOnUIThread); // TODO check: .getUnchecked();
                         } catch (Exception e) {
                             Debug.getLog()
                                 .log(
@@ -173,7 +174,7 @@ public class Recomputer implements IRecomputerListenerManager {
     }
 
     protected void execute() {
-        Dispatcher.background().runLater(recomputeWrapper);
+        Dispatcher.background().run(recomputeWrapper);
     }
 
     public void endRecomp(long runNo) {

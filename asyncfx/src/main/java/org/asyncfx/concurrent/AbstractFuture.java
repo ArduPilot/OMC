@@ -35,7 +35,7 @@ abstract class AbstractFuture<V> implements Future<V> {
     }
 
     @Override
-    public void addProgressListener(ProgressListener listener) {
+    public void addListener(ProgressListener listener) {
         getProgressInfo().addListener(listener);
     }
 

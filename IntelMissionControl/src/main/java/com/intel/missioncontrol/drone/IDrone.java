@@ -14,7 +14,6 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Quaternion;
 import java.time.Duration;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
@@ -39,21 +38,8 @@ public interface IDrone {
      */
     ReadOnlyAsyncObjectProperty<? extends IRemoteControl> remoteControlProperty();
 
-    /**
-     * The progress of a flight plan upload, between 0.0 and 1.0, if an upload is ongoing. NaN otherwise. Flight plan
-     * upload occurs during execution of takeOffAsync or startFlightPlanAsync.
-     */
-    ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty();
-
-    /**
-     * The flight plan currently stored on the drone after uploading one. Null if no flight plan has been uploaded.
-     * Flight plan upload occurs during execution of takeOffAsync or startFlightPlanAsync.
-     */
     ReadOnlyAsyncObjectProperty<FlightPlan> activeFlightPlanProperty();
 
-    /**
-     * The index of the next waypoint of activeFlightPlanProperty, which will be targeted by the drone.
-      * Only valid if activeFlightPlanProperty is not null. */
     ReadOnlyAsyncIntegerProperty activeFlightPlanWaypointIndexProperty();
 
     /** current position (WGS84 lat/lon with altitude in meters above takeoff position) */

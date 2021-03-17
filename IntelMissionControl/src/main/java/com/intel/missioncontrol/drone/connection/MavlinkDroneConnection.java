@@ -20,13 +20,11 @@ import com.intel.missioncontrol.drone.connection.mavlink.ParameterProtocolSender
 import com.intel.missioncontrol.drone.connection.mavlink.ReceivedPayload;
 import com.intel.missioncontrol.drone.connection.mavlink.TelemetryReceiver;
 import io.dronefleet.mavlink.MavlinkDialect;
-import io.dronefleet.mavlink.common.MavType;
 import java.time.Duration;
 import java.util.function.Consumer;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +45,6 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
     private final Future<Void> heartbeatSenderFuture;
 
     private final MavlinkDroneConnectionItem connectionItem;
-    private final MavType mavType;
     private final MavlinkEndpoint targetEndpoint;
     private final MavlinkHandler mavlinkHandler;
     private final CancellationSource externalCancellationSource;
@@ -57,7 +54,6 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
     MavlinkDroneConnection(
             MavlinkDroneConnectionItem connectionItem,
             MavlinkHandler mavlinkHandler,
-            MavType mavType,
             MavlinkDialect dialect,
             MavlinkEndpoint targetEndpoint,
             CancellationSource cancellationSource,
@@ -65,7 +61,6 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
             Future<Void> heartbeatSenderFuture,
             MavlinkCameraListener mavlinkCameraListener) {
         this.connectionItem = connectionItem;
-        this.mavType = mavType;
         this.targetEndpoint = targetEndpoint;
         this.mavlinkHandler = mavlinkHandler;
         externalCancellationSource = cancellationSource;
@@ -74,7 +69,7 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
 
         this.connectionProtocolSender = connectionProtocolSender;
         commandProtocolSender = new CommandProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
-        missionProtocolSender = initMissionProtocolSender(mavlinkHandler, targetEndpoint, cancellationSource);
+        missionProtocolSender = new MissionProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
         parameterProtocolSender = new ParameterProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
         connectionProtocolReceiver = new ConnectionProtocolReceiver(targetEndpoint, mavlinkHandler, cancellationSource);
         cameraProtocolSender = new CameraProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
@@ -84,14 +79,8 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
         int sysId = targetEndpoint.getSystemId();
         mavlinkHandler.registerSystemDialect(sysId, dialect);
 
-        // TODO: use cleaner pattern?
+        //TODO: use cleaner pattern?
         cancellationSource.addListener(b -> mavlinkHandler.unRegisterSystemDialect(sysId));
-    }
-
-    @NonNull
-    protected MissionProtocolSender initMissionProtocolSender(
-            MavlinkHandler mavlinkHandler, MavlinkEndpoint targetEndpoint, CancellationSource cancellationSource) {
-        return new MissionProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
     }
 
     /**
@@ -176,13 +165,7 @@ public class MavlinkDroneConnection implements IMavlinkDroneConnection {
         return mavlinkCameraListener.connectedCamerasProperty();
     }
 
-    @Override
-    public CancellationSource getCancellationSource() {
+    CancellationSource getCancellationTokenSource() {
         return externalCancellationSource;
-    }
-
-    @Override
-    public MavType getMavType() {
-        return mavType;
     }
 }

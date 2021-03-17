@@ -8,12 +8,9 @@ package com.intel.missioncontrol.drone.connection;
 
 import com.intel.missioncontrol.drone.connection.mavlink.ConnectionProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.GrayhawkMessagesReceiver;
-import com.intel.missioncontrol.drone.connection.mavlink.GrayhawkMissionProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkEndpoint;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkHandler;
-import com.intel.missioncontrol.drone.connection.mavlink.MissionProtocolSender;
 import io.dronefleet.mavlink.MavlinkDialect;
-import io.dronefleet.mavlink.common.MavType;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
 import org.slf4j.Logger;
@@ -31,7 +28,6 @@ public class GrayhawkDroneConnection extends MavlinkDroneConnection {
     GrayhawkDroneConnection(
             MavlinkDroneConnectionItem connectionItem,
             MavlinkHandler mavlinkHandler,
-            MavType mavType,
             MavlinkDialect dialect,
             MavlinkEndpoint targetEndpoint,
             CancellationSource cancellationSource,
@@ -41,7 +37,6 @@ public class GrayhawkDroneConnection extends MavlinkDroneConnection {
         super(
             connectionItem,
             mavlinkHandler,
-            mavType,
             dialect,
             targetEndpoint,
             cancellationSource,
@@ -53,11 +48,5 @@ public class GrayhawkDroneConnection extends MavlinkDroneConnection {
 
     public GrayhawkMessagesReceiver getGrayhawkMessagesReceiver() {
         return grayhawkMessagesReceiver;
-    }
-
-    @Override
-    protected MissionProtocolSender initMissionProtocolSender(
-            MavlinkHandler mavlinkHandler, MavlinkEndpoint targetEndpoint, CancellationSource cancellationSource) {
-        return new GrayhawkMissionProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
     }
 }

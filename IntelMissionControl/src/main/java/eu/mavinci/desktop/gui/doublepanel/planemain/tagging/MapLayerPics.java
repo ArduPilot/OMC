@@ -6,11 +6,6 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.ui.sidepane.analysis.tasks.CreateDatasetSubTasks;
-import com.intel.missioncontrol.ui.sidepane.analysis.tasks.CreateDatasetTask;
-import com.intel.missioncontrol.ui.sidepane.analysis.tasks.IUpdateProgressMessage;
-import com.intel.missioncontrol.utils.IBackgroundTaskManager;
-import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerWW;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.MapLayer;
@@ -214,17 +209,6 @@ public class MapLayerPics extends MapLayer implements IMapLayerWW, ISectorRefere
     private boolean isJustNowGeneratingPreview = false;
 
     public void generatePreview() {
-        generatePreview(null, null, null);
-    }
-
-    public void generatePreview(IUpdateProgressMessage updateMethod, CreateDatasetTask datasetTask) {
-        generatePreview(null, updateMethod, datasetTask);
-    }
-
-    public void generatePreview(
-            IBackgroundTaskManager.BackgroundTask task,
-            IUpdateProgressMessage updateMethod,
-            CreateDatasetTask datasetTask) { // IUpdateProgressMessage
         if (isJustNowGeneratingPreview) {
             return;
         }
@@ -249,9 +233,6 @@ public class MapLayerPics extends MapLayer implements IMapLayerWW, ISectorRefere
         }
 
         isJustNowGeneratingPreview = true;
-
-        final long constructionTime = System.currentTimeMillis();
-
         Runnable r =
             new Runnable() {
 
@@ -268,28 +249,10 @@ public class MapLayerPics extends MapLayer implements IMapLayerWW, ISectorRefere
                             //                        }
                             //                        mon.setProgressNote(Language.getFormat(KEY + ".mon.note", i,
                             // sizeMapLayer()), i);
-                            if (task != null) {
-                                task.updateProgress(i, sizeMapLayer());
-                            }
-
-                            if (updateMethod != null) {
-                                updateMethod.update(
-                                    CreateDatasetSubTasks.GENERATE_THUMBFILES,
-                                    i,
-                                    sizeMapLayer(),
-                                    "",
-                                    i,
-                                    sizeMapLayer());
-                            }
-
-                            if ((datasetTask != null && datasetTask.isCancelled())
-                                    || (task != null && task.isCancelled())) {
-                                return;
-                            }
-
                             IMapLayer layer = getMapLayer(i);
                             if (layer instanceof MapLayerMatch) {
                                 final MapLayerMatch match = (MapLayerMatch)layer;
+
                                 try {
                                     if (!match.getCurPhotoFile().thumpFileExists()) {
                                         match.getCurPhotoFile().generateThumpFile();
@@ -328,21 +291,7 @@ public class MapLayerPics extends MapLayer implements IMapLayerWW, ISectorRefere
                                     }
                                 }
                             });
-
-                        if (task != null) task.updateProgress(sizeMapLayer(), sizeMapLayer());
-                        if (updateMethod != null) {
-                            updateMethod.update(
-                                CreateDatasetSubTasks.GENERATE_THUMBFILES,
-                                sizeMapLayer(),
-                                sizeMapLayer(),
-                                "",
-                                sizeMapLayer(),
-                                sizeMapLayer());
-                        }
-
                     } finally {
-                        final long usedTime = System.currentTimeMillis() - constructionTime;
-                        Debug.getLog().log(Level.INFO,"Generated previews for the dataset, Duration: " + StringHelper.secToShortDHMS(usedTime / 1000.));
                         isJustNowGeneratingPreview = false;
                         MapLayerPics.this.layer.resetVisibility();
                     }

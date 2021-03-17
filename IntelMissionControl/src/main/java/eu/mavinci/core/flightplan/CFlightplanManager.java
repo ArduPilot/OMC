@@ -6,15 +6,16 @@
 
 package eu.mavinci.core.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.core.plane.ICAirplane;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerConnectionEstablished;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerFlightPlanXML;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerStartPos;
 import eu.mavinci.desktop.main.debug.Debug;
+import eu.mavinci.flightplan.LandingPoint;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
@@ -90,7 +91,7 @@ public class CFlightplanManager
     public void recv_setFlightPlanXML(String plan, Boolean reentry, Boolean succeed) {
         // System.out.println("recv_setFl:" + plan + succeed);
         if (!succeed) {
-            Debug.getLog().log(Level.WARNING, "problems processing mission !!\n" + plan);
+            Debug.getLog().log(Level.WARNING, "problems processing flightplan !!\n" + plan);
             return;
         }
 
@@ -114,7 +115,8 @@ public class CFlightplanManager
 
             fp.fromXML(plan);
             if (plan.equals("")) {
-                IHardwareConfigurationManager manager = StaticInjector.getInstance(IHardwareConfigurationManager.class);
+                IHardwareConfigurationManager manager =
+                    DependencyInjector.getInstance().getInstanceOf(IHardwareConfigurationManager.class);
                 fp.updateHardwareConfiguration(manager.getImmutableDefault());
             }
 
@@ -145,7 +147,8 @@ public class CFlightplanManager
 
     public CFlightplanManager(final ICAirplane plane) {
         this.plane = plane;
-        IHardwareConfigurationManager manager = StaticInjector.getInstance(IHardwareConfigurationManager.class);
+        IHardwareConfigurationManager manager =
+            DependencyInjector.getInstance().getInstanceOf(IHardwareConfigurationManager.class);
         hardwareConfigurationOnAir = manager.getImmutableDefault();
         initOnAirFlightplan();
         plane.addListener(this);
@@ -187,7 +190,7 @@ public class CFlightplanManager
         Debug.getLog()
             .log(
                 Level.FINE,
-                "really transmitt mission, all tests passed or overwritten by user "
+                "really transmitt FP, alls tests passed or overwritten by user "
                     + fp.toXMLwithHash()
                     + "@"
                     + reentryPoint);

@@ -6,13 +6,13 @@
 
 package eu.mavinci.core.helper;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.QuantityFormat;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.measure.UnitInfo;
 import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public class StringHelper {
 
     private static final QuantityFormat quantityFormat =
-        new AdaptiveQuantityFormat(StaticInjector.getInstance(IQuantityStyleProvider.class));
+        new AdaptiveQuantityFormat(DependencyInjector.getInstance().getInstanceOf(IQuantityStyleProvider.class));
 
     public static final String[] unitNames = {
         "Y", "Z", "E", "P", "T", "G", "M", "k", "", "m", "μ", "n", "p", "f", "a", "z", "y"

@@ -9,13 +9,11 @@ package com.intel.missioncontrol.map.worldwind.layers.aircraft;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
 import com.intel.missioncontrol.map.ILayer;
 import com.intel.missioncontrol.map.IMapModel;
 import com.intel.missioncontrol.map.LayerGroup;
 import com.intel.missioncontrol.map.LayerGroupType;
 import com.intel.missioncontrol.map.LayerName;
-import com.intel.missioncontrol.map.worldwind.IWWMapView;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.modules.MapModule;
@@ -51,29 +49,24 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
     private final List<IMapLayer> legacyMapLayers = new ArrayList<>();
     private final Dispatcher dispatcher;
     private final IMapModel mapModel;
-    private final IWWMapView mapView;
     private final AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings;
-    private final ILinkBoxConnectionService linkBoxConnectionService;
 
     @Inject
     public AircraftLayerGroup(
             @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
             IMapModel mapModel,
-            IWWMapView mapView,
             IApplicationContext applicationContext,
             INavigationService navigationService,
             ILicenceManager licenceManager,
             GeneralSettings generalSettings,
-            AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings,
-            ILinkBoxConnectionService linkBoxConnectionService) {
+            AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings) {
         super(LayerGroupType.AIRCRAFT_GROUP);
         this.dispatcher = dispatcher;
         this.mapModel = mapModel;
-        this.mapView = mapView;
         this.aircraftLayerVisibilitySettings = aircraftLayerVisibilitySettings;
-        this.currentMission.bind(applicationContext.currentMissionProperty());
-        this.linkBoxConnectionService = linkBoxConnectionService;
-        this.currentMission.addListener((observable, oldValue, newValue) -> revalidate(newValue), dispatcher::run);
+        this.currentMission.bind(applicationContext.currentLegacyMissionProperty());
+        this.currentMission.addListener(
+            (observable, oldValue, newValue) -> revalidate(newValue), dispatcher::runLaterAsync);
         setName(new LayerName("%" + getClass().getName()));
 
         internalProperty()
@@ -86,14 +79,6 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
                     navigationService.workflowStepProperty(),
                     generalSettings.operationLevelProperty(),
                     licenceManager.isGrayHawkEditionProperty()));
-    }
-
-    private static ILayer createLayer(
-            Layer wwLayer, Dispatcher dispatcher, String name, AsyncProperty<Boolean> enabled) {
-        ILayer layer = new WWLayerWrapper(wwLayer, dispatcher);
-        layer.setName(new LayerName(name));
-        layer.enabledProperty().bindBidirectional(enabled);
-        return layer;
     }
 
     private void revalidate(Mission mission) {
@@ -133,7 +118,7 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
                     prefix + ".text",
                     aircraftLayerVisibilitySettings.model3DProperty()),
                 createLayer(
-                    new TrackLayer(plane, mapView),
+                    new TrackLayer(plane),
                     dispatcher,
                     prefix + ".track",
                     aircraftLayerVisibilitySettings.trackProperty()),
@@ -163,10 +148,18 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
                     prefix + ".camView",
                     aircraftLayerVisibilitySettings.cameraFieldOfViewProperty()),
                 createLayer(
-                    new BackendLayer(linkBoxConnectionService),
+                    new BackendLayer(plane),
                     dispatcher,
                     prefix + ".gcs",
                     aircraftLayerVisibilitySettings.groundStationProperty()));
+    }
+
+    private static ILayer createLayer(
+            Layer wwLayer, Dispatcher dispatcher, String name, AsyncProperty<Boolean> enabled) {
+        ILayer layer = new WWLayerWrapper(wwLayer, dispatcher);
+        layer.setName(new LayerName(name));
+        layer.enabledProperty().bindBidirectional(enabled);
+        return layer;
     }
 
     public AircraftLayerVisibilitySettings getAircraftLayerVisibility() {

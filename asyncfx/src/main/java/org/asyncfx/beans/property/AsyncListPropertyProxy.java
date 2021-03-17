@@ -165,7 +165,7 @@ class AsyncListPropertyProxy<E> extends AsyncListProperty<E> {
 
     @Override
     public <U> void bind(
-            ObservableValue<? extends U> observable, ValueConverter<U, AsyncObservableList<E>> converter) {
+            ObservableValue<? extends U> observable, ValueConverter<U, ? extends AsyncObservableList<E>> converter) {
         if (peer != null) {
             peer.bind(observable, converter);
         }

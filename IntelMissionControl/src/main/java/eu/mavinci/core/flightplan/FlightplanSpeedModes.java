@@ -6,9 +6,9 @@
 
 package eu.mavinci.core.flightplan;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
-public enum FlightplanSpeedModes implements IKeepAll {
+public enum FlightplanSpeedModes implements Localizable {
     MANUAL_CONSTANT, // manually the same for all waypoints
     AUTOMATIC_CONSTANT, // just use the one from platform description or maybe reduce it to some logic, but same for all
     // points

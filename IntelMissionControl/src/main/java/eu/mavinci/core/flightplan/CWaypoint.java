@@ -21,7 +21,7 @@ public abstract class CWaypoint extends AWaypoint implements IFlightplanIgnoreab
     protected SpeedMode speedMode = SpeedMode.normal;
     protected boolean assertYawOn = false;
     protected double assertYaw = 0;
-    protected double speedMpSec = -1; // negative means use the values from mission photo settings
+    protected double speedMpSec = -1; // negative means use the values from flight plan photo settings
 
     protected int radius = 0; // in cm
 

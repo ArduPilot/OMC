@@ -6,7 +6,7 @@
 
 package com.intel.missioncontrol.api.support;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
 /**
  * This enumeration defines the few types of error categories available in the drop down list in the "Support Request"
@@ -23,7 +23,7 @@ import eu.mavinci.core.obfuscation.IKeepAll;
  *
  * @author aiacovici
  */
-public enum ErrorCategory implements IKeepAll {
+public enum ErrorCategory implements Localizable {
     SESSION_ISSUE,
     CLOSED_UNEXPECTEDLY,
     BEHAVED_UNPREDICTABLY,

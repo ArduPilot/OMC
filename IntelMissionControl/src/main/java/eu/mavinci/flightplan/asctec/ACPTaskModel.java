@@ -10,16 +10,16 @@ import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.measure.Unit;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import eu.mavinci.desktop.helper.gdal.SRStransformCacheEntry;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
 /**
- * ACPTaskModel is an abstraction for the AscTec mission. It contains ACPTasks (analogy of way points). It can be
+ * ACPTaskModel is an abstraction for the AscTec flight plan. It contains ACPTasks (analogy of way points). It can be
  * transformed to a list of ATOS_WAYPOINT to be send via the ACI or it can be exported to the xml in AscTec project
  * format
  *
@@ -182,7 +182,7 @@ public class ACPTaskModel {
         wp.camAngleYaw = (short)(yaw * 10);
 
         if (isLocal) {
-            SRStransformCacheEntry local;
+            Vec4 local;
             try {
                 Ensure.notNull(srs, "srs");
                 local = srs.fromWgs84(new Position(Angle.fromDegrees(t.lat), Angle.fromDegrees(t.lon), (t.height)));

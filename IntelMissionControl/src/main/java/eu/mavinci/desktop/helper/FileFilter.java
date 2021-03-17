@@ -70,8 +70,8 @@ public enum FileFilter {
     JPEG_ASC_TEC("AscTec JPEG", "*.jpg"),
     FALCON8_EXPORT("AscTecNavigator.exe"),
     FALCON8PLUS_EXPORT("AscTecNavigator.exe"),
-    FLIGHTPLAN("Mission Control missions", "*.fml"),
-    ANP("Intel® Falcon 8+ project", "*.anp"),
+    FLIGHTPLAN("Mission Control flight plans", "*.fml"),
+    ANP("Intel® Falcon 8+ flight plan", "*.anp"),
     ACP("Intel® Falcon 8+ teach-in project", "*.acp"),
     AGISOFT_PHOTOSCAN_APPLICATION("Agisoft Photo Scan", "*.exe"),
     AGISOFT_METASHAPE_APPLICATION("Agisoft Metashape", "*.exe"),
@@ -81,9 +81,7 @@ public enum FileFilter {
     THREED_SURVEY_APPLICATION("3D Survey", "*.exe"),
     CSV("CSV", "*.CSV"),
     OBJ("OBJ", "*.obj"),
-    RAW("RAW", "*.tif", "*.tiff"),
-    JPEG_RAW_XMP("JPEG, RAW, XMP", "*.jpg", "*.jpeg", "*.tif", "*.tiff", "*.xmp")
-    ;
+    RAW("RAW", "*.tif", "*.tiff");
 
     private final String name;
     private final String[] extensions;

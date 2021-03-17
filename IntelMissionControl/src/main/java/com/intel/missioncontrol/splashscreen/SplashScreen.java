@@ -6,27 +6,16 @@
 
 package com.intel.missioncontrol.splashscreen;
 
-import static com.intel.missioncontrol.utils.VersionProvider.BUILD_TIME_FORMAT;
-import static com.intel.missioncontrol.utils.VersionProvider.PROPERTIES_BUILD_COMMIT_TIME;
-import static com.intel.missioncontrol.utils.VersionProvider.PROPERTIES_FILE_NAME;
-import static com.intel.missioncontrol.utils.VersionProvider.PROPERTIES_GIT_BUILD_VERSION;
-
+import com.intel.missioncontrol.helper.ManifestInfo;
 import com.intel.missioncontrol.diagnostics.Debugger;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
 import com.sun.jna.platform.win32.WinDef;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.Properties;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -65,7 +54,7 @@ public class SplashScreen extends Application {
         FXMLLoader loader = new FXMLLoader(SplashScreenView.class.getResource("SplashScreenView.fxml"));
         Region view = loader.load();
         SplashScreenView controller = loader.getController();
-        controller.setVersion(getVersionString());
+        controller.setVersion(ManifestInfo.getBranchName() + "_" + ManifestInfo.getCommitHash());
 
         Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         primaryStage.initStyle(StageStyle.UTILITY);
@@ -107,36 +96,6 @@ public class SplashScreen extends Application {
     public void stop() throws Exception {
         mailslotServer.close();
         super.stop();
-    }
-
-    private String getVersionString() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME)) {
-            Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8.name());
-            Properties properties = new Properties();
-            properties.load(reader);
-            return properties.getProperty(PROPERTIES_GIT_BUILD_VERSION) + "." + getBuildCommitTimeAsString(properties);
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
-    private String getBuildCommitTimeAsString(Properties properties) {
-        String commitTime;
-        ZonedDateTime dateTime;
-        try {
-            dateTime =
-                ZonedDateTime.parse(getBuildCommitTime(properties), DateTimeFormatter.ofPattern(BUILD_TIME_FORMAT));
-            final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
-            commitTime = FORMATTER.format(dateTime);
-        } catch (Exception e) {
-            commitTime = "201707181900";
-        }
-
-        return commitTime;
-    }
-
-    private String getBuildCommitTime(Properties properties) {
-        return properties.getProperty(PROPERTIES_BUILD_COMMIT_TIME);
     }
 
     public static void show(String mailslotName) throws IOException {

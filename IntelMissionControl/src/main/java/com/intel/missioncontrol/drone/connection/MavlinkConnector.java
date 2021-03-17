@@ -15,7 +15,6 @@ import com.intel.missioncontrol.drone.connection.mavlink.TcpClient;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import io.dronefleet.mavlink.common.Heartbeat;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 import org.asyncfx.concurrent.CancellationSource;
@@ -25,7 +24,7 @@ import org.asyncfx.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavlinkConnectionItem> implements IConnector<TComponent> {
+public abstract class MavlinkConnector<T, TConnectionItem extends IMavlinkConnectionItem> implements IConnector<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MavlinkConnector.class);
 
     private static final Duration tcpConnectTimeout = Duration.ofSeconds(5);
@@ -43,10 +42,6 @@ public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavl
             IConnectionListenerService connectionListenerService,
             IHardwareConfigurationManager hardwareConfigurationManager,
             int componentId) {
-        if (!(connectionListenerService.getConnectionListener() instanceof MavlinkConnectionListener)) {
-            throw new NotImplementedException("Only mavlink listeners are currently supported");
-        }
-
         this.connectionItem = connectionItem;
         this.connectionListenerService = connectionListenerService;
         this.hardwareConfigurationManager = hardwareConfigurationManager;
@@ -66,7 +61,7 @@ public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavl
         return connectionItem;
     }
 
-    protected abstract Future<TComponent> createComponentAsync(
+    protected abstract T create(
             Heartbeat heartbeat,
             TConnectionItem connectionItem,
             MavlinkHandler mavlinkHandler,
@@ -76,27 +71,15 @@ public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavl
             Future<Void> heartbeatSenderFuture);
 
     @Override
-    public Future<TComponent> connectAsync() {
-        return connectImplAsync()
-            .thenFinallyApply(
-                t -> t,
-                e -> {
-                    if (e.getFirstCause() instanceof ClosedChannelException) {
-                        LOGGER.info("MAVLink network channel is closed");
-                    }
-                    throw e;
-                });
-    }
+    public Future<T> connectAsync() {
+        if (!(connectionListenerService.getConnectionListener() instanceof MavlinkConnectionListener)) {
+            return Futures.failed(new NotImplementedException("Only mavlink listeners are currently supported"));
+        }
 
-    private Future<TComponent> connectImplAsync() {
         cancellationSource = new CancellationSource();
 
-        FutureCompletionSource<TComponent> fcs = new FutureCompletionSource<>();
-        fcs.getFuture().whenFailed(e -> cancellationSource.cancel()).whenCancelled(() -> cancellationSource.cancel());
-
         // connect & get handler:
-
-        connectAndGetHandlerAsync(cancellationSource)
+        return connectAndGetHandlerAsync(cancellationSource)
             .thenApplyAsync(
                 handler -> {
                     this.mavlinkHandler = handler;
@@ -106,14 +89,16 @@ public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavl
                         new ConnectionProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
 
                     heartbeatSenderFuture =
-                        connectionProtocolSender.startSendingHeartbeatsAsync().whenFailed(fcs::setException);
+                        connectionProtocolSender
+                            .startSendingHeartbeatsAsync()
+                            .whenFailed(e -> cancellationSource.cancel());
 
                     // Start waiting for heartbeat:
                     return expectHeartbeatAsync();
                 })
-            .thenApplyAsync(
+            .thenApply(
                 heartbeat ->
-                    createComponentAsync(
+                    create(
                         heartbeat,
                         connectionItem,
                         mavlinkHandler,
@@ -121,11 +106,7 @@ public abstract class MavlinkConnector<TComponent, TConnectionItem extends IMavl
                         cancellationSource,
                         connectionProtocolSender,
                         heartbeatSenderFuture))
-            .whenFailed(fcs::setException)
-            .whenSucceeded(fcs::setResult)
-            .whenCancelled(fcs::setCancelled);
-
-        return fcs.getFuture();
+            .whenFailed(e -> cancellationSource.cancel());
     }
 
     private Future<MavlinkHandler> connectAndGetHandlerAsync(CancellationSource cancellationSource) {

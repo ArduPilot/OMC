@@ -24,6 +24,8 @@ import com.intel.missioncontrol.logging.ProvisioningLogger;
 import com.intel.missioncontrol.logging.ReseatableFileAppender;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.map.SelectionManager;
+import com.intel.missioncontrol.project.IProjectManager;
+import com.intel.missioncontrol.project.ProjectManager;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.dialogs.MockDialogService;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
@@ -44,6 +46,7 @@ public class MockBaseModule extends AbstractModule {
         // Singleton scope
         bind(IVersionProvider.class).toInstance(versionProvider);
         bind(IPathProvider.class).toInstance(pathProvider);
+        bind(IProjectManager.class).to(ProjectManager.class);
         bind(IApplicationContext.class).to(ApplicationContext.class).in(Singleton.class);
         bind(IDialogService.class).to(MockDialogService.class).in(Singleton.class);
         // bind(IDialogContextProvider.class).to(DialogContextProvider.class).in(Singleton.class);

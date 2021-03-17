@@ -11,11 +11,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.livevideo.WrappedImageView?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml/2019.1" fx:id="root"
       fx:controller="com.intel.missioncontrol.ui.livevideo.LiveVideoDialogView">
     <Region VBox.vgrow="ALWAYS"/>
-    <fx:include source="LiveVideoScreenView.fxml" fx:id="liveVideoScreen"/>
+    <VBox alignment="CENTER">
+        <WrappedImageView fx:id="liveVideo" style="-fx-background-color: theme-gray-55"/>
+    </VBox>
     <Region VBox.vgrow="ALWAYS"/>
 
     <HBox alignment="CENTER_LEFT">

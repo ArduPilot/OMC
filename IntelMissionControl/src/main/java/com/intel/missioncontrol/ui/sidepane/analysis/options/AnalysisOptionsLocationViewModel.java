@@ -121,7 +121,7 @@ public class AnalysisOptionsLocationViewModel extends ViewModelBase {
         this.dialogService = dialogService;
         this.srsManager = srsManager;
         currentSrs.bindBidirectional(
-            propertyPathStore.from(applicationContext.currentMissionProperty()).selectObject(Mission::srsProperty));
+            propertyPathStore.from(applicationContext.currentLegacyMissionProperty()).selectObject(Mission::srsProperty));
 
         assumedRtkPostion = new SrsPosition(quantityStyleProvider);
         manualRtkPostion = new SrsPosition(quantityStyleProvider);
@@ -173,7 +173,7 @@ public class AnalysisOptionsLocationViewModel extends ViewModelBase {
                 BindingUtils.rebind(rtkAvailable, Matching::rtkAvailableProperty, newValue1);
             });
         matchingProperty.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty)); // should trigger the listener above
 
         BooleanBinding rule =
@@ -376,11 +376,5 @@ public class AnalysisOptionsLocationViewModel extends ViewModelBase {
         dialogService
             .requestDialogAndWait(this, SpatialReferenceChooserViewModel.class, () -> currentSrs)
             .getDialogResult();
-    }
-
-    public void resetAssumedRtkPosition() {
-        antennaHeightAdapter.set(0.);
-        geoidOffsetAdapter.set(0.);
-        useAssumedRtkPosition();
     }
 }

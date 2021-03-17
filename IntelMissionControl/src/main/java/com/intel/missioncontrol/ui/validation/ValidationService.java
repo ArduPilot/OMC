@@ -92,12 +92,12 @@ public class ValidationService implements IValidationService {
 
         observedFlightPlanProperty()
             .bind(
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentFlightPlanProperty));
 
         observedMatchingProperty()
             .bind(
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentMatchingProperty));
 
         generalSettings.systemOfMeasurementProperty().addListener((observable, oldValue, newValue) -> revalidateAll());

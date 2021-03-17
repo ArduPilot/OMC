@@ -143,7 +143,7 @@ public class MapViewOptionsViewModel extends ViewModelBase {
             });
 
         currentMatching.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty));
     }
 

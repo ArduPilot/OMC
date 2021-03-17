@@ -9,6 +9,8 @@ package com.intel.missioncontrol.modules;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.intel.missioncontrol.drone.validation.CameraValidator;
+import com.intel.missioncontrol.drone.validation.FlightValidationService;
+import com.intel.missioncontrol.drone.validation.IFlightValidationService;
 import com.intel.missioncontrol.ui.validation.flightplan.AirspaceDistanceValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.AoiCollisionValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.ElevationModelConsistencyValidator;
@@ -51,6 +53,7 @@ public class FlightplanValidationModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(WaypointSeparationValidator.Factory.class));
         install(new FactoryModuleBuilder().build(CameraValidator.Factory.class));
         install(new FactoryModuleBuilder().build(NumberOfWaypointsValidator.Factory.class));
+        bind(IFlightValidationService.class).to(FlightValidationService.class).asEagerSingleton();
     }
 
 }

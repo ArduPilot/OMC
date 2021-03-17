@@ -10,9 +10,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +18,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.asyncfx.AsyncFX;
 import org.asyncfx.concurrent.Future.RunnableWithProgress;
@@ -44,23 +40,14 @@ public class FutureExecutorService implements ListeningExecutorService {
     private static final FutureExecutorService INSTANCE = new FutureExecutorService();
 
     static class ExecutorThread extends Thread {
-        ExecutorThread(Runnable runnable, String name) {
-            super(runnable, name);
+        ExecutorThread(Runnable runnable) {
+            super(runnable);
         }
 
         void uncaughtException(Throwable throwable) {
-            String message =
-                "Uncaught exception in async execution [thread = " + Thread.currentThread().getName() + "]";
             Logger logger = getLogger();
-            if (logger != null) {
-                logger.error(message, throwable);
-            } else {
-                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                try (PrintStream stream = new PrintStream(out, true, StandardCharsets.UTF_8)) {
-                    throwable.printStackTrace(stream);
-                    System.err.println(message + "\r\n" + out.toString(StandardCharsets.UTF_8));
-                }
-            }
+            logger.error(
+                "Uncaught exception in async execution [thread = " + Thread.currentThread().getName() + "]", throwable);
         }
     }
 
@@ -74,16 +61,14 @@ public class FutureExecutorService implements ListeningExecutorService {
         return logger;
     }
 
-    private static AtomicInteger threadCount = new AtomicInteger(0);
+    private static int threadCount;
 
     private final ListeningExecutorService EXECUTOR_SERVICE =
         MoreExecutors.listeningDecorator(
             java.util.concurrent.Executors.newCachedThreadPool(
                 runnable -> {
-                    Thread thread =
-                        new ExecutorThread(
-                            runnable,
-                            FutureExecutorService.class.getSimpleName() + "-thread-" + threadCount.getAndIncrement());
+                    Thread thread = new ExecutorThread(runnable);
+                    thread.setName(FutureExecutorService.class.getSimpleName() + "-thread-" + threadCount++);
                     thread.setDaemon(true);
                     thread.setUncaughtExceptionHandler(
                         (t, e) -> {
@@ -91,17 +76,8 @@ public class FutureExecutorService implements ListeningExecutorService {
                                 return;
                             }
 
-                            String message = "Uncaught exception in async execution [thread = " + t.getName() + "]";
                             Logger logger = getLogger();
-                            if (logger != null) {
-                                logger.error(message, e);
-                            } else {
-                                final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                                try (PrintStream stream = new PrintStream(out, true, StandardCharsets.UTF_8)) {
-                                    e.printStackTrace(stream);
-                                    System.err.println(message + "\r\n" + out.toString(StandardCharsets.UTF_8));
-                                }
-                            }
+                            logger.error("Uncaught exception in async execution [thread = " + t.getName() + "]", e);
                         });
 
                     AsyncFX.Accessor.registerThread(thread);
@@ -113,10 +89,8 @@ public class FutureExecutorService implements ListeningExecutorService {
             java.util.concurrent.Executors.newScheduledThreadPool(
                 2,
                 runnable -> {
-                    Thread thread =
-                        new ExecutorThread(
-                            runnable,
-                            FutureExecutorService.class.getSimpleName() + "-thread-" + threadCount.getAndIncrement());
+                    Thread thread = new ExecutorThread(runnable);
+                    thread.setName(FutureExecutorService.class.getSimpleName() + "-thread-" + threadCount++);
                     thread.setDaemon(true);
                     thread.setUncaughtExceptionHandler(
                         (t, e) -> {

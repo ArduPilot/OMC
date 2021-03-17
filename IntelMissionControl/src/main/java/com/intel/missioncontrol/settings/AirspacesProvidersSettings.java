@@ -10,7 +10,6 @@ import com.airmap.airmapsdk.networking.services.MappingService;
 import com.intel.missioncontrol.airmap.AirMap2Source;
 import com.intel.missioncontrol.airmap.layer.AirMapTileLoader2;
 import com.intel.missioncontrol.airspaces.AirspaceProvider;
-import com.intel.missioncontrol.airtraffic.AirtrafficProvider;
 import eu.mavinci.airspace.EAirspaceManager;
 import java.util.HashMap;
 import org.asyncfx.beans.AsyncObservable;
@@ -94,10 +93,6 @@ public class AirspacesProvidersSettings implements ISettings {
     private final AsyncObjectProperty<AirspaceProvider> airspaceProvider =
         new SimpleAsyncObjectProperty<>(
             this, new PropertyMetadata.Builder<AirspaceProvider>().initialValue(AirspaceProvider.AIRMAP2).create());
-
-    private final AsyncObjectProperty<AirtrafficProvider> airtrafficProvider =
-        new SimpleAsyncObjectProperty<>(
-            this, new PropertyMetadata.Builder<AirtrafficProvider>().initialValue(AirtrafficProvider.NONE).create());
 
     private final AsyncBooleanProperty showProhibitedFlightZonesOnly =
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
@@ -232,24 +227,12 @@ public class AirspacesProvidersSettings implements ISettings {
         return minimumVerticalDistance;
     }
 
-    public Number getMinimumHorizontalDistance() {
-        return minimumHorizontalDistance.get();
-    }
-
-    public Number getMinimumVerticalDistance() {
-        return minimumVerticalDistance.get();
-    }
-
     public AsyncObjectProperty<AirspaceProvider> airspaceProviderProperty() {
         return airspaceProvider;
     }
 
     public AirspaceProvider getAirspaceProvider() {
         return airspaceProvider.getValue() != null ? airspaceProvider.getValue() : FAILBACK_AIRSPACE_PROVIDER;
-    }
-
-    public AirtrafficProvider getAirtrafficProvider() {
-        return airtrafficProvider.get();
     }
 
     public boolean showProhibitedFlightZonesOnly() {

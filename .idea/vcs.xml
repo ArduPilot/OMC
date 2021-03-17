@@ -5,7 +5,6 @@
     <mapping directory="$PROJECT_DIR$/toolchain/javafx-sdk-11.0.2-mirror" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/toolchain/javafx-sdk-12-mirror" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/toolchain/javafx-sdk-12.0.1-mirror" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/toolchain/javafx-sdk-13.0.2-mirror" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/toolchain/openjdk-11.0.2-mirror" vcs="Git" />
   </component>
 </project>

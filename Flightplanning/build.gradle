@@ -1,0 +1,40 @@
+/**
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
+plugins {
+    id 'java-library'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
+group 'com.intel'
+version '0-SNAPSHOT'
+
+sourceCompatibility = 11
+compileJava.options.encoding = 'UTF-8'
+
+test {
+    exclude '**/*'
+}
+
+javafx {
+    version = '12.0.1'
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.graphics' ]
+    configuration = 'compileOnly'
+}
+
+repositories {
+    maven { url "http://jcenter.bintray.com" }
+}
+
+dependencies {
+    implementation project(':imc-core')
+    implementation "com.github.ajalt:clikt:1.6.0"
+    implementation "org.jmonkeyengine:jme3-core:3.2.0-stable"
+    implementation "org.jmonkeyengine:jme3-desktop:3.2.0-stable"
+    implementation "org.jmonkeyengine:jme3-lwjgl:3.2.0-stable"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.5.1"
+
+}

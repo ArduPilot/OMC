@@ -7,20 +7,19 @@
 package com.intel.missioncontrol.ui;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 
+public enum Theme implements Localizable {
+    MOUSE(
+        "/com/intel/missioncontrol/styles/themes/colors-light.css",
+        "/com/intel/missioncontrol/styles/icons.css",
+        "/com/intel/missioncontrol/styles/themes/sizes-desktop.css",
+        "/com/intel/missioncontrol/styles/controls.css"),
 
-@Localizable
-public enum Theme implements IKeepAll {
-    MOUSE("/com/intel/missioncontrol/styles/themes/colors-light.css",
-                "/com/intel/missioncontrol/styles/icons.css",
-                "/com/intel/missioncontrol/styles/themes/sizes-desktop.css",
-            "/com/intel/missioncontrol/styles/controls.css"),
-
-    TOUCH("/com/intel/missioncontrol/styles/themes/colors-light.css",
-                "/com/intel/missioncontrol/styles/icons.css",
-                "/com/intel/missioncontrol/styles/themes/sizes-touch.css",
-            "/com/intel/missioncontrol/styles/controls.css");
+    TOUCH(
+        "/com/intel/missioncontrol/styles/themes/colors-light.css",
+        "/com/intel/missioncontrol/styles/icons.css",
+        "/com/intel/missioncontrol/styles/themes/sizes-touch.css",
+        "/com/intel/missioncontrol/styles/controls.css");
 
     public static class Accessor {
         public static void setCurrentTheme(Theme theme) {
@@ -43,7 +42,7 @@ public enum Theme implements IKeepAll {
     }
 
     public String[] getStylesheets() {
-        return new String[]{colorsSchemeUrl, iconsUrl, sizesUrl, controlSkinUrl};
+        return new String[] {colorsSchemeUrl, iconsUrl, sizesUrl, controlSkinUrl};
     }
 
     public static Theme currentTheme() {

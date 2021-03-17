@@ -126,10 +126,6 @@ public class GeneralSettings implements ISettings, IQuantityStyleProvider {
 
     private AsyncBooleanProperty logDefaultOn = new SimpleAsyncBooleanProperty(this);
 
-
-    private AsyncBooleanProperty publishAdsb = new SimpleAsyncBooleanProperty(this);
-
-
     private SimpleStringProperty defaultCameraFilename = new SimpleStringProperty(this, "defaultCameraFilename");
     private SimpleIntegerProperty autoClearingIntervall = new SimpleIntegerProperty(this, "autoClearingIntervall", 30);
 
@@ -434,10 +430,6 @@ public class GeneralSettings implements ISettings, IQuantityStyleProvider {
 
     public Boolean getLogDefaultOn() {
         return logDefaultOn.get();
-    }
-
-    public Boolean getPublishAdsb() {
-        return publishAdsb.get();
     }
 
     public SimpleStringProperty getDefaultCameraFilenameProperty() {

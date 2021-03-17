@@ -23,7 +23,7 @@ public class ConnectionProtocolSender extends PayloadSender {
         super(recipient, handler, cancellationSource);
     }
 
-    public Future<Void> sendHeartbeatAsync() {
+    private Future<Void> sendHeartbeatAsync() {
         return sendMavlinkPacketWithPayloadAsync(
             new Heartbeat.Builder()
                 .type(MavType.MAV_TYPE_GCS)

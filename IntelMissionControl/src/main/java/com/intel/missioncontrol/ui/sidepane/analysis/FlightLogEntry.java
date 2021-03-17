@@ -39,14 +39,11 @@ public class FlightLogEntry {
     private final ObjectProperty<Instant> date = new SimpleObjectProperty<>();
     private final ObjectProperty<Duration> duration = new SimpleObjectProperty<>();
     private final ObjectProperty<File> imageFolder = new SimpleObjectProperty<>();
-    private final IntegerProperty triggerCount = new SimpleIntegerProperty();
     private final IntegerProperty imageCount = new SimpleIntegerProperty();
     private final BooleanProperty selected = new SimpleBooleanProperty();
     private final BooleanProperty readingLogFile = new SimpleBooleanProperty();
     private final BooleanProperty hasRtk = new SimpleBooleanProperty();
     private final BooleanProperty isFalcon = new SimpleBooleanProperty();
-    private final BooleanProperty isJson = new SimpleBooleanProperty();
-    private final BooleanProperty isAscTecLog = new SimpleBooleanProperty();
     private final List<CPhotoLogLine> imageTriggers = new ArrayList<>();
 
     public FlightLogEntry(File path, boolean needToParse) {
@@ -64,12 +61,10 @@ public class FlightLogEntry {
                 && FileHelper.fetchFotos(path.getParentFile(), MFileFilter.jpegFilter.getWithoutFolders()) != null) {
             imageFolder.set(path.getParentFile());
             isFalcon.set(true);
-            isJson.set(true);
         }
 
         if (MFileFilter.ascTecLogFolder.acceptTrinityLog(path)) {
             isFalcon.set(true);
-            isAscTecLog.set(true);
         }
 
         this.readingLogFile.set(true);
@@ -98,7 +93,7 @@ public class FlightLogEntry {
         dispatcher.run(
             () -> {
                 if (future.isSuccess()) {
-                    triggerCount.set(cacheEntry.allLogs.size());
+                    imageCount.set(cacheEntry.allLogs.size());
                     hasRtk.set(cacheEntry.hasRtk);
                     if (!cacheEntry.allLogs.isEmpty()) {
                         CPhotoLogLine first = cacheEntry.allLogs.first();
@@ -106,11 +101,6 @@ public class FlightLogEntry {
                         CPhotoLogLine last = cacheEntry.allLogs.last();
                         setDuration(Duration.ofMillis(Math.round((last.getTimestamp() - first.getTimestamp()) * 1000)));
                         imageTriggers.addAll(cacheEntry.allLogs);
-                    }
-                    if(imageFolder.get() != null) {
-                        FileHelper.GetFotosResult images =
-                                FileHelper.fetchFotos(List.of(imageFolder.get()));
-                        imageCount.set(images.fotos.size());
                     }
                 }
 
@@ -136,10 +126,6 @@ public class FlightLogEntry {
 
     public ReadOnlyObjectProperty<Duration> durationProperty() {
         return duration;
-    }
-
-    public ReadOnlyIntegerProperty triggerCountProperty() {
-        return triggerCount;
     }
 
     public ReadOnlyIntegerProperty imageCountProperty() {
@@ -175,11 +161,7 @@ public class FlightLogEntry {
     }
 
     public int getImageCount() {
-       return imageCount.get();
-    }
-
-    public int getTriggerCount() {
-        return triggerCount.get();
+        return imageCount.get();
     }
 
     public boolean hasRtk() {
@@ -189,9 +171,7 @@ public class FlightLogEntry {
     public boolean isIsFalcon() {
         return isFalcon.get();
     }
-    public boolean isIsJson() {
-        return isJson.get();
-    }
+
     public void setDuration(Duration duration) {
         this.duration.set(duration);
     }

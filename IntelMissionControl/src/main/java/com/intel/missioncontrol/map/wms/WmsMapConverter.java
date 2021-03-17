@@ -102,10 +102,7 @@ public class WmsMapConverter implements LifecycleValueConverter<WmsMap, ILayer> 
                 ILayer imageLayer = new WWLayerWrapper(layer, dispatcher);
                 String name = layer.getName();
                 imageLayer.setName(new LayerName(name));
-                imageLayer
-                    .enabledProperty()
-                    .getExecutor()
-                    .execute(() -> imageLayer.enabledProperty().bindBidirectional(wmsMap.enabledProperty()));
+                imageLayer.enabledProperty().bindBidirectional(wmsMap.enabledProperty());
 
                 return imageLayer;
             } else if (component instanceof ElevationModel) {

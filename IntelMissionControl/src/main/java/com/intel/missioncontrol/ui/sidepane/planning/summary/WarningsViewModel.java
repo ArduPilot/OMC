@@ -6,8 +6,6 @@
 
 package com.intel.missioncontrol.ui.sidepane.planning.summary;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
@@ -18,6 +16,7 @@ import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsViewModel;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -38,20 +37,9 @@ public class WarningsViewModel extends ViewModelBase {
             new DelegateCommand(
                 () -> {
                     canShowEditWayointsDialogCommand.set(false);
-                    Futures.addCallback(
-                        dialogService.requestDialogAsync(this, EditWaypointsViewModel.class, false),
-                        new FutureCallback<>() {
-                            @Override
-                            public void onSuccess(EditWaypointsViewModel editWaypointsViewModel) {
-                                canShowEditWayointsDialogCommand.set(true);
-                            }
-
-                            @Override
-                            public void onFailure(Throwable throwable) {
-                                canShowEditWayointsDialogCommand.set(true);
-                            }
-
-                        });
+                    dialogService
+                        .requestDialogAsync(this, EditWaypointsViewModel.class, false)
+                        .whenDone(f -> canShowEditWayointsDialogCommand.set(true), Platform::runLater);
                 },
                 canShowEditWayointsDialogCommand);
         ;

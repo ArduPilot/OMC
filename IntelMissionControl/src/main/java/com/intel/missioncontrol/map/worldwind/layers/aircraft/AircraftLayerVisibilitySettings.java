@@ -6,17 +6,19 @@
 
 package com.intel.missioncontrol.map.worldwind.layers.aircraft;
 
-import com.intel.missioncontrol.settings.ISettings;
-import com.intel.missioncontrol.settings.SettingsMetadata;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
+import com.intel.missioncontrol.settings.ISettings;
+import com.intel.missioncontrol.settings.SettingsMetadata;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 @SettingsMetadata(section = "aircraftLayers")
 public class AircraftLayerVisibilitySettings implements ISettings {
 
     private final AsyncBooleanProperty model3D =
-        new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
+        new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
 
     private final AsyncBooleanProperty track =
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
@@ -34,7 +36,7 @@ public class AircraftLayerVisibilitySettings implements ISettings {
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
 
     private final AsyncBooleanProperty groundStation =
-        new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
+        new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
 
     private final AsyncBooleanProperty startingPosition =
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
@@ -70,9 +72,7 @@ public class AircraftLayerVisibilitySettings implements ISettings {
         return groundStation;
     }
 
-    public AsyncBooleanProperty flightPlanProperty() {
-        return flightPlan;
-    }
+    public AsyncBooleanProperty flightPlanProperty() { return flightPlan; }
 
     public AsyncBooleanProperty startingPositionProperty() {
         return startingPosition;

@@ -13,7 +13,7 @@ import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.drone.validation.IFlightValidationService;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.ui.ViewModelBase;
@@ -22,12 +22,13 @@ import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.Checklist;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItem;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItemViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutoCheckItemViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutomaticChecksDialogViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogViewModel;
+import com.intel.missioncontrol.ui.validation.IValidationService;
+import com.intel.missioncontrol.ui.validation.ResolvableValidationMessage;
 import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.ScopeProvider;
 import de.saxsys.mvvmfx.utils.commands.Command;
@@ -35,15 +36,14 @@ import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.plane.AirplaneType;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.geom.Vec4;
-import gov.nasa.worldwind.globes.Globe;
 import java.util.HashMap;
 import java.util.logging.Level;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -55,16 +55,12 @@ import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncStringProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
-import org.asyncfx.beans.property.UIAsyncStringProperty;
 import org.asyncfx.concurrent.Dispatcher;
 
 @ScopeProvider(scopes = ChecklistScope.class)
 public class SafetyChecksViewModel extends ViewModelBase {
-    public static final int MAX_DISTANCE_TO_PLANNED_TAKEOFF = 10;
-
     @InjectScope
     private FlightScope flightScope;
 
@@ -75,13 +71,14 @@ public class SafetyChecksViewModel extends ViewModelBase {
     private IntegerProperty checkedCount = new SimpleIntegerProperty(0);
     private IntegerProperty totalCount = new SimpleIntegerProperty(0);
 
-    private UIAsyncObjectProperty<AlertType> takeoffPositionAlertType = new UIAsyncObjectProperty<>(this);
-    private UIAsyncStringProperty takeoffPositionStatus = new UIAsyncStringProperty(this);
+    private ObjectProperty<AlertType> takeoffPositionImageTypeProperty = new SimpleObjectProperty<>();
+    private StringProperty takeoffPositionImageStatusString = new SimpleStringProperty();
 
     private HashMap<AirplaneType, ListProperty<ChecklistViewModel>> planeManualChecklist = new HashMap<>();
     private AirplaneType currentAirplaneType;
 
     private final ILanguageHelper languageHelper;
+    private final IValidationService validationService;
     private final IFlightValidationService flightValidationService;
 
     private final AsyncObjectProperty<IDrone> drone = new SimpleAsyncObjectProperty<>(this);
@@ -98,25 +95,23 @@ public class SafetyChecksViewModel extends ViewModelBase {
     @InjectScope
     private ChecklistScope checklistScope;
 
-    private final Globe globe;
-
     @Inject
     public SafetyChecksViewModel(
             ILanguageHelper languageHelper,
             IDialogService dialogService,
+            IValidationService validationService,
             IFlightValidationService flightValidationService,
-            IApplicationContext applicationContext,
-            IWWGlobes globes) {
-        this.globe = globes.getActiveGlobe();
+            IApplicationContext applicationContext) {
         this.languageHelper = languageHelper;
+        this.validationService = validationService;
         this.flightValidationService = flightValidationService;
 
         AsyncObjectProperty<Mission> mission = new SimpleAsyncObjectProperty<>(this);
 
-        mission.bind(applicationContext.currentMissionProperty());
-        selectedFlightPlan.bind(flightValidationService.flightPlanProperty());
-        hardwareConfiguration =
-            PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+        mission.bind(applicationContext.currentLegacyMissionProperty());
+        selectedFlightPlan.bindBidirectional( // TODO decouple
+            propertyPathStore.from(mission).selectObject(Mission::currentFlightPlanProperty));
+        hardwareConfiguration = PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
 
         showAutomaticChecksDialog =
             new DelegateCommand(
@@ -126,67 +121,14 @@ public class SafetyChecksViewModel extends ViewModelBase {
             new DelegateCommand(
                 () -> dialogService.requestDialogAsync(this, PreflightChecklistDialogViewModel.class, true));
 
-        takeoffPositionAlertType.set(AlertType.WARNING);
-        takeoffPositionStatus.set(
+        takeoffPositionImageTypeProperty.set(AlertType.WARNING);
+        takeoffPositionImageStatusString.set(
             languageHelper.getString(SafetyChecksViewModel.class, "takeoffPositionImageStatus.notConnected"));
-        takeoffPositionAlertType.bind(
-            Bindings.createObjectBinding(
-                () -> {
-                    FlightSegment segment = flightSegment.get();
-                    var selectedFp = selectedFlightPlan.get();
-
-                    if (segment == null) {
-                        segment = FlightSegment.UNKNOWN;
-                    }
-
-                    if (segment != FlightSegment.ON_GROUND && segment != FlightSegment.UNKNOWN) {
-                        return AlertType.COMPLETED;
-                    }
-
-                    Position pos = position.get();
-                    if (pos == null
-                            || segment == FlightSegment.UNKNOWN
-                            || selectedFp == null
-                            || selectedFp.takeoffPositionProperty().get() == null) {
-                        return AlertType.LOADING;
-                    }
-
-                    double distanceMeters = getDistance(pos, selectedFp.takeoffPositionProperty().get());
-                    if (distanceMeters > MAX_DISTANCE_TO_PLANNED_TAKEOFF) {
-                        return AlertType.WARNING;
-                    }
-
-                    return AlertType.COMPLETED;
-                },
-                selectedFlightPlan,
-                activeFlightPlan,
-                position,
-                flightSegment));
-
-        takeoffPositionStatus.bind(
-            takeoffPositionAlertType,
-            value -> {
-                if (takeoffPositionAlertType.get() == null
-                        || takeoffPositionAlertType.get().equals(AlertType.LOADING)) {
-                    return languageHelper.getString(
-                        SafetyChecksViewModel.class, "takeoffPositionImageStatus.notConnected");
-                } else if (takeoffPositionAlertType.get().equals(AlertType.COMPLETED)) {
-                    return languageHelper.getString(SafetyChecksViewModel.class, "takeoffPositionImageStatus.ok");
-                } else {
-                    return languageHelper.getString(SafetyChecksViewModel.class, "takeoffPositionImageStatus.default");
-                }
-            });
-    }
-
-    private double getDistance(Position pos, Position fpTakeoffPos) {
-        Vec4 vPos = globe.computePointFromPosition(pos);
-        Vec4 vToff = globe.computePointFromPosition(fpTakeoffPos);
-
-        return vPos.distanceTo3(vToff);
     }
 
     public void initializeViewModel() {
         super.initializeViewModel();
+
         drone.bind(flightScope.currentDroneProperty());
 
         // automatic checks:
@@ -204,10 +146,16 @@ public class SafetyChecksViewModel extends ViewModelBase {
         checkedCount.addListener((observable, oldValue, newvalue) -> refreshChecklistMessage());
         totalCount.addListener((observable, oldValue, newvalue) -> refreshChecklistMessage());
 
+        flightScope.selectedFlightPlanProperty().bind(selectedFlightPlan);
         flightSegment.bind(flightScope.flightSegmentProperty());
 
         activeFlightPlan.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::activeFlightPlanProperty));
         position.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::positionProperty));
+
+        takeoffPositionImageTypeProperty.set(AlertType.WARNING);
+
+        takeoffPositionImageStatusString.set(
+            languageHelper.getString(SafetyChecksViewModel.class, "takeoffPositionImageStatus.notConnected"));
 
         initPlaneChecklists();
         hardwareConfiguration.addListener(
@@ -229,42 +177,28 @@ public class SafetyChecksViewModel extends ViewModelBase {
                 } else {
                     currentAirplaneType = null;
                     checklistScope.currentChecklistProperty().setValue(null);
+                    checklistScope.totalCountProperty().setValue(0);
                 }
 
                 refreshChecklistMessage();
             });
 
-        propertyPathStore
-            .from(drone)
-            .selectReadOnlyAsyncObject(IDrone::flightSegmentProperty)
-            .addListener(
-                (o, oldValue, newValue) -> {
-                    if (oldValue == FlightSegment.UNKNOWN) {
-                        return;
+        getUpdateTakeoffPositionImageStatusString =
+            new DelegateCommand(
+                () -> {
+                    if (flightSegment.get() == null) {
+                        takeoffPositionImageStatusString.set(
+                            languageHelper.getString(
+                                SafetyChecksViewModel.class, "takeoffPositionImageStatus.notConnected"));
+                    } else if (takeoffPositionImageTypeProperty.get().equals(AlertType.COMPLETED)) {
+                        takeoffPositionImageStatusString.set(
+                            languageHelper.getString(SafetyChecksViewModel.class, "takeoffPositionImageStatus.ok"));
+                    } else {
+                        takeoffPositionImageStatusString.set(
+                            languageHelper.getString(
+                                SafetyChecksViewModel.class, "takeoffPositionImageStatus.default"));
                     }
-
-                    ListProperty<ChecklistViewModel> checklistViewModels =
-                        checklistScope.currentChecklistProperty().get();
-                    if (checklistViewModels == null) {
-                        return;
-                    }
-
-                    for (ChecklistViewModel checklistViewModel : checklistViewModels) {
-                        for (ChecklistItemViewModel itemViewModel : checklistViewModel.itemsProperty()) {
-                            // disable all after takeoff
-                            if (oldValue == FlightSegment.ON_GROUND && newValue != FlightSegment.ON_GROUND) {
-                                itemViewModel.disableProperty().set(true);
-                            }
-
-                            // uncheck and enable all after landing
-                            if (oldValue != FlightSegment.ON_GROUND && newValue == FlightSegment.ON_GROUND) {
-                                itemViewModel.checkedProperty().set(false);
-                                itemViewModel.disableProperty().set(false);
-                            }
-                        }
-                    }
-                },
-                Dispatcher.platform()::run);
+                });
     }
 
     ReadOnlyObjectProperty<AlertType> autoCheckAlertTypeProperty() {
@@ -283,8 +217,8 @@ public class SafetyChecksViewModel extends ViewModelBase {
         return manualCheckStatus;
     }
 
-    ReadOnlyAsyncStringProperty takeoffPositionStatusProperty() {
-        return takeoffPositionStatus;
+    ReadOnlyStringProperty takeoffPositionStatusProperty() {
+        return takeoffPositionImageStatusString;
     }
 
     AsyncObjectProperty<FlightSegment> flightSegmentProperty() {
@@ -303,6 +237,10 @@ public class SafetyChecksViewModel extends ViewModelBase {
         return showFlightCheckListChecksDialog;
     }
 
+    public ReadOnlyListProperty<ResolvableValidationMessage> validationMessagesProperty() {
+        return validationService.flightValidationMessagesProperty();
+    }
+
     private void refreshChecklistMessage() {
         Dispatcher dispatcher = Dispatcher.platform();
         dispatcher.run(
@@ -314,6 +252,7 @@ public class SafetyChecksViewModel extends ViewModelBase {
                                 languageHelper.getString(SafetyChecksViewModel.class, "flightChecklist"),
                                 checkedCount.get(),
                                 totalCount.get()));
+                        // showChecklistButton.setDisable(false);
 
                         AlertType imageType;
                         if (checkedCount.get() != totalCount.get()) {
@@ -327,6 +266,7 @@ public class SafetyChecksViewModel extends ViewModelBase {
                         manualCheckStatus.set(
                             String.format(
                                 languageHelper.getString(SafetyChecksViewModel.class, "flightChecklist"), 0, 0));
+                        // showChecklistButton.setDisable(true);
                         manualCheckImageType.set(AlertType.NONE);
                     }
                 } catch (Exception e) {
@@ -358,6 +298,43 @@ public class SafetyChecksViewModel extends ViewModelBase {
         for (int i = 0; i < item.getItems().length; i++) {
             item.getItems()[i] = languageHelper.getString(item.getItems()[i]);
         }
+    }
+
+    ReadOnlyProperty<FlightPlan> activeFlightplanProperty() {
+        return activeFlightPlan;
+    }
+
+    // TODO
+    public Command getUpdateTakeoffPositionImageStatusString;
+
+    private final Command updateTakeoffPosition =
+        new DelegateCommand(
+            () -> {
+                if (flightSegment.get() != null) {
+                    FlightPlan fp = selectedFlightPlan.get();
+
+                    // Use lat/lon from UAV and elevation offset from ground from flightplan
+                    double takeoffElevation =
+                        fp.takeoffElevationProperty().get().convertTo(Unit.METER).getValue().doubleValue();
+                    Position pos =
+                        new Position(position.get().getLatitude(), position.get().getLongitude(), takeoffElevation);
+
+                    fp.takeoffAutoProperty().set(false);
+                    fp.takeoffPositionProperty().setValue(pos);
+
+                    takeoffPositionImageTypeProperty.set(AlertType.COMPLETED);
+                }
+
+                getUpdateTakeoffPositionImageStatusString.execute();
+            },
+            position.isNotNull().and(selectedFlightPlan.isNotNull()).and(activeFlightPlan.isNull()));
+
+    Command getUpdateTakeoffPositionCommand() {
+        return updateTakeoffPosition;
+    }
+
+    public ObjectProperty<AlertType> takeoffPositionImageTypeProperty() {
+        return takeoffPositionImageTypeProperty;
     }
 
 }

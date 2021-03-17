@@ -7,9 +7,11 @@
 package eu.mavinci.flightplan.exporter;
 
 import com.google.inject.Inject;
+import com.intel.missioncontrol.NotImplementedException;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.impl.IScreenshotManager;
+import com.intel.missioncontrol.project.FlightPlan;
 import com.intel.missioncontrol.ui.validation.IValidationService;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.flightplan.Flightplan;
@@ -42,8 +44,7 @@ public class AscTecCsvJpgExporter implements IFlightplanExporter {
         this.languageHelper = languageHelper;
     }
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         // do a screenshot, on success continue writing a file
         Future<Pair<BufferedImage, Sector>> result =
             mapScreenshotManager.makeBackgroundScreenshotAsync(flightplan.getSector());
@@ -88,5 +89,10 @@ public class AscTecCsvJpgExporter implements IFlightplanExporter {
     private File createCsvFile(File target) {
         String csvPathname = FilenameUtils.removeExtension(target.toString()).concat(".csv");
         return new File(csvPathname);
+    }
+
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
     }
 }

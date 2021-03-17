@@ -39,8 +39,8 @@ import javafx.scene.layout.VBox;
 
 public class AirspacesProvidersSettingsView extends ViewBase<AirspacesProvidersSettingsViewModel> {
 
-    private static final String TOGGLE_YES = "com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.yes";
-    private static final String TOGGLE_NO = "com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.no";
+    private static final String TOGGLE_YES = "com.intel.missioncontrol.ui.toggle.Yes";
+    private static final String TOGGLE_NO = "com.intel.missioncontrol.ui.toggle.No";
 
     @InjectViewModel
     private AirspacesProvidersSettingsViewModel viewModel;
@@ -61,12 +61,6 @@ public class AirspacesProvidersSettingsView extends ViewBase<AirspacesProvidersS
     private Spinner<Quantity<Time>> minimumTimeLandingSpinner;
 
     @FXML
-    private Spinner<Quantity<Length>> minHorizontalDistanceSpinner;
-
-    @FXML
-    private Spinner<Quantity<Length>> minVerticalDistanceSpinner;
-
-    @FXML
     private Label maxAltitudeAboveGroundErrorLabel;
 
     @FXML
@@ -74,12 +68,6 @@ public class AirspacesProvidersSettingsView extends ViewBase<AirspacesProvidersS
 
     @FXML
     private Label minimumTimeLandingErrorLabel;
-
-    @FXML
-    private Label minHorizontalDistanceErrorLabel;
-
-    @FXML
-    private Label minVerticalDistanceErrorLabel;
 
     @FXML
     private ToggleGroup airspaceProvider;
@@ -98,12 +86,6 @@ public class AirspacesProvidersSettingsView extends ViewBase<AirspacesProvidersS
 
     @FXML
     public VBox minimumTimeBetweenLandingAndSunset;
-
-    @FXML
-    public VBox minHorizontalDistance;
-
-    @FXML
-    public VBox minVerticalDistance;
 
     @FXML
     public CheckBox useDefaultElevationModelCheckBox;
@@ -232,40 +214,6 @@ public class AirspacesProvidersSettingsView extends ViewBase<AirspacesProvidersS
         visualizer = new LabelValidationVisualizer();
         visualizer.initVisualization(
             viewModel.getMinTimeBetweenLandingAndSunsetValidationStatus(), minimumTimeLandingErrorLabel);
-        validationVisualizers.add(visualizer);
-
-
-        ViewHelper.initAutoCommitSpinnerWithQuantity(
-                minHorizontalDistanceSpinner,
-                viewModel.minHorizontalDistanceProperty(),
-                Unit.METER,
-                settingsManager.getSection(GeneralSettings.class),
-                0,
-                AirspacesProvidersSettingsViewModel.MIN_HORIZONTAL_DISTANCE_LOWER,
-                AirspacesProvidersSettingsViewModel.MIN_HORIZONTAL_DISTANCE_UPPER,
-                1.0,
-                false);
-
-        visualizer = new LabelValidationVisualizer();
-        visualizer.initVisualization(
-                viewModel.getMinHorizontalDistanceValidationStatus(), minHorizontalDistanceErrorLabel);
-        validationVisualizers.add(visualizer);
-
-
-        ViewHelper.initAutoCommitSpinnerWithQuantity(
-                minVerticalDistanceSpinner,
-                viewModel.minVerticalDistanceProperty(),
-                Unit.METER,
-                settingsManager.getSection(GeneralSettings.class),
-                0,
-                AirspacesProvidersSettingsViewModel.MIN_VERTICAL_DISTANCE_LOWER,
-                AirspacesProvidersSettingsViewModel.MIN_VERTICAL_DISTANCE_UPPER,
-                1.0,
-                false);
-
-        visualizer = new LabelValidationVisualizer();
-        visualizer.initVisualization(
-                viewModel.getMinHorizontalDistanceValidationStatus(), minVerticalDistanceErrorLabel);
         validationVisualizers.add(visualizer);
     }
 

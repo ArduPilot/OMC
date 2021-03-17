@@ -34,17 +34,13 @@ public class LiveVideoPaneView extends ViewBase<LiveVideoPaneViewModel> {
     private ComboBox<IUILiveVideoStream> comboBoxStreams;
 
     @FXML
-    private LiveVideoScreenView liveVideoScreenController;
+    private WrappedImageView liveVideo;
 
     @FXML
-    protected void selectPrevCam() {
-        comboBoxStreams.getSelectionModel().selectPrevious();
-    }
+    protected void selectPrevCam() { comboBoxStreams.getSelectionModel().selectPrevious(); }
 
     @FXML
-    protected void selectNextCam() {
-        comboBoxStreams.getSelectionModel().selectNext();
-    }
+    protected void selectNextCam() { comboBoxStreams.getSelectionModel().selectNext(); }
 
     @InjectContext
     private Context context;
@@ -75,8 +71,7 @@ public class LiveVideoPaneView extends ViewBase<LiveVideoPaneViewModel> {
         StreamComboBoxHelper.setupComboBox(comboBoxStreams, languageHelper);
         StreamComboBoxHelper.bindBidirectional(comboBoxStreams.getSelectionModel(), viewModel.selectedStreamProperty());
 
-        ((LiveVideoScreenViewModel)liveVideoScreenController.getViewModel())
-            .streamProperty()
-            .bind(viewModel.selectedStreamProperty());
+        liveVideo.imageProperty().bind(viewModel.currentFrameProperty());
+
     }
 }

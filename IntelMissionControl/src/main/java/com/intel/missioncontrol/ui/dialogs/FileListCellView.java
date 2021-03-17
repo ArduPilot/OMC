@@ -6,11 +6,11 @@
 
 package com.intel.missioncontrol.ui.dialogs;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ScaleHelper;
 import com.intel.missioncontrol.ui.ViewBase;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import de.saxsys.mvvmfx.InjectViewModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.main.OsTypes;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -57,7 +57,7 @@ public class FileListCellView extends ViewBase<FileListCellViewModel> {
         fileName.textProperty().bind(viewModel.fileNameProperty());
 
         Icon icon = FileSystemView.getFileSystemView().getSystemIcon(viewModel.getFile());
-        OsTypes system = StaticInjector.getInstance(IVersionProvider.class).getSystem();
+        OsTypes system = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem();
         if (icon == null || !system.isWindows()) {
             JFileChooser fc = new javax.swing.JFileChooser();
             icon = fc.getUI().getFileView(fc).getIcon(viewModel.getFile());

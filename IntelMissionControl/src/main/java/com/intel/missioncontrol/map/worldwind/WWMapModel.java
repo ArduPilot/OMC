@@ -42,7 +42,6 @@ import com.intel.missioncontrol.map.worldwind.layers.ScalebarLayer;
 import com.intel.missioncontrol.map.worldwind.layers.SearchResultsLayer;
 import com.intel.missioncontrol.map.worldwind.layers.SkyGradientLayer;
 import com.intel.missioncontrol.map.worldwind.layers.TooltipLayer;
-import com.intel.missioncontrol.map.worldwind.layers.airTraffic.AirTrafficLayer;
 import com.intel.missioncontrol.map.worldwind.layers.aircraft.AircraftLayerGroup;
 import com.intel.missioncontrol.map.worldwind.layers.dataset.DatasetLayerGroup;
 import com.intel.missioncontrol.map.worldwind.layers.flightplan.FlightplanLayerGroup;
@@ -92,7 +91,6 @@ import gov.nasa.worldwind.BasicModel;
 import gov.nasa.worldwind.Model;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.Layer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,12 +116,8 @@ import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class WWMapModel implements IWWMapModel, IMapCreditsSource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WWMapModel.class);
 
     private final LayerGroup groupGeoTiff = new LayerGroup(LayerGroupType.GEOTIFF_GROUP);
 
@@ -149,7 +143,13 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
 
                             return new AsyncObservable[0];
                         }))
-                .create());
+                .create()) {
+            @Override
+            protected void invalidated() {
+                super.invalidated();
+                refreshLayers(get());
+            }
+        };
 
     private final Dispatcher dispatcher;
     private final IMapController mapController;
@@ -231,7 +231,7 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
         settingsManager
             .getSection(GeneralSettings.class)
             .offlineModeProperty()
-            .addListener(new WeakChangeListener<>(offlineModeListener), dispatcher::run);
+            .addListener(new WeakChangeListener<>(offlineModeListener), dispatcher);
 
         offlineModeListener.changed(
             null, false, settingsManager.getSection(GeneralSettings.class).offlineModeProperty().get());
@@ -264,18 +264,13 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
                     mapCredits.clear();
                 }
             });
-
-        layers.addListener((observable, oldValue, newValue) -> refreshLayers(newValue), dispatcher::run);
     }
 
     @PostConstruct
     @SuppressWarnings("unused")
     private void initialize() {
-        dispatcher.runLater(
-            () -> {
-                createBaseLayers();
-                refreshLayers(layers.get());
-            });
+        createBaseLayers();
+        refreshLayers(layers.get());
     }
 
     @Override
@@ -284,7 +279,6 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
     }
 
     private void createBaseLayers() {
-        dispatcher.verifyAccess();
         GeneralLayerVisibility generalLayerVisibility = settingsManager.getSection(GeneralLayerVisibility.class);
 
         LayerGroup groupFlightplan = layerFactory.newLayer(FlightplanLayerGroup.class);
@@ -322,7 +316,7 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
                             }
                         }
                     },
-                dispatcher::run);
+                dispatcher);
 
         layers.addAll(wmsManager.wmsServerLayersProperty());
 
@@ -382,9 +376,6 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
         linesAndGrids
             .subLayersProperty()
             .add(createLayerAndBindEnabled(TooltipLayer.class, generalLayerVisibility.tooltipLayerVisibleProperty()));
-        linesAndGrids
-            .subLayersProperty()
-            .add(createLayerAndBindEnabled(AirTrafficLayer.class, generalLayerVisibility.airtrafficVisibleProperty()));
         layers.add(linesAndGrids);
 
         ILayer missionOverviewLayer = layerFactory.newLayer(MissionOverviewLayer.class);
@@ -418,8 +409,7 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
         return layer;
     }
 
-    private void refreshLayers(AsyncObservableList<ILayer> layers) {
-        dispatcher.verifyAccess();
+    private synchronized void refreshLayers(AsyncObservableList<ILayer> layers) {
         List<ILayer> list;
         try (LockedList<ILayer> lock = layers.lock()) {
             list = new ArrayList<>(lock);
@@ -427,8 +417,11 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
 
         List<Layer> tmp = flattenLayers(list);
 
-        model.getLayers().clear();
-        model.getLayers().addAll(tmp);
+        dispatcher.runLater(
+            () -> {
+                model.getLayers().clear();
+                model.getLayers().addAll(tmp);
+            });
     }
 
     private List<gov.nasa.worldwind.layers.Layer> flattenLayers(@Nullable List<ILayer> layers) {
@@ -594,7 +587,7 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
                 // new stuff is inserted
                 parent = (IFlightplanContainer)wp;
 
-                // if mission or Loop is selected, inset at first position!
+                // if flightplan or Loop is selected, inset at first position!
                 brotherIndex = -1;
             }
 
@@ -711,13 +704,11 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
                     }
                 } else if (selection instanceof MapLayerPicArea) {
                     MapLayerPicArea picArea = (MapLayerPicArea)selection;
-                    if (!picArea.getDeleteDisabled().get()) {
-                        if (dialogService.requestConfirmation(
-                                languageHelper.getString("deleteAreaFilter.rightClick.title"),
-                                languageHelper.getString("deleteAreaFilter.rightClick.message"))) {
-                            picArea.getParentLayer().removeMapLayer(picArea);
-                            notificationCenter.publish(ActionManager.DELETE_AOI_EVENT, picArea);
-                        }
+                    if (dialogService.requestConfirmation(
+                            languageHelper.getString("deleteAreaFilter.rightClick.title"),
+                            languageHelper.getString("deleteAreaFilter.rightClick.message"))) {
+                        picArea.getParentLayer().removeMapLayer(picArea);
+                        notificationCenter.publish(ActionManager.DELETE_AOI_EVENT, picArea);
                     }
                 }
             });
@@ -730,59 +721,21 @@ public class WWMapModel implements IWWMapModel, IMapCreditsSource {
         }
 
         AreaOfInterest area = new AreaOfInterest(mission, aoiId);
+        area.isInitialAddingProperty().setValue(true);
+
+        Flightplan fp = mission.getCurrentFlightPlan().getLegacyFlightplan();
         PicArea picArea = area.getPicArea();
+        mission.currentFlightPlanProperty().get().areasOfInterestProperty().add(area);
 
-        try {
-            if (aoiId.getMinCorners() == 1) {
-                try {
-                    LatLon center = mapController.getScreenCenter();
-                    PicAreaCorners picAreaCorners = picArea.getCorners();
-                    picAreaCorners.addToFlightplanContainer(
-                        new Point(picAreaCorners, center.getLatitude().degrees, center.getLongitude().degrees));
-                    return area;
-                } catch (Exception e) {
-                    LOGGER.error("cant add map center", e);
-                }
-            } else if (aoiId.isClosedPolygone()) {
-                try {
-                    Position[] corners = mapController.get4MapSectorsCenters();
-                    PicAreaCorners picAreaCorners = picArea.getCorners();
-                    for (Position p : corners) {
-                        picAreaCorners.addToFlightplanContainer(
-                            new Point(picAreaCorners, p.getLatitude().degrees, p.getLongitude().degrees));
-                    }
-
-                    return area;
-                } catch (Exception e) {
-                    LOGGER.error("cant add 4 corners from map view", e);
-                }
-            } else {
-                try {
-                    LatLon center = mapController.getScreenCenter();
-                    PicAreaCorners picAreaCorners = picArea.getCorners();
-                    picAreaCorners.addToFlightplanContainer(
-                        new Point(picAreaCorners, center.getLatitude().degrees, center.getLongitude().degrees));
-                    // no return, stay in add mode
-                } catch (Exception e) {
-                    LOGGER.error("cant add map center", e);
-                }
-            }
-        } finally {
-            mission.currentFlightPlanProperty().get().areasOfInterestProperty().add(area);
-
-            if (picArea != null) {
-                selectionManager.setSelection(picArea);
-            } else {
-                Flightplan fp = mission.getCurrentFlightPlan().getLegacyFlightplan();
-                selectionManager.setSelection(fp);
-            }
+        if (picArea != null) {
+            selectionManager.setSelection(picArea);
+        } else {
+            selectionManager.setSelection(fp);
         }
 
         // mouse mode has to be changed AFTER selection of picArea, otherwise other listeners in EditFlightplanViewModel
         // get confused
-        area.isInitialAddingProperty().setValue(true);
         mapController.setMouseMode(InputMode.ADD_POINTS);
-
         return area;
     }
 

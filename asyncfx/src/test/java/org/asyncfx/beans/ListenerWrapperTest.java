@@ -74,7 +74,7 @@ class ListenerWrapperTest extends TestBase {
         awaiter.await(1);
 
         Assertions.assertEquals(iterations, value[0]);
-        Assertions.assertTrue(count[0] >= 5 && count[0] < 10, () -> Integer.toString(count[0]));
+        Assertions.assertTrue(count[0] > 5 && count[0] < 10, () -> Integer.toString(count[0]));
     }
 
 }

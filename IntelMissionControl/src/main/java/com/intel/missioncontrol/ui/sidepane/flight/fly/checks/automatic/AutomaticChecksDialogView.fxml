@@ -14,10 +14,10 @@
 <VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutomaticChecksDialogView"
-      styleClass="dialog" style="-fx-pref-width: 36em; -fx-pref-height: 40em;">
+      styleClass="dialog">
     <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
                 style="-fx-background-color: theme-dialog-background-color;" id="AutoChecks">
-        <ItemsView fx:id="itemsView" VBox.vgrow="NEVER">
+        <ItemsView fx:id="itemsView" VBox.vgrow="ALWAYS">
             <VBox />
         </ItemsView>
     </ScrollPane>

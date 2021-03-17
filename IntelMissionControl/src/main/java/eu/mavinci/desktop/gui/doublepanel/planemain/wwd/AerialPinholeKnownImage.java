@@ -6,9 +6,9 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerPics;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoFile;
@@ -45,8 +45,8 @@ public class AerialPinholeKnownImage extends AerialPinholeImage
     private boolean isHighlighted = false;
     private boolean projectingToGround;
 
-    final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    final ISelectionManager selectionManager = StaticInjector.getInstance(ISelectionManager.class);
+    final IElevationModel elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    final ISelectionManager selectionManager = DependencyInjector.getInstance().getInstanceOf(ISelectionManager.class);
 
     public AerialPinholeKnownImage(MapLayerMatch match) {
         super(match);

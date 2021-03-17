@@ -185,7 +185,7 @@ public class AoiTransformationTabViewModel extends ViewModelBase<AreaOfInterest>
         super.initializeViewModel(aoi);
         mapController
             .mouseModeProperty()
-            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform());
 
         originPositionWrapper.positionProperty().bindBidirectional(aoi.originPositionProperty());
         originElevation.bindBidirectional(aoi.originElevationProperty());
@@ -215,7 +215,7 @@ public class AoiTransformationTabViewModel extends ViewModelBase<AreaOfInterest>
     private void toggleChooseRefPosition() {
         if (mapController.getMouseMode() != InputMode.SET_MODEL_ORIGIN) {
             selectionManager.setSelection(
-                applicationContext.getCurrentMission().getCurrentFlightPlan().getLegacyFlightplan().getRefPoint());
+                applicationContext.getCurrentLegacyMission().getCurrentFlightPlan().getLegacyFlightplan().getRefPoint());
             mapController.setMouseMode(InputMode.SET_MODEL_ORIGIN);
         } else {
             mapController.tryCancelMouseModes(InputMode.SET_MODEL_ORIGIN);

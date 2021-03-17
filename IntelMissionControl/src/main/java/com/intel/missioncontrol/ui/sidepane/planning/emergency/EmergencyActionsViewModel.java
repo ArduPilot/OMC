@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.planning.emergency;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.measure.Dimension;
 import com.intel.missioncontrol.measure.Dimension.Length;
 import com.intel.missioncontrol.measure.Quantity;
@@ -22,16 +21,12 @@ import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.ViewModelBase;
-import com.intel.missioncontrol.ui.scope.planning.PlanningScope;
-import de.saxsys.mvvmfx.InjectScope;
 import eu.mavinci.core.plane.AirplaneEventActions;
 import java.time.Duration;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -40,11 +35,8 @@ import org.asyncfx.beans.binding.BidirectionalValueConverter;
 import org.asyncfx.beans.binding.ConversionBindings;
 import org.asyncfx.beans.property.PropertyPathStore;
 
-/** ViewModel for Emergency Actions mission settings panel. */
+/** ViewModel for Emergency Actions flight plan settings panel. */
 public class EmergencyActionsViewModel extends ViewModelBase {
-
-    @InjectScope
-    private PlanningScope planningScope;
 
     private final BooleanProperty autoComputeSafetyHeight = new SimpleBooleanProperty();
     private final QuantityProperty<Length> safetyAltitudeQuantity;
@@ -67,21 +59,19 @@ public class EmergencyActionsViewModel extends ViewModelBase {
     private ObjectProperty<AirplaneEventActions> primaryLinkLossActionProperty = new SimpleObjectProperty<>();
     private ObjectProperty<AirplaneEventActions> rcLinkLossActionProperty = new SimpleObjectProperty<>();
 
-    private final BooleanProperty emergencyActionsSettable = new SimpleBooleanProperty();
-
     @Inject
     public EmergencyActionsViewModel(ISettingsManager settingsManager, IApplicationContext applicationContext) {
         GeneralSettings settings = settingsManager.getSection(GeneralSettings.class);
 
         autoComputeSafetyHeight.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectBoolean(FlightPlan::autoComputeSafetyHeightProperty));
 
         safetyAltitudeMeterProperty.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectDouble(FlightPlan::safetyAltitudeProperty));
 
@@ -101,7 +91,7 @@ public class EmergencyActionsViewModel extends ViewModelBase {
         ConversionBindings.bindBidirectional(
             rcLinkLossActionDelaySecondsProperty,
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::rcLinkLossActionDelayProperty),
             durationToSecondsConverter);
@@ -109,7 +99,7 @@ public class EmergencyActionsViewModel extends ViewModelBase {
         ConversionBindings.bindBidirectional(
             primaryLinkLossActionDelaySecondsProperty,
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::primaryLinkLossActionDelayProperty),
             durationToSecondsConverter);
@@ -117,7 +107,7 @@ public class EmergencyActionsViewModel extends ViewModelBase {
         ConversionBindings.bindBidirectional(
             gnssLinkLossActionDelaySecondsProperty,
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::positionLossActionDelayProperty),
             durationToSecondsConverter);
@@ -125,32 +115,32 @@ public class EmergencyActionsViewModel extends ViewModelBase {
         ConversionBindings.bindBidirectional(
             geofenceBreachActionDelaySecondsProperty,
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::geofenceBreachActionDelayProperty),
             durationToSecondsConverter);
 
         rcLinkLossActionProperty.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::rcLinkLossActionProperty));
 
         primaryLinkLossActionProperty.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::primaryLinkLossActionProperty));
 
         gnssLinkLossActionProperty.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::positionLossActionProperty));
 
         geofenceBreachActionProperty.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectObject(FlightPlan::geofenceBreachActionProperty));
 
@@ -193,20 +183,6 @@ public class EmergencyActionsViewModel extends ViewModelBase {
             geofenceBreachDurationQuantity, geofenceBreachActionDelaySecondsProperty, Unit.SECOND);
     }
 
-    @Override
-    protected void initializeViewModel() {
-        super.initializeViewModel();
-
-        emergencyActionsSettable.bind(
-            Bindings.createBooleanBinding(
-                () -> {
-                    IHardwareConfiguration hwConfig = planningScope.selectedHardwareConfigurationProperty().get();
-
-                    return hwConfig != null && hwConfig.getPlatformDescription().areEmergencyActionsSettable();
-                },
-                planningScope.selectedHardwareConfigurationProperty()));
-    }
-
     QuantityProperty<Length> safetyAltitudeQuantityProperty() {
         return safetyAltitudeQuantity;
     }
@@ -245,9 +221,5 @@ public class EmergencyActionsViewModel extends ViewModelBase {
 
     ObjectProperty<AirplaneEventActions> rcLinkLossComboBoxProperty() {
         return rcLinkLossActionProperty;
-    }
-
-    ReadOnlyBooleanProperty emergencyActionsSettableProperty() {
-        return emergencyActionsSettable;
     }
 }

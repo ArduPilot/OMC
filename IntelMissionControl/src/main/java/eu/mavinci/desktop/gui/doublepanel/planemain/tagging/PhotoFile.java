@@ -6,13 +6,13 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.ILensDescription;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.ExpertSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.core.plane.sendableobjects.OrientationData;
@@ -105,15 +105,14 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
 
     public File createThumpFileName(File file) {
         // String extension = (file.getName().toLowerCase().endsWith("jpg") ? "":".jpg");
-        if (match == null || match.getMatching() == null) {
+        if(match == null ||  match.getMatching() == null) {
             Debug.getLog().log(Level.WARNING, "Create thumbfile, no correct matching defined, use default path");
-            return new File(
-                file.getParentFile().getParent(),
-                PREFIX_FOLDER_PREVIEW_IMG + MFileFilter.jpegFilter.removeExtension(file.getName()) + ".jpg");
+            return  new File(
+                    file.getParentFile().getParent(),
+                    PREFIX_FOLDER_PREVIEW_IMG + MFileFilter.jpegFilter.removeExtension(file.getName()) + ".jpg");
         }
-
         return new File(
-            match.getMatching().getMatchingFolder(),
+                match.getMatching().getMatchingFolder(),
             PREFIX_FOLDER_PREVIEW_IMG + MFileFilter.jpegFilter.removeExtension(file.getName()) + ".jpg");
     }
 
@@ -130,7 +129,8 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
 
         try {
             if (PREVIEW_WIDTH < 1) {
-                PREVIEW_WIDTH = StaticInjector.getInstance(ExpertSettings.class).getExifPreviewWidth();
+                PREVIEW_WIDTH =
+                    DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class).getExifPreviewWidth();
             }
             // System.out.println("PREVIEW WIDTH =" + PREVIEW_WIDTH);
             // System.out.println("soruce: " + source);
@@ -539,7 +539,7 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
         map.put(Tag.ORIENTATION, "1"); // here orientation fixing is for free ;-)
         // according to Agisoft:
 
-        final ExpertSettings expertSettings = StaticInjector.getInstance(ExpertSettings.class);
+        final ExpertSettings expertSettings = DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class);
         boolean useExifLevelArmProcessing = expertSettings.getUseExifLevelArmProcessing();
         if (useExifLevelArmProcessing) {
             // 90deg offset is stored inside the levelArm Offset / TODO check for Pix4D how to handle

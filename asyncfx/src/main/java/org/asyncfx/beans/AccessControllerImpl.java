@@ -9,14 +9,24 @@ package org.asyncfx.beans;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.StampedLock;
 import org.asyncfx.beans.property.ReadOnlyAsyncProperty;
+import org.asyncfx.concurrent.ReentrantStampedLock;
 
 public final class AccessControllerImpl implements AccessController {
 
+    public enum LockName {
+        VALUE,
+        EVENT
+    }
+
+    public enum LockType {
+        INSTANCE,
+        GROUP
+    }
+
     private final StampedLock valueLock = new StampedLock();
-    private volatile ReentrantLock eventLock;
+    private final ReentrantStampedLock eventLock = new ReentrantStampedLock();
 
     private GroupLock groupLock;
 
@@ -24,153 +34,191 @@ public final class AccessControllerImpl implements AccessController {
         groupLock.defer(runnable);
     }
 
-    public void lockEvent() {
-        if (eventLock == null) {
-            synchronized (this) {
-                if (eventLock == null) {
-                    eventLock = new ReentrantLock();
-                }
-            }
-        }
-
-        eventLock.lock();
-    }
-
-    public void unlockEvent() {
-        eventLock.unlock();
-    }
-
-    public long writeLock(boolean group) {
-        if (!group) {
-            return valueLock.writeLock();
-        }
-
-        while (true) {
-            long stamp = valueLock.writeLock();
-
-            // We might need to access 'lockGroup' after releasing 'valueLock'. Since the 'lockGroup' field
-            // is protected by that lock, we need to make a local copy while we're holding the lock.
-            GroupLock groupLock = this.groupLock;
-
-            if (groupLock == null || groupLock.hasAccess()) {
-                return stamp;
+    public long writeLock(LockName lockName, LockType lockType) {
+        if (lockName == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.writeLock();
             }
 
-            valueLock.unlockWrite(stamp);
+            while (true) {
+                long stamp = valueLock.writeLock();
 
-            // It's okay to use the local copy of 'lockGroup' after releasing the lock.
-            groupLock.await();
-        }
-    }
+                // We might need to access 'lockGroup' after releasing 'valueLock'. Since the 'lockGroup' field
+                // is protected by that lock, we need to make a local copy while we're holding the lock.
+                GroupLock groupLock = this.groupLock;
 
-    public long tryWriteLock(boolean group) {
-        if (!group) {
-            return valueLock.tryWriteLock();
-        }
-
-        long stamp = valueLock.tryWriteLock();
-        if (stamp == 0) {
-            return 0;
-        }
-
-        if (groupLock == null || groupLock.hasAccess()) {
-            return stamp;
-        }
-
-        valueLock.unlockWrite(stamp);
-        return 0;
-    }
-
-    public long tryConvertToWriteLock(boolean group, long stamp) {
-        if (!group) {
-            return valueLock.tryConvertToWriteLock(stamp);
-        }
-
-        long newStamp = valueLock.tryConvertToWriteLock(stamp);
-        if (newStamp == 0) {
-            return 0;
-        }
-
-        if (groupLock == null || groupLock.hasAccess()) {
-            return newStamp;
-        }
-
-        valueLock.unlockWrite(newStamp);
-        return 0;
-    }
-
-    public void unlock(long stamp) {
-        if (StampedLock.isWriteLockStamp(stamp)) {
-            valueLock.unlockWrite(stamp);
-        } else if (StampedLock.isReadLockStamp(stamp)) {
-            valueLock.unlockRead(stamp);
-        }
-    }
-
-    public void unlockWrite(long stamp) {
-        if (StampedLock.isWriteLockStamp(stamp)) {
-            valueLock.unlockWrite(stamp);
-        }
-    }
-
-    public long readLock(boolean group) {
-        if (!group) {
-            return valueLock.readLock();
-        }
-
-        while (true) {
-            long stamp = valueLock.readLock();
-
-            // We might need to access 'lockGroup' after releasing 'valueLock'. Since the 'lockGroup' field
-            // is protected by that lock, we need to make a local copy while we're holding the lock.
-            GroupLock groupLock = this.groupLock;
-
-            if (groupLock == null || groupLock.hasAccess()) {
-                return stamp;
-            }
-
-            valueLock.unlockRead(stamp);
-
-            // It's okay to use the local copy of 'lockGroup' after releasing the lock.
-            groupLock.await();
-        }
-    }
-
-    public long tryOptimisticRead(boolean group) {
-        if (!group) {
-            return valueLock.tryOptimisticRead();
-        }
-
-        long stamp = valueLock.tryOptimisticRead();
-        if (stamp != 0) {
-            GroupLock groupLock = this.groupLock;
-            if (valueLock.validate(stamp)) {
                 if (groupLock == null || groupLock.hasAccess()) {
                     return stamp;
                 }
+
+                valueLock.unlockWrite(stamp);
+
+                // It's okay to use the local copy of 'lockGroup' after releasing the lock.
+                groupLock.await();
             }
         }
 
-        return 0;
+        return eventLock.writeLock();
     }
 
-    public void unlockRead(long stamp) {
-        if (StampedLock.isReadLockStamp(stamp)) {
-            valueLock.unlockRead(stamp);
+    public long tryWriteLock(LockName lockName, LockType lockType) {
+        if (lockName == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.tryWriteLock();
+            }
+
+            long stamp = valueLock.tryWriteLock();
+            if (stamp == 0) {
+                return 0;
+            }
+
+            if (groupLock == null || groupLock.hasAccess()) {
+                return stamp;
+            }
+
+            valueLock.unlockWrite(stamp);
+            return 0;
+        }
+
+        return eventLock.tryWriteLock();
+    }
+
+    public long tryConvertToWriteLock(LockName type, LockType lockType, long stamp) {
+        if (type == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.tryConvertToWriteLock(stamp);
+            }
+
+            long newStamp = valueLock.tryConvertToWriteLock(stamp);
+            if (newStamp == 0) {
+                return 0;
+            }
+
+            if (groupLock == null || groupLock.hasAccess()) {
+                return newStamp;
+            }
+
+            valueLock.unlockWrite(newStamp);
+            return 0;
+        }
+
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlock(LockName type, long stamp) {
+        if (type == LockName.VALUE) {
+            if (StampedLock.isWriteLockStamp(stamp)) {
+                valueLock.unlockWrite(stamp);
+            } else if (StampedLock.isReadLockStamp(stamp)) {
+                valueLock.unlockRead(stamp);
+            }
+        } else {
+            if (ReentrantStampedLock.isWriteLockStamp(stamp)) {
+                eventLock.unlockWrite(stamp);
+            } else if (ReentrantStampedLock.isReadLockStamp(stamp)) {
+                eventLock.unlockRead(stamp);
+            }
         }
     }
 
-    public boolean validate(boolean group, long stamp) {
-        if (!group) {
-            return valueLock.validate(stamp);
+    public void unlockWrite(LockName type, long stamp) {
+        if (type == LockName.VALUE) {
+            if (StampedLock.isWriteLockStamp(stamp)) {
+                valueLock.unlockWrite(stamp);
+            }
+        } else if (ReentrantStampedLock.isWriteLockStamp(stamp)) {
+            eventLock.unlockWrite(stamp);
+        }
+    }
+
+    public void unlockWrite(long valueStamp, long eventStamp) {
+        if (StampedLock.isWriteLockStamp(valueStamp)) {
+            valueLock.unlockWrite(valueStamp);
         }
 
-        GroupLock groupLock = this.groupLock;
-        if (valueLock.validate(stamp)) {
-            return groupLock == null || groupLock.hasAccess();
+        if (ReentrantStampedLock.isWriteLockStamp(eventStamp)) {
+            eventLock.unlockWrite(eventStamp);
+        }
+    }
+
+    public long readLock(LockName lockName, LockType lockType) {
+        if (lockName == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.readLock();
+            }
+
+            while (true) {
+                long stamp = valueLock.readLock();
+
+                // We might need to access 'lockGroup' after releasing 'valueLock'. Since the 'lockGroup' field
+                // is protected by that lock, we need to make a local copy while we're holding the lock.
+                GroupLock groupLock = this.groupLock;
+
+                if (groupLock == null || groupLock.hasAccess()) {
+                    return stamp;
+                }
+
+                valueLock.unlockRead(stamp);
+
+                // It's okay to use the local copy of 'lockGroup' after releasing the lock.
+                groupLock.await();
+            }
         }
 
-        return false;
+        return eventLock.readLock();
+    }
+
+    public long tryOptimisticRead(LockName lockName, LockType lockType) {
+        if (lockName == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.tryOptimisticRead();
+            }
+
+            long stamp = valueLock.tryOptimisticRead();
+            if (stamp != 0) {
+                GroupLock groupLock = this.groupLock;
+                if (valueLock.validate(stamp)) {
+                    if (groupLock == null || groupLock.hasAccess()) {
+                        return stamp;
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        return eventLock.tryOptimisticRead();
+    }
+
+    public void unlockRead(LockName type, long stamp) {
+        if (type == LockName.VALUE) {
+            if (StampedLock.isReadLockStamp(stamp)) {
+                valueLock.unlockRead(stamp);
+            }
+        } else if (ReentrantStampedLock.isReadLockStamp(stamp)) {
+            eventLock.unlockRead(stamp);
+        }
+    }
+
+    public boolean validate(LockName lockName, LockType lockType, long stamp) {
+        if (lockName == LockName.VALUE) {
+            if (lockType == LockType.INSTANCE) {
+                return valueLock.validate(stamp);
+            }
+
+            GroupLock groupLock = this.groupLock;
+            if (valueLock.validate(stamp)) {
+                return groupLock == null || groupLock.hasAccess();
+            }
+
+            return false;
+        }
+
+        return eventLock.validate(stamp);
+    }
+
+    public void changeEventLockOwner(Thread newOwner) {
+        eventLock.changeOwner(newOwner);
     }
 
     public void setGroupLock(GroupLock groupLock) {
@@ -184,15 +232,15 @@ public final class AccessControllerImpl implements AccessController {
 
     public static final class GroupLock {
         private final Thread ownerThread = Thread.currentThread();
-        private final Collection<ReadOnlyAsyncProperty<?>> properties;
+        private final Collection<ReadOnlyAsyncProperty> properties;
         private List<Runnable> deferred;
         private boolean set;
 
-        public GroupLock(Collection<ReadOnlyAsyncProperty<?>> properties) {
+        public GroupLock(Collection<ReadOnlyAsyncProperty> properties) {
             this.properties = properties;
         }
 
-        public Collection<ReadOnlyAsyncProperty<?>> getProperties() {
+        public Collection<ReadOnlyAsyncProperty> getProperties() {
             return properties;
         }
 

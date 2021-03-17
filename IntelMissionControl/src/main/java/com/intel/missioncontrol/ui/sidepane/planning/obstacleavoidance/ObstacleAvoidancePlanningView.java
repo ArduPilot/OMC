@@ -27,6 +27,9 @@ public class ObstacleAvoidancePlanningView extends ViewBase<ObstacleAvoidancePla
     private VBox obstacleAvoidanceRoot;
 
     @FXML
+    private VBox addSafetyWaypointsRoot;
+
+    @FXML
     private ToggleSwitch obstacleAvoidanceSwitch;
 
     @FXML
@@ -50,7 +53,12 @@ public class ObstacleAvoidancePlanningView extends ViewBase<ObstacleAvoidancePla
         obstacleAvoidanceRoot.visibleProperty().bindBidirectional(viewModel.hardwareOACapableProperty());
         obstacleAvoidanceRoot.managedProperty().bindBidirectional(viewModel.hardwareOACapableProperty());
 
+        // Binding Views to ViewModel.Property
         obstacleAvoidanceSwitch.selectedProperty().bindBidirectional(viewModel.enableObstacleAvoidanceProperty());
         addSafetyWaypointSwtich.selectedProperty().bindBidirectional(viewModel.enableAddSafetyWaypointsProperty());
+
+        // Enabling/Disabling "Add safety waypoints" based on OA On/Off
+        addSafetyWaypointsRoot.visibleProperty().bind(obstacleAvoidanceSwitch.selectedProperty());
+        addSafetyWaypointsRoot.managedProperty().bind(obstacleAvoidanceSwitch.selectedProperty());
     }
 }

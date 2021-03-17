@@ -23,20 +23,26 @@ import javafx.beans.property.SimpleObjectProperty;
 public class AnalysisOptionsViewModel extends ViewModelBase {
 
     private final SimpleBooleanProperty rtkAvailable = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty rtkVisible = new SimpleBooleanProperty(false);
     private final SimpleObjectProperty<Matching> currentMatching = new SimpleObjectProperty();
     private final SimpleObjectProperty<MatchingStatus> matchingStatus = new SimpleObjectProperty();
 
     @Inject
     public AnalysisOptionsViewModel(IApplicationContext applicationContext, GeneralSettings generalSettings) {
         currentMatching.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty));
         rtkAvailable.bind(PropertyPath.from(currentMatching).selectReadOnlyBoolean(Matching::rtkAvailableProperty));
         matchingStatus.bind(PropertyPath.from(currentMatching).selectReadOnlyObject(Matching::statusProperty));
+        rtkVisible.bind(generalSettings.operationLevelProperty().isNotEqualTo(OperationLevel.USER));
     }
 
     public ReadOnlyBooleanProperty rtkAvailableProperty() {
         return rtkAvailable;
+    }
+
+    public SimpleBooleanProperty rtkVisibleProperty() {
+        return rtkVisible;
     }
 
     public ReadOnlyObjectProperty<Matching> currentMatchingProperty() {

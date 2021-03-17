@@ -133,7 +133,7 @@ class AsyncSetPropertyProxy<E> extends AsyncSetProperty<E> {
 
     @Override
     public <U> void bind(
-            ObservableValue<? extends U> observable, ValueConverter<U, AsyncObservableSet<E>> converter) {
+            ObservableValue<? extends U> observable, ValueConverter<U, ? extends AsyncObservableSet<E>> converter) {
         this.observable = observable;
         this.converter = converter;
 

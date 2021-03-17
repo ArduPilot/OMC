@@ -89,7 +89,7 @@ public interface IAirplaneExternal {
     public void requestFlightPhase();
 
     /**
-     * Set mission ASM Code. If compiling is successful, the binary code will be sent to the airplane for execution.
+     * Set flight plan ASM Code. If compiling is successful, the binary code will be sent to the airplane for execution.
      *
      * @param plan ASM Code of the Flightplan.
      * @param entrypoint If set to -1, the airplane tries to reenter the program (after a change). Sending binary diffs
@@ -100,7 +100,7 @@ public interface IAirplaneExternal {
     public void setFlightPlanASM(String plan, Integer entrypoint);
 
     /**
-     * Set mission XML Code. If compiling is successful, the binary code will be sent to the airplane for execution.
+     * Set flight plan XML Code. If compiling is successful, the binary code will be sent to the airplane for execution.
      *
      * @param plan XLM Code of the Flightplan.
      * @param entrypoint If set to -1, the airplane tries to reenter the program (after a change). Sending binary diffs

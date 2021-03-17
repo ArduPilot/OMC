@@ -8,9 +8,9 @@ package com.intel.missioncontrol.ui.sidepane.analysis;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
+import org.asyncfx.beans.property.PropertyPath;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.Matching;
-import com.intel.missioncontrol.mission.MatchingStatus;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.ui.controls.MenuButton;
 import com.intel.missioncontrol.ui.dialogs.IDialogContextProvider;
@@ -30,7 +30,6 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import org.asyncfx.beans.property.PropertyPath;
 
 public class DatasetView extends FancyTabView<DatasetViewModel> {
 
@@ -69,9 +68,6 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
 
     @FXML
     private Button saveDatasetBtn;
-
-    @FXML
-    private Button saveToCloudBtn;
 
     private KeyCombination exportBtnKeyCombination =
         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN);
@@ -112,7 +108,7 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
         projectNameLabel
             .textProperty()
             .bind(
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyString(Mission::nameProperty));
 
         datasetMenuButton.modelProperty().bind(viewModel.datasetMenuModelProperty());
@@ -121,10 +117,6 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
 
         exportMenuButton.textProperty().bind(viewModel.exportButtonTextProperty());
         exportMenuButton.setOnAction(e -> viewModel.getExporter(viewModel.lastExportTypeProperty().get()).export(e));
-
-        exportMenuButton.disableProperty().bind(PropertyPath.from(viewModel.currentMatchingProperty())
-                .selectReadOnlyObject(Matching::statusProperty)
-                .isEqualTo(MatchingStatus.NEW));
 
         exportToLastDestinationMenuItem.textProperty().bind(viewModel.exportButtonTextProperty());
         exportToLastDestinationMenuItem.setOnAction(
@@ -141,25 +133,11 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
                 });
 
         saveDatasetBtn
-                .disableProperty()
-                .bind(
-                        PropertyPath.from(viewModel.currentMatchingProperty())
-                                .selectReadOnlyBoolean(Matching::matchingLayerChangedProperty)
-                                .not().or(PropertyPath.from(viewModel.currentMatchingProperty())
-                                .selectReadOnlyObject(Matching::statusProperty)
-                                .isEqualTo(MatchingStatus.NEW)));
-
-        //TODO: define when enabled!
-        saveToCloudBtn
-                .disableProperty()
-                .bind(
-                        PropertyPath.from(viewModel.currentMatchingProperty())
-                                .selectReadOnlyBoolean(Matching::matchingLayerChangedProperty)
-                                .not().or(PropertyPath.from(viewModel.currentMatchingProperty())
-                                .selectReadOnlyObject(Matching::statusProperty)
-                                .isEqualTo(MatchingStatus.NEW)));
-
-
+            .disableProperty()
+            .bind(
+                PropertyPath.from(viewModel.currentMatchingProperty())
+                    .selectReadOnlyBoolean(Matching::matchingLayerChangedProperty)
+                    .not());
 
         viewModel.getExporter(ExportTypes.CSV).alsoAvailableIf(userAllowsToOverrideFile(ExportTypes.CSV));
         viewModel
@@ -204,10 +182,6 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
         viewModel.saveDataset();
     }
 
-    public void saveToCloudAction(ActionEvent actionEvent) {
-        viewModel.saveToCloud();
-    }
-
     public void showDefineAppSettings(ActionEvent actionEvent) {
         viewModel.goToDefineAppPaths();
     }
@@ -249,7 +223,4 @@ public class DatasetView extends FancyTabView<DatasetViewModel> {
         viewModel.getRenameMissionCommand().execute();
     }
 
-    public void sparseDataset(ActionEvent actionEvent) {
-        viewModel.sparseDataset();
-    }
 }

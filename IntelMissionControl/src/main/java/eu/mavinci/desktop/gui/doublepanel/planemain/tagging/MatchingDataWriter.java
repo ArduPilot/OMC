@@ -6,13 +6,13 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPayloadConfiguration;
 import com.intel.missioncontrol.hardware.IPayloadMountConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Ensure;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CFMLWriter;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.core.licence.ILicenceManager;
@@ -65,106 +65,50 @@ public class MatchingDataWriter {
         // tag-bodies
         XMLWriter xml = new XMLWriter(new PrintWriter(os));
         xml.begin(Tokens.MATCHING_HEADER, 2);
-        xml.comment(StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+        xml.comment(DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
 
         String[] attr;
         String[] vals;
 
+        attr = new String[] {Tokens.ENABLED};
+        vals = new String[] {Boolean.toString(data.useAll)};
+        xml.tag(Tokens.USE_ALL, attr, vals);
+
         /////////////////
-        attr = new String[] {Tokens.ENABLED, Tokens.FROM, Tokens.TO, Tokens.MIN, Tokens.MAX};
+        attr = new String[] {Tokens.ENABLED, Tokens.VALUE, Tokens.SPREAD};
         vals =
             new String[] {
                 Boolean.toString(data.altitudeAGLEnabled),
-                Double.toString(data.altitudeFrom),
-                Double.toString(data.altitudeTo),
-                Double.toString(data.altitudeMin),
-                Double.toString(data.altitudeMax)
+                Double.toString(data.altitudeValue),
+                Double.toString(data.altitudeSpread)
             };
         xml.tag(Tokens.ALTFILTER, attr, vals);
 
-        attr = new String[] {Tokens.ENABLED, Tokens.FROM, Tokens.TO, Tokens.MIN, Tokens.MAX};
+        attr = new String[] {Tokens.ENABLED, Tokens.VALUE, Tokens.SPREAD};
         vals =
             new String[] {
-                Boolean.toString(data.rollEnabled),
-                Double.toString(data.rollFrom),
-                Double.toString(data.rollTo),
-                Double.toString(data.rollMin),
-                Double.toString(data.rollMax)
+                Boolean.toString(data.rollEnabled), Double.toString(data.rollValue), Double.toString(data.rollSpread)
             };
         xml.tag(Tokens.ROLLFILTER, attr, vals);
 
-        attr = new String[] {Tokens.ENABLED, Tokens.FROM, Tokens.TO, Tokens.MIN, Tokens.MAX};
+        attr = new String[] {Tokens.ENABLED, Tokens.VALUE, Tokens.SPREAD};
         vals =
             new String[] {
-                Boolean.toString(data.pitchEnabled),
-                Double.toString(data.pitchFrom),
-                Double.toString(data.pitchTo),
-                Double.toString(data.pitchMin),
-                Double.toString(data.pitchMax)
+                Boolean.toString(data.pitchEnabled), Double.toString(data.pitchValue), Double.toString(data.pitchSpread)
             };
         xml.tag(Tokens.PITCHFILTER, attr, vals);
 
-        attr = new String[] {Tokens.ENABLED, Tokens.FROM, Tokens.TO, Tokens.MIN, Tokens.MAX};
+        attr = new String[] {Tokens.ENABLED, Tokens.VALUE, Tokens.SPREAD};
         vals =
             new String[] {
-                Boolean.toString(data.yawEnabled),
-                Double.toString(data.yawFrom),
-                Double.toString(data.yawTo),
-                Double.toString(data.yawMin),
-                Double.toString(data.yawMax)
+                Boolean.toString(data.yawEnabled), Double.toString(data.yawValue), Double.toString(data.yawSpread)
             };
         xml.tag(Tokens.YAWFILTER, attr, vals);
         ////////////////
 
-        attr = new String[] {Tokens.ENABLED};
-        vals =
-            new String[] {
-                Boolean.toString(data.isoEnabled) // TODO IMC-3043
-            };
-        xml.tag(Tokens.ISOFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED};
-        vals =
-            new String[] {
-                Boolean.toString(data.exposureTimeEnabled) // TODO IMC-3043
-            };
-        xml.tag(Tokens.EXPOSIURETIMEFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED};
-        vals =
-            new String[] {
-                Boolean.toString(data.exposureEnabled) // TODO IMC-3043
-            };
-        xml.tag(Tokens.EXPOSIUREFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED};
-        vals =
-            new String[] {
-                Boolean.toString(data.imageTypeEnabled) // TODO IMC-3043
-            };
-        xml.tag(Tokens.IMAGETYPEFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED};
-        vals =
-            new String[] {
-                Boolean.toString(data.annotationEnabled) // TODO IMC-3043
-            };
-        xml.tag(Tokens.ANNOTATIONFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED};
-        vals = new String[] {Boolean.toString(data.areaEnabled)};
-        xml.tag(Tokens.AREAFILTER, attr, vals);
-
-        attr = new String[] {Tokens.ENABLED, Tokens.VALUE};
-        vals = new String[] {Boolean.toString(data.flightplanEnabled), data.flightplanSelection};
-        xml.tag(Tokens.FLIGHTPLANFILTER, attr, vals);
-
-        attr = new String[] {Tokens.NAME, Tokens.VALUE};
-        vals = new String[] {data.selectedExportFilter, data.selectedExportFilterFlag};
-        xml.tag(Tokens.SELECTEDEXPORTFILTER, attr, vals);
-
-        // TODO IMC-3043 add new fields
-        ////////////////
+        attr = new String[] {Tokens.ONLY_IN_PIC_AREA};
+        vals = new String[] {Boolean.toString(data.onlyInPicArea)};
+        xml.tag(Tokens.DIRECTION_FILTER, attr, vals);
 
         attr = new String[] {Tokens.RESOLUTION};
         vals = new String[] {Double.toString(data.cover.resolution)};
@@ -345,7 +289,7 @@ public class MatchingDataWriter {
                             Integer.toString(match.line.lineNumber),
                             Double.toString(match.line.lat),
                             Double.toString(match.line.lon),
-                            Double.toString(match.line.alt),
+                            Integer.toString(match.line.alt),
                             Integer.toString(match.line.groundSpeed_cms),
                             Double.toString(match.line.cameraRollRate),
                             Double.toString(match.line.cameraPitchRate),
@@ -441,7 +385,7 @@ public class MatchingDataWriter {
                             Integer.toString(match.line.lineNumber),
                             Double.toString(match.line.lat),
                             Double.toString(match.line.lon),
-                            Double.toString(match.line.alt),
+                            Integer.toString(match.line.alt),
                             Integer.toString(match.line.groundSpeed_cms),
                             Double.toString(match.line.cameraRollRate),
                             Double.toString(match.line.cameraPitchRate),

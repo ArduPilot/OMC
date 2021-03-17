@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
 import org.asyncfx.concurrent.FutureCompletionSource;
-import org.asyncfx.concurrent.Futures;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,10 +249,6 @@ public class ParameterProtocolSender extends PayloadSender {
 
     // Set multiple mavlink parameters simultaneously (normal or extended).
     public Future<Void> setParamsAsync(List<IMavlinkParameter> parameters) {
-        if (parameters.size() == 0) {
-            return Futures.successful();
-        }
-
         CancellationSource cts = new CancellationSource();
         this.cancellationSource.addListener(cts::cancel);
 

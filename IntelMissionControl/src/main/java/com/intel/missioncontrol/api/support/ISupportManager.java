@@ -38,7 +38,7 @@ public interface ISupportManager {
      *
      * <p>Depending on selected checkbox in the "Include" section, archives of each of the following files are being
      * uploaded: Session settings: one file: ** Intel Mission
-     * Control_INSTALLATION_PATH\sessions\SESSION_NAME\settings.json Missions: folder and included files ** Intel
+     * Control_INSTALLATION_PATH\sessions\SESSION_NAME\settings.json Flight plans: folder and included files ** Intel
      * Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\flightplans FTP Folder: folder and all included files:
      * Intel Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\ftp UAV Logs: folder and all included files: Intel
      * Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\log KML: folder and all included files: Intel Mission
@@ -87,7 +87,7 @@ public interface ISupportManager {
      *
      * <p>Depending on selected checkbox in the "Include" section, archives of each of the following files are being
      * uploaded: Session settings: one file: ** Intel Mission
-     * Control_INSTALLATION_PATH\sessions\SESSION_NAME\settings.json Missions: folder and included files ** Intel
+     * Control_INSTALLATION_PATH\sessions\SESSION_NAME\settings.json Flight plans: folder and included files ** Intel
      * Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\flightplans FTP Folder: folder and all included files:
      * Intel Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\ftp UAV Logs: folder and all included files: Intel
      * Mission Control_INSTALLATION_PATH\sessions\SESSION_NAME\log KML: folder and all included files: Intel Mission
@@ -130,8 +130,6 @@ public interface ISupportManager {
     ReadOnlyBooleanProperty hasOldSupportRequestsProperty();
 
     void scanReportFolder();
-
-    void scanReportFolder(boolean showToast);
 
     void checkErrorReports();
 }

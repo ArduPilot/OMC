@@ -193,8 +193,9 @@ public class MavlinkHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.debug("MavlinkHandler: " + cause.getMessage());
+        LOGGER.error(cause.getMessage());
         // TODO error event
+        ctx.close();
     }
 
     Future<Void> writePacketAsync(MavlinkPacket sendPkt, MavlinkEndpoint targetEndpoint) {

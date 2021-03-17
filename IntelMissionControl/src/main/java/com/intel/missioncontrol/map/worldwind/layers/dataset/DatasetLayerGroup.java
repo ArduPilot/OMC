@@ -71,7 +71,7 @@ public class DatasetLayerGroup extends LayerGroup implements IKeepClassname {
 
         setName(new LayerName("%" + getClass().getName()));
 
-        currentMission.bind(applicationContext.currentMissionProperty());
+        currentMission.bind(applicationContext.currentLegacyMissionProperty());
         datasetLayerVisibilitySettings = settingsManager.getSection(DatasetLayerVisibilitySettings.class);
 
         datasetLayerVisibilitySettings.showCurrentDatasetsProperty().addListener(observable -> fixVisibility());
@@ -111,11 +111,11 @@ public class DatasetLayerGroup extends LayerGroup implements IKeepClassname {
 
         matchings.bindContent(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyList(Mission::matchingsProperty));
 
         currentMatching.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty));
 
         currentMatching.addListener(

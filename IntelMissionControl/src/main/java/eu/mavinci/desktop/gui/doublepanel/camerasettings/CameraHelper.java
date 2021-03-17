@@ -6,7 +6,6 @@
 
 package eu.mavinci.desktop.gui.doublepanel.camerasettings;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -15,6 +14,7 @@ import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.ExpertSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.GPSFixType;
 import eu.mavinci.core.plane.sendableobjects.OrientationData;
@@ -34,7 +34,8 @@ import gov.nasa.worldwind.globes.Globe;
 public class CameraHelper {
 
     public static final String KEY = "eu.mavinci.plane.Camera";
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public static double computePlgDataDelay(CPhotoLogLine line, IHardwareConfiguration hardwareConfiguration) {
         // if (gpsType != GPStype.GPS) return 0;
@@ -175,11 +176,6 @@ public class CameraHelper {
             shiftDistance += additionalDelaySec * line.groundSpeed_cms / 100.;
         }
 
-        if (platformDescription.isJpgMetadataLocationInCameraFrame()) {
-            shiftDistance = 0;
-        }
-
-        // shift some GPS delay
         Position p1 =
             shiftDistance == 0
                 ? p
@@ -190,81 +186,74 @@ public class CameraHelper {
 
         // return new Position(end,p.getAltitude());
 
-        // shift between body and camera frame
-        if (!platformDescription.isJpgMetadataLocationInCameraFrame()) {
-            final ExpertSettings expertSettings = StaticInjector.getInstance(ExpertSettings.class);
+        final ExpertSettings expertSettings =
+            DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class);
 
-            if (platformDescription.isInCopterMode()
-                    && line.fixType == GPSFixType.rtkFixedBL
-                    && expertSettings.getCameraRtkNewLevelArm()) {
-                double nodalPoint = expertSettings.getCameraNodalPoint();
-                double phaseCenter = expertSettings.getCameraPhaseCenter();
+        if (platformDescription.isInCopterMode()
+                && line.fixType == GPSFixType.rtkFixedBL
+                && expertSettings.getCameraRtkNewLevelArm()) {
+            double nodalPoint = expertSettings.getCameraNodalPoint();
+            double phaseCenter = expertSettings.getCameraPhaseCenter();
 
-                double[] offsets =
-                    F8pkinematics_test.getOffsets(
-                        line.planeRoll,
-                        line.planePitch,
-                        line.planeYaw,
-                        line.cameraRoll,
-                        line.cameraPitch,
-                        nodalPoint,
-                        phaseCenter);
-                if ((offsets[0] != 0 || offsets[1] != 0 || offsets[2] != 0)) {
-                    // offset[2] to the sky was positive in the camera system, now it is negative
-                    // offset[0} to the tail was negative and in camera system, now it is to the North and in global
-                    // system,
-                    // so now its positive when camera_yaw is 0--- so does it mean that camera is little bit in front of
-                    // antenna
-                    // ???
-                    // offset[1] to the right wing in camera system was positive, now if it looks to the West it is
-                    // positive
-                    // in
-                    // global system
-                    // (8cm to add to the antenna position to move to the true camera position left if axis is looking
-                    // West)
+            double[] offsets =
+                F8pkinematics_test.getOffsets(
+                    line.planeRoll,
+                    line.planePitch,
+                    line.planeYaw,
+                    line.cameraRoll,
+                    line.cameraPitch,
+                    nodalPoint,
+                    phaseCenter);
+            if ((offsets[0] != 0 || offsets[1] != 0 || offsets[2] != 0)) {
+                // offset[2] to the sky was positive in the camera system, now it is negative
+                // offset[0} to the tail was negative and in camera system, now it is to the North and in global system,
+                // so now its positive when camera_yaw is 0--- so does it mean that camera is little bit in front of
+                // antenna
+                // ???
+                // offset[1] to the right wing in camera system was positive, now if it looks to the West it is positive
+                // in
+                // global system
+                // (8cm to add to the antenna position to move to the true camera position left if axis is looking West)
 
-                    // this is already in world coordinates
-                    Vec4 gpsOffset = new Vec4(-offsets[1], offsets[0], offsets[2]);
-                    /* They X axis is mapped to the vector tangent to the globe and pointing East. The Y
-                     * axis is mapped to the vector tangent to the globe and pointing to the North Pole. The Z axis is mapped to the
-                     * globe normal at (latitude, longitude, metersElevation). The origin is mapped to the cartesian position of
-                     * (latitude, longitude, metersElevation).
-                     */
-                    Matrix mat =
-                        globe.computeSurfaceOrientationAtPosition(
-                            Angle.fromDegreesLatitude(line.lat),
-                            Angle.fromDegreesLongitude(line.lon),
-                            (line.gps_altitude_cm + line.gps_ellipsoid_cm) / 100.0);
-                    Vec4 shifted = gpsOffset.transformBy4(mat);
-                    p1 = globe.computePositionFromPoint(shifted);
+                // this is already in world coordinates
+                Vec4 gpsOffset = new Vec4(-offsets[1], offsets[0], offsets[2]);
+                /* They X axis is mapped to the vector tangent to the globe and pointing East. The Y
+                 * axis is mapped to the vector tangent to the globe and pointing to the North Pole. The Z axis is mapped to the
+                 * globe normal at (latitude, longitude, metersElevation). The origin is mapped to the cartesian position of
+                 * (latitude, longitude, metersElevation).
+                 */
+                Matrix mat =
+                    globe.computeSurfaceOrientationAtPosition(
+                        Angle.fromDegreesLatitude(line.lat),
+                        Angle.fromDegreesLongitude(line.lon),
+                        (line.gps_altitude_cm + line.gps_ellipsoid_cm) / 100.0);
+                Vec4 shifted = gpsOffset.transformBy4(mat);
+                p1 = globe.computePositionFromPoint(shifted);
+            }
+        } else {
+            double gpsOffsetToRightWingInM =
+                cameraDescription.getOffsetToRightWing().convertTo(Unit.METER).getValue().doubleValue();
+            double gpsOffsetToSkyInM =
+                cameraDescription.getOffsetToSky().convertTo(Unit.METER).getValue().doubleValue();
+            double gpsOffsetToTailInM =
+                cameraDescription.getOffsetToTail().convertTo(Unit.METER).getValue().doubleValue();
+
+            if (enableLevelArm && (gpsOffsetToRightWingInM != 0 || gpsOffsetToSkyInM != 0 || gpsOffsetToTailInM != 0)) {
+                Vec4 gpsOffset = new Vec4(-gpsOffsetToRightWingInM, gpsOffsetToTailInM, -gpsOffsetToSkyInM);
+
+                if (platformDescription.isInCopterMode()) {
+                    line = line.clone(); // don't taint source data!
+                    // for falcon the old level arm approach is anyway a hack, and its better to not take pitch into
+                    // account, since the level arm values are designed to work for pitch 0
+                    line.cameraPitch = 0;
                 }
-            } else {
-                double gpsOffsetToRightWingInM =
-                    cameraDescription.getOffsetToRightWing().convertTo(Unit.METER).getValue().doubleValue();
-                double gpsOffsetToSkyInM =
-                    cameraDescription.getOffsetToSky().convertTo(Unit.METER).getValue().doubleValue();
-                double gpsOffsetToTailInM =
-                    cameraDescription.getOffsetToTail().convertTo(Unit.METER).getValue().doubleValue();
 
-                if (enableLevelArm
-                        && (gpsOffsetToRightWingInM != 0 || gpsOffsetToSkyInM != 0 || gpsOffsetToTailInM != 0)) {
-                    Vec4 gpsOffset = new Vec4(-gpsOffsetToRightWingInM, gpsOffsetToTailInM, -gpsOffsetToSkyInM);
-
-                    if (platformDescription.isInCopterMode()) {
-                        line = line.clone(); // don't taint source data!
-                        // for falcon the old level arm approach is anyway a hack, and its better to not take pitch into
-                        // account, since the level arm values are designed to work for pitch 0
-                        line.cameraPitch = 0;
-                    }
-
-                    Matrix plane = getCorrectedPlaneStateTransform(line, additionalDelaySec, hardwareConfiguration);
-                    Matrix globeMatrix = globe.computeModelCoordinateOriginTransform(p1);
-                    p1 = globe.computePositionFromPoint(gpsOffset.transformBy3(plane).transformBy4(globeMatrix));
-                }
+                Matrix plane = getCorrectedPlaneStateTransform(line, additionalDelaySec, hardwareConfiguration);
+                Matrix globeMatrix = globe.computeModelCoordinateOriginTransform(p1);
+                p1 = globe.computePositionFromPoint(gpsOffset.transformBy3(plane).transformBy4(globeMatrix));
             }
         }
 
-        // shift base station offset
         if (rtkOffset != null && rtkOffset.dotSelf3() > 0) {
             Vec4 v = globe.computePointFromPosition(p1);
             // System.out.println("rtk shift Vec: " + rtkOffset);

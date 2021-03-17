@@ -27,9 +27,33 @@ public class NavigationRules {
         dataTransferPopupEnabled =
             settingsManager.getSection(AnalysisSettings.class).dataTransferPopupEnabledProperty();
 
+        // When navigating to the data preview workflow step, choose the sidepane tab depending on the status of the
+        // current matching.
+        navigationService.addRule(
+            WorkflowStep.DATA_PREVIEW,
+            () -> {
+                Mission mission = applicationContext.getCurrentLegacyMission();
+                if (mission == null) {
+                    return null;
+                }
+
+                Matching currentMatching = mission.getCurrentMatching();
+                if (currentMatching != null) {
+                    if (currentMatching.getStatus() == MatchingStatus.NEW) {
+                        return getImportPage();
+                    } else if (currentMatching.getStatus() == MatchingStatus.IMPORTED) {
+                        return SidePanePage.VIEW_DATASET;
+                    } else if (currentMatching.getStatus() == MatchingStatus.TRANSFERRING) {
+                        return SidePanePage.TRANSFERRING_DATA;
+                    }
+                }
+
+                return null;
+            });
+
         // If we switch to another dataset, we potentially trigger a navigation request on the data preview tab.
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentMatchingProperty)
             .addListener(
                 (observable, oldValue, newValue) ->
@@ -37,7 +61,7 @@ public class NavigationRules {
                         navigationService, newValue != null ? newValue.getStatus() : null, applicationContext));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentMatchingProperty)
             .selectReadOnlyObject(Matching::statusProperty)
             .addListener(
@@ -45,16 +69,45 @@ public class NavigationRules {
                     switchCurrentDataset(navigationService, newValue, applicationContext));
     }
 
+    private SidePanePage getImportPage() {
+        return dataTransferPopupEnabled.get() ? SidePanePage.VIEW_DATASET_HELP : SidePanePage.DATA_IMPORT;
+    }
 
     private void switchCurrentDataset(
             INavigationService navigationService,
             MatchingStatus matchingStatus,
             IApplicationContext applicationContext) {
-        if (applicationContext.getCurrentMission() == null
+        if (applicationContext.getCurrentLegacyMission() == null
                 || navigationService.workflowStepProperty().get() != WorkflowStep.DATA_PREVIEW) {
             return;
         }
-        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+
+        if (matchingStatus == MatchingStatus.NEW) {
+            navigationService.navigateTo(getImportPage());
+        } else if (matchingStatus == MatchingStatus.IMPORTED) {
+            navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+        } else if (matchingStatus == MatchingStatus.TRANSFERRING) {
+            navigationService.navigateTo(SidePanePage.TRANSFERRING_DATA);
+        }
     }
 
+
+    //TODO add rule based on the changes in the applicationContext.currentMission
+    /*
+    if (clonedFlightPlan.areasOfInterestProperty().isEmpty() && !clonedFlightPlan.isTemplate()) {
+            navigationService.navigateTo(SidePanePage.CHOOSE_AOI);
+        } else {
+            Optional.ofNullable(navigationService.getWorkflowStep())
+                .filter(wfs -> wfs != WorkflowStep.FLIGHT)
+                .ifPresent(wfs -> navigationService.navigateTo(SidePanePage.EDIT_FLIGHTPLAN));
+        }
+
+
+        /////same ???
+        if (newFlightPlan.areasOfInterestProperty().isEmpty() && !newFlightPlan.isTemplate()) {
+                        navigationService.navigateTo(SidePanePage.CHOOSE_AOI);
+                    } else {
+                        navigationService.navigateTo(SidePanePage.EDIT_FLIGHTPLAN);
+                    }
+     */
 }

@@ -323,12 +323,13 @@ public class TaggingAlgorithmMeta implements ITaggingAlgorithm {
         }
 
         if (maxMatched < getPhotosAll().size() * ACCEPT_MATCHED_PHOTO_RATIO) {
-            Debug.getLog().warning("Create matching error: Less than the "
-                            + (ACCEPT_MATCHED_PHOTO_RATIO * 100)
-                            + "% of the images are matched!"+
-                    "Less than the "
-                            + (ACCEPT_MATCHED_PHOTO_RATIO * 100)
-                            + "% of the images are matched! Could not find matching between logfile and images in Folder. Probably they do not belong together!");
+            throw new TaggingException(
+                "Create matching error: Less than the "
+                    + (ACCEPT_MATCHED_PHOTO_RATIO * 100)
+                    + "% of the images are matched!",
+                "Less than the "
+                    + (ACCEPT_MATCHED_PHOTO_RATIO * 100)
+                    + "% of the images are matched! Could not find matching between logfile and images in Folder. Probably they do not belong together!");
         }
 
         Debug.getLog().info("Algorithm bestI=" + bestI + "  " + algs[bestI].getAlgName() + " wins!");

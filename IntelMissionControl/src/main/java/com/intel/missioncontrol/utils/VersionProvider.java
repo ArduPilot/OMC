@@ -7,19 +7,15 @@
 package com.intel.missioncontrol.utils;
 
 import com.google.inject.Inject;
+import com.intel.missioncontrol.helper.ManifestInfo;
 import com.intel.missioncontrol.helper.Ensure;
 import eu.mavinci.core.main.OsTypes;
 import eu.mavinci.core.obfuscation.IKeepConstructors;
 import eu.mavinci.core.update.UpdateURL;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -47,54 +43,55 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
 
     @Override
     public String getApplicationName() {
-        return getProperties().getProperty(PROPERTIES_APP_NAME);
+        return "Intel Mission Control";
+        //return getProperties().getProperty(PROPERTIES_APP_NAME);
     }
 
-    private Properties getProperties() {
-        if (properties == null) {
-            properties = new Properties();
-
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME)) {
-                if (is == null) {
-                    log.error(
-                            "Read application properties are NULL:"
-                                    + PROPERTIES_FILE_NAME
-                                    + ". please try a maven build before starting to get this file created");
-                    return properties;
-                }
-
-                Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8.name());
-                properties.load(reader);
-            } catch (IOException e) {
-                log.error("Read application properties error", e);
-            }
-        }
-
-        return properties;
-    }
+//    private Properties getProperties() {
+//        if (properties == null) {
+//            properties = new Properties();
+//
+//            try (InputStream is = getClass().getClassLoader().getResourceAsStream(PROPERTIES_FILE_NAME)) {
+//                if (is == null) {
+//                    log.error(
+//                        "Read application properties are NULL:"
+//                            + PROPERTIES_FILE_NAME
+//                            + ". please try a maven build before starting to get this file created");
+//                    return properties;
+//                }
+//
+//                Reader reader = new InputStreamReader(is, StandardCharsets.UTF_8.name());
+//                properties.load(reader);
+//            } catch (IOException e) {
+//                log.error("Read application properties error", e);
+//            }
+//        }
+//
+//        return properties;
+//    }
 
     @Override
     public String getAppVersion() {
-        return getProperties().getProperty(PROPERTIES_APP_VERSION);
+        return ManifestInfo.getVersion();
+        //return getProperties().getProperty(PROPERTIES_APP_VERSION);
     }
 
     @Override
     public String getGitBranch() {
-        return getProperties().getProperty(PROPERTIES_GIT_BRANCH);
+        return ManifestInfo.getBranchName();
+        //return getProperties().getProperty(PROPERTIES_GIT_BRANCH);
     }
 
     @Override
     public String getBuildCommitId() {
-        return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_ID);
-    }
-
-    public String getGitBuildVersion() {
-        return getProperties().getProperty(PROPERTIES_GIT_BUILD_VERSION);
+        return ManifestInfo.getCommitHash();
+        //return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_ID);
     }
 
     @Override
     public String getBuildCommitTime() {
-        return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_TIME);
+        return ManifestInfo.getBuildTime().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        //return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_TIME);
     }
 
     long commitTimeAsLong = -1;
@@ -105,20 +102,21 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
         if (commitTimeAsLong < 0) {
             commitTimeAsLong = Long.parseLong(getBuildCommitTimeAsString());
         }
+
         return commitTimeAsLong;
     }
 
     @Override
     public String getBuildCommitTimeAsString() {
         if (commitTime.isEmpty()) {
-            ZonedDateTime dateTime;
+            OffsetDateTime dateTime = ManifestInfo.getBuildTime();
             try {
-                dateTime = ZonedDateTime.parse(getBuildCommitTime(), DateTimeFormatter.ofPattern(BUILD_TIME_FORMAT));
+                //dateTime = ZonedDateTime.parse(getBuildCommitTime(), DateTimeFormatter.ofPattern(BUILD_TIME_FORMAT));
                 final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
                 commitTime = FORMATTER.format(dateTime);
             } catch (Exception e) {
                 log.info(
-                        "Could not parse build time from properties. Probably maven git plugin did not process it or your running this not form a installed build");
+                    "Could not parse build time from properties. Probably maven git plugin did not process it or your running this not form a installed build");
                 commitTime = "201707181900";
             }
         }
@@ -128,7 +126,8 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
 
     @Override
     public String getAppMajorVersion() {
-        return getGitBuildVersion();
+        return Integer.toString(ManifestInfo.getMajor());
+        //return getGitBuildVersion();
     }
 
     @Override
@@ -160,7 +159,8 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
 
     @Override
     public String getCommitID() {
-        return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_ID);
+        return getBuildCommitId();
+        //return getProperties().getProperty(PROPERTIES_BUILD_COMMIT_ID);
     }
 
     private Boolean isDebuggingCompiled = null;
@@ -191,7 +191,7 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
     }
 
     private static final String keys[] = {
-            "sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch",
+        "sun.arch.data.model", "com.ibm.vm.bitmode", "os.arch",
     };
 
     @Override
@@ -248,10 +248,10 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
         if (codeSourceFile == null) {
             try {
                 codeSourceFile =
-                        new File(
-                                URLDecoder.decode(
-                                        VersionProvider.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
-                                        "UTF-8"));
+                    new File(
+                        URLDecoder.decode(
+                            VersionProvider.class.getProtectionDomain().getCodeSource().getLocation().getPath(),
+                            "UTF-8"));
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException("Version Detection Framework failed", e);
             }
@@ -289,7 +289,7 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
             }
         }
         // MAC is not supporting commandline launch
-        throw new RuntimeException("commandline launch of this Open Mission Control version ist not supported");
+        throw new RuntimeException("commandline launch of this Intel Mission Control version ist not supported");
     }
 
     @Override

@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.main.core;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.helper.SvgUtils;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.PathSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.core.desktop.main.debug.IProfilingManager;
 import eu.mavinci.core.helper.StringHelper;
@@ -114,7 +114,7 @@ public class Application {
 
         } finally {
             // final logging
-            StaticInjector.getInstance(IProfilingManager.class).guiClosingDone();
+            DependencyInjector.getInstance().getInstanceOf(IProfilingManager.class).guiClosingDone();
             // flushing loggers
             LogManager.shutdown();
         }
@@ -144,7 +144,8 @@ public class Application {
         enoughSpace &= checkDiskSpace(pathProvider.getUserHomeDirectory().toFile(), "userHome");
         enoughSpace &=
             checkDiskSpace(
-                StaticInjector.getInstance(ISettingsManager.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
                     .getSection(PathSettings.class)
                     .projectFolderProperty()
                     .get()

@@ -7,13 +7,12 @@
 package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import com.intel.missioncontrol.ui.validation.ResolvableValidationMessage;
 import com.intel.missioncontrol.ui.validation.ValidationService;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.util.Objects;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -26,7 +25,7 @@ import org.asyncfx.concurrent.Dispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Check if mission service reports errors */
+/** Check if flight plan service reports errors */
 public class FlightPlanWarningsValidator implements IFlightValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlightPlanWarningsValidator.class);
 
@@ -40,13 +39,15 @@ public class FlightPlanWarningsValidator implements IFlightValidator {
     private ValidationService validationService;
 
     @Inject
-    FlightPlanWarningsValidator(IFlightValidationService flightValidationService, ILanguageHelper languageHelper) {
+    FlightPlanWarningsValidator(IFlightValidationService flightValidationService) {
+        ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+
         flightPlan.bind(flightValidationService.flightPlanProperty());
 
         Dispatcher dispatcher = Dispatcher.platform();
         dispatcher.run(
             () -> {
-                validationService = StaticInjector.getInstance(ValidationService.class);
+                validationService = DependencyInjector.getInstance().getInstanceOf(ValidationService.class);
 
                 validationStatus.bind(
                     Bindings.createObjectBinding(
@@ -94,15 +95,5 @@ public class FlightPlanWarningsValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.FLIGHTPLAN_WARNINGS;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

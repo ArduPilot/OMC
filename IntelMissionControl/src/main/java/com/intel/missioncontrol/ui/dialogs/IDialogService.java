@@ -24,6 +24,18 @@ public interface IDialogService {
 
     String GET_WINDOW_REQUEST = "IDialogSupport.GetWindowRequest";
 
+    class GetWindowRequest {
+        private Window window;
+
+        public void setWindow(Window window) {
+            this.window = window;
+        }
+
+        public @Nullable Window getWindow() {
+            return window;
+        }
+    }
+
     /**
      * Shows the specified dialog and returns immediately. The dialog will be owned by the view that is associated with
      * the specified view model. If the associated view has registered a MvvmFX context for the view model using
@@ -77,12 +89,6 @@ public interface IDialogService {
 
     <ViewModelType extends ViewModelBase> Future<ViewModelType> requestPopoverDialogAsync(
             ViewModel ownerViewModel, Class<ViewModelType> popoverDialogViewModelClass, Point2D location);
-
-    <ViewModelType extends ViewModelBase, PayloadType> Future<ViewModelType> requestPopoverDialogAsync(
-            ViewModel ownerViewModel,
-            Class<ViewModelType> popoverDialogViewModelClass,
-            @Nullable Supplier<PayloadType> payloadSupplier,
-            Point2D location);
 
     <T> void requestProgressDialog(Task<T> task, String title, String header);
 
@@ -200,17 +206,5 @@ public interface IDialogService {
 
     @Deprecated
     String showChoicesDialog(String header, String okButtonText, List<String> samples);
-
-    class GetWindowRequest {
-        private Window window;
-
-        public @Nullable Window getWindow() {
-            return window;
-        }
-
-        public void setWindow(Window window) {
-            this.window = window;
-        }
-    }
 
 }

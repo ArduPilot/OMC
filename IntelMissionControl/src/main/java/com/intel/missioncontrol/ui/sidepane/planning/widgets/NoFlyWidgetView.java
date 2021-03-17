@@ -69,10 +69,8 @@ public class NoFlyWidgetView extends GridPane implements Initializable, FxmlView
     @FXML
     private ComboBox<CPicArea.RestrictedAreaHeightReferenceTypes> ceilingReference;
 
-/*
     @FXML
     private ToggleGroup areaShapeToggleGroup;
-*/
 
     @FXML
     private RadioButton polygonBtn;
@@ -158,7 +156,6 @@ public class NoFlyWidgetView extends GridPane implements Initializable, FxmlView
 
         radiusBox.visibleProperty().bind(viewModel.needRadiusProperty());
         radiusBox.managedProperty().bind(radiusBox.visibleProperty());
-/*
 
         areaShapeToggleGroup
             .selectedToggleProperty()
@@ -178,7 +175,6 @@ public class NoFlyWidgetView extends GridPane implements Initializable, FxmlView
                         }
                     }
                 });
-*/
 
         viewModel.aoiTypeProperty().addListener((observable, oldValue, newValue) -> setAoiType(newValue));
         setAoiType(viewModel.aoiTypeProperty().get());

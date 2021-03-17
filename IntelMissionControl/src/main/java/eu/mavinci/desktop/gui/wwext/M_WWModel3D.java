@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.wwext;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.wwext.sun.SunPositionProviderSingleton;
 import eu.mavinci.wwjextensions.Movable3DModel;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -21,7 +21,8 @@ public class M_WWModel3D extends Movable3DModel {
     protected boolean setOnGround = false;
     protected double altOffset = IElevationModel.MIN_LEVEL_OVER_GROUND;
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
     private static final DisplayListRenderer renderer;
 

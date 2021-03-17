@@ -16,8 +16,6 @@ import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
-import java.util.stream.Collectors;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -26,11 +24,10 @@ import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Dispatcher;
 
-/** Check if selected camera in mission hardware setting is connected */
+/** Check if selected camera in flight plan hardware setting is connected */
 public class CameraValidator implements IFlightValidator {
     public interface Factory {
         CameraValidator create(CancellationSource cancellationSource);
@@ -73,7 +70,7 @@ public class CameraValidator implements IFlightValidator {
                 CameraValidator.this.addFlightPlanHardwareListener();
             };
 
-        flightValidationService.flightPlanProperty().addListener(fpChangeListener, Dispatcher.platform()::run);
+        flightValidationService.flightPlanProperty().addListener(fpChangeListener, Dispatcher.platform());
 
         cancellationSource.addListener(
             mayInterruptIfRunning ->
@@ -84,8 +81,8 @@ public class CameraValidator implements IFlightValidator {
                             flightValidationService.flightPlanProperty().removeListener(fpChangeListener);
                         }));
 
-        droneCameras.addListener((InvalidationListener)(o) -> updateCamera());
-        fpCameraDesc.addListener((o) -> updateCamera());
+        droneCameras.addListener((InvalidationListener)(o) -> Dispatcher.background().run(this::updateCamera));
+        fpCameraDesc.addListener((o) -> Dispatcher.background().run(this::updateCamera));
 
         validationStatus.bind(
             Bindings.createObjectBinding(
@@ -107,13 +104,9 @@ public class CameraValidator implements IFlightValidator {
 
                     ICamera cam = compatibleCamera.get();
                     if (cam == null) {
-                        String detectedCams;
-                        try(LockedList<? extends ICamera> cams = droneCameras.lock()) {
-                            detectedCams = cams.stream().map(c -> c.getCameraDescription().getName()).collect(Collectors.joining(", "));
-                        }
                         return new FlightValidationStatus(
                             AlertType.WARNING,
-                            languageHelper.getString(CameraValidator.class, "wrongCameraSelected", fpCameraString, detectedCams));
+                            languageHelper.getString(CameraValidator.class, "wrongCameraSelected", fpCameraString));
                     }
 
                     ICamera.Status camStatus = cameraStatus.get();
@@ -121,17 +114,13 @@ public class CameraValidator implements IFlightValidator {
                         camStatus = ICamera.Status.UNKNOWN;
                     }
 
-                    String otherCams;
-                    try(LockedList<? extends ICamera> cams = droneCameras.lock()) {
-                        otherCams = cams.stream().filter(c -> c != cam).map(c -> c.getCameraDescription().getName()).collect(Collectors.joining(", "));
-                    }
                     switch (camStatus) {
                     case PARAMETER_ERROR:
                         return new FlightValidationStatus(
-                            AlertType.WARNING, languageHelper.getString(CameraValidator.class, "parameterError", cam.getCameraDescription().getName(), otherCams));
+                            AlertType.WARNING, languageHelper.getString(CameraValidator.class, "parameterError"));
                     case OK:
                         return new FlightValidationStatus(
-                            AlertType.COMPLETED, languageHelper.getString(CameraValidator.class, "okMessage", cam.getCameraDescription().getName(), otherCams));
+                            AlertType.COMPLETED, languageHelper.getString(CameraValidator.class, "okMessage"));
                     case UNKNOWN:
                     default:
                         return new FlightValidationStatus(
@@ -139,7 +128,7 @@ public class CameraValidator implements IFlightValidator {
                     }
                 },
                 compatibleCamera,
-                droneCameras,
+                droneCameras.emptyProperty(),
                 cameraStatus,
                 fpCameraDesc));
     }
@@ -151,17 +140,18 @@ public class CameraValidator implements IFlightValidator {
             return;
         }
 
-        ICamera cam = null;
         try (var cams = droneCameras.lock()) {
-            for (var c : cams) {
-                IGenericCameraDescription desc = c.getCameraDescription();
+            for (var cam : cams) {
+                IGenericCameraDescription desc = cam.getCameraDescription();
+
                 if (desc.getId().equals(fpCamDesc.getId())) {
-                    cam = c;
-                    break;
+                    compatibleCamera.getExecutor().execute(() -> compatibleCamera.set(cam));
+                    return;
                 }
             }
         }
-        compatibleCamera.set(cam);
+
+        compatibleCamera.set(null);
     }
 
     private void addFlightPlanHardwareListener() {
@@ -195,7 +185,7 @@ public class CameraValidator implements IFlightValidator {
                 .getHardwareConfiguration()
                 .getPrimaryPayload(IGenericCameraConfiguration.class)
                 .getDescription());
-    }
+    };
 
     public ReadOnlyAsyncObjectProperty<FlightValidationStatus> validationStatusProperty() {
         return validationStatus;
@@ -204,16 +194,6 @@ public class CameraValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.CAMERA;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 
 }

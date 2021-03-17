@@ -121,14 +121,6 @@ class GenericCameraDescription extends NotificationObject implements IMutableGen
                 JsonHelper.warnMissingKey("mavlinkParams");
             }
 
-            array = json.getAsJsonArray("mavlinkCameraSpecifications");
-            if (array != null) {
-                description.setMavlinkCameraSpecifications(
-                    Arrays.asList(context.deserialize(array, MavlinkCameraSpecification[].class)));
-            } else {
-                JsonHelper.warnMissingKey("mavlinkCameraSpecifications");
-            }
-
             return description;
         }
     }
@@ -180,7 +172,6 @@ class GenericCameraDescription extends NotificationObject implements IMutableGen
     private String videoStreamUri;
     private List<String> compatibleLensIds = new ArrayList<>();
     private List<MavlinkParam> mavlinkParams = new ArrayList<>();
-    private List<MavlinkCameraSpecification> mavlinkCameraSpecifications = new ArrayList<>();
 
     public GenericCameraDescription() {}
 
@@ -584,22 +575,6 @@ class GenericCameraDescription extends NotificationObject implements IMutableGen
             List<MavlinkParam> oldValues = this.mavlinkParams;
             this.mavlinkParams = values;
             notifyPropertyChanged(MAVLINK_PARAMS_PROPERTY, oldValues, values);
-        }
-    }
-
-    @Override
-    public List<MavlinkCameraSpecification> getMavlinkCameraSpecifications() {
-        return mavlinkCameraSpecifications;
-    }
-
-    @Override
-    public void setMavlinkCameraSpecifications(List<MavlinkCameraSpecification> values) {
-        Expect.notNull(values, "values");
-        verifyMutable();
-        if (!this.mavlinkCameraSpecifications.equals(values)) {
-            List<MavlinkCameraSpecification> oldValues = this.mavlinkCameraSpecifications;
-            this.mavlinkCameraSpecifications = values;
-            notifyPropertyChanged(MAVLINK_CAMERA_SPECIFICATIONS_PROPERTY, oldValues, values);
         }
     }
 

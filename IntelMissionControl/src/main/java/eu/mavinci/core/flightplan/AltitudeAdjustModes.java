@@ -6,11 +6,11 @@
 
 package eu.mavinci.core.flightplan;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 import eu.mavinci.core.plane.APTypes;
 import java.util.LinkedList;
 
-public enum AltitudeAdjustModes implements IKeepAll {
+public enum AltitudeAdjustModes implements Localizable {
     CONSTANT_OVER_R, // over takeoff
     // contstantOnLine, // not used
     STEPS_ON_LINE, // not used

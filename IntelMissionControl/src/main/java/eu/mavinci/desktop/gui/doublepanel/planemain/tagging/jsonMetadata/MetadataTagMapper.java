@@ -42,20 +42,9 @@ public class MetadataTagMapper {
                 new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.ROLL, adapter::getRoll),
                 new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.YAW, adapter::getYaw),
                 new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.PITCH, adapter::getPitch),
-
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.AIRFRAME_ROLL_DEGREE, adapter::getRoll),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.AIRFRAME_YAW_DEGREE, adapter::getYaw),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.AIRFRAME_PITCH_DEGREE, adapter::getPitch),
-
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.GIMBAL_ROLL_DEGREE, adapter::getGimbalRoll),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.GIMBAL_PITCH_DEGREE, adapter::getGimbalPitch),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.GIMBAL_YAW_DEGREE, adapter::getGimbalYaw),
-
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.BASE_STATION_ALTITUDE, adapter::getBaseStationAltitude),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.BASE_STATION_LATITUDE, adapter::getBaseStationLatitude),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.BASE_STATION_LONGITUDE, adapter::getBaseStationLongitude),
-                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.BASE_STATION_FIX_TYPE, adapter::getBaseStationFixType)
-                );
+                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.XMP_FLIGHT_ROLL_DEGREE, adapter::getRoll),
+                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.XMP_FLIGHT_YAW_DEGREE, adapter::getYaw),
+                new AbstractMap.SimpleEntry<ExifTool.Tag, Functor>(ExifTool.Tag.XMP_FLIGHT_PITCH_DEGREE, adapter::getPitch));
     }
 
     public String getValueByTag(final ExifTool.Tag tag) throws NullPointerException {

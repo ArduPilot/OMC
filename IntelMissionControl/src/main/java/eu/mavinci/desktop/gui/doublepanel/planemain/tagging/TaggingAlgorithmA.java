@@ -6,13 +6,13 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.mission.MissionConstants;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.sun.jna.ptr.IntByReference;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CDump;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.PhotoLogLineType;
@@ -796,6 +796,7 @@ public abstract class TaggingAlgorithmA implements ITaggingAlgorithm {
         // boolean hasWarnedClock=false;
         PhotoCube curPhotoCube = null;
         int curFillLevel = 0;
+        //TODO use copyFiles
         for (File f : photoFiles) {
             if (progressCallbackImgLoading != null) {
                 if (progressCallbackImgLoading.isCanceled()) {
@@ -806,7 +807,10 @@ public abstract class TaggingAlgorithmA implements ITaggingAlgorithm {
             }
 
             prog++;
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                            .getInstanceOf(ISettingsManager.class)
+                            .getSection(GeneralSettings.class)
+                            .getOperationLevel()
                         != OperationLevel.DEBUG
                     && f.getName().toLowerCase().startsWith(PhotoFile.PREFIX_PREVIEW_IMG)) {
                 continue;
@@ -831,7 +835,7 @@ public abstract class TaggingAlgorithmA implements ITaggingAlgorithm {
                 curPhotoFile.generateThumpFile();
             }
 
-            if (!curPhotoFile.isTimestampValid() && !MFileFilter.imagesWithoutPreview.accept(f)) {
+            if (!curPhotoFile.isTimestampValid()  && !MFileFilter.imagesWithoutPreview.accept(f)) {
                 Debug.getLog().severe("The exif's timestamp seems to be invalid in  " + f.getAbsolutePath());
                 continue;
             }
@@ -872,7 +876,8 @@ public abstract class TaggingAlgorithmA implements ITaggingAlgorithm {
         sortoutCalibPhotos();
         Debug.getLog().config(picFolder + " -> no imgages=" + getPhotosAll().size());
         if (getPhotosAll().size() == 0
-                && StaticInjector.getInstance(ISettingsManager.class)
+                && DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
                         .getSection(GeneralSettings.class)
                         .getOperationLevel()
                     == OperationLevel.USER) {
@@ -943,7 +948,8 @@ public abstract class TaggingAlgorithmA implements ITaggingAlgorithm {
         int noFilesPerCube = matching.getNumberOfImagesPerPosition();
         if (photoFilesUnmatched != null) {
             for (File f : photoFilesUnmatched) {
-                if (StaticInjector.getInstance(ISettingsManager.class)
+                if (DependencyInjector.getInstance()
+                                .getInstanceOf(ISettingsManager.class)
                                 .getSection(GeneralSettings.class)
                                 .getOperationLevel()
                             != OperationLevel.DEBUG

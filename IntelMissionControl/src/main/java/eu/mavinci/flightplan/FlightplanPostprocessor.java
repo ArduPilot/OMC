@@ -8,7 +8,6 @@ package eu.mavinci.flightplan;
 
 import static gov.nasa.worldwind.geom.Angle.normalizedDegrees;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPayloadDescription;
@@ -17,13 +16,13 @@ import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Unit;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.FlightplanContainerFullException;
 import eu.mavinci.core.flightplan.FlightplanContainerWrongAddingException;
 import eu.mavinci.core.flightplan.FlightplanSpeedModes;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.Orientation;
 import eu.mavinci.core.flightplan.PlanType;
-import eu.mavinci.core.flightplan.SpeedMode;
 import eu.mavinci.core.flightplan.visitors.CollectsTypeVisitor;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -45,10 +44,13 @@ public class FlightplanPostprocessor {
 
     public static final double MIN_FALCON_SPEED = 0.1; // meters per sec
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
     public static final String DJI_PHANTOM_WAYPOINT_BODY =
-        StaticInjector.getInstance(ILanguageHelper.class).getString("eu.mavinci.flightplan.DJIPhantomWaypointBody");
+        DependencyInjector.getInstance()
+            .getInstanceOf(ILanguageHelper.class)
+            .getString("eu.mavinci.flightplan.DJIPhantomWaypointBody");
 
     public FlightplanPostprocessor(Flightplan flightplan) {
         this.flightplan = flightplan;
@@ -132,16 +134,13 @@ public class FlightplanPostprocessor {
                         nextWp.setStopHereTimeCopter(minTimeInterval * 1000);
                         // System.out.println("STOPPING");
                     }
-                    if (!nextWp.getSpeedMode().equals(SpeedMode.fast)) {
-                        nextWp.setSpeedMpSec(speed);
-                    }
+
+                    nextWp.setSpeedMpSec(speed);
                     lastSpeed = speed;
                     previousOrientation = nextOrientation;
                 }
             } else if (speedMode == FlightplanSpeedModes.MANUAL_CONSTANT) {
-                if (!nextWp.getSpeedMode().equals(SpeedMode.fast)) {
-                    nextWp.setSpeedMpSec(maxSpeed);
-                }
+                nextWp.setSpeedMpSec(maxSpeed);
             }
 
             previousVec = nextVec;
@@ -151,11 +150,8 @@ public class FlightplanPostprocessor {
         if (speedMode == FlightplanSpeedModes.AUTOMATIC_DYNAMIC && wpList.size() > 1) {
             Waypoint firstWp = wpList.elementAt(0);
             Waypoint secondWp = wpList.elementAt(1);
-            if (!firstWp.getSpeedMode().equals(SpeedMode.fast)) {
-                firstWp.setSpeedMpSec(Math.min(firstWp.getSpeedMpSec(), secondWp.getSpeedMpSec()));
-                firstWp.setStopHereTimeCopter(
-                    Math.max(firstWp.getStopHereTimeCopter(), secondWp.getStopHereTimeCopter()));
-            }
+            firstWp.setSpeedMpSec(Math.min(firstWp.getSpeedMpSec(), secondWp.getSpeedMpSec()));
+            firstWp.setStopHereTimeCopter(Math.max(firstWp.getStopHereTimeCopter(), secondWp.getStopHereTimeCopter()));
         }
     }
 
@@ -180,7 +176,7 @@ public class FlightplanPostprocessor {
                 platformDesc.getPhantomWaypointsLitchiDistance().convertTo(Unit.METER).getValue().doubleValue();
             double minGroundDistance =
                 platformDesc.getMinGroundDistance().convertTo(Unit.METER).getValue().doubleValue();
-            final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+            final Globe globe = DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
             double minWpSeparation =
                 platformDesc.getMinWaypointSeparation().convertTo(Unit.METER).getValue().doubleValue();
             double maxWpSeparation =
@@ -520,10 +516,7 @@ public class FlightplanPostprocessor {
                                         Math.max(d_turn_in_new, d_turn_out_new) + d_dec + security_offset_gen_traj));
                             Position p2 = fastPositionTransformationProvider.cheapToGlobalRelHeights(turn_Wpt2_vec);
 
-                            if (k_in > 0
-                                    && k_out > 0
-                                    && validate(current_Wpt.getParent(), p1)
-                                    && validate(current_Wpt.getParent(), p2)) {
+                            if (validate(current_Wpt.getParent(), p1) && validate(current_Wpt.getParent(), p2)) {
                                 // do point number two before 1 in order to get them inserted in the right
                                 // places
                                 // Phantom wpt 2
@@ -604,9 +597,10 @@ public class FlightplanPostprocessor {
         Vec4 vPrevious = null;
         int del = 0;
         for (var wp : wpList) {
-            if (wp.getParent() instanceof PicArea) {
-                if (((PicArea)wp.getParent()).getPlanType() == PlanType.INSPECTION_POINTS) continue;
-            }
+            if(wp.getParent() instanceof PicArea) {
+                if(((PicArea) wp.getParent()).getPlanType()==PlanType.INSPECTION_POINTS)
+                    continue;
+                }
 
             v = fastPositionTransformationProvider.cheapToLocalRelHeights(wp.getPosition());
             if (vPrevious != null) {

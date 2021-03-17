@@ -12,7 +12,6 @@ import org.asyncfx.PublishSource;
 import org.asyncfx.beans.AccessController;
 import org.asyncfx.beans.value.AsyncObservableValue;
 import org.asyncfx.concurrent.Dispatcher;
-import org.asyncfx.concurrent.SequentialExecutors;
 
 @PublishSource(module = "openjfx", licenses = "intel-gpl-classpath-exception")
 public interface ReadOnlyAsyncProperty<T> extends AsyncObservableValue<T> {
@@ -33,30 +32,12 @@ public interface ReadOnlyAsyncProperty<T> extends AsyncObservableValue<T> {
     default Executor getExecutor() {
         Dispatcher dispatcher = getMetadata().getDispatcher();
         if (dispatcher != null) {
-            return dispatcher::run;
+            return dispatcher;
         }
 
         Object bean = getBean();
         dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-        return dispatcher != null ? dispatcher::run : MoreExecutors.directExecutor();
-    }
-
-    default Executor getSequentialExecutor() {
-        Dispatcher dispatcher = getMetadata().getDispatcher();
-        if (dispatcher != null) {
-            dispatcher.verifySequential();
-            return dispatcher::run;
-        }
-
-        Object bean = getBean();
-        dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-
-        if (dispatcher != null) {
-            dispatcher.verifySequential();
-            return dispatcher::run;
-        }
-
-        return SequentialExecutors.sequentialDirectExecutor();
+        return dispatcher != null ? dispatcher : MoreExecutors.directExecutor();
     }
 
 }

@@ -6,8 +6,14 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import com.google.common.base.Objects;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Executor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.WeakListener;
@@ -17,7 +23,6 @@ import javafx.beans.value.ObservableValue;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.binding.AsyncExpressionHelper;
 import org.asyncfx.beans.binding.ValueConverter;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -53,12 +58,12 @@ public abstract class AsyncStringPropertyBase extends AsyncStringPropertyBaseImp
 
     @Override
     public void set(String newValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate, fireEvent = false;
-        AsyncExpressionHelper<String> helper;
 
         try {
-            stamp = accessController.writeLock(true);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
             PropertyHelper.verifyAccess(this, metadata);
 
             if (observable != null) {
@@ -71,13 +76,19 @@ public abstract class AsyncStringPropertyBase extends AsyncStringPropertyBaseImp
 
             value = newValue;
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, GROUP);
+                resolveDeferredListeners();
 
                 if (AsyncExpressionHelper.validatesValue(helper)) {
-                    newValue = getCore();
+                    try {
+                        newValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
 
                 if (!(fireEvent = !accessController.isLocked())) {
@@ -85,23 +96,35 @@ public abstract class AsyncStringPropertyBase extends AsyncStringPropertyBaseImp
 
                     accessController.defer(
                         () -> {
-                            invalidated();
-                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            long stamp = 0;
+                            try {
+                                stamp = accessController.writeLock(EVENT, GROUP);
+                                invalidated();
+                                AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            } finally {
+                                accessController.unlockWrite(EVENT, stamp);
+                            }
                         });
+
+                    accessController.unlockWrite(EVENT, eventStamp);
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (fireEvent) {
-            invalidated();
-            AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            try {
+                invalidated();
+                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
     @Override
-    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, String> converter) {
+    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, ? extends String> converter) {
         if (source == null) {
             throw new NullPointerException("Cannot bind to null.");
         }
@@ -111,16 +134,15 @@ public abstract class AsyncStringPropertyBase extends AsyncStringPropertyBaseImp
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         String newValue = null;
         PropertyMetadata<String> metadata;
-        AsyncExpressionHelper<String> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
             if (metadata.getConsistencyGroup() != null) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
@@ -156,34 +178,52 @@ public abstract class AsyncStringPropertyBase extends AsyncStringPropertyBaseImp
                 invalidate = valid;
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getCore();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
+            final String newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
+
+            Executor executor = metadata.getDispatcher();
+            if (executor == null) {
                 Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
+                executor = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
             }
 
-            if (dispatcher != null) {
-                final String newValueCopy = newValue;
-
-                dispatcher.run(
+            if (executor != null) {
+                executor.execute(
                     () -> {
-                        invalidated();
-                        AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
             } else {
-                invalidated();
-                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+                try {
+                    accessController.changeEventLockOwner(Thread.currentThread());
+                    invalidated();
+                    AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                } finally {
+                    accessController.unlockWrite(EVENT, eventStampCopy);
+                }
             }
         }
     }

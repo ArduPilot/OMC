@@ -68,7 +68,7 @@ public class FMLWriter extends CFMLWriter {
             transformer.transform(new DOMSource(doc.getDocumentElement()), new StreamResult(out));
 
         } catch (Exception e) {
-            Debug.getLog().log(Level.WARNING, "Cant transform mission to ASM code", e);
+            Debug.getLog().log(Level.WARNING, "Cant transform Flightplan to ASM code", e);
         }
 
         return out.toString();

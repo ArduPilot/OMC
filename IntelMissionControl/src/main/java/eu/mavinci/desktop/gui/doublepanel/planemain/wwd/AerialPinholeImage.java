@@ -6,12 +6,12 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Unit;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.plane.sendableobjects.PhotoData;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
@@ -60,7 +60,8 @@ public class AerialPinholeImage
     private boolean isMatchable = false;
 
     ComputeCornerData.IAerialPinholeImageContext context;
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public AerialPinholeImage(MapLayerMatch match) {
         this(match.getPhotoLogLine(), match.getMatching());

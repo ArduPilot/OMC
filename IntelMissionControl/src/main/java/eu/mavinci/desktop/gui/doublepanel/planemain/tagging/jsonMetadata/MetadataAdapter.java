@@ -76,32 +76,19 @@ public class MetadataAdapter {
         return String.format("%s %s", this.metadata.getImageWidth(), this.metadata.getImageHeight());
     }
 
-    boolean newFormat = true;
-
     public String getDateTimeOriginal() {
-        // new format: "2019-10-14 13:04:15.400000"
-        SimpleDateFormat source = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-        // old format: "2019-07-24T18:36:26.498737"
-        SimpleDateFormat source2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        SimpleDateFormat destination = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
         try {
+            SimpleDateFormat source = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat destination = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+
             return destination.format(source.parse(this.metadata.getCaptureTime()));
         } catch (final ParseException e) {
-            try {
-                newFormat = false;
-                return destination.format(source2.parse(this.metadata.getCaptureTime()));
-            } catch (final ParseException e1) {
-                return "";
-            }
+            return "";
         }
     }
 
     public String getLatitude() {
-        if (newFormat) {
-            return Double.toString(this.metadata.getStatus().getGPS().getLatitude());
-        } else {
-            return Double.toString(this.metadata.getStatus().getGPS().getLatitude() / 10_000_000);
-        }
+        return Double.toString(this.metadata.getStatus().getGPS().getLatitude() / 10_000_000);
     }
 
     public String getLatitudeRef() {
@@ -109,11 +96,7 @@ public class MetadataAdapter {
     }
 
     public String getLongitude() {
-        if (newFormat) {
-            return Double.toString(this.metadata.getStatus().getGPS().getLongitude());
-        } else {
-            return Double.toString(this.metadata.getStatus().getGPS().getLongitude() / 10_000_000);
-        }
+        return Double.toString(this.metadata.getStatus().getGPS().getLongitude() / 10_000_000);
     }
 
     public String getLongitudeRef() {
@@ -121,7 +104,7 @@ public class MetadataAdapter {
     }
 
     public String getAltitude() {
-        return Double.toString(this.metadata.getStatus().getGPS().getAltitude() / 1000); // from mm to m
+        return Double.toString(this.metadata.getStatus().getGPS().getAltitude() / 1000);
     }
 
     public String getAltitudeRef() {
@@ -138,46 +121,6 @@ public class MetadataAdapter {
 
     public String getYaw() {
         return this.metadata.getStatus().getAirframe().getYaw();
-    }
-
-    public String getGimbalRoll() {
-        return this.metadata.getStatus().getGimbal().getRoll();
-    }
-
-    public String getGimbalPitch() {
-        return this.metadata.getStatus().getGimbal().getPitch();
-    }
-
-    public String getGimbalYaw() {
-        return this.metadata.getStatus().getGimbal().getYaw();
-    }
-
-    public String getBaseStationAltitude() {
-        if (newFormat) {
-            return Double.toString(this.metadata.getBaseStation().getAltitude()); // m
-        } else {
-            return Double.toString(this.metadata.getBaseStation().getAltitude() / 1000); // from mm to m
-        }
-    }
-
-    public String getBaseStationLatitude() {
-        if (newFormat) {
-            return Double.toString(this.metadata.getBaseStation().getLatitude());
-        } else {
-            return Double.toString(this.metadata.getBaseStation().getLatitude() / 10_000_000);
-        }
-    }
-
-    public String getBaseStationLongitude() {
-        if (newFormat) {
-            return Double.toString(this.metadata.getBaseStation().getLongitude());
-        } else {
-            return Double.toString(this.metadata.getBaseStation().getLongitude() / 10_000_000);
-        }
-    }
-
-    public String getBaseStationFixType() {
-        return this.metadata.getFixType();
     }
 
     @Override

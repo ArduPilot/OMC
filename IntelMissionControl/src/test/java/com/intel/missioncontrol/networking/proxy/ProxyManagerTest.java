@@ -6,8 +6,8 @@
 
 package com.intel.missioncontrol.networking.proxy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.github.markusbernhardt.proxy.ProxySearch;
 import com.github.markusbernhardt.proxy.search.browser.ie.IEProxyConfig;
@@ -148,7 +148,7 @@ class ProxyManagerTest extends TestBase {
         for (URI uri : TestUris.all) {
             List<Proxy> select = ps.select(uri);
             Proxy proxy = select.get(0);
-            assertEquals("uri failed " + uri, Proxy.Type.HTTP, proxy.type());
+            assertEquals(Proxy.Type.HTTP, proxy.type());
         }
     }
 
@@ -171,7 +171,7 @@ class ProxyManagerTest extends TestBase {
         for (URI uri : TestUris.all) {
             List<Proxy> select = ps.select(uri);
             Proxy proxy = select.get(0);
-            assertEquals("uri failed " + uri, Proxy.Type.SOCKS, proxy.type());
+            assertEquals(Proxy.Type.SOCKS, proxy.type());
         }
 
         // proxy for http and use socks for everything else
@@ -185,9 +185,9 @@ class ProxyManagerTest extends TestBase {
             List<Proxy> select = ps.select(uri);
             Proxy proxy = select.get(0);
             if (uri.getScheme().equals("http")) {
-                assertEquals("uri failed " + uri, Proxy.Type.HTTP, proxy.type());
+                assertEquals(Proxy.Type.HTTP, proxy.type());
             } else {
-                assertEquals("uri failed " + uri, Proxy.Type.SOCKS, proxy.type());
+                assertEquals(Proxy.Type.SOCKS, proxy.type());
             }
         }
     }

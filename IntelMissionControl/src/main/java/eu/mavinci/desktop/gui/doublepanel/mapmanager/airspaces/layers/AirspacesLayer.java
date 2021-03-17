@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import org.asyncfx.concurrent.Dispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class AirspacesLayer extends AbstractLayer implements IAirspaceListener {
 
     private RenderableLayer airspacesSurfaceLayer = new RenderableLayer();
 
-    public AirspacesLayer() {
+    public AirspacesLayer(Dispatcher dispatcher) {
         setPickEnabled(true);
         setName(getName());
         airspacesSurfaceLayer.setMaxActiveAltitude(3000000);

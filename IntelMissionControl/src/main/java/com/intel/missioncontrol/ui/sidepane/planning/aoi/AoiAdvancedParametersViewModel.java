@@ -76,7 +76,7 @@ public class AoiAdvancedParametersViewModel extends DialogViewModel<Object, Area
                 .and(Bindings.createBooleanBinding(() -> aoi.getType().needsTranformation(), aoi.typeProperty())));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener(
                 new InvalidationListener() {
@@ -86,7 +86,7 @@ public class AoiAdvancedParametersViewModel extends DialogViewModel<Object, Area
                     }
                 });
         applicationContext
-            .currentMissionProperty()
+            .currentLegacyMissionProperty()
             .addListener(
                 new InvalidationListener() {
                     @Override
@@ -127,7 +127,7 @@ public class AoiAdvancedParametersViewModel extends DialogViewModel<Object, Area
             return null;
         }
 
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission == null) {
             return null;
         }
@@ -136,7 +136,7 @@ public class AoiAdvancedParametersViewModel extends DialogViewModel<Object, Area
     }
 
     public void saveAsDefaults() {
-        FlightPlan currentFlightplan = applicationContext.getCurrentMission().getCurrentFlightPlan();
+        FlightPlan currentFlightplan = applicationContext.getCurrentLegacyMission().getCurrentFlightPlan();
 
         if (currentFlightplan.getLegacyFlightplan().getFile().exists()) {
             flightPlanService.updateTemplateAoi(currentFlightplan, areaOfInterest);

@@ -34,7 +34,7 @@ public class AoiWorkflowHints {
                     ObservableValue<? extends ObservableList<AreaOfInterestCorner>> observableValue,
                     ObservableList<AreaOfInterestCorner> oldCorners,
                     ObservableList<AreaOfInterestCorner> newCorners) {
-                if (newCorners != null && newCorners.size() > 1) {
+                if (newCorners != null && newCorners.size() >= 1) {
                     if (toast != null) {
                         toast.dismiss();
                         toast = null;
@@ -56,7 +56,7 @@ public class AoiWorkflowHints {
     public void reportEvent(AoiWorkflowEvent aoiWorkflowEvent) {
         if (aoiWorkflowEvent.allowedToShow(workflowHints)) {
             AreaOfInterest aoi = aoiWorkflowEvent.getAoi();
-            if (aoi.isInitialAddingProperty().get()) {
+            if (aoi.cornerListProperty().size() == 0) {
                 String textForAoi = getTextForAoi(aoi.getType());
                 if (textForAoi != null) {
                     toast = simpleToast(aoiWorkflowEvent, textForAoi);
@@ -104,8 +104,10 @@ public class AoiWorkflowHints {
             return languageHelper.getString("com.intel.missioncontrol.api.workflow.AoiWorkflowHints.aoi.citymapping");
         case POINT_OF_INTEREST:
             return languageHelper.getString("com.intel.missioncontrol.api.workflow.AoiWorkflowHints.aoi.poi");
+
         case PANORAMA:
             return languageHelper.getString("com.intel.missioncontrol.api.workflow.AoiWorkflowHints.aoi.panorama");
+
         default:
             return null;
         }

@@ -9,30 +9,28 @@ package com.intel.missioncontrol.ui.sidepane.planning;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.api.IFlightPlanService;
-import org.asyncfx.beans.property.PropertyPath;
-import org.asyncfx.beans.property.PropertyPathStore;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.ui.common.components.RenameDialog;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.menu.MenuModel;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ListChangeListener;
+import org.asyncfx.beans.property.PropertyPath;
+import org.asyncfx.beans.property.PropertyPathStore;
 
 /**
- * Contains the menu model for the mission drop-down menu located in the sidepane header on the planning tab. This
+ * Contains the menu model for the flight plan drop-down menu located in the sidepane header on the planning tab. This
  * class also contains business logic for the menu commands.
  */
 public class FlightPlanMenuModel extends MenuModel {
 
-    @Localizable
-    public enum MenuIds implements IKeepAll {
+    public enum MenuIds implements Localizable {
         FLIGHTPLANS,
         NEW_FLIGHTPLAN,
         RENAME_FLIGHTPLAN,
@@ -71,7 +69,7 @@ public class FlightPlanMenuModel extends MenuModel {
             .<FlightPlan>checkedItemProperty()
             .bindBidirectional(
                 propertyPathStore
-                    .from(applicationContext.currentMissionProperty())
+                    .from(applicationContext.currentLegacyMissionProperty())
                     .selectObject(Mission::currentFlightPlanProperty));
 
         find(MenuIds.NEW_FLIGHTPLAN)
@@ -80,20 +78,20 @@ public class FlightPlanMenuModel extends MenuModel {
         find(MenuIds.RENAME_FLIGHTPLAN)
             .setActionHandler(
                 this::renameCurrentFlightPlan,
-                PropertyPath.from(applicationContext.currentMissionProperty())
+                PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                     .selectReadOnlyObject(Mission::currentFlightPlanProperty)
                     .isNotNull()
                     .and(applicationContext.currentMissionIsNoDemo()));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyList(Mission::flightPlansProperty)
             .addListener((ListChangeListener<FlightPlan>)change -> flightPlansChanged(change.getList()));
 
         textProperty()
             .bind(
                 valueOrDefault(
-                    PropertyPath.from(applicationContext.currentMissionProperty())
+                    PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                         .select(Mission::currentFlightPlanProperty)
                         .selectReadOnlyString(FlightPlan::nameProperty)));
     }
@@ -124,13 +122,13 @@ public class FlightPlanMenuModel extends MenuModel {
             property);
     }
 
-    // TODO: Why does setting the selected mission to null create a new mission?
+    // TODO: Why does setting the selected flight plan to null create a new flight plan?
     private void createNewFlightPlan() {
-        applicationContext.getCurrentMission().setCurrentFlightPlan(null);
+        applicationContext.getCurrentLegacyMission().setCurrentFlightPlan(null);
     }
 
     private void renameCurrentFlightPlan() {
-        Mission mission = applicationContext.getCurrentMission();
+        Mission mission = applicationContext.getCurrentLegacyMission();
         FlightPlan flightPlan = mission.getCurrentFlightPlan();
         String oldName = mission.getCurrentFlightPlan().getName();
         String newName =
@@ -148,7 +146,7 @@ public class FlightPlanMenuModel extends MenuModel {
     }
 
     private boolean isFlightplanNameValid(String flightPlanName) {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         int duplicates =
             currentMission
                 .flightPlansProperty()

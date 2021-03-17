@@ -41,13 +41,13 @@ public interface IMissionManager {
 
     /**
      * Creates a copy of mission selected in a list. A copy of the selected mission folder is created on disk, removing
-     * the missions ( goals are kept), matching and other contents. The default name of the cloned mission is "Clone
+     * the flight plans ( AOIs are kept), matching and other contents. The default name of the cloned mission is "Clone
      * of original-mission-name". Returns true if the current mission was successfully copied.
      */
     Mission cloneMission(Mission mission) throws IOException;
 
     /**
-     * Deletes blank projects, that don't have any goals, missions or matchings. Calling this method will remove the
+     * Deletes blank missions, that don't have any AOIs, flight plans or matchings. Calling this method will remove the
      * directories of the empty missions, as well as the directory structure inside Returns true, if all the empty
      * mission folders were successfully deleted, and false otherwise
      *

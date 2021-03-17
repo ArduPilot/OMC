@@ -52,22 +52,20 @@ public class MView2d extends BasicOrbitView {
     protected Position lastPosition = getCenterPosition();
     protected boolean shouldInitFollowZoom = false;
     protected boolean isFlatEarth = false;
-    protected double lastZoom = getZoom();
-    protected Angle lastHeading = getHeading();
 
     public static final int MAX_COMMON_ZOOM = 1000;
 
     public static final double MIN_VALID_ZOOM = 0.6; // values <=0.5 will cause a black map in 2D mode
     public static final double MAX_VALID_ZOOM = 1e8;
 
-    private final IElevationModel elevationModel;
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
     private IHardwareConfiguration hardwareConfiguration;
 
-    public MView2d(IHardwareConfiguration hardwareConfiguration, IElevationModel elevationModel) {
+    public MView2d(IHardwareConfiguration hardwareConfiguration) {
         super();
         this.hardwareConfiguration = hardwareConfiguration;
-        this.elevationModel = elevationModel;
     }
 
     public boolean isOverridingHeading() {
@@ -91,12 +89,10 @@ public class MView2d extends BasicOrbitView {
     @Override
     public void setHeading(Angle heading) {
         if (!isOverridingHeading()) {
-            lastHeading = this.heading;
-            Angle oldHeading = heading;
+            Angle oldHeading = this.heading;
             super.setHeading(heading);
             firePropertyChange(HEADING, oldHeading, this.heading);
         }
-
     }
 
     @Override
@@ -112,12 +108,10 @@ public class MView2d extends BasicOrbitView {
     public void setZoom(double zoom) {
         zoom = MathHelper.intoRange(zoom, MIN_VALID_ZOOM, MAX_VALID_ZOOM);
         if (!isOverridingZoom()) {
-            lastZoom = zoom;
             double oldZoom = this.zoom;
             super.setZoom(zoom);
             firePropertyChange(ZOOM, oldZoom, this.zoom);
         }
-
     }
 
     @Override
@@ -332,10 +326,10 @@ public class MView2d extends BasicOrbitView {
 
         if (getGlobe() instanceof FlatGlobe) {
             Vec4 delta =
-                    getGlobe()
-                            .computePointFromPosition(sector.getMaxLatitude(), sector.getMaxLongitude(), 0)
-                            .subtract3(
-                                    getGlobe().computePointFromPosition(sector.getMinLatitude(), sector.getMinLongitude(), 0));
+                getGlobe()
+                    .computePointFromPosition(sector.getMaxLatitude(), sector.getMaxLongitude(), 0)
+                    .subtract3(
+                        getGlobe().computePointFromPosition(sector.getMinLatitude(), sector.getMinLongitude(), 0));
             horizDistance = delta.x / 2 / shrinkTo;
             vertDistance = delta.y / 2 / shrinkTo;
             maxElev = 0;
@@ -357,7 +351,7 @@ public class MView2d extends BasicOrbitView {
 
         double altitudeHor = horizDistance / (Math.tan(getFieldOfView().radians / 2));
         double altitudeVert =
-                vertDistance / (Math.tan(getFieldOfView().radians / 2) * getViewport().height / getViewport().width);
+            vertDistance / (Math.tan(getFieldOfView().radians / 2) * getViewport().height / getViewport().width);
         // System.out.println("altitudeHor="+altitudeHor + " altitudeVert="+altitudeVert);
         double altitude = Math.max(altitudeHor, altitudeVert);
 
@@ -416,7 +410,7 @@ public class MView2d extends BasicOrbitView {
             // System.out.println("zoom4:"+zoom);
             // System.out.println("pos:"+pos);
             addPanToAnimator(
-                    getCenterPosition(), pos, getHeading(), Angle.ZERO, getPitch(), Angle.ZERO, getZoom(), zoom, false);
+                getCenterPosition(), pos, getHeading(), Angle.ZERO, getPitch(), Angle.ZERO, getZoom(), zoom, false);
         }
     }
 
@@ -463,13 +457,13 @@ public class MView2d extends BasicOrbitView {
                             // TODO FIXME, this is a very ugly dirty fix of a falcon camera view.. lets rethink the
                             // concept of these view modes in general
                             transform =
-                                    Matrix.fromRotationX(
-                                            Angle.NEG90); // .multiply( cam.getCameraJustageTransform().getInverse() );
+                                Matrix.fromRotationX(
+                                    Angle.NEG90); // .multiply( cam.getCameraJustageTransform().getInverse() );
                         } else {
                             transform =
-                                    Matrix.fromRotationZ(Angle.NEG90)
-                                            .multiply(
-                                                    CameraHelper.getCameraJustageTransform(hardwareConfiguration).getInverse());
+                                Matrix.fromRotationZ(Angle.NEG90)
+                                    .multiply(
+                                        CameraHelper.getCameraJustageTransform(hardwareConfiguration).getInverse());
                         }
                     }
                 } else {
@@ -481,9 +475,9 @@ public class MView2d extends BasicOrbitView {
             }
 
             transform =
-                    transform.multiply(
-                            MathHelper.getRollPitchYawTransformationMAVinicAngles(
-                                    roll.degrees, pitch.degrees, heading.degrees));
+                transform.multiply(
+                    MathHelper.getRollPitchYawTransformationMAVinicAngles(
+                        roll.degrees, pitch.degrees, heading.degrees));
 
             // FIXME!! maybe X and Y vertauscht??
             //			Matrix transform = Matrix.IDENTITY;
@@ -491,8 +485,8 @@ public class MView2d extends BasicOrbitView {
             //	        transform = transform.multiply(Matrix.fromRotationY(roll));
             //	        transform = transform.multiply(Matrix.fromRotationZ(heading));
             transform =
-                    transform.multiply(
-                            ViewUtil.computeTransformMatrix(this.globe, this.center, Angle.ZERO, Angle.ZERO, Angle.ZERO));
+                transform.multiply(
+                    ViewUtil.computeTransformMatrix(this.globe, this.center, Angle.ZERO, Angle.ZERO, Angle.ZERO));
 
             // TODO FIXME, try if current helper code in WW is fixing this issue
             // The WorldWind code uses an other convention for the rotation order
@@ -502,8 +496,8 @@ public class MView2d extends BasicOrbitView {
         } else {
             fieldOfView = Angle.fromDegrees(45);
             this.modelview =
-                    OrbitViewInputSupport.computeTransformMatrix(
-                            this.globe, this.center, this.heading, this.pitch, Angle.ZERO, this.zoom);
+                OrbitViewInputSupport.computeTransformMatrix(
+                    this.globe, this.center, this.heading, this.pitch, Angle.ZERO, this.zoom);
         }
 
         if (this.modelview == null) {
@@ -533,12 +527,12 @@ public class MView2d extends BasicOrbitView {
         double viewportHeight = this.viewport.getHeight() <= 0.0 ? 1.0 : this.viewport.getHeight();
         // Compute the current projection matrix.
         this.projection =
-                Matrix.fromPerspective(
-                        this.fieldOfView, viewportWidth, viewportHeight, this.nearClipDistance, this.farClipDistance);
+            Matrix.fromPerspective(
+                this.fieldOfView, viewportWidth, viewportHeight, this.nearClipDistance, this.farClipDistance);
         // Compute the current frustum.
         this.frustum =
-                Frustum.fromPerspective(
-                        this.fieldOfView, (int) viewportWidth, (int) viewportHeight, this.nearClipDistance, this.farClipDistance);
+            Frustum.fromPerspective(
+                this.fieldOfView, (int)viewportWidth, (int)viewportHeight, this.nearClipDistance, this.farClipDistance);
 
         // ========== load GL matrix state ==========//
         loadGLViewState(dc, this.modelview, this.projection);
@@ -572,7 +566,7 @@ public class MView2d extends BasicOrbitView {
         stopMovementOnCenter();
         stopAnimations();
 
-        Position center = getCenterPosition();
+        LatLon center = getCenterPosition();
         isFlatEarth = enabled;
 
         if (enabled) {
@@ -585,9 +579,7 @@ public class MView2d extends BasicOrbitView {
 
         final double ZOOM_MODE_SWITCH_CORRECTION = 1.2;
 
-
-        setZoom(enabled ? lastZoom * ZOOM_MODE_SWITCH_CORRECTION : lastZoom / ZOOM_MODE_SWITCH_CORRECTION);
-
+        setZoom(enabled ? getZoom() * ZOOM_MODE_SWITCH_CORRECTION : getZoom() / ZOOM_MODE_SWITCH_CORRECTION);
         updateModelViewStateID();
     }
 

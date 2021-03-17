@@ -221,6 +221,20 @@ public class ArduCopterDrone extends MavlinkDrone {
         return Futures.successful(true);
     }
 
+    // TODO remove, now in hardware description json file
+    //    @Override
+    //    protected MavlinkFlightPlanOptions getMavlinkFlightPlanOptions(Position safetyAltitudePosition) {
+    //        return new MavlinkFlightPlanOptions(
+    //            MavlinkFlightPlanOptions.PrependMissionItem.WAYPOINT_AND_TAKEOFF,
+    //            safetyAltitudePosition,
+    //            true,
+    //            MavlinkFlightPlanOptions.GimbalAndAttitudeCommand.MOUNT_CONTROL,
+    //            MavlinkFlightPlanOptions.CameraTriggerCommand.DO_DIGICAM_CONTROL,
+    //            3.0f,
+    //            Angle.fromDegrees(15.0f),
+    //            20.0);
+    //    }
+
     @Override
     protected Future<Void> sendSetLandingModeAsync() {
         return droneConnection

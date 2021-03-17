@@ -6,7 +6,6 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.google.inject.Inject;
 import com.intel.missioncontrol.map.ISelectionManager;
 import eu.mavinci.desktop.gui.wwext.IconLayerCentered;
 import eu.mavinci.desktop.gui.wwext.IconRendererCentered;
@@ -29,7 +28,6 @@ public class SearchResultLayer extends IconLayerCentered implements ISearchManag
 
     private final AsyncIntegerProperty resultCount = new SimpleAsyncIntegerProperty(this);
 
-    @Inject
     public SearchResultLayer(SearchManager searchManager, Dispatcher dispatcher, ISelectionManager selectionManager) {
         this.searchManager = searchManager;
         searchManager.addListener(this);
@@ -50,7 +48,7 @@ public class SearchResultLayer extends IconLayerCentered implements ISearchManag
                         setSelectedResult(null);
                     }
                 },
-                dispatcher::run);
+                this.dispatcher);
     }
 
     @Override
@@ -74,7 +72,7 @@ public class SearchResultLayer extends IconLayerCentered implements ISearchManag
         }
 
         PropertyHelper.setValueSafe(resultCount, i);
-        dispatcher.run(() -> firePropertyChange(AVKey.LAYER, null, SearchResultLayer.this));
+        dispatcher.runLater(() -> firePropertyChange(AVKey.LAYER, null, SearchResultLayer.this));
     }
 
     public void setSelectedResult(SearchResult selectedResult) {

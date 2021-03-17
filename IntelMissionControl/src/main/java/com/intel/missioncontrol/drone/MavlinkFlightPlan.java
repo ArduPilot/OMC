@@ -6,26 +6,18 @@
 
 package com.intel.missioncontrol.drone;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkMissionItem;
 import com.intel.missioncontrol.hardware.IMavlinkFlightPlanOptions;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.WayPoint;
-import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
-import eu.mavinci.core.flightplan.visitors.AFlightplanVisitor;
-import eu.mavinci.flightplan.Flightplan;
-import eu.mavinci.flightplan.Photo;
-import eu.mavinci.flightplan.Waypoint;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
-import io.dronefleet.mavlink.common.VtolTransitionHeading;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javafx.util.Duration;
 import org.slf4j.Logger;
@@ -33,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 class MavlinkFlightPlan {
     private static final Logger LOGGER = LoggerFactory.getLogger(MavlinkFlightPlan.class);
-    public static final Duration HOLD_AT_WAYPOINTS_DURATION = Duration.millis(500);
 
     private static class MissionItemInfo {
         final MavlinkMissionItem missionItem;
@@ -72,9 +63,7 @@ class MavlinkFlightPlan {
             FlightPlanWithWayPointIndex flightPlanWithWayPointIndex,
             IMavlinkFlightPlanOptions options,
             Position startAltitudePosition) {
-        if (flightPlanWithWayPointIndex != null
-                && flightPlanWithWayPointIndex.getFlightPlan() != null
-                && startAltitudePosition != null) {
+        if (flightPlanWithWayPointIndex != null && flightPlanWithWayPointIndex.getFlightPlan() != null) {
             MavlinkFlightPlan mavlinkFlightPlan =
                 new MavlinkFlightPlan(options, startAltitudePosition, flightPlanWithWayPointIndex.getFlightPlan());
             mavlinkFlightPlan.addFlightPlanWayPoints(flightPlanWithWayPointIndex);
@@ -93,7 +82,7 @@ class MavlinkFlightPlan {
             return;
         }
 
-        IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+        IElevationModel elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
         int i0 = flightPlanWithWayPointIndex.getWayPointIndex();
         if (i0 < 0) {
@@ -101,16 +90,6 @@ class MavlinkFlightPlan {
         } else if (i0 >= wayPoints.size()) {
             i0 = wayPoints.size() - 1;
         }
-
-        Map<Waypoint, Double> triggerDistanceMap =
-            (options.getCameraTriggerCommand()
-                    == IMavlinkFlightPlanOptions.CameraTriggerCommand.SET_CAMERA_TRIGGER_DISTANCE)
-                ? createTriggerDistanceMap(flightPlan)
-                : new HashMap<>();
-
-        Double lastSpeed = null;
-        Angle lastRoll = null;
-        Angle lastPitch = null;
 
         for (int i = i0; i < wayPoints.size(); i++) {
             WayPoint wp = wayPoints.get(i);
@@ -123,26 +102,24 @@ class MavlinkFlightPlan {
             Angle roll = Angle.fromDegrees(wp.rollProperty().get().convertTo(Unit.DEGREE).getValue().floatValue());
             Angle yaw = Angle.fromDegrees(wp.yawProperty().get().convertTo(Unit.DEGREE).getValue().floatValue());
 
+            boolean autocontinue = !flightPlan.stopAtWaypointsProperty().get();
+
             Position position = Position.fromDegrees(lat, lon, altitude);
-            Duration holdDuration = flightPlan.stopAtWaypointsProperty().get() ? HOLD_AT_WAYPOINTS_DURATION : Duration.ZERO;
+            Duration holdDuration = Duration.ZERO;
 
             // Speed
             if (options.getSetSpeedAtEachWaypoint()) {
                 double groundSpeedMetersPerSecond =
                     wp.speedProperty().get().convertTo(Unit.METER_PER_SECOND).getValue().doubleValue();
-                if (options.getSendAlsoNonChangedValues()
-                        || lastSpeed == null
-                        || lastSpeed != groundSpeedMetersPerSecond) {
-                    lastSpeed = groundSpeedMetersPerSecond;
-                    addMissionItemInfo(
-                        MavlinkMissionItem.createChangeSpeedMissionItem(groundSpeedMetersPerSecond, true), wp, i);
-                }
+
+                addMissionItemInfo(
+                    MavlinkMissionItem.createChangeSpeedMissionItem(groundSpeedMetersPerSecond, autocontinue), wp, i);
             }
 
             // Start waypoint / takeoff
-            if (i == i0) {
+            if (startAltitudePosition != null && i == i0) {
                 // Add takeoff waypoint:
-                switch (options.getTakeoffCommand()) {
+                switch (options.getPrependMissionItem()) {
                 case NONE:
                     break;
                 case TAKEOFF:
@@ -156,40 +133,13 @@ class MavlinkFlightPlan {
                         i);
                     addMissionItemInfo(MavlinkMissionItem.createTakeoffMissionItem(startAltitudePosition, true), wp, i);
                     break;
-                case VTOL_TAKEOFF:
-                    addMissionItemInfo(
-                        MavlinkMissionItem.createVtolTakeoffMissionItem(
-                            startAltitudePosition,
-                            VtolTransitionHeading.VTOL_TRANSITION_HEADING_NEXT_WAYPOINT,
-                            Double.NaN,
-                            true),
-                        wp,
-                        i);
-                    break;
-                case WAYPOINT_AND_VTOL_TAKEOFF:
-                    addMissionItemInfo(
-                        MavlinkMissionItem.createWaypointMissionItem(
-                            startAltitudePosition, yaw, holdDuration, (float)options.getAcceptanceRadiusMeters(), true),
-                        wp,
-                        i);
-                    addMissionItemInfo(
-                        MavlinkMissionItem.createVtolTakeoffMissionItem(
-                            startAltitudePosition,
-                            VtolTransitionHeading.VTOL_TRANSITION_HEADING_NEXT_WAYPOINT,
-                            Double.NaN,
-                            true),
-                        wp,
-                        i);
-                    break;
                 default:
                     throw new IllegalArgumentException();
                 }
             }
 
             // Camera target (ROI)
-            if (options.getSendAlsoNonChangedValues()
-                    || options.getGimbalAndAttitudeCommand()
-                        == IMavlinkFlightPlanOptions.GimbalAndAttitudeCommand.SET_ROI) {
+            if (options.getGimbalAndAttitudeCommand() == IMavlinkFlightPlanOptions.GimbalAndAttitudeCommand.SET_ROI) {
                 Position roi = wp.getLegacyWaypoint().getTargetPosition(options.getDefaultRoiDistanceMeters());
                 addMissionItemInfo(MavlinkMissionItem.createSetRoiLocationMissionItem(roi, true), wp, i);
             }
@@ -204,23 +154,12 @@ class MavlinkFlightPlan {
             // Gimbal (pitch & roll only, yaw controlled by waypoint
             if (options.getGimbalAndAttitudeCommand()
                     == IMavlinkFlightPlanOptions.GimbalAndAttitudeCommand.MOUNT_CONTROL) {
-                if (lastRoll == null || lastRoll != roll || lastPitch == null || lastPitch != pitch) {
-                    lastRoll = roll;
-                    lastPitch = pitch;
-                    addMissionItemInfo(
-                        MavlinkMissionItem.createMountControlMissionItem(pitch, roll, Angle.ZERO, true), wp, i);
-                }
+                addMissionItemInfo(
+                    MavlinkMissionItem.createMountControlMissionItem(pitch, roll, Angle.ZERO, true), wp, i);
             }
 
             // Camera trigger
-            Double triggerDistanceM = triggerDistanceMap.get(wp.getLegacyWaypoint());
-            if (triggerDistanceM != null
-                    || (wp.triggerImageHereCopterModeProperty().get()
-                        && flightPlan
-                            .getLegacyFlightplan()
-                            .getHardwareConfiguration()
-                            .getPlatformDescription()
-                            .isInCopterMode())) {
+            if (wp.triggerImageHereCopterModeProperty().get()) {
                 switch (options.getCameraTriggerCommand()) {
                 case IMAGE_START_CAPTURE:
                     addMissionItemInfo(
@@ -230,23 +169,11 @@ class MavlinkFlightPlan {
                     addMissionItemInfo(MavlinkMissionItem.createDoDigicamControlMissionItem(true), wp, i);
                     break;
                 case SET_CAMERA_TRIGGER_DISTANCE:
-                    {
-                        if (triggerDistanceM == null
-                                || !(triggerDistanceM < Float.MAX_VALUE)) { // Float.MAX_VALUE seems to crash ArduPilot
-                            addMissionItemInfo(
-                                MavlinkMissionItem.createSetCamTriggerDistMissionItem(
-                                    0.0f, Duration.UNKNOWN, true, true),
-                                wp,
-                                i);
-                        } else {
-                            addMissionItemInfo(
-                                MavlinkMissionItem.createSetCamTriggerDistMissionItem(
-                                    triggerDistanceM.floatValue(), Duration.UNKNOWN, false, true),
-                                wp,
-                                i);
-                        }
-                    }
-
+                    addMissionItemInfo(
+                        MavlinkMissionItem.createSetCamTriggerDistMissionItem(
+                            Float.MAX_VALUE, Duration.UNKNOWN, true, true),
+                        wp,
+                        i);
                     break;
                 default:
                     break;
@@ -284,17 +211,7 @@ class MavlinkFlightPlan {
                     // land:
                     Position landingPosition = new Position(landingLatLon, groundElevationRelativeToTakeoff);
 
-                    switch (options.getLandCommand()) {
-                    case LAND:
-                        addMissionItemInfo(MavlinkMissionItem.createLandMissionItem(landingPosition, true), wp, i);
-                        break;
-                    case VTOL_LAND:
-                        addMissionItemInfo(MavlinkMissionItem.createVtolLandMissionItem(landingPosition, true), wp, i);
-                        break;
-                    case NONE:
-                    default:
-                        break;
-                    }
+                    addMissionItemInfo(MavlinkMissionItem.createLandMissionItem(landingPosition, true), wp, i);
                 } else {
                     // hover at altitude
                     double landingHoverAltitudeRelativeToTakeoff =
@@ -322,54 +239,15 @@ class MavlinkFlightPlan {
         }
     }
 
-    /** Associates trigger distance values (in meters) with waypoints. Used for distance-based triggering. */
-    private Map<Waypoint, Double> createTriggerDistanceMap(FlightPlan flightPlan) {
-        Map<Waypoint, Double> res = new HashMap<>();
-
-        Flightplan legacyFlightplan = flightPlan.getLegacyFlightplan();
-
-        // skip for copter
-        if (legacyFlightplan.getHardwareConfiguration().getPlatformDescription().isInCopterMode()) {
-            return res;
-        }
-
-        double[] nextDistanceM = {Double.NaN};
-
-        var visitor =
-            new AFlightplanVisitor() {
-                @Override
-                public boolean visit(IFlightplanRelatedObject fpObj) {
-                    if (fpObj instanceof Waypoint) {
-                        if (!Double.isNaN(nextDistanceM[0])) {
-                            res.put((Waypoint)fpObj, nextDistanceM[0]);
-                            nextDistanceM[0] = Double.NaN;
-                        }
-                    } else if (fpObj instanceof Photo) {
-                        double distM = ((Photo)fpObj).getDistanceInCm() * 0.01;
-
-                        if (distM > 0) {
-                            nextDistanceM[0] = distM;
-                        }
-                    }
-
-                    return false;
-                }
-            };
-
-        visitor.startVisit(legacyFlightplan);
-
-        return res;
-    }
-
     public String getDebugDescription() {
-        if (missionItemInfos.isEmpty()) {
-            return "Empty MAVLink mission";
+        List<MavlinkMissionItem> mi = getMissionItems();
+        if (mi.isEmpty()) {
+            return "Empty MAVLink flight plan";
         }
 
         StringBuilder res =
-            new StringBuilder(
-                "MAVLink mission with " + missionItemInfos.size() + " mission items" + System.lineSeparator());
-        for (MissionItemInfo i : missionItemInfos) {
+            new StringBuilder("MAVLink flight plan with " + mi.size() + " mission items" + System.lineSeparator());
+        for (MavlinkMissionItem i : mi) {
             res.append(i.toString()).append(System.lineSeparator());
         }
 

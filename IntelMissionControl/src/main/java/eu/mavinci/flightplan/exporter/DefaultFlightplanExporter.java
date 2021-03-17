@@ -6,6 +6,8 @@
 
 package eu.mavinci.flightplan.exporter;
 
+import com.intel.missioncontrol.NotImplementedException;
+import com.intel.missioncontrol.project.FlightPlan;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.helper.MFileFilter;
@@ -43,8 +45,7 @@ public class DefaultFlightplanExporter implements IFlightplanExporter {
         this.fileFilter = fileFilter;
     }
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         if (target == null) {
             throw new IllegalArgumentException();
         }
@@ -91,6 +92,11 @@ public class DefaultFlightplanExporter implements IFlightplanExporter {
         factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         // open up the xml document
         return factory.newDocumentBuilder();
+    }
+
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
     }
 
     private class ClasspathResourceURIResolver implements URIResolver {

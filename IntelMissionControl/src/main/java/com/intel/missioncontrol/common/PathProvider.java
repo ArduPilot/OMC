@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 public class PathProvider implements IPathProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(PathProvider.class);
 
-    private static final String SETTINGS_FOLDER_NAME = "Open Mission Control";
-    private static final String PROJECTS_FOLDER_NAME = "Open Mission Control Projects";
+    private static final String SETTINGS_FOLDER_NAME = "Intel Mission Control";
+    private static final String PROJECTS_FOLDER_NAME = "Intel Mission Control Projects";
     private static final String APP_LOGS_DIRECTORY = "appLogs";
 
     private final Path homeFolder = getWindowsSpecialFolder("5E6C858F-0E22-4760-9AFE-EA3317B67173");

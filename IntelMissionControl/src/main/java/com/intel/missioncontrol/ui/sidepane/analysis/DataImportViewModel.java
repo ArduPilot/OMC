@@ -16,7 +16,6 @@ import com.intel.missioncontrol.helper.DriveInformation;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.ISelectionManager;
-import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
@@ -47,7 +46,6 @@ import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.helper.FileFilter;
 import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.helper.MFileFilter;
@@ -89,13 +87,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.UIAsyncBooleanProperty;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.Strand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataImportViewModel extends ViewModelBase {
 
-    @Localizable
-    private enum AddFlightLogsMenuIds implements IKeepAll {
+    private enum AddFlightLogsMenuIds implements Localizable {
         CAPTION,
         DRIVES_LIST,
         CONNECTED_UAV,
@@ -110,8 +108,6 @@ public class DataImportViewModel extends ViewModelBase {
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noPhotoFolder.message";
     public static final String PHOTO_FOLDER_MESSAGE =
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountLabel";
-    public static final String PHOTO_FOLDER_JSON_MESSAGE =
-        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountJsonLabel";
 
     public static final String NO_LOGFILES_TITLE =
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noLogs.title";
@@ -158,11 +154,10 @@ public class DataImportViewModel extends ViewModelBase {
     private final INavigationService navigationService;
     private final IDialogService dialogService;
     private final ILanguageHelper languageHelper;
-    private final IQuantityStyleProvider quantityStyleProvider;
     private final IBackgroundTaskManager backgroundTaskManager;
     private final IHardwareConfigurationManager hardwareConfigurationManager;
     private final IValidationService validationService;
-    // private final Strand strand = new Strand();//removed strand, does not work from intelliJ
+    private final Strand strand = new Strand();
     private final MenuModel addFlightLogsMenuModel;
     private final Command importCommand;
     private final Command browseImagesCommand;
@@ -200,8 +195,7 @@ public class DataImportViewModel extends ViewModelBase {
             ISelectionManager selectionManager,
             GeneralSettings generalSettings,
             DisplaySettings displaySettings,
-            ILicenceManager licenceManager,
-            IQuantityStyleProvider quantityStyleProvider) {
+            ILicenceManager licenceManager) {
         this.mapView = mapView;
         this.displaySettings = displaySettings;
         this.generalSettings = generalSettings;
@@ -209,7 +203,6 @@ public class DataImportViewModel extends ViewModelBase {
         this.navigationService = navigationService;
         this.dialogService = dialogService;
         this.languageHelper = languageHelper;
-        this.quantityStyleProvider = quantityStyleProvider;
         this.backgroundTaskManager = backgroundTaskManager;
         this.hardwareConfigurationManager = hardwareConfigurationManager;
         this.validationService = validationService;
@@ -217,13 +210,14 @@ public class DataImportViewModel extends ViewModelBase {
         this.licenceManager = licenceManager;
 
         currentMatching.bind(
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty));
         missionName =
-            PropertyPath.from(applicationContext.currentMissionProperty()).selectReadOnlyString(Mission::nameProperty);
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
+                .selectReadOnlyString(Mission::nameProperty);
 
         flightPlans =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectReadOnlyList(Mission::flightPlansProperty);
 
         addFlightLogsMenuModel =
@@ -255,7 +249,8 @@ public class DataImportViewModel extends ViewModelBase {
 
         addFlightLogsMenuModel
             .find(AddFlightLogsMenuIds.PROJECT_FOLDER)
-            .setActionHandler(() -> showAddFlightLogsDialog(applicationContext.getCurrentMission().getDirectory()));
+            .setActionHandler(
+                () -> showAddFlightLogsDialog(applicationContext.getCurrentLegacyMission().getDirectory()));
 
         addFlightLogsMenuModel
             .find(AddFlightLogsMenuIds.CUSTOM_LOCATION)
@@ -267,21 +262,14 @@ public class DataImportViewModel extends ViewModelBase {
         imageSelectionAvailable.bind(flightLogs.emptyProperty().not().and(logFolderContainsImages.not()));
         flightPlanSelectionAvailable.bind(flightLogs.emptyProperty().not());
 
-        applicationContext.currentMissionProperty().addListener(observable -> refreshLogList(null));
+        applicationContext.currentLegacyMissionProperty().addListener(observable -> refreshLogList(null));
 
         imagesCount.bind(images.sizeProperty());
         imagesCount.addListener(
             (observable, oldValue, newValue) -> {
                 Matching matching = currentMatching.get();
                 if (matching != null) {
-                    Integer sum =
-                        flightLogs
-                            .stream()
-                            .filter(FlightLogEntry::isSelected)
-                            .filter(FlightLogEntry::isIsJson)
-                            .mapToInt(FlightLogEntry::getImageCount)
-                            .sum();
-                    matching.toImportImagesCountProperty().set(newValue.longValue() + sum);
+                    matching.toImportImagesCountProperty().set(newValue.longValue());
                 }
             });
 
@@ -296,7 +284,7 @@ public class DataImportViewModel extends ViewModelBase {
                     flightLogs
                         .stream()
                         .filter(FlightLogEntry::isSelected)
-                        .mapToInt(FlightLogEntry::getTriggerCount)
+                        .mapToInt(FlightLogEntry::getImageCount)
                         .sum(),
                 flightLogs));
 
@@ -308,19 +296,10 @@ public class DataImportViewModel extends ViewModelBase {
                 }
             });
 
-        imageFolderValid.addListener(
-            (observable, oldValue, newValue) -> {
-                Matching matching = currentMatching.get();
-                if (matching != null) {
-                    if (newValue == null || newValue.equals(languageHelper.getString(NO_PHOTO_FOLDER_MESSAGE))) {
-                        matching.toImportImageSourceFolderProperty().set(null);
-                    } else {
-                        matching.toImportImageSourceFolderProperty().set(imageFolder.get());
-                    }
-                }
-            });
         imageFolder.addListener(
             (observable, oldValue, newValue) -> {
+                if (this.images.size() > 0) System.out.println(this.images.get(0).getParent() + " / " + newValue);
+
                 if (newValue == null || newValue.trim().isEmpty()) {
                     this.images.clear();
                     imageFolderValid.set(null);
@@ -336,24 +315,8 @@ public class DataImportViewModel extends ViewModelBase {
                                     List.of(files).stream().map(Path::toFile).collect(Collectors.toList()));
                             this.images.clear();
                             this.images.addAll(images.fotos);
-
-                            Integer sum =
-                                flightLogs
-                                    .stream()
-                                    .filter(FlightLogEntry::isSelected)
-                                    .filter(FlightLogEntry::isIsJson)
-                                    .mapToInt(FlightLogEntry::getImageCount)
-                                    .sum();
-
                             imageFolderValid.set(
-                                languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                                    + this.images.getSize()
-                                    + (sum > 0 ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum : ""));
-                            Matching matching = currentMatching.get();
-                            if (matching != null) {
-                                matching.toImportImagesCountProperty().set(imagesCount.getValue() + sum);
-                            }
-
+                                languageHelper.getString(PHOTO_FOLDER_MESSAGE) + this.images.getSize());
                             return;
                         }
                     } catch (Exception e) {
@@ -362,7 +325,11 @@ public class DataImportViewModel extends ViewModelBase {
 
                     this.images.clear();
                     imageFolderValid.set(languageHelper.getString(NO_PHOTO_FOLDER_MESSAGE));
-                    return;
+                }
+
+                Matching matching = currentMatching.get();
+                if (matching != null) {
+                    matching.toImportImageSourceFolderProperty().set(newValue);
                 }
             });
 
@@ -422,21 +389,6 @@ public class DataImportViewModel extends ViewModelBase {
         if (matching != null) {
             matching.toImportFlightLogProperty()
                 .set(flightLogs.stream().filter(FlightLogEntry::isSelected).count() > 0);
-
-            Integer sum =
-                flightLogs
-                    .stream()
-                    .filter(FlightLogEntry::isSelected)
-                    .filter(FlightLogEntry::isIsJson)
-                    .mapToInt(FlightLogEntry::getImageCount)
-                    .sum();
-
-            imageFolderValid.set(
-                languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                    + this.images.getSize()
-                    + (sum > 0 ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum : ""));
-
-            matching.toImportImagesCountProperty().set(imagesCount.getValue() + sum);
         }
     }
 
@@ -678,7 +630,7 @@ public class DataImportViewModel extends ViewModelBase {
                         }
 
                         if (initialFolder == null) {
-                            initialFolder = applicationContext.getCurrentMission().getDirectory().toFile();
+                            initialFolder = applicationContext.getCurrentLegacyMission().getDirectory().toFile();
                         }
 
                         File finalInitialFolder = initialFolder;
@@ -693,8 +645,7 @@ public class DataImportViewModel extends ViewModelBase {
                                             finalInitialFolder.toPath(),
                                             FileFilter.JPEG,
                                             FileFilter.XMP,
-                                            FileFilter.RAW,
-                                            FileFilter.JPEG_RAW_XMP);
+                                            FileFilter.RAW);
 
                                     if (files.length == 0) {
                                         return;
@@ -705,21 +656,8 @@ public class DataImportViewModel extends ViewModelBase {
                                             List.of(files).stream().map(Path::toFile).collect(Collectors.toList()));
                                     this.images.clear();
                                     this.images.addAll(images.fotos);
-                                    Integer sum =
-                                        flightLogs
-                                            .stream()
-                                            .filter(FlightLogEntry::isSelected)
-                                            .filter(FlightLogEntry::isIsJson)
-                                            .mapToInt(FlightLogEntry::getImageCount)
-                                            .sum();
-
                                     imageFolderValid.set(
-                                        languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                                            + this.images.getSize()
-                                            + (sum > 0
-                                                ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum
-                                                : ""));
-
+                                        languageHelper.getString(PHOTO_FOLDER_MESSAGE) + this.images.getSize());
                                     imageFolder.set(images.picFolder.getAbsolutePath());
                                 });
                     } catch (Exception e) {
@@ -778,13 +716,8 @@ public class DataImportViewModel extends ViewModelBase {
         } else {
             photoResultHelper = new FileHelper.GetFotosResult();
             photoResultHelper.picFolder = this.imageFolder.get() == null ? null : new File(this.imageFolder.get());
-        }
-
-        if (photoResultHelper.fotos == null) {
             photoResultHelper.fotos = new Vector<>(this.images);
         }
-
-        photoResultHelper.fotos.addAll(this.images);
 
         if (generalSettings.getOperationLevel() == OperationLevel.USER && photoResultHelper.fotos.isEmpty()) {
             dialogService.showWarningMessage(
@@ -822,7 +755,7 @@ public class DataImportViewModel extends ViewModelBase {
             new CreateDatasetTask(
                 mapView,
                 imageFolder,
-                applicationContext.currentMissionProperty().get().getDirectoryFile(),
+                applicationContext.currentLegacyMissionProperty().get().getDirectoryFile(),
                 flightPlans,
                 logFiles,
                 photoResultHelper,
@@ -834,11 +767,8 @@ public class DataImportViewModel extends ViewModelBase {
                 navigationService,
                 generalSettings,
                 selectionManager,
-                applicationContext.getCurrentMission(),
-                copyFiles.get(),
-                false,
-                false,
-                quantityStyleProvider);
+                applicationContext.getCurrentLegacyMission(),
+                copyFiles.get());
         matching.dataTransferBackgroundTaskProperty().set(task);
 
         backgroundTaskManager.submitTask(task);
@@ -869,7 +799,7 @@ public class DataImportViewModel extends ViewModelBase {
                 this,
                 languageHelper.getString(DataImportViewModel.class.getName() + ".selectFlightLogFolder"),
                 this,
-                applicationContext.getCurrentMission().getDirectory());
+                applicationContext.getCurrentLegacyMission().getDirectory());
 
         if (originPath != null) {
             showAddFlightLogsDialog(originPath);
@@ -891,17 +821,16 @@ public class DataImportViewModel extends ViewModelBase {
     }
 
     private void showAddFlightLogsDialog(String originPath) {
-        Dispatcher.platform()
-            .runLater(
-                () -> {
-                    try {
-                        List<FlightLogEntry> flightLogsNew = LogFileHelper.getLogsInFolder(new File(originPath), true);
-                        boolean containsImageFolders = flightLogsNew.stream().anyMatch(FlightLogEntry::hasImageFolder);
-                        Dispatcher.platform().run(() -> showAddFlightLogsDialog(originPath, containsImageFolders));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+        strand.runLater(
+            () -> {
+                try {
+                    List<FlightLogEntry> flightLogsNew = LogFileHelper.getLogsInFolder(new File(originPath), true);
+                    boolean containsImageFolders = flightLogsNew.stream().anyMatch(FlightLogEntry::hasImageFolder);
+                    Dispatcher.platform().run(() -> showAddFlightLogsDialog(originPath, containsImageFolders));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
     private void showAddFlightLogsDialog(String originPath, boolean containsImageFolders) {
@@ -932,7 +861,7 @@ public class DataImportViewModel extends ViewModelBase {
     }
 
     private void refreshLogList(List<File> copiedFiles) {
-        Mission mission = applicationContext.getCurrentMission();
+        Mission mission = applicationContext.getCurrentLegacyMission();
         if (mission != null) {
             targetFolder.setValue(mission.getDirectoryFile());
             final File missionFlightLogsFolder = MissionConstants.getFlightLogsFolder(mission.getDirectory());

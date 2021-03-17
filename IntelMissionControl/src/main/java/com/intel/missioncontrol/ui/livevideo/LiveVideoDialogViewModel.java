@@ -14,18 +14,25 @@ import de.saxsys.mvvmfx.InjectScope;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.image.WritableImage;
 import org.asyncfx.beans.property.UIAsyncListProperty;
 
 public class LiveVideoDialogViewModel extends DialogViewModel {
 
     private final SimpleBooleanProperty dialogVisible = new SimpleBooleanProperty(false);
 
+    private final Property<WritableImage> currentFrame = new SimpleObjectProperty<>();
+    private IUILiveVideoStream.IUILiveVideoStreamListener streamListener =
+        IUILiveVideoStream.createStreamListener(currentFrame);
+
+    private final UIAsyncListProperty<IUILiveVideoStream> videoStreamList = new UIAsyncListProperty<>(this);
     private final Property<IUILiveVideoStream> selectedStream = new SimpleObjectProperty<>(null);
 
     public final StringProperty title = new SimpleStringProperty();
@@ -35,11 +42,12 @@ public class LiveVideoDialogViewModel extends DialogViewModel {
 
     private void changeDialogVisibilityState(
             ObservableValue<? extends Boolean> obs, Boolean oldValue, Boolean newValue) {
-        if (!newValue) getCloseCommand().execute();
+        if (newValue == false) getCloseCommand().execute();
     }
 
     @Inject
-    public LiveVideoDialogViewModel(ILanguageHelper languageHelper) {
+    public LiveVideoDialogViewModel(ILiveVideoService liveVideoService, ILanguageHelper languageHelper) {
+        this.videoStreamList.bind(liveVideoService.streamListProperty());
         title.bind(
             Bindings.createStringBinding(
                 () -> {
@@ -57,15 +65,25 @@ public class LiveVideoDialogViewModel extends DialogViewModel {
         dialogVisible.bind(liveVideoScope.widgetStateProperty().isEqualTo(UILiveVideoScope.WidgetState.DETACHED));
         dialogVisible.addListener(this::changeDialogVisibilityState);
 
+        selectedStream.addListener(
+            (obs, oldValue, newValue) -> {
+                if (newValue != null) newValue.addVideoStreamListener(streamListener);
+                if (oldValue != null) oldValue.removeVideoStreamListener(streamListener);
+            });
+
         selectedStream.bindBidirectional(liveVideoScope.selectedStreamProperty());
     }
 
     public ReadOnlyListProperty<IUILiveVideoStream> getStreamList() {
-        return liveVideoScope.getStreamList();
+        return videoStreamList.getReadOnlyProperty();
     }
 
     Property<IUILiveVideoStream> selectedStreamProperty() {
         return selectedStream;
+    }
+
+    ReadOnlyProperty<WritableImage> currentFrameProperty() {
+        return currentFrame;
     }
 
     public ReadOnlyStringProperty titleProperty() {

@@ -11,7 +11,6 @@ import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.drone.IObstacleAvoidance;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.ui.MainScope;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
@@ -31,8 +30,6 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.util.Duration;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
-import org.asyncfx.beans.property.PropertyPathStore;
-import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Future;
 
@@ -43,12 +40,10 @@ public class ObstacleAvoidanceTelemetryViewModel extends DialogViewModel {
     private final IApplicationContext applicationContext;
     private final ILanguageHelper languageHelper;
     private final BooleanProperty obstacleAvoidanceEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty hardwareOACapable = new SimpleBooleanProperty();
     private final Command closeDialogCommand;
     private final ParameterizedFutureCommand<Boolean> enableObstacleAvoidanceCommand;
     private final ChangeListener<Object> missionPropertyListener =
         (observableValue, oldValue, newValue) -> getCloseCommand().execute();
-    private PropertyPathStore propertyPathStore = new PropertyPathStore();
 
     @InjectScope
     private MainScope mainScope;
@@ -70,9 +65,6 @@ public class ObstacleAvoidanceTelemetryViewModel extends DialogViewModel {
     protected void initializeViewModel() {
         super.initializeViewModel();
         drone.bind(flightScope.currentDroneProperty());
-        ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration =
-            propertyPathStore.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
-        hardwareOACapable.setValue(hardwareConfiguration.get().getPlatformDescription().isObstacleAvoidanceCapable());
         applicationContext.currentMissionProperty().addListener(new WeakChangeListener<>(missionPropertyListener));
         initializeObstacleAvoidance();
     }
@@ -136,7 +128,7 @@ public class ObstacleAvoidanceTelemetryViewModel extends DialogViewModel {
         return mainScope;
     }
 
-    BooleanProperty obstacleAvoidanceEnabledProperty() {
+    public BooleanProperty obstacleAvoidanceEnabledProperty() {
         return obstacleAvoidanceEnabled;
     }
 
@@ -146,10 +138,6 @@ public class ObstacleAvoidanceTelemetryViewModel extends DialogViewModel {
 
     public ParameterizedCommand<Boolean> getEnableObstacleAvoidanceCommand() {
         return enableObstacleAvoidanceCommand;
-    }
-
-    BooleanProperty hardwareOACapableProperty() {
-        return hardwareOACapable;
     }
 
 }

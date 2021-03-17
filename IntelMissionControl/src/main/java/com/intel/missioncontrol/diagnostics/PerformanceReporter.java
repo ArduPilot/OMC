@@ -33,7 +33,7 @@ public class PerformanceReporter {
 
     private PerformanceReporter() {
         ensureFile();
-        thread = new Thread(this::run, "PerformanceReporterDaemon");
+        thread = new Thread(this::run);
         thread.setDaemon(true);
         thread.start();
     }

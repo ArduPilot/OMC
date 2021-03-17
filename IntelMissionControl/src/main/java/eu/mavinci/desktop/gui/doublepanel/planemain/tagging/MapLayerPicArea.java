@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.OptionalDouble;
 import java.util.Vector;
 import java.util.logging.Level;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import org.apache.commons.lang3.NotImplementedException;
 
 public class MapLayerPicArea extends MapLayer
@@ -52,8 +50,6 @@ public class MapLayerPicArea extends MapLayer
     MapLayerPicAreaFpContainer container;
 
     String name = "";
-
-    private  BooleanProperty deleteDisabled  = new SimpleBooleanProperty(false);
 
     protected double gsd = CPicArea.DEF_GSD; // in meter
 
@@ -642,12 +638,5 @@ public class MapLayerPicArea extends MapLayer
 
         this.name = name;
         mapLayerValuesChanged(this);
-    }
-
-    public BooleanProperty getDeleteDisabled() {
-        return deleteDisabled;
-    }
-    public void setDeleteDisabled(boolean deleteDisabled) {
-        this.deleteDisabled.set(deleteDisabled);
     }
 }

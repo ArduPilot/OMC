@@ -12,7 +12,6 @@ import com.intel.missioncontrol.drone.connection.mavlink.CommandProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.ConnectionProtocolReceiver;
 import com.intel.missioncontrol.drone.connection.mavlink.ConnectionProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.ExtendedParameter;
-import com.intel.missioncontrol.drone.connection.mavlink.GrayhawkMissionProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.IMavlinkParameter;
 import com.intel.missioncontrol.drone.connection.mavlink.InvalidParamTypeException;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkEndpoint;
@@ -40,14 +39,17 @@ import org.asyncfx.concurrent.Futures;
 
 public class NettyMavlink {
 
-    private static final MavlinkEndpoint targetEndpoint =
-        // new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("127.0.0.1", 14570), 1, 1);
-        // new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("10.62.220.150", 14570), 1, 1);
-        // new MavlinkEndpoint(TcpIpTransportType.TCP, SocketUtils.socketAddress("10.62.220.150", 5760), 1, 1);
-        // new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("127.0.0.1", 56630), 1, 100);
-        new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("192.168.200.254", 14551), 1, 1);
+    private static final MavlinkEndpoint udpLocalTestEndpoint =
+        new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("127.0.0.1", 14570), 1, 1);
+    private static final MavlinkEndpoint udpTestEndpoint =
+        new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("10.62.220.150", 14570), 1, 1);
+    private static final MavlinkEndpoint tcpTestEndpoint =
+        new MavlinkEndpoint(TcpIpTransportType.TCP, SocketUtils.socketAddress("10.62.220.150", 5760), 1, 1);
+    private static final MavlinkEndpoint cameraTestEndpoint =
+        new MavlinkEndpoint(TcpIpTransportType.UDP, SocketUtils.socketAddress("127.0.0.1", 56630), 1, 100);
 
     public static void main(String[] args) throws InterruptedException {
+        var targetEndpoint = udpTestEndpoint;
         float altitude = 20;
 
         CancellationSource cancellationSource = new CancellationSource();
@@ -63,7 +65,7 @@ public class NettyMavlink {
                 System.out.println("Connected");
             } else {
                 UdpBroadcastListener listener = new UdpBroadcastListener();
-                listener.bindAsync(14550, cancellationSource).get();
+                listener.bindAsync(14500, cancellationSource).get();
                 handler = listener.getHandler();
             }
         } catch (ExecutionException e) {
@@ -79,11 +81,10 @@ public class NettyMavlink {
         ConnectionProtocolSender connectionProtocolSender =
             new ConnectionProtocolSender(targetEndpoint, handler, cancellationSource);
         MissionProtocolSender missionProtocolSender =
-            // new MissionProtocolSender(targetEndpoint, handler, cancellationSource);
-            new GrayhawkMissionProtocolSender(targetEndpoint, handler, cancellationSource);
+            new MissionProtocolSender(targetEndpoint, handler, cancellationSource);
         TelemetryReceiver telemetryReceiver = new TelemetryReceiver(targetEndpoint, handler, cancellationSource);
-        //        CameraProtocolSender cameraProtocolSender =
-        //            new CameraProtocolSender(targetEndpoint, handler, cancellationSource);
+        CameraProtocolSender cameraProtocolSender =
+            new CameraProtocolSender(targetEndpoint, handler, cancellationSource);
 
         System.out.println("start");
 
@@ -92,11 +93,11 @@ public class NettyMavlink {
             () -> {
                 try {
                     // testTakeoffAndRequestFlightInformation(altitude, commandProtocolSender, telemetryReceiver);
-                    // testRequestFlightInformation(commandProtocolSender);
+                    testRequestFlightInformation(commandProtocolSender);
                     // testParallelRequestFlightInformation(commandProtocolSender);
                     // testRequestVideoStreamInformation(cameraProtocolSender);
-                    testRequestAndSendMissionItems(missionProtocolSender);
-                    // testRequestAndSendMissionItemsAndCancel(missionProtocolSender);
+                    // testRequestAndSendMissionItems(missionProtocolSender);
+                    testRequestAndSendMissionItemsAndCancel(missionProtocolSender);
                     // testGetAndSetMessageInterval(commandProtocolSender);
                     // testTakeOffAndLanding(altitude, commandProtocolSender);
                     // testParameters(parameterProtocolSender);

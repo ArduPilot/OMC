@@ -108,7 +108,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
                 StartPlanningViewModel.CREATE_ACTION,
                 targetTemplate);
         } catch (IOException e) {
-            logger.error(String.format("Failure on duplicate the mission '%s'", source.getFpName()), e);
+            logger.error(String.format("Failure on duplicate the flight plan '%s'", source.getFpName()), e);
         }
     }
 
@@ -121,7 +121,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
                 templateImportted,
                 StartPlanningViewModel.CREATE_ACTION);
         } catch (IOException e) {
-            logger.error(String.format("Failure on a mission import from %s", file), e);
+            logger.error(String.format("Failure on a flight plan import from %s", file), e);
         }
     }
 
@@ -135,7 +135,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
                 try {
                     flightPlanTemplateService.exportTo(t, destination);
                 } catch (Exception ex) {
-                    logger.error("Failure on export of '%s' mission template", ex);
+                    logger.error("Failure on export of '%s' flight plan template", ex);
                 }
             });
     }
@@ -149,7 +149,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
                 return templates.remove(index) != null;
             }
         } catch (Exception e) {
-            logger.error("Unable to delete a mission template", e);
+            logger.error("Unable to delete a flight plan template", e);
         }
 
         return false;
@@ -165,7 +165,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
                     StartPlanningViewModel.FLIGHT_PLAN_TEMPLATE_EVENT, StartPlanningViewModel.REFRESH_ACTION, template);
             }
         } catch (Exception e) {
-            logger.error("Unable to delete a mission template", e);
+            logger.error("Unable to delete a flight plan template", e);
         }
     }
 
@@ -181,7 +181,7 @@ public class FlightPlanTemplateManagementViewModel extends DialogViewModel {
     void editTemplate(FlightPlanTemplateManagementItem selectedItem) {
         Mission mission =
             missionManager.loadMissionInTemplateMode(
-                applicationContext.getCurrentMission(), flightPlanTemplateService.getFlightPlanTemplates());
+                applicationContext.getCurrentLegacyMission(), flightPlanTemplateService.getFlightPlanTemplates());
         mission.currentFlightPlanTemplateProperty().set(selectedItem.getFpTemplate());
     }
 }

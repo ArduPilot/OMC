@@ -43,7 +43,7 @@ public class WarningsPopoverView extends RootView<WarningsPopoverViewModel> {
             messageLabel.textProperty().bind(viewModel.messageProperty());
 
             HBox actions = new HBox();
-            actions.getStyleClass().add("wide-spacing");
+            actions.setSpacing(10);
 
             var firstResolveActionCommand = viewModel.getFirstResolveActionCommand();
             if (firstResolveActionCommand != null) {
@@ -62,7 +62,6 @@ public class WarningsPopoverView extends RootView<WarningsPopoverViewModel> {
             }
 
             VBox container = new VBox(messageLabel, actions);
-            container.getStyleClass().add("list-item");
             container.setMaxWidth(Double.POSITIVE_INFINITY);
             switch (viewModel.categoryProperty().get()) {
             case BLOCKING:

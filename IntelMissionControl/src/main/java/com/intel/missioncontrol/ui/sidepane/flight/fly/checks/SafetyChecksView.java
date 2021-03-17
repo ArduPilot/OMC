@@ -59,6 +59,18 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
     @FXML
     private Label checklistStatus;
 
+    @FXML
+    private Pane takeOffPosBox;
+
+    @FXML
+    private ImageView takeoffPositionImageStatus;
+
+    @FXML
+    private Label takeoffPositionStatus;
+
+    @FXML
+    private Button updateTakeoffPositionButton;
+
     private Image loadingIcon;
 
     private IDialogContextProvider dialogContextProvider;
@@ -146,8 +158,42 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
                     viewModel.manualCheckImageTypeProperty()));
         checklistStatus.textProperty().bind(viewModel.manualCheckStatusProperty());
 
-    }
+        updateTakeoffPositionButton
+            .disableProperty()
+            .bind(viewModel.getUpdateTakeoffPositionCommand().notExecutableProperty());
+        // TODO highlighting
+        takeoffPositionStatus.textProperty().bind(viewModel.takeoffPositionStatusProperty());
+        checklistStatus.textProperty().bind(viewModel.manualCheckStatusProperty());
+        takeoffPositionImageStatus
+            .imageProperty()
+            .bind(
+                Bindings.createObjectBinding(
+                    () -> {
+                        viewModel.getUpdateTakeoffPositionImageStatusString.execute();
+                        takeOffPosBox.getStyleClass().removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_WARNING_CLASS, ICON_COMPLETE_CLASS);
+                        takeoffPositionImageStatus.setVisible(false);
+                        takeoffPositionImageStatus.setManaged(false);
 
+                        switch (viewModel.takeoffPositionImageTypeProperty().get()) {
+                        case WARNING:
+                            takeOffPosBox.getStyleClass().addAll(WARNING_CLASS, ICON_WARNING_CLASS);
+                            return null;
+                        case LOADING:
+                            takeoffPositionImageStatus.setVisible(true);
+                            takeoffPositionImageStatus.setManaged(true);
+                            return getLoadingIcon();
+                        case COMPLETED:
+                            takeOffPosBox.getStyleClass().add(ICON_COMPLETE_CLASS);
+                            return null;
+                        case NONE:
+                        default:
+                            return null;
+                        }
+                    },
+                    viewModel.takeoffPositionImageTypeProperty(),
+                    viewModel.getUpdateTakeoffPositionCommand().notExecutableProperty(),
+                    viewModel.flightSegmentProperty()));
+    }
 
     public void showViewLogDialog(@SuppressWarnings("unused") ActionEvent actionEvent) {
         viewModel.getShowAutomaticChecksDialogCommand().execute();
@@ -176,9 +222,9 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
     protected ViewModel getViewModel() {
         return viewModel;
     }
-/*
+
     public void updateTakeoffPosition(ActionEvent actionEvent) {
         viewModel.getUpdateTakeoffPositionCommand().execute();
     }
-*/
+
 }

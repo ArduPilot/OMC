@@ -11,14 +11,10 @@ import com.intel.missioncontrol.drone.connection.MavlinkCameraConnectionItem;
 import com.intel.missioncontrol.drone.connection.mavlink.IMavlinkParameter;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkParameterFactory;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
-import io.dronefleet.mavlink.common.CameraImageCaptured;
-import io.dronefleet.mavlink.common.VideoStreamInformation;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.asyncfx.beans.property.AsyncIntegerProperty;
 import org.asyncfx.beans.property.AsyncListProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.AsyncStringProperty;
@@ -26,7 +22,6 @@ import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncStringProperty;
-import org.asyncfx.beans.property.SimpleAsyncIntegerProperty;
 import org.asyncfx.beans.property.SimpleAsyncListProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncStringProperty;
@@ -52,7 +47,6 @@ public class MavlinkCamera implements ICamera {
     private final AsyncObjectProperty<ICamera.Status> status =
         new SimpleAsyncObjectProperty<>(
             this, new PropertyMetadata.Builder<Status>().initialValue(Status.UNKNOWN).create());
-    private final AsyncIntegerProperty imageCount = new SimpleAsyncIntegerProperty(this);
 
     private final MavlinkCameraConnection cameraConnection;
 
@@ -62,54 +56,43 @@ public class MavlinkCamera implements ICamera {
 
         name.set(cameraConnection.getCameraConnectionItem().getName());
 
-        // image captured telemetry
+        // get camera information
+        // TODO use
         cameraConnection
-            .getCameraProtocolReceiver()
-            .registerTelemetryCallbackAsync(
-                CameraImageCaptured.class,
-                receivedPayload -> {
-                    CameraImageCaptured cameraImageCaptured = receivedPayload.getPayload();
-                    if (cameraImageCaptured.captureResult() != 0) {
-                        imageCount.set(imageCount.get() + 1);
-                    }
-                },
-                // ignore timeout
-                SpecialDuration.INDEFINITE,
-                () -> {})
-            .whenFailed(e -> LOGGER.error("MavlinkCamera: Error in image captured telemetry handler", e));
+            .getCommandProtocolSender()
+            .requestCameraInformationAsync()
+            .whenSucceeded(
+                camInfo -> {
+                    LOGGER.info("CAMERA_INFORMATION received: " + camInfo.toString());
+                })
+            .whenFailed(e -> LOGGER.error("Error requesting CAMERA_INFORMATION", e));
 
         // video stream one time setup
-        initializeVideoStreamsAsync()
-            .whenFailed(e -> LOGGER.error("MavlinkCamera: Cannot obtain video stream information", e));
+        updateVideoStreamsAsync()
+            .whenFailed(e -> LOGGER.error("MavlinkDrone: Cannot obtain video stream information", e));
 
         // set mavlink params
-        initializeMavlinkParamsAsync()
+        updateMavlinkParamsAsync()
             .whenFailed(
                 e -> {
-                    LOGGER.error("MavlinkCamera: Error setting camera parameters", e);
+                    LOGGER.error("MavlinkDrone: Error setting camera parameters", e);
                     status.set(Status.PARAMETER_ERROR);
                 })
             .whenSucceeded(v -> status.set(Status.OK));
     }
 
-    private Future<Void> initializeVideoStreamsAsync() {
+    private Future<Void> updateVideoStreamsAsync() {
         Function<Integer, Future<Void>> startStreamingFnc =
             streamId -> cameraConnection.getCommandProtocolSender().startStreamingAsync(streamId);
         Function<Integer, Future<Void>> stopStreamingFnc =
             streamId -> cameraConnection.getCommandProtocolSender().stopStreamingAsync(streamId);
 
+        videoStreams.addListener((o, oldValue, newValue) -> LOGGER.debug("VideoStream list changed"));
+
         String videoStreamUri = getCameraDescription().getVideoStreamUri();
         if (videoStreamUri != null) {
-            MavlinkVideoStream stream = new MavlinkVideoStream(videoStreamUri, startStreamingFnc, stopStreamingFnc);
-            stream.setStreamUUID(UUID.nameUUIDFromBytes(videoStreamUri.getBytes()));
-            videoStreams.add(stream);
+            videoStreams.add(new MavlinkVideoStream(videoStreamUri, startStreamingFnc, stopStreamingFnc));
         }
-
-        String connectionID =
-            "SysID:"
-                + cameraConnection.getCameraConnectionItem().getSystemId()
-                + ";CompID:"
-                + cameraConnection.getCameraConnectionItem().getComponentId();
 
         return cameraConnection
             .getCameraProtocolSender()
@@ -120,8 +103,7 @@ public class MavlinkCamera implements ICamera {
                         .stream()
                         .map(
                             videoStreamInformation ->
-                                mapToMavlinkVideoStream(
-                                    videoStreamInformation, connectionID, startStreamingFnc, stopStreamingFnc))
+                                new MavlinkVideoStream(videoStreamInformation, startStreamingFnc, stopStreamingFnc))
                         .collect(Collectors.toList()))
             .thenAccept((Consumer<List<MavlinkVideoStream>>)this.videoStreams::addAll);
     }
@@ -146,12 +128,7 @@ public class MavlinkCamera implements ICamera {
         return status;
     }
 
-    @Override
-    public AsyncIntegerProperty imageCountProperty() {
-        return imageCount;
-    }
-
-    private Future<Void> initializeMavlinkParamsAsync() {
+    private Future<Void> updateMavlinkParamsAsync() {
         List<com.intel.missioncontrol.hardware.MavlinkParam> mavlinkParams = cameraDescription.get().getMavlinkParams();
         if (mavlinkParams == null || mavlinkParams.isEmpty()) {
             return Futures.successful(null);
@@ -167,20 +144,5 @@ public class MavlinkCamera implements ICamera {
 
     public MavlinkCameraConnectionItem getConnectionItem() {
         return cameraConnection.getCameraConnectionItem();
-    }
-
-    private MavlinkVideoStream mapToMavlinkVideoStream(
-            VideoStreamInformation info,
-            String connectionID,
-            Function<Integer, Future<Void>> startStreamingFnc,
-            Function<Integer, Future<Void>> stopStreamingFnc) {
-        MavlinkVideoStream videoStream = new MavlinkVideoStream(info, startStreamingFnc, stopStreamingFnc);
-        String streamID = connectionID + "StreamID:" + info.streamId();
-        videoStream.setStreamUUID(UUID.nameUUIDFromBytes(streamID.getBytes()));
-        if (info.streamId() == 1 && cameraConnection.getCameraConnectionItem().getCameraNumber() == 1) {
-            videoStream.setDefaultStream();
-        }
-
-        return videoStream;
     }
 }

@@ -36,7 +36,6 @@ public interface IPayloadDescription extends INotificationObject {
     String OFFSET_TO_RIGHT_WING_PROPERTY = "offsetToRightWing";
     String OFFSET_TO_SKY_PROPERTY = "offsetToSky";
     String MAVLINK_PARAMS_PROPERTY = "mavlinkParams";
-    String MAVLINK_CAMERA_SPECIFICATIONS_PROPERTY = "mavlinkCameraSpecifications";
 
     String getId();
 
@@ -79,8 +78,6 @@ public interface IPayloadDescription extends INotificationObject {
     Quantity<Length> getOffsetToSky();
 
     List<MavlinkParam> getMavlinkParams();
-
-    List<MavlinkCameraSpecification> getMavlinkCameraSpecifications();
 
     default IMutablePayloadDescription asMutable() {
         return (IMutablePayloadDescription)this;

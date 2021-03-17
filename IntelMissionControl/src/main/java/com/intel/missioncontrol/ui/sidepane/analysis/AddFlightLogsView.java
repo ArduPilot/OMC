@@ -202,7 +202,7 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
                                 .bind(
                                     Bindings.createStringBinding(
                                         () ->
-                                            item.getTriggerCount() == 0
+                                            item.getImageCount() == 0
                                                 ? ""
                                                 : (item.getDate() == null
                                                     ? languageHelper.getString(
@@ -283,7 +283,7 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
                             textProperty()
                                 .bind(
                                     Bindings.createStringBinding(
-                                        () -> item.isReadingLogFile() ? null : Integer.toString(item.getTriggerCount()),
+                                        () -> item.isReadingLogFile() ? null : Integer.toString(item.getImageCount()),
                                         item.readingLogFileProperty()));
 
                             Tooltip tooltip = new Tooltip();

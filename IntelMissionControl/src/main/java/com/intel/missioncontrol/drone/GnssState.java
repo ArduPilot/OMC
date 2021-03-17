@@ -7,10 +7,8 @@
 package com.intel.missioncontrol.drone;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 
-@Localizable
-public enum GnssState implements IKeepAll {
+public enum GnssState implements Localizable {
     UNKNOWN,
     NO_FIX,
     GPS,

@@ -6,13 +6,13 @@
 
 package com.intel.missioncontrol.geometry;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.MavinciObjectFactory;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.mission.bindings.BeanAdapter;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.CPicArea;
 import eu.mavinci.core.flightplan.CPicArea.FacadeScanningSide;
@@ -178,17 +178,17 @@ public class AreaOfInterest implements IFlightplanChangeListener {
     private final DoubleProperty bladeCoverLength = new SimpleDoubleProperty();
 
     private final PicArea picArea;
-    // this object is reference to pic area template in corresponing mission
+    // this object is reference to pic area template in corresponing flight plan
     private final CPicArea picAreaTemplate;
     private final SimpleBooleanProperty isInitialAdding = new SimpleBooleanProperty(false);
     private final BeanAdapter<PicArea> beanAdapter;
+    private final MavinciObjectFactory mavinciObjectFactory =
+        DependencyInjector.getInstance().getInstanceOf(MavinciObjectFactory.class);
+    private final ISettingsManager settingsManager =
+        DependencyInjector.getInstance().getInstanceOf(ISettingsManager.class);
+    private final GeneralSettings generalStettings =
+        DependencyInjector.getInstance().getInstanceOf(ISettingsManager.class).getSection(GeneralSettings.class);
     private final BooleanBinding hasEnoughCorners = cornerList.sizeProperty().greaterThanOrEqualTo(minCornerCount);
-
-    private static final MavinciObjectFactory mavinciObjectFactory =
-        StaticInjector.getInstance(MavinciObjectFactory.class);
-    private static final ISettingsManager settingsManager = StaticInjector.getInstance(ISettingsManager.class);
-    private static final GeneralSettings generalStettings =
-        StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class);
 
     public AreaOfInterest(Mission mission, PlanType aoiId) {
         this.picArea = mavinciObjectFactory.createPicArea(mission, aoiId);
@@ -734,34 +734,33 @@ public class AreaOfInterest implements IFlightplanChangeListener {
         if (languageHelper != null) {
             switch (planType) {
             case POLYGON:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.POLYGON");
+                return languageHelper.getString("planningView.polygon");
             case CORRIDOR:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.CORRIDOR");
+                return languageHelper.getString("planningView.corridorMapping");
             case CITY:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.CITY");
+                return languageHelper.getString("planningView.cityMapping");
             case SPIRAL:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.SPIRAL");
+                return languageHelper.getString("planningView.spiral");
             case SEARCH:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.SEARCH");
+                return languageHelper.getString("planningView.search");
             case TOWER:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.TOWER");
+                return languageHelper.getString("planningView.tower");
             case WINDMILL:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.WINDMILL");
+                return languageHelper.getString("planningView.windmill");
             case BUILDING:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.BUILDING");
+                return languageHelper.getString("planningView.building");
             case FACADE:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.FACADE");
+                return languageHelper.getString("planningView.facade");
             case GEOFENCE_CIRC:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.GEOFENCE_CIRC");
             case GEOFENCE_POLY:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.GEOFENCE_POLY");
+                return languageHelper.getString("planningView.geoFence");
             case NO_FLY_ZONE_CIRC:
             case NO_FLY_ZONE_POLY:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.NO_FLY_ZONE_CIRC");
+                return languageHelper.getString("planningView.restrictedArea");
             case PANORAMA:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.PANORAMA");
+                return languageHelper.getString("planningView.pa");
             case POINT_OF_INTEREST:
-                return languageHelper.getString("eu.mavinci.core.flightplan.PlanType.POINT_OF_INTEREST");
+                return languageHelper.getString("planningView.poi");
             default:
                 return planType.name();
             }

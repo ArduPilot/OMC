@@ -119,11 +119,11 @@ public class PlanningScope implements Scope {
                 fpTemplatePropery));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener((observable, oldValue, newValue) -> setCurrentFlightplan(newValue));
         applicationContext
-            .currentMissionProperty()
+            .currentLegacyMissionProperty()
             .addListener(
                 (observable, oldValue, newValue) -> {
                     if (newValue == null) {
@@ -157,14 +157,16 @@ public class PlanningScope implements Scope {
         selectedHardwareConfiguration.addListener(new WeakChangeListener<>(iHardwareConfigurationChangeListener));
     }
 
+    @Deprecated
     private Flightplan getLegacyFlightplan() {
         return getCurrentFlightplan().getLegacyFlightplan();
     }
 
+    @Deprecated
     public ReadOnlyObjectProperty<FlightPlan> currentFlightplanProperty() {
         return currentFlightplan;
     }
-
+    @Deprecated
     public FlightPlan getCurrentFlightplan() {
         return currentFlightplan.get();
     }
@@ -191,6 +193,7 @@ public class PlanningScope implements Scope {
 
     boolean onSettingCurrentFP;
 
+    @Deprecated
     private void setCurrentFlightplan(FlightPlan currentFp) {
         if (currentFp == null) {
             onFlightPlanUnMount();
@@ -213,7 +216,7 @@ public class PlanningScope implements Scope {
         publish(EVENT_ON_FLIGHT_PLAN_SAVE);
     }
 
-    /** Should be called be consumer when mission is not defined. */
+    /** Should be called be consumer when flight plan is not defined. */
     private void onFlightPlanUnMount() {
         currentFlightplan.set(null);
         currentAois.unbind();
@@ -242,12 +245,12 @@ public class PlanningScope implements Scope {
     }
 
     /**
-     * Search index of the AOI at mission container by given position at the `area` property. There is difference in
-     * the indexing of these two lists because mission container contains additional items other than PickArea. like
+     * Search index of the AOI at flight plan container by given position at the `area` property. There is difference in
+     * the indexing of these two lists because flight plan container contains additional items other than PickArea. like
      * starting procedure and landing waypoints.
      *
      * @param areasListId element index of the AOI at flighplan area property
-     * @return element index of the pick area at mission container
+     * @return element index of the pick area at flight plan container
      */
     public int searchContainerIndex(int areasListId) {
         AreaOfInterest areaOfInterest = currentAois.get(areasListId);
@@ -301,8 +304,8 @@ public class PlanningScope implements Scope {
         FlightPlan currentFlightplan = getCurrentFlightplan();
 
         if (currentFlightplan.getName() == null || !currentFlightplan.isNameSetProperty().getValue()) {
-            currentFlightplan.isNameSetProperty().set(true);
             currentFlightplan.nameProperty().set(planService.generateDefaultName(planType));
+            currentFlightplan.isNameSetProperty().set(true);
         }
     }
 }

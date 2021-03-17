@@ -120,11 +120,11 @@ public class WmsManager implements IWmsManager {
 
                 @Override
                 public void remove(WmsServerLayer value) {
-                    Dispatcher.background().run(value::dropCache);
+                    Dispatcher.background().run(() -> value.dropCache());
                 }
             });
 
-        wmsServersSettings.wmssProperty().bindContent(wmsServersProperty(), (WmsServer::getWmsSettings));
+        wmsServersSettings.wmssProperty().bindContent(wmsServersProperty(), (value -> value.getWmsSettings()));
 
         // TODO what does it do, why
         wmsServerLayers.addListener(

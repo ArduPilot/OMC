@@ -45,6 +45,7 @@ import com.intel.missioncontrol.map.worldwind.impl.IScreenshotManager;
 import com.intel.missioncontrol.map.worldwind.impl.ScreenshotManager;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenter;
 import com.intel.missioncontrol.ui.navbar.layers.MapClearingCenter;
+import com.intel.missioncontrol.ui.validation.flightplan.AirmapLaancService;
 import eu.mavinci.desktop.gui.wwext.search.SearchManager;
 import eu.mavinci.geo.CountryDetector;
 import eu.mavinci.geo.ICountryDetector;
@@ -96,6 +97,7 @@ public final class MapModule extends AbstractModule {
         bind(IMapCreditsManager.class).to(MapCreditsManager.class).in(Singleton.class);
         bind(AirspacesProvidersCredits.class).asEagerSingleton();
         bind(IScreenshotManager.class).to(ScreenshotManager.class);
+        bind(AirmapLaancService.class).asEagerSingleton();
     }
 
 }

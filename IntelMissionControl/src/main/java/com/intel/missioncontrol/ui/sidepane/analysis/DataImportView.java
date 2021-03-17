@@ -24,7 +24,6 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -190,7 +189,7 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
 
         selectionCheckBox.selectedProperty().bindBidirectional(viewModel.selectionCheckBoxProperty());
         /*
-        //dirty hack to get strings upadted on whatever change even on the mission names
+        //dirty hack to get strings upadted on whatever change even on the flight plan names
         //BUT: listener is called, but its not triggering any redraw of the items  Marco: 2018.04.06
         viewModel
             .flightPlansProperty()

@@ -6,8 +6,7 @@
 
 package com.intel.missioncontrol.airspaces.sources;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.intel.missioncontrol.airspaces.cache.airspace.AirspacesGeometryIndex;
 import gov.nasa.worldwind.geom.Sector;
@@ -30,7 +29,7 @@ class OpenAirAirspacesSourceTest {
         OpenAirAirspacesSource sources = new OpenAirAirspacesSource(directory, new AirspacesGeometryIndex());
 
         Sector bb = Sector.fromDegrees(-90, 90, -180, 179.9);
-        assertThat(sources.getAirspacesWithin(bb).size(), is(5));
+        assertEquals(sources.getAirspacesWithin(bb).size(), 5);
     }
 
     private void copyAirspacesFileToFolder(String fileName, File directory) throws IOException {
@@ -49,7 +48,7 @@ class OpenAirAirspacesSourceTest {
         OpenAirAirspacesSource sources = new OpenAirAirspacesSource(directory, new AirspacesGeometryIndex());
 
         Sector bb = Sector.fromDegrees(-90, 90, -180, 179.9);
-        assertThat(sources.getAirspacesWithin(bb).size(), is(560));
+        assertEquals(sources.getAirspacesWithin(bb).size(), 560);
     }
 
     @Test
@@ -59,7 +58,7 @@ class OpenAirAirspacesSourceTest {
         OpenAirAirspacesSource sources = new OpenAirAirspacesSource(directory, new AirspacesGeometryIndex());
 
         Sector bb = Sector.fromDegrees(-90, 90, -180, 179.9);
-        assertThat(sources.getAirspacesWithin(bb).size(), is(236));
+        assertEquals(sources.getAirspacesWithin(bb).size(), 236);
     }
 
     @Test
@@ -69,7 +68,7 @@ class OpenAirAirspacesSourceTest {
         OpenAirAirspacesSource sources = new OpenAirAirspacesSource(directory, new AirspacesGeometryIndex());
 
         Sector bb = Sector.fromDegrees(-90, 90, -180, 179.9);
-        assertThat(sources.getAirspacesWithin(bb).size(), is(387));
+        assertEquals(sources.getAirspacesWithin(bb).size(), 387);
     }
 
 }

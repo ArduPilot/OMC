@@ -8,8 +8,6 @@ package com.intel.missioncontrol.ui.sidepane.analysis;
 
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.Localizable;
-import org.asyncfx.beans.property.PropertyPath;
-import org.asyncfx.beans.property.PropertyPathStore;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.Matching;
@@ -20,7 +18,6 @@ import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.menu.MenuModel;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,8 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ListChangeListener;
+import org.asyncfx.beans.property.PropertyPath;
+import org.asyncfx.beans.property.PropertyPathStore;
 
 /**
  * Contains the menu model for the datasets drop-down menu located in the sidepane header on the data preview tab. This
@@ -40,8 +39,7 @@ public class DatasetMenuModel extends MenuModel {
 
     private static final Logger LOG = Logger.getLogger(DatasetMenuModel.class.getSimpleName());
 
-    @Localizable
-    public enum MenuIds implements IKeepAll {
+    public enum MenuIds implements Localizable {
         CAPTION,
         DATASETS,
         NEW_DATASET,
@@ -69,7 +67,7 @@ public class DatasetMenuModel extends MenuModel {
         this.languageHelper = languageHelper;
 
         currentMatching =
-            PropertyPath.from(applicationContext.currentMissionProperty())
+            PropertyPath.from(applicationContext.currentLegacyMissionProperty())
                 .selectObject(Mission::currentMatchingProperty);
 
         setMnemonicParsing(false);
@@ -99,7 +97,7 @@ public class DatasetMenuModel extends MenuModel {
                     .isEqualTo(MatchingStatus.IMPORTED));
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyList(Mission::matchingsProperty)
             .addListener((ListChangeListener<Matching>)change -> datasetsChanged(change.getList()));
 
@@ -135,9 +133,8 @@ public class DatasetMenuModel extends MenuModel {
 
     private void createNewDataset() {
         Matching matching =
-            new Matching(
-                applicationContext.getCurrentMission().getDirectoryFile().toPath(), hardwareConfigurationManager);
-        applicationContext.getCurrentMission().matchingsProperty().add(matching);
+            new Matching(languageHelper.toFriendlyName(MenuIds.NEW_DATASET), hardwareConfigurationManager);
+        applicationContext.getCurrentLegacyMission().matchingsProperty().add(matching);
         currentMatching.set(matching);
     }
 

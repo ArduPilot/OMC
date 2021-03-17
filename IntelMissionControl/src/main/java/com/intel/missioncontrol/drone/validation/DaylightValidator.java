@@ -8,7 +8,6 @@ package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.Unit;
@@ -17,7 +16,7 @@ import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.settings.AirspacesProvidersSettings;
 import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.sunangles.RelevantSunElevation;
 import eu.mavinci.desktop.gui.doublepanel.sunangles.SunComputer;
 import eu.mavinci.flightplan.computation.FPsim;
@@ -44,11 +43,12 @@ public class DaylightValidator implements IFlightValidator {
 
     private final Duration updateInterval = Duration.ofSeconds(1);
 
-    private final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
     private final AirspacesProvidersSettings airspacesProvidersSettings =
-        StaticInjector.getInstance(AirspacesProvidersSettings.class);
+        DependencyInjector.getInstance().getInstanceOf(AirspacesProvidersSettings.class);
     private final IQuantityStyleProvider quantityStyleProvider =
-        StaticInjector.getInstance(IQuantityStyleProvider.class);
+        DependencyInjector.getInstance().getInstanceOf(IQuantityStyleProvider.class);
     private final AdaptiveQuantityFormat quantityFormat = new AdaptiveQuantityFormat(quantityStyleProvider);
 
     private final AsyncObjectProperty<FlightValidationStatus> validationStatus = new SimpleAsyncObjectProperty<>(this);
@@ -240,16 +240,6 @@ public class DaylightValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.DAYLIGHT;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 
 }

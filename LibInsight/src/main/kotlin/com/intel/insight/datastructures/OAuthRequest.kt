@@ -22,7 +22,7 @@ class OAuthRequest {
 
     @SerializedName("username")
     @Expose
-    var username = "imc_cloud@intel.com"
+    var username = "jan-hendrik.troesemeier@intel.com"
 
     @SerializedName("password")
     @Expose

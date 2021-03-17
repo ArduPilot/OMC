@@ -17,8 +17,8 @@ import java.util.function.Supplier;
  */
 public final class Strand {
 
-    private final Queue<Function<Future<?>, Future<?>>> postedItems = new ArrayDeque<>();
-    private Future<?> currentFuture;
+    private final Queue<Function<Future, Future>> postedItems = new ArrayDeque<>();
+    private Future currentFuture;
 
     public Future<Void> runLater(Runnable runnable) {
         return runLaterAsync(() -> Dispatcher.background().runLaterAsync(runnable));
@@ -39,8 +39,8 @@ public final class Strand {
         CompletableFuture<Void> proxyFuture = new CompletableFuture<>();
 
         postedItems.add(
-            previousFuture ->
-                futureRunnable
+            previousFuture -> {
+                return futureRunnable
                     .run()
                     .whenDone(
                         f -> {
@@ -51,7 +51,8 @@ public final class Strand {
                             } else {
                                 proxyFuture.completeWithCancellation(f.getException());
                             }
-                        }));
+                        });
+            });
 
         return proxyFuture;
     }
@@ -144,8 +145,8 @@ public final class Strand {
         return postedItems.size();
     }
 
-    private synchronized void currentFutureDone(Future<?> previousFuture) {
-        Function<Future<?>, Future<?>> posted = this.postedItems.poll();
+    private synchronized void currentFutureDone(Future previousFuture) {
+        Function<Future, Future> posted = this.postedItems.poll();
         if (posted == null) {
             currentFuture = null;
             return;

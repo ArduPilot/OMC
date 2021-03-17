@@ -70,6 +70,9 @@ public class WrappedImageView extends ImageView {
     //
     @Override
     public double prefWidth(double height) {
+        //        System.out.println("pW might be: " + Math.round(height*aspectRatio) + " and was asked for: " +
+        // height);
+
         if (height > 0) {
             return Math.round(height * aspectRatio);
         } else {
@@ -79,6 +82,7 @@ public class WrappedImageView extends ImageView {
 
     @Override
     public double prefHeight(double width) {
+        //        System.out.println("pH might be: " + Math.round(width/aspectRatio) + " and was asked for: " + width);
         if (width > 0) {
             return Math.round(width / aspectRatio);
         } else {
@@ -88,6 +92,8 @@ public class WrappedImageView extends ImageView {
 
     @Override
     public void resize(double width, double height) {
+        //        super.resize(width, height);
+        //        System.out.println("I should resize to width: " + width);
         double newAspectRatio = width / height;
         if (newAspectRatio > aspectRatio) {
             // width to large, or height too small, this can happen

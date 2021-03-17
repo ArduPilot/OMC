@@ -6,7 +6,7 @@
 
 package com.intel.missioncontrol.helper;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
 public interface ILanguageHelper {
 
@@ -16,12 +16,13 @@ public interface ILanguageHelper {
 
     String getString(Class<?> definingClass, String key, Object... params);
 
-    <E extends Enum<E> & IKeepAll> String toFriendlyName(E value);
+    <E extends Enum<E> & Localizable> String toFriendlyName(E value);
 
-    <E extends Enum<E>> String toFriendlyName(String customPrefix, E value);
+    <E extends Enum<E> & Localizable> String toFriendlyName(String customPrefix, E value);
 
-    <E extends Enum<E> & IKeepAll> E fromFriendlyName(Class<? extends Enum<E>> class1, String name);
+    <E extends Enum<E> & Localizable> E fromFriendlyName(Class<? extends Enum<E>> class1, String name);
 
-    <E extends Enum<E>> E fromFriendlyName(Class<? extends Enum<E>> class1, String customPrefix, String name);
+    <E extends Enum<E> & Localizable> E fromFriendlyName(
+            Class<? extends Enum<E>> class1, String customPrefix, String name);
 
 }

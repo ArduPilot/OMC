@@ -7,6 +7,8 @@
 package com.intel.missioncontrol.ui.sidepane.flight.fly.start;
 
 import com.google.inject.Inject;
+import org.asyncfx.beans.binding.ConversionBindings;
+import org.asyncfx.beans.binding.Converters;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.ui.dialogs.DialogView;
 import com.intel.missioncontrol.utils.IntegerValidator;
@@ -24,8 +26,6 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
-import org.asyncfx.beans.binding.ConversionBindings;
-import org.asyncfx.beans.binding.Converters;
 
 public class StartPlanDialogView extends DialogView<StartPlanDialogViewModel> {
     @FXML
@@ -65,8 +65,8 @@ public class StartPlanDialogView extends DialogView<StartPlanDialogViewModel> {
     @Override
     public ReadOnlyStringProperty titleProperty() {
         return new ReadOnlyStringWrapper(
-            languageHelper.getString(
-                "com.intel.missioncontrol.ui.sidepane.flight.fly.startPlan.StartPlanDialogView.title"));
+                languageHelper.getString(
+                        "com.intel.missioncontrol.ui.sidepane.flight.fly.startPlan.StartPlanDialogView.title"));
     }
 
     @Override
@@ -87,17 +87,17 @@ public class StartPlanDialogView extends DialogView<StartPlanDialogViewModel> {
 
         resumePlanRadio.setUserData(StartPlanType.RESUME_PLAN);
         resumePlanRadio
-            .disableProperty()
-            .bind(
-                Bindings.createBooleanBinding(
-                    () ->
-                        viewModel.activeFlightplanProperty().getValue() == null
-                            || !viewModel
-                                .activeFlightplanProperty()
-                                .getValue()
-                                .equals(viewModel.selectedFlightplanProperty().getValue()),
-                    viewModel.activeFlightplanProperty(),
-                    viewModel.selectedFlightplanProperty()));
+                .disableProperty()
+                .bind(
+                        Bindings.createBooleanBinding(
+                                () ->
+                                        viewModel.activeFlightplanProperty().getValue() == null
+                                                || !viewModel
+                                                .activeFlightplanProperty()
+                                                .getValue()
+                                                .equals(viewModel.selectedFlightplanProperty().getValue()),
+                                viewModel.activeFlightplanProperty(),
+                                viewModel.selectedFlightplanProperty()));
 
         startPlanFromBeginningRadio.setUserData(StartPlanType.START_PLAN_FROM_BEGINNING);
         startPlanFromWaypointRadio.setUserData(StartPlanType.START_PLAN_FROM_WAYPOINT);
@@ -106,26 +106,25 @@ public class StartPlanDialogView extends DialogView<StartPlanDialogViewModel> {
         viewModel.startPlanTypeProperty().addListener((observable, oldValue, newValue) -> setStartPlanToggle(newValue));
 
         startPlanToggleGroup
-            .selectedToggleProperty()
-            .addListener(
-                (observable, oldValue, newValue) ->
-                    viewModel.startPlanTypeProperty().setValue((StartPlanType)newValue.getUserData()));
+                .selectedToggleProperty()
+                .addListener(
+                        (observable, oldValue, newValue) ->
+                                viewModel.startPlanTypeProperty().setValue((StartPlanType) newValue.getUserData()));
 
-        // TODO: this causes a stack overflow error if selectedFlightPlanWaypointCountProperty is 0.
         IntegerValidator wpSpinnerValueFactory =
-            new IntegerValidator(
-                1, 1, viewModel.selectedFlightPlanWaypointCountProperty().getValue().intValue(), 1, Integer.MAX_VALUE);
+                new IntegerValidator(
+                        1, 1, viewModel.selectedFlightPlanWaypointCountProperty().getValue().intValue(), 1, Integer.MAX_VALUE);
 
         startingWaypointSpinner.setValueFactory(wpSpinnerValueFactory.getValueFactory());
         startingWaypointSpinner.editableProperty().bind(startPlanFromWaypointRadio.selectedProperty());
         startingWaypointSpinner
-            .focusedProperty()
-            .addListener(
-                (observable, oldValue, newValue) -> setStartPlanToggle(StartPlanType.START_PLAN_FROM_WAYPOINT));
+                .focusedProperty()
+                .addListener(
+                        (observable, oldValue, newValue) -> setStartPlanToggle(StartPlanType.START_PLAN_FROM_WAYPOINT));
         ConversionBindings.bindBidirectional(
-            startingWaypointSpinner.getValueFactory().valueProperty(),
-            viewModel.startingWaypointProperty(),
-            Converters.numberToInt());
+                startingWaypointSpinner.getValueFactory().valueProperty(),
+                viewModel.startingWaypointProperty(),
+                Converters.numberToInt());
 
         if (!resumePlanRadio.isDisabled()) {
             resumePlanRadio.setSelected(true);
@@ -135,11 +134,11 @@ public class StartPlanDialogView extends DialogView<StartPlanDialogViewModel> {
 
     private void setStartPlanToggle(StartPlanType startPlanType) {
         startPlanToggleGroup
-            .getToggles()
-            .stream()
-            .filter(t -> t.getUserData().equals(startPlanType))
-            .findAny()
-            .ifPresent(t -> t.setSelected(true));
+                .getToggles()
+                .stream()
+                .filter(t -> t.getUserData().equals(startPlanType))
+                .findAny()
+                .ifPresent(t -> t.setSelected(true));
     }
 
     public void OnConfirmTakeoffButtonClicked(@SuppressWarnings("unused") ActionEvent actionEvent) {

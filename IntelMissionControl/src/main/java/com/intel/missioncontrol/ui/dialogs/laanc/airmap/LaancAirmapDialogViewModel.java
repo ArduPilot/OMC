@@ -8,6 +8,7 @@ package com.intel.missioncontrol.ui.dialogs.laanc.airmap;
 
 import com.intel.missioncontrol.SuppressLinter;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
+import com.intel.missioncontrol.ui.validation.flightplan.AirmapLaancService;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import java.awt.Toolkit;
@@ -21,22 +22,30 @@ import javax.imageio.ImageIO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LaancAirmapDialogViewModel extends DialogViewModel<Boolean, String[]> {
+public class LaancAirmapDialogViewModel extends DialogViewModel<Boolean, AirmapLaancService.LaancApprovalQr> {
 
     private static final Logger LOGGER = LogManager.getLogger(LaancAirmapDialogViewModel.class);
 
     private final Command proceedCommand;
-    private String[] qrCode;
+    private AirmapLaancService.LaancApprovalQr qrCode;
 
     public LaancAirmapDialogViewModel() {
         proceedCommand =
             new DelegateCommand(
-                () ->
-                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(qrCode[0]), null));
+                () -> {
+                    if (qrCode == null) {
+                        LOGGER.error("Laanc QR code was not generated");
+                        return;
+                    }
+
+                    Toolkit.getDefaultToolkit()
+                        .getSystemClipboard()
+                        .setContents(new StringSelection(qrCode.getLink().toString()), null);
+                });
     }
 
     @Override
-    protected void initializeViewModel(String[] qrCode) {
+    protected void initializeViewModel(AirmapLaancService.LaancApprovalQr qrCode) {
         super.initializeViewModel(qrCode);
         this.qrCode = qrCode;
     }
@@ -51,14 +60,12 @@ public class LaancAirmapDialogViewModel extends DialogViewModel<Boolean, String[
         justification = "okay here"
     )
     public Image getImage() {
-        BufferedImage bufferedImage = null;
-        try {
-            bufferedImage = ImageIO.read(new File(this.qrCode[1]));
-            return SwingFXUtils.toFXImage(bufferedImage, null);
-        } catch (IOException e) {
-            LOGGER.warn("cant open image", e);
+        if (qrCode == null) {
+            LOGGER.error("Laanc QR code was not generated");
+            return null;
         }
 
-        return null;
+        BufferedImage bufferedImage = qrCode.getQrCodeImage();
+        return SwingFXUtils.toFXImage(bufferedImage, null);
     }
 }

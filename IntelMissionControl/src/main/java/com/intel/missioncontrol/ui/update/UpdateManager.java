@@ -12,12 +12,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.common.IPathProvider;
-import com.intel.missioncontrol.drone.connection.ConnectionState;
-import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.WindowHelper;
-import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.networking.INetworkInformation;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
@@ -27,14 +24,10 @@ import com.intel.missioncontrol.ui.MainViewModel;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogResult;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogViewModel;
 import com.intel.missioncontrol.utils.DefaultBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import com.intel.missioncontrol.utils.SubProcessHelper;
-import de.saxsys.mvvmfx.utils.commands.Command;
-import de.saxsys.mvvmfx.utils.commands.FutureCommand;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
 import eu.mavinci.core.update.EnumUpdateTargets;
@@ -94,8 +87,6 @@ public class UpdateManager implements IUpdateManager {
     private final ILicenceManager licenceManager;
     private final IVersionProvider versionProvider;
     private final String currentTime;
-    private final IDroneConnectionService droneConnectionService;
-    private final IMissionManager missionManager;
 
     private long currentVersion;
     private String currentMajor;
@@ -152,7 +143,6 @@ public class UpdateManager implements IUpdateManager {
             }
 
         };
-    private File lastUpdatefile;
 
     @Inject
     public UpdateManager(
@@ -164,9 +154,7 @@ public class UpdateManager implements IUpdateManager {
             IBackgroundTaskManager backgroundTaskManager,
             INetworkInformation networkInformation,
             IApplicationContext applicationContext,
-            ILicenceManager licenceManager,
-            IDroneConnectionService droneConnectionService,
-            IMissionManager missionManager) {
+            ILicenceManager licenceManager) {
         this.pathProvider = pathProvider;
         this.applicationContext = applicationContext;
         this.networkInformation = networkInformation;
@@ -177,8 +165,6 @@ public class UpdateManager implements IUpdateManager {
         this.backgroundTaskManager = backgroundTaskManager;
         this.updateSettings = settingsManager.getSection(UpdateSettings.class);
         this.licenceManager = licenceManager;
-        this.droneConnectionService = droneConnectionService;
-        this.missionManager = missionManager;
         this.versionProvider = versionProvider;
 
         applicationName = versionProvider.getApplicationName();
@@ -398,113 +384,52 @@ public class UpdateManager implements IUpdateManager {
         Dispatcher.platform().runLater(() -> openFileAfterAppCloseConfirmed(guiUpdateFile));
     }
 
-    public boolean checkDroneConnectedAndUpdate(boolean execute) {
-        if (droneConnectionService.connectionStateProperty().get().equals(ConnectionState.CONNECTED)) {
-            if (execute) {
-                Command disconnectDroneCommand =
-                    new FutureCommand(
-                        () ->
-                            dialogService
-                                .requestDialogAsync(mainViewModel, DisconnectDialogViewModel.class, true) // TODO check
-                                .whenDone(
-                                    (v) -> {
-                                        DisconnectDialogViewModel viewModel = v.getUnchecked();
-                                        DisconnectDialogResult dialogResult = viewModel.getDialogResult();
-                                        if (dialogResult != null) {
-                                            if (dialogResult.getConfirmed()) {
-                                                Dispatcher.platform()
-                                                    .run(
-                                                        () -> {
-                                                            droneConnectionService
-                                                                .disconnectAsync(
-                                                                    missionManager
-                                                                        .getMainViewModel()
-                                                                        .getFlightScope()
-                                                                        .currentDroneProperty()
-                                                                        .get())
-                                                                .whenSucceeded(
-                                                                    () -> {
-                                                                        try {
-                                                                            updateAndCloseApp();
-                                                                        } catch (IOException e) {
-                                                                            log.warn(
-                                                                                "Disconnect failed: " + e.getMessage());
-                                                                        }
-                                                                    })
-                                                                .whenFailed(e -> log.warn("Disconnect failed: " + e));
-                                                        });
-                                            } else {
-                                                log.warn("AvailableUpdate canceled!");
-                                            }
-                                        }
-                                    }));
-                disconnectDroneCommand.execute();
-                return true;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
     private boolean openFileAfterAppCloseConfirmed(File file) {
         try {
             if (file == null) {
                 return false;
             }
 
-            this.lastUpdatefile = file;
-            if (checkDroneConnectedAndUpdate(false)) {
-                checkDroneConnectedAndUpdate(true);
-                log.warn("AvailableUpdate canceled!");
+            if (applicationContext.checkDroneConnected(false)) {
+                applicationContext.checkDroneConnected(true);
+                log.error("AvailableUpdate canceled!");
                 return false; // TODO as long as not waiting
             } else {
-                return updateAndCloseApp(file); // TODO check?
+                Debug.getLog().config("starting local update-before close request:" + file);
+                if (isAppClosingConfirmed()) {
+                    if (!((DefaultBackgroundTaskManager)backgroundTaskManager).canCloseApplication(true)) {
+                        log.error("AvailableUpdate canceled!");
+                        return false;
+                    }
+
+                    if (!applicationContext.askUserForMissionSave()) {
+                        log.error("AvailableUpdate canceled!");
+                        return false;
+                    }
+
+                    if (!Application.closeAppRequest()) {
+                        log.error("AvailableUpdate failed! Failed to close application");
+                        return false;
+                    }
+
+                    // will wait until update start
+                    if (!executeUpdateFile(file.getCanonicalPath())) {
+                        dialogService.showErrorMessage(
+                            languageHelper.getString(
+                                "com.intel.missioncontrol.ui.update.UpdateManager.run.update.failed.dlg.title"),
+                            languageHelper.getString(
+                                "com.intel.missioncontrol.ui.update.UpdateManager.run.update.failed.dlg.info"));
+                        return false;
+                    } else {
+                        WindowHelper.closePrimaryStage();
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
             }
         } catch (IOException e) {
             handleException(e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateAndCloseApp() throws IOException {
-        return updateAndCloseApp(lastUpdatefile);
-    }
-
-    private boolean updateAndCloseApp(File file) throws IOException {
-        Debug.getLog().config("starting local update-before close request:" + file);
-        this.lastUpdatefile = file;
-        if (isAppClosingConfirmed()) {
-            if (!((DefaultBackgroundTaskManager)backgroundTaskManager).canCloseApplication(true)) {
-                log.warn("AvailableUpdate canceled!");
-                return false;
-            }
-
-            if (!applicationContext.askUserForMissionSave()) {
-                log.warn("AvailableUpdate canceled!");
-                return false;
-            }
-
-            if (!Application.closeAppRequest()) {
-                log.error("AvailableUpdate failed! Failed to close application");
-                return false;
-            }
-
-            // will wait until update start
-            if (!executeUpdateFile(file.getCanonicalPath())) {
-                dialogService.showErrorMessage(
-                    languageHelper.getString(
-                        "com.intel.missioncontrol.ui.update.UpdateManager.run.update.failed.dlg.title"),
-                    languageHelper.getString(
-                        "com.intel.missioncontrol.ui.update.UpdateManager.run.update.failed.dlg.info"));
-                return false;
-            } else {
-                WindowHelper.closePrimaryStage();
-                return true;
-            }
-        } else {
             return false;
         }
     }

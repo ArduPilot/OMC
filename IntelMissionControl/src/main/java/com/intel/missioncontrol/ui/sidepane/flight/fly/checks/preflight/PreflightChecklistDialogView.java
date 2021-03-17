@@ -71,4 +71,9 @@ public class PreflightChecklistDialogView extends DialogView<PreflightChecklistD
         viewModel.getCloseCommand().execute();
     }
 
+    @FXML
+    public void checkAllClicked() {
+        viewModel.getCheckAllCommand().execute();
+    }
+
 }

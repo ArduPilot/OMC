@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.concurrent.locks.LockSupport;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -21,75 +20,6 @@ import org.asyncfx.concurrent.Dispatcher;
 import org.junit.jupiter.api.Test;
 
 class AsyncIntegerPropertyTest extends TestBase {
-    public static String getThreadState(Thread thread) {
-        StringBuilder builder = new StringBuilder("Thread \"");
-        builder.append(thread.getName());
-        builder.append("\" is ");
-        builder.append(thread.getState());
-        Object blocker = LockSupport.getBlocker(thread);
-        if (blocker != null) builder.append(" for ").append(blocker);
-        for (StackTraceElement e : thread.getStackTrace()) {
-            builder.append("\n\tat ");
-            builder.append(e);
-        }
-
-        return builder.toString();
-    }
-
-    @Test
-    void testCircularListeners_should_run_and_terminate() {
-        AsyncIntegerProperty a =
-            new SimpleAsyncIntegerProperty(null, new PropertyMetadata.Builder<Number>().customBean(true).create());
-        AsyncIntegerProperty b =
-            new SimpleAsyncIntegerProperty(null, new PropertyMetadata.Builder<Number>().customBean(true).create());
-        a.addListener((observable, from, to) -> b.set(to.intValue() * 2));
-        a.set(123);
-
-        assertEquals(246, b.get());
-
-        b.addListener((observable, from, to) -> a.set(to.intValue() / 2));
-        a.set(333);
-
-        assertEquals(333, a.get());
-        assertEquals(666, b.get());
-    }
-
-    @Test
-    void testCircularListenerBindingIntToString_should_run_and_terminate() {
-        AsyncIntegerProperty a =
-            new SimpleAsyncIntegerProperty(null, new PropertyMetadata.Builder<Number>().customBean(true).create());
-        AsyncStringProperty b =
-            new SimpleAsyncStringProperty(null, new PropertyMetadata.Builder<String>().customBean(true).create());
-        b.bind(a, num -> Integer.toString(num.intValue() * 2));
-        a.set(123);
-
-        assertEquals("246", b.get());
-
-        b.addListener((observable, from, to) -> a.set(Integer.parseInt(to) / 2));
-        a.set(333);
-
-        assertEquals(333, a.get());
-        assertEquals("666", b.get());
-    }
-
-    @Test
-    void testCircularListenerBindingStringToInt_should_run_and_terminate() {
-        AsyncStringProperty a =
-            new SimpleAsyncStringProperty(null, new PropertyMetadata.Builder<String>().customBean(true).create());
-        a.set("0");
-        AsyncIntegerProperty b =
-            new SimpleAsyncIntegerProperty(null, new PropertyMetadata.Builder<Number>().customBean(true).create());
-        b.bind(a, num -> Integer.parseInt(num) * 2);
-        a.set("123");
-
-        assertEquals(246, b.get());
-
-        b.addListener((observable, from, to) -> a.set(Integer.toString(to.intValue() / 2)));
-        a.set("333");
-
-        assertEquals("333", a.get());
-        assertEquals(666, b.get());
-    }
 
     @Test
     void InvalidationListener_Is_Called_On_FxApplicationThread() {

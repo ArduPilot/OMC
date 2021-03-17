@@ -7,7 +7,9 @@
 package eu.mavinci.flightplan.exporter;
 
 import com.google.common.io.Files;
+import com.intel.missioncontrol.NotImplementedException;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
+import com.intel.missioncontrol.project.FlightPlan;
 import eu.mavinci.core.flightplan.visitors.ExtractTypeVisitor;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.flightplan.Flightplan;
@@ -77,8 +79,7 @@ public class LitchiCsvExporter implements IFlightplanExporter {
         }
     }
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         ExtractTypeVisitor<Waypoint> vis = new ExtractTypeVisitor<>(Waypoint.class);
         vis.startVisit(flightplan);
         try {
@@ -141,5 +142,10 @@ public class LitchiCsvExporter implements IFlightplanExporter {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
     }
 }

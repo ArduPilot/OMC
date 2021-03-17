@@ -7,7 +7,6 @@
 package com.intel.missioncontrol.ui.livevideo;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.livevideo.ILiveVideoService;
 import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import de.saxsys.mvvmfx.InjectScope;
@@ -17,9 +16,12 @@ import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyListProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.image.WritableImage;
 import org.asyncfx.beans.property.UIAsyncListProperty;
+import com.intel.missioncontrol.livevideo.ILiveVideoService;
 
 @ScopeProvider(scopes = {UILiveVideoScope.class})
 public class LiveVideoPaneViewModel extends ViewModelBase {
@@ -28,8 +30,12 @@ public class LiveVideoPaneViewModel extends ViewModelBase {
     private final SimpleBooleanProperty videoPaneVisible = new SimpleBooleanProperty();
     private final Property<UILiveVideoScope.WidgetState> widgetState = new SimpleObjectProperty<>(null);
 
-
+    private final UIAsyncListProperty<IUILiveVideoStream> videoStreamList = new UIAsyncListProperty<>(this);
     private final Property<IUILiveVideoStream> selectedStream = new SimpleObjectProperty<>();
+
+    private final Property<WritableImage> currentFrame = new SimpleObjectProperty<>();
+    private IUILiveVideoStream.IUILiveVideoStreamListener streamListener =
+        IUILiveVideoStream.createStreamListener(currentFrame);
 
     private final DelegateCommand detachCommand;
 
@@ -37,9 +43,10 @@ public class LiveVideoPaneViewModel extends ViewModelBase {
     private UILiveVideoScope liveVideoScope;
 
     @Inject
-    public LiveVideoPaneViewModel(IDialogService dialogService) {
+    public LiveVideoPaneViewModel(IDialogService dialogService, ILiveVideoService liveVideoService) {
         this.dialogService = dialogService;
         detachCommand = new DelegateCommand(() -> liveVideoScope.detach(true));
+        this.videoStreamList.bind(liveVideoService.streamListProperty());
     }
 
     @Override
@@ -63,6 +70,12 @@ public class LiveVideoPaneViewModel extends ViewModelBase {
                     dialogService.requestDialogAsync(this, LiveVideoDialogViewModel.class, false);
             });
 
+        selectedStream.addListener(
+            (obs, oldValue, newValue) -> {
+                if (newValue != null) newValue.addVideoStreamListener(streamListener);
+                if (oldValue != null) oldValue.removeVideoStreamListener(streamListener);
+            });
+
         widgetState.bind(liveVideoScope.widgetStateProperty());
     }
 
@@ -75,11 +88,14 @@ public class LiveVideoPaneViewModel extends ViewModelBase {
     }
 
     public ReadOnlyListProperty<IUILiveVideoStream> getStreamList() {
-        return liveVideoScope.getStreamList();
+        return videoStreamList.getReadOnlyProperty();
     }
 
     Property<IUILiveVideoStream> selectedStreamProperty() {
         return selectedStream;
     }
 
+    ReadOnlyProperty<WritableImage> currentFrameProperty() {
+        return currentFrame;
+    }
 }

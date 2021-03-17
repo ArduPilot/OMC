@@ -12,6 +12,7 @@ import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.FlightPlan;
+import com.intel.missioncontrol.mission.FlightPlanValidation;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.flightplan.computation.FPsim;
@@ -23,6 +24,7 @@ public class FlightTimeValidator extends OnFlightplanRecomputedValidator {
         FlightTimeValidator create(FlightPlan flightPlan);
     }
 
+    private final String className = FlightTimeValidator.class.getName();
     private ILanguageHelper languageHelper;
 
     @Inject
@@ -32,7 +34,7 @@ public class FlightTimeValidator extends OnFlightplanRecomputedValidator {
             @Assisted FlightPlan flightplan) {
         super(flightplan, quantityStyleProvider);
         this.languageHelper = languageHelper;
-        setOkMessage(languageHelper.getString(FlightTimeValidator.class, "okMessage"));
+        setOkMessage(languageHelper.getString(className + ".okMessage"));
     }
 
     @Override
@@ -58,11 +60,14 @@ public class FlightTimeValidator extends OnFlightplanRecomputedValidator {
                 .getValue()
                 .doubleValue();
 
+        double alternateFlighttime = FlightPlanValidation.estimateFlightTime(flightplan);
+
         if (!simResult.simulatedTimeValid) {
             if (fpsim.getSimulatedTimeMessage() != null
                     && fpsim.getSimulatedTimeMessage().equals("tooLongOverSimTimeMax")) {
                 addWarning(
-                    languageHelper.getString(FlightTimeValidator.class,"tooLongOverSimTimeMax",
+                    languageHelper.getString(
+                        className + ".tooLongOverSimTimeMax",
                         StringHelper.secToShortDHMS(flightTime),
                         StringHelper.secToShortDHMS(batteryTime)),
                     ValidationMessageCategory.BLOCKING);
@@ -72,7 +77,8 @@ public class FlightTimeValidator extends OnFlightplanRecomputedValidator {
         } else {
             if (fpsim.getSimulatedTimeMessage() != null && fpsim.getSimulatedTimeMessage().equals("tooLong")) {
                 addWarning(
-                    languageHelper.getString(FlightTimeValidator.class,"tooLong",
+                    languageHelper.getString(
+                        className + ".tooLong",
                         StringHelper.secToShortDHMS(flightTime),
                         StringHelper.secToShortDHMS(batteryTime)),
                     ValidationMessageCategory.NORMAL);

@@ -7,11 +7,12 @@
 package org.asyncfx.concurrent;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 import org.asyncfx.concurrent.Future.RunnableWithProgress;
 import org.asyncfx.concurrent.Future.SupplierWithProgress;
 
-public interface Dispatcher {
+public interface Dispatcher extends Executor {
 
     /** Returns a dispatcher that executes code on the JavaFX application thread. */
     static Dispatcher platform() {
@@ -35,7 +36,6 @@ public interface Dispatcher {
         return null;
     }
 
-    /** Returns whether the current thread has access to the dispatcher. */
     boolean hasAccess();
 
     default void verifyAccess() {
@@ -45,18 +45,6 @@ public interface Dispatcher {
                     + toString()
                     + "; currentThread = "
                     + Thread.currentThread());
-        }
-    }
-
-    /** Returns whether this dispatcher is sequential, which is a requirement for order-sensitive operations. */
-    boolean isSequential();
-
-    default void verifySequential() {
-        if (!isSequential()) {
-            throw new RuntimeException(
-                "Cannot post an order-sensitive operation to a non-sequential dispatcher (dispatcher = "
-                    + toString()
-                    + ")");
         }
     }
 

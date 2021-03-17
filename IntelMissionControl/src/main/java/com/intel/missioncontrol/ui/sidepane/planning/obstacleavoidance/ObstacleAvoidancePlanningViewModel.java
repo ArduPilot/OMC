@@ -34,17 +34,17 @@ public class ObstacleAvoidancePlanningViewModel extends ViewModelBase {
 
         enableObstacleAvoidance.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectBoolean(FlightPlan::obstacleAvoidanceEnabledProperty));
         enableAddSafetyWaypoints.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
-                .selectBoolean(FlightPlan::enableJumpOverWaypointsProperty));
+                .selectBoolean(FlightPlan::addSafetyWaypointsEnabledProperty));
         isHardwareOACapable.bindBidirectional(
             propertyPathStore
-                .from(applicationContext.currentMissionProperty())
+                .from(applicationContext.currentLegacyMissionProperty())
                 .select(Mission::currentFlightPlanProperty)
                 .selectBoolean(FlightPlan::isHardwareOACapable));
     }

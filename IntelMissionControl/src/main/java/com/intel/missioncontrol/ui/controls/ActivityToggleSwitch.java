@@ -25,7 +25,6 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-import org.asyncfx.concurrent.Dispatcher;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @SuppressFBWarnings("NM_SAME_SIMPLE_NAME_AS_SUPERCLASS")
@@ -35,101 +34,98 @@ public class ActivityToggleSwitch extends ToggleSwitch implements IShortcutAware
     private final StringProperty shortcut = new SimpleStringProperty(this, "shortcut");
     private final ObjectProperty<Boolean> commandParameter = new SimpleObjectProperty<>();
     private final ObjectProperty<ParameterizedCommand<Boolean>> command =
-        new SimpleObjectProperty<>(this, "command") {
-            @Override
-            protected void invalidated() {
-                Command command = get();
-                if (command != null) {
-                    disableProperty().bind(command.notExecutableProperty());
-                } else {
-                    disableProperty().unbind();
+            new SimpleObjectProperty<>(this, "command") {
+                @Override
+                protected void invalidated() {
+                    Command command = get();
+                    if (command != null) {
+                        disableProperty().bind(command.notExecutableProperty());
+                    } else {
+                        disableProperty().unbind();
+                    }
                 }
-            }
-        };
+            };
+
     private final BooleanProperty isBusy =
-        new SimpleBooleanProperty() {
-            private List<String> iconStyles = new ArrayList<>();
-            private RotateTransition rotateTransition;
+            new SimpleBooleanProperty() {
+                private List<String> iconStyles = new ArrayList<>();
+                private RotateTransition rotateTransition;
 
-            @Override
-            protected void invalidated() {
-                super.invalidated();
+                @Override
+                protected void invalidated() {
+                    super.invalidated();
 
-                Node graphic = getGraphic();
-                if (graphic == null) {
-                    String url =
-                        getStyleClass().contains("inverted")
-                            ? "/com/intel/missioncontrol/icons/icon_progress(fill=theme-primary-button-text-color).svg"
-                            : "/com/intel/missioncontrol/icons/icon_progress.svg";
-                    final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-                    ImageView imageView = new ImageView(contextClassLoader.getResource(url).toExternalForm());
-                    imageView.setFitWidth(ICON_SIZE);
-                    imageView.setFitHeight(ICON_SIZE);
-                    graphic = imageView;
-                    setGraphic(imageView);
-                }
+                    Node graphic = getGraphic();
+                    if (graphic == null) {
+                        String url =
+                                getStyleClass().contains("inverted")
+                                        ? "/com/intel/missioncontrol/icons/icon_progress(fill=theme-primary-button-text-color).svg"
+                                        : "/com/intel/missioncontrol/icons/icon_progress.svg";
+                        final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                        ImageView imageView = new ImageView(contextClassLoader.getResource(url).toExternalForm());
+                        imageView.setFitWidth(ICON_SIZE);
+                        imageView.setFitHeight(ICON_SIZE);
+                        graphic = imageView;
+                        setGraphic(imageView);
+                    }
 
-                if (get()) {
-                    ListIterator<String> it = getStyleClass().listIterator();
-                    while (it.hasNext()) {
-                        String styleClass = it.next();
-                        if (styleClass.startsWith("icon-")) {
-                            iconStyles.add(styleClass);
-                            it.remove();
+                    if (get()) {
+                        ListIterator<String> it = getStyleClass().listIterator();
+                        while (it.hasNext()) {
+                            String styleClass = it.next();
+                            if (styleClass.startsWith("icon-")) {
+                                iconStyles.add(styleClass);
+                                it.remove();
+                            }
+                        }
+
+                        setPrefWidth(getWidth());
+                        rotateTransition = new RotateTransition(Duration.millis(1500), graphic);
+                        rotateTransition.setInterpolator(Interpolator.LINEAR);
+                        rotateTransition.setFromAngle(0);
+                        rotateTransition.setToAngle(360);
+                        rotateTransition.setCycleCount(Animation.INDEFINITE);
+                        rotateTransition.play();
+                        setStyle("-fx-content-display: graphic-only");
+                        graphic.setVisible(true);
+                        graphic.setManaged(true);
+
+                        if (!disableProperty().isBound()) {
+                            setDisable(true);
+                        }
+                    } else {
+                        getStyleClass().addAll(iconStyles);
+                        iconStyles.clear();
+
+                        if (rotateTransition != null) {
+                            rotateTransition.stop();
+                            rotateTransition = null;
+                        }
+
+                        setStyle("-fx-content-display: left");
+                        graphic.setVisible(false);
+                        graphic.setManaged(false);
+
+                        if (!disableProperty().isBound()) {
+                            setDisable(false);
                         }
                     }
-
-                    setPrefWidth(getWidth());
-                    rotateTransition = new RotateTransition(Duration.millis(1500), graphic);
-                    rotateTransition.setInterpolator(Interpolator.LINEAR);
-                    rotateTransition.setFromAngle(0);
-                    rotateTransition.setToAngle(360);
-                    rotateTransition.setCycleCount(Animation.INDEFINITE);
-                    rotateTransition.play();
-                    setStyle("-fx-content-display: graphic-only");
-                    graphic.setVisible(true);
-                    graphic.setManaged(true);
-
-                    if (!disableProperty().isBound()) {
-                        setDisable(true);
-                    }
-                } else {
-                    getStyleClass().addAll(iconStyles);
-                    iconStyles.clear();
-
-                    if (rotateTransition != null) {
-                        rotateTransition.stop();
-                        rotateTransition = null;
-                    }
-
-                    setStyle("-fx-content-display: left");
-                    graphic.setVisible(false);
-                    graphic.setManaged(false);
-
-                    if (!disableProperty().isBound()) {
-                        setDisable(false);
-                    }
                 }
-            }
 
-            @Override
-            public Object getBean() {
-                return ActivityToggleSwitch.this;
-            }
+                @Override
+                public Object getBean() {
+                    return ActivityToggleSwitch.this;
+                }
 
-            @Override
-            public String getName() {
-                return "isBusy";
-            }
-        };
-    private String selectedText =  "Yes";
-    private String nonSelectedText = "No";
+                @Override
+                public String getName() {
+                    return "isBusy";
+                }
+            };
 
     public ActivityToggleSwitch() {
         super();
         this.setOnMouseClicked(mouseEvent -> setToggleState());
-        this.selectedProperty()
-            .addListener((observable, oldValue, newValue) -> Dispatcher.platform().run(this::setToggleText));
     }
 
     public ActivityToggleSwitch(String label) {
@@ -137,8 +133,6 @@ public class ActivityToggleSwitch extends ToggleSwitch implements IShortcutAware
         this.setOnMouseClicked(mouseEvent -> setToggleState());
         this.setOnTouchPressed(mouseEvent -> setToggleState());
         this.setOnKeyPressed(mouseEvent -> setToggleState());
-        this.selectedProperty()
-            .addListener((observable, oldValue, newValue) -> Dispatcher.platform().run(this::setToggleText));
     }
 
     public StringProperty shortcutProperty() {
@@ -181,14 +175,6 @@ public class ActivityToggleSwitch extends ToggleSwitch implements IShortcutAware
         this.command.set(command);
     }
 
-    public void setSelectedText(String selectedText) {
-        this.selectedText = selectedText;
-    }
-
-    public void setNonSelectedText(String nonSelectedText) {
-        this.nonSelectedText = nonSelectedText;
-    }
-
     private void setToggleState() {
         ParameterizedCommand<Boolean> command = getCommand();
         if (command != null) {
@@ -196,13 +182,5 @@ public class ActivityToggleSwitch extends ToggleSwitch implements IShortcutAware
             command.execute(getCommandParameter());
         }
     }
-
-    private void setToggleText() {
-        if (this.isSelected()) {
-            setText(selectedText);
-        } else {
-            setText(nonSelectedText);
-        }
-    }
-
 }
+

@@ -6,7 +6,6 @@
 
 package eu.mavinci.plane.simjava;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
@@ -15,6 +14,7 @@ import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AltAssertModes;
 import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.CPicAreaCorners;
@@ -73,7 +73,6 @@ import org.asyncfx.concurrent.Dispatcher;
 
 public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnector, Runnable {
 
-    public static final int AIRBORNE_HEIGHT = 20;
     IAirplane plane;
     public static int nextSimNo = 0;
 
@@ -253,9 +252,11 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
 
     Matrix transform4Inv;
     Matrix transform4;
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
     double diveStep;
     double climbStep;
     double maxSimTimeSec;
@@ -964,12 +965,7 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
                             rollCam
                                 + Math.signum(rollCamD) * Math.min(ROLL_RATE_MAX * MAIN_LOOP_STEP, Math.abs(rollCamD));
 
-                        // set airborne either after reaching a specified height or after reaching a waypoint's height
-                        // (if it's lower that "AIRBORNE_HEIGHT")
-                        if (pos.elevation >= AIRBORNE_HEIGHT && flightPhase == AirplaneFlightphase.takeoff
-                                || (fpCurObj instanceof Waypoint
-                                    && ((Waypoint)fpCurObj).getAltInMAboveFPRefPoint() < AIRBORNE_HEIGHT
-                                    && pos.elevation >= ((Waypoint)fpCurObj).getAltInMAboveFPRefPoint() - 1.0d)) {
+                        if (pos.elevation >= 15 && flightPhase == AirplaneFlightphase.takeoff) {
                             groundDist = 0;
                             setFlightPhase(AirplaneFlightphase.airborne);
                         }
@@ -1020,6 +1016,12 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
                         alt.update(altMaxNew);
                         altMinInM = alt.min;
                         altMaxInM = alt.max;
+                        // altMaxInM=altMinInM=altNew;
+                        // compute new position and orientation and flight phase
+                        if (altNew >= 20 && flightPhase == AirplaneFlightphase.takeoff) {
+                            groundDist = 0;
+                            setFlightPhase(AirplaneFlightphase.airborne);
+                        }
 
                         pos = new Position(pos, altNew);
                         vec = globe.computePointFromPosition(pos).transformBy4(transform4);
@@ -1316,7 +1318,7 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
             // }
         } catch (Exception e) {
             e.printStackTrace();
-            Debug.getLog().log(Level.WARNING, "local Mission simulation failed", e);
+            Debug.getLog().log(Level.WARNING, "local Flightplan simulation failed", e);
         } finally {
             clearFP();
             // System.out.println("simulation terminated "+AirplaneSim.this);
@@ -1364,11 +1366,14 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
         name = "LocalSimulation:" + simNo;
 
         planeInfo.hardwareType = "LocalSimulation";
-        planeInfo.revisionSoftware = (int)StaticInjector.getInstance(IVersionProvider.class).getBuildCommitTimeAsLong();
-        planeInfo.releaseVersion = StaticInjector.getInstance(IVersionProvider.class).getAppMajorVersion();
+        planeInfo.revisionSoftware =
+            (int)DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getBuildCommitTimeAsLong();
+        planeInfo.releaseVersion =
+            DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getAppMajorVersion();
         planeInfo.revisionHardware = planeInfo.revisionSoftware;
         planeInfo.serialNumber =
-            StaticInjector.getInstance(ILicenceManager.class).getActiveLicence().getLicenceId() + simNo;
+            DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence().getLicenceId()
+                + simNo;
         planeInfo.servoChannelCount = 4;
         planeInfo.totalairkm = 650;
         planeInfo.totalairtime = 12345;
@@ -1737,7 +1742,7 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
                     CFlightplan fp = AirplaneSim.this.fp;
                     if (fp == null || fpIsEmpty) {
                         // System.out.println("send empoty FP");
-                        // sending empty mission causes setting default platform settings to the
+                        // sending empty flight plan causes setting default platform settings to the
                         // fpManager.onAirFlightPlan
                         // -- so the view on the map also correspond to the default platform
                         fp = new Flightplan();
@@ -1981,7 +1986,9 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
     }
 
     File ftpFolderRoot =
-        new File(StaticInjector.getInstance(IPathProvider.class).getSettingsDirectory().toFile(), "simulationFileRoot");
+        new File(
+            DependencyInjector.getInstance().getInstanceOf(IPathProvider.class).getSettingsDirectory().toFile(),
+            "simulationFileRoot");
 
     @Override
     public void requestDirListing(final String path) {
@@ -2137,9 +2144,5 @@ public class AirplaneSim extends AAirplaneConnector implements IAirplaneConnecto
     @Override
     public void setManualServos(Vector<Integer> manualServos) {
         notImplemented("setManualServos");
-    }
-
-    public AirplaneFlightphase getFlightPhase() {
-        return flightPhase;
     }
 }

@@ -7,7 +7,9 @@
 package eu.mavinci.flightplan.exporter;
 
 import com.google.inject.Inject;
+import com.intel.missioncontrol.NotImplementedException;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import com.intel.missioncontrol.project.FlightPlan;
 import com.intel.missioncontrol.ui.validation.IValidationService;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.flightplan.Flightplan;
@@ -28,8 +30,7 @@ public class AscTecCsvExporter implements IFlightplanExporter {
         this.validationService = validationService;
     }
 
-    @Override
-    public void export(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
+    public void exportLegacy(Flightplan flightplan, File target, IMProgressMonitor progressMonitor) {
         String xsl = AscTecCsvHelper.getXsl(flightplan);
         File flightPlanFolder = flightplan.getFile().getParentFile();
         ACPWriterWrapper acpWriter =
@@ -43,4 +44,8 @@ public class AscTecCsvExporter implements IFlightplanExporter {
         }
     }
 
+    @Override
+    public void export(FlightPlan flightplan, File target, IMProgressMonitor progressMonitor) {
+        throw new NotImplementedException();
+    }
 }

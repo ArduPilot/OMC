@@ -6,9 +6,9 @@
 
 package eu.mavinci.desktop.gui.widgets.i18n;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.ScaleHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.main.core.Application;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -128,7 +128,7 @@ public class MCFrame extends JFrame implements MComponent {
 
     /** if a changing of language occurs, this function relabels all text elements on the frame */
     public void languageChanged() {
-        ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+        ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
         setTitle(languageHelper.getString(KEY + KEY_TITLE));
     }
 

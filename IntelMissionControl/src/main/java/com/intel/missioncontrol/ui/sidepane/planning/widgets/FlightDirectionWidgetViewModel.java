@@ -69,7 +69,7 @@ public class FlightDirectionWidgetViewModel implements ViewModel {
     }
 
     public void setFlightDirectionFromUav() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
 
         if (currentMission == null) {
             return;

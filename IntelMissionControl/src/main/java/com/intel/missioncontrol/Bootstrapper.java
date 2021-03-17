@@ -9,8 +9,8 @@ package com.intel.missioncontrol;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -20,8 +20,6 @@ import com.intel.missioncontrol.airspaces.services.AirspaceServiceProvider;
 import com.intel.missioncontrol.airspaces.services.BundledAirspaceService;
 import com.intel.missioncontrol.airspaces.services.LegacyAirspaceManagerConfiguration;
 import com.intel.missioncontrol.airspaces.services.LocationAwareAirspaceService;
-import com.intel.missioncontrol.airtraffic.AirTrafficManager;
-import com.intel.missioncontrol.airtraffic.IAirTrafficManager;
 import com.intel.missioncontrol.api.ExportService;
 import com.intel.missioncontrol.api.FlightPlanService;
 import com.intel.missioncontrol.api.FlightPlanTemplateService;
@@ -55,12 +53,9 @@ import com.intel.missioncontrol.hardware.IDescriptionProvider;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.SystemInformation;
 import com.intel.missioncontrol.helper.WindowHelper;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
-import com.intel.missioncontrol.linkbox.LinkBoxConnectionService;
 import com.intel.missioncontrol.livevideo.ILiveVideoService;
 import com.intel.missioncontrol.livevideo.LiveVideoService;
 import com.intel.missioncontrol.map.elevation.ElevationModelFactoryEGM;
-import com.intel.missioncontrol.map.worldwind.WWDispatcher;
 import com.intel.missioncontrol.mission.IMissionInfoManager;
 import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.mission.Mission;
@@ -77,6 +72,9 @@ import com.intel.missioncontrol.modules.NetworkModule;
 import com.intel.missioncontrol.modules.SettingsModule;
 import com.intel.missioncontrol.networking.DelegatingNetworkStatus;
 import com.intel.missioncontrol.networking.proxy.ProxyManager;
+import com.intel.missioncontrol.persistence.Repository;
+import com.intel.missioncontrol.persistence.insight.InsightRepository;
+import com.intel.missioncontrol.persistence.local.LocalRepository;
 import com.intel.missioncontrol.settings.ExpertSettings;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
@@ -109,8 +107,6 @@ import com.intel.missioncontrol.ui.dialogs.savechanges.SaveChangesDialogView;
 import com.intel.missioncontrol.ui.dialogs.savechanges.SaveChangesDialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView;
 import com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksViewModel;
-import com.intel.missioncontrol.ui.dialogs.tasks.LinkBoxStatusView;
-import com.intel.missioncontrol.ui.dialogs.tasks.LinkBoxStatusViewModel;
 import com.intel.missioncontrol.ui.dialogs.tasks.MavlinkEventLogDialogView;
 import com.intel.missioncontrol.ui.dialogs.tasks.MavlinkEventLogDialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.warnings.UnresolvedWarningsDialogView;
@@ -129,8 +125,6 @@ import com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionD
 import com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogViewModel;
 import com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView;
 import com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsViewModel;
-import com.intel.missioncontrol.ui.sidepane.analysis.DataImportNewView;
-import com.intel.missioncontrol.ui.sidepane.analysis.DataImportNewViewModel;
 import com.intel.missioncontrol.ui.sidepane.analysis.IMatchingService;
 import com.intel.missioncontrol.ui.sidepane.analysis.MatchingService;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutomaticChecksDialogView;
@@ -145,12 +139,8 @@ import com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView
 import com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryView;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryViewModel;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.RTKConfigurationView;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.RTKConfigurationViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailViewModel;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.UAVLockedView;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.UAVLockedViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.EditPowerpolePointsView;
 import com.intel.missioncontrol.ui.sidepane.planning.EditPowerpolePointsViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView;
@@ -175,6 +165,7 @@ import de.saxsys.mvvmfx.MvvmFX;
 import de.saxsys.mvvmfx.ViewModel;
 import de.saxsys.mvvmfx.ViewTuple;
 import de.saxsys.mvvmfx.guice.internal.MvvmfxModule;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.main.debug.IProfilingManager;
 import eu.mavinci.core.flightplan.FlightplanFactory;
 import eu.mavinci.core.helper.GeoFenceDetector;
@@ -204,6 +195,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -213,7 +205,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
-import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -227,7 +218,6 @@ import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.FutureExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 import thebuzzmedia.exiftool.ExifTool;
 
 /** Sets up and starts the application. */
@@ -261,7 +251,6 @@ public class Bootstrapper extends javafx.application.Application {
         map.put(UpdateViewModel.class, UpdateView.class);
         map.put(FlightPlanTemplateManagementViewModel.class, FlightPlanTemplateManagementView.class);
         map.put(BackgroundTasksViewModel.class, BackgroundTasksView.class);
-        map.put(LinkBoxStatusViewModel.class, LinkBoxStatusView.class);
         map.put(UnresolvedWarningsDialogViewModel.class, UnresolvedWarningsDialogView.class);
         map.put(WarningsPopoverViewModel.class, WarningsPopoverView.class);
         map.put(AddFlightLogsViewModel.class, AddFlightLogsView.class);
@@ -281,9 +270,6 @@ public class Bootstrapper extends javafx.application.Application {
         map.put(InspectionPointBulkSettingsViewModel.class, InspectionPointBulkSettingsView.class);
         map.put(TelemetryDetailViewModel.class, TelemetryDetailView.class);
         map.put(ObstacleAvoidanceTelemetryViewModel.class, ObstacleAvoidanceTelemetryView.class);
-        map.put(RTKConfigurationViewModel.class, RTKConfigurationView.class);
-        map.put(DataImportNewViewModel.class, DataImportNewView.class);
-        map.put(UAVLockedViewModel.class, UAVLockedView.class);
         return map;
     }
 
@@ -338,9 +324,10 @@ public class Bootstrapper extends javafx.application.Application {
                         settingsManager.getSection(GeneralSettings.class).getProfilingEnabled());
                 }
             });
-        modules.add(new AirspacesModule());
+        //modules.add(new AirspacesModule());
         modules.add(new MvvmfxModule());
         modules.add(new ConnectorsModule());
+        modules.add(new RepositoriesModule());
         return modules;
     }
 
@@ -349,7 +336,6 @@ public class Bootstrapper extends javafx.application.Application {
         protected void configure() {
             bind(IConnectionListenerService.class).to(ConnectionListenerService.class).in(Singleton.class);
             bind(IDroneConnectionService.class).to(DroneConnectionService.class).in(Singleton.class);
-            bind(ILinkBoxConnectionService.class).to(LinkBoxConnectionService.class).in(Singleton.class);
 
             install(new FactoryModuleBuilder().build(MockDroneConnector.Factory.class));
             install(new FactoryModuleBuilder().build(MavlinkDroneConnector.Factory.class));
@@ -361,8 +347,6 @@ public class Bootstrapper extends javafx.application.Application {
     private class AirspacesModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(IAirTrafficManager.class).to(AirTrafficManager.class).asEagerSingleton();
-
             bind(LocationAwareAirspaceService.class).toProvider(AirspaceServiceProvider.class).asEagerSingleton();
             // bind(AirMap2Source.class).toInstance(new AirMap2Source()); //< todo: lazily load AirMap2Source from
             // provider
@@ -375,6 +359,22 @@ public class Bootstrapper extends javafx.application.Application {
                 .to(BundledAirspaceService.class)
                 .asEagerSingleton();
             bind(LegacyAirspaceManagerConfiguration.class).asEagerSingleton();
+        }
+    }
+
+    private class RepositoriesModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(Repository.class).toProvider(RepositoryProvider.class).asEagerSingleton();
+
+            bind(Repository.class)
+                .annotatedWith(Names.named("cloud-repository"))
+                .to(InsightRepository.class)
+                .asEagerSingleton();
+            bind(Repository.class)
+                .annotatedWith(Names.named("local-repository"))
+                .to(LocalRepository.class)
+                .asEagerSingleton();
         }
     }
 
@@ -468,7 +468,6 @@ public class Bootstrapper extends javafx.application.Application {
 
     private void initializeInjector(IPathProvider pathProvider) {
         injector = Guice.createInjector(createModules(pathProvider));
-        StaticInjector.initialize(injector);
 
         MvvmFX.addFxmlKnownPackage(Convert.class.getPackageName());
         MvvmFX.setCustomDependencyInjector(
@@ -565,9 +564,6 @@ public class Bootstrapper extends javafx.application.Application {
     @Override
     public void init() {
         try {
-            initLoggerBridge();
-            LOGGER.warn("IMC starting up!");
-
             mailslotClient = new MailslotClient(MAILSLOT_NAME);
 
             checkPrerequisites();
@@ -608,15 +604,6 @@ public class Bootstrapper extends javafx.application.Application {
         } catch (Throwable ex) {
             startupException = ex;
         }
-    }
-
-    private void initLoggerBridge() {
-        // Optionally remove existing handlers attached to j.u.l root logger
-        SLF4JBridgeHandler.removeHandlersForRootLogger();  // (since SLF4J 1.6.5)
-
-        // add SLF4JBridgeHandler to j.u.l's root logger, should be done once during
-        // the initialization phase of your application
-        SLF4JBridgeHandler.install();
     }
 
     @Override
@@ -682,7 +669,6 @@ public class Bootstrapper extends javafx.application.Application {
             WindowHelper.setCloaked(primaryStage, false);
 
             LOGGER.info("Startup: " + (System.currentTimeMillis() - START_TIME) + "ms");
-            FreezeWatchdog.spawnUnlessDebugger(Dispatcher.platform(), injector.getInstance(Key.get(Dispatcher.class, Names.named(MapModule.DISPATCHER))));
         } catch (Throwable ex) {
             LOGGER.error(ex.getMessage(), ex);
             ExceptionAlert.showAndWait(ex);
@@ -693,15 +679,14 @@ public class Bootstrapper extends javafx.application.Application {
     @Override
     public void stop() throws Exception {
         interProcessHandler.close();
-        FreezeWatchdog.halt();
         super.stop();
     }
 
     private void initializeRecentMissions() {
-        try (LockedList<MissionInfo> missionInfos =
+       /* try (LockedList<MissionInfo> missionInfos =
             injector.getInstance(IMissionManager.class).recentMissionInfosProperty().lock()) {
             missionInfos.stream().filter(MainMenuCommandManager::isDemo).findFirst().ifPresent(this::dropDemoMission);
-        }
+        }*/
     }
 
     private void dropDemoMission(MissionInfo mission) {
@@ -716,4 +701,5 @@ public class Bootstrapper extends javafx.application.Application {
         List<MissionInfo> recentMissions = missionManager.recentMissionInfosProperty();
         recentMissions.remove(mission);
     }
+
 }

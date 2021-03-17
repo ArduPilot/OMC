@@ -28,9 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.Assert.assertNotNull;
 
 public class AirSpaceTest {
 
@@ -93,11 +92,11 @@ public class AirSpaceTest {
 
         AirMapResponse<Collection<AirSpaceObject>> resp =  loader.fromJson(loadTestData(), listType);
 
-        assertNotNull(resp.data);
+        Assertions.assertNotNull(resp.data);
 
 
 
 
-        assertNotNull(resp);
+        Assertions.assertNotNull(resp);
     }
 }

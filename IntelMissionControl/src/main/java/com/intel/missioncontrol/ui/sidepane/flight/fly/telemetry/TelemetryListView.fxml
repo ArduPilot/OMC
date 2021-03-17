@@ -58,4 +58,28 @@
 
         <Label fx:id="gnssSatellites" styleClass="label-bold"/>
     </VBox>
+    <VBox fx:id="batteryVBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="3" GridPane.columnIndex="0" managed="false"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.remainingChargePercent"/>
+        <Label fx:id="batteryLevel" styleClass="label-bold"/>
+    </VBox>
+    <VBox fx:id="flightSegmentVBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="4" managed="false"
+          GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.flightSegment"/>
+        <Label fx:id="flightSegment" styleClass="label-bold"/>
+
+    </VBox>
+    <VBox fx:id="altitudeAGLVBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="5" managed="false"
+          GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.altitudeAGL"/>
+        <Label fx:id="altitudeAgl" styleClass="label-bold"/>
+    </VBox>
+    <VBox fx:id="distanceToDroneVBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="6" managed="false"
+          GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.distanceToDrone"/>
+        <Label fx:id="distanceToDrone" styleClass="label-bold"/>
+    </VBox>
 </GridPane>

@@ -9,11 +9,8 @@ package com.intel.missioncontrol.drone.validation;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
@@ -49,8 +46,7 @@ public class AnnoyingTestValidator implements IFlightValidator {
     private State state = State.UPDATING;
 
     @Inject
-    AnnoyingTestValidator(
-            IFlightValidationService flightValidationService, @Assisted CancellationSource cancellationSource) {
+    AnnoyingTestValidator(@Assisted CancellationSource cancellationSource) {
         onInvalidated();
         Dispatcher.background()
             .runLaterAsync(this::onInvalidated, Duration.ofSeconds(2), Duration.ofSeconds(2), cancellationSource);
@@ -83,16 +79,6 @@ public class AnnoyingTestValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.ANNOYING_TEST;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 
 }

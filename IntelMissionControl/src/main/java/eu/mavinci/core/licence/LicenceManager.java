@@ -144,10 +144,12 @@ public class LicenceManager implements ILicenceManager {
     private void initDefaultLicence()
             throws IOException, GeneralSecurityException, SAXException, ParserConfigurationException {
         try (InputStream cLoader = ClassLoader.getSystemResourceAsStream("eu/mavinci/default.mlf")) {
-            Licence licence = new Licence(Licence.getResourcesAsBytes(cLoader));
-            licence.isBuildInLicence = true;
-            activeLicence.set(licence);
-            LOGGER.info("License Version: " + licence.getHumanReadableVersion());
+            if(cLoader != null) {
+                Licence licence = new Licence(Licence.getResourcesAsBytes(cLoader));
+                licence.isBuildInLicence = true;
+                activeLicence.set(licence);
+                LOGGER.info("License Version: " + licence.getHumanReadableVersion());
+            }
         }
     }
 

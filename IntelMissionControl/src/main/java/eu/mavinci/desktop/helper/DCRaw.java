@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.main.OsTypes;
 import eu.mavinci.desktop.main.debug.Debug;
 import java.awt.image.BufferedImage;
@@ -28,9 +28,9 @@ public class DCRaw {
 
     public static String getDCRawExe() throws Exception {
         if (dcrawExe == null) {
-            IVersionProvider versionProvider = StaticInjector.getInstance(IVersionProvider.class);
+            IVersionProvider versionProvider = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class);
 
-            OsTypes system = StaticInjector.getInstance(IVersionProvider.class).getSystem();
+            OsTypes system = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem();
             if (versionProvider.isEclipseLaunched()) {
                 File installDirParent = versionProvider.getInstallDir().getAbsoluteFile().getParentFile();
                 if (installDirParent == null) {

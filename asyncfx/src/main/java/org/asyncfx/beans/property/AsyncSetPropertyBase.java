@@ -6,7 +6,14 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.StampedLock;
 import javafx.beans.InvalidationListener;
@@ -31,7 +38,6 @@ import org.asyncfx.collections.AsyncObservableSet;
 import org.asyncfx.collections.LockedSet;
 import org.asyncfx.collections.SetChangeListenerWrapper;
 import org.asyncfx.collections.SubObservableSet;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -45,14 +51,14 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
     private final SetChangeListener<E> setChangeListener =
         change -> {
-            Dispatcher dispatcher = getMetadata().getDispatcher();
-            if (dispatcher == null) {
+            Executor executor = getMetadata().getDispatcher();
+            if (executor == null) {
                 Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
+                executor = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
             }
 
-            if (dispatcher != null) {
-                dispatcher.run(
+            if (executor != null) {
+                executor.execute(
                     () -> {
                         invalidateProperties();
                         invalidated();
@@ -68,14 +74,14 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     private final SubInvalidationListener subInvalidationListener =
         (observable, subInvalidation) -> {
             if (subInvalidation) {
-                Dispatcher dispatcher = getMetadata().getDispatcher();
-                if (dispatcher == null) {
+                Executor executor = getMetadata().getDispatcher();
+                if (executor == null) {
                     Object bean = getBean();
-                    dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
+                    executor = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
                 }
 
-                if (dispatcher != null) {
-                    dispatcher.run(() -> fireSubValueChangedEvent(observable));
+                if (executor != null) {
+                    executor.execute(() -> fireSubValueChangedEvent(observable));
                 } else {
                     fireSubValueChangedEvent(observable);
                 }
@@ -94,6 +100,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     private boolean valid = true;
     private AsyncIntegerProperty size0;
     private AsyncBooleanProperty empty0;
+    private Queue<DeferredSetListener<E>> deferredListeners;
     AsyncSetExpressionHelper<E> helper;
 
     public AsyncSetPropertyBase(PropertyMetadata<AsyncObservableSet<E>> metadata) {
@@ -151,14 +158,14 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     public String getName() {
         long stamp = 0;
         try {
-            stamp = AsyncFX.isDebuggerAttached() ? 0 : accessController.readLock(false);
+            stamp = AsyncFX.isDebuggerAttached() ? 0 : accessController.readLock(VALUE, INSTANCE);
             if (name == null) {
                 this.name = PropertyHelper.getPropertyName(getBean(), this, metadata);
             }
 
             return name;
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(VALUE, stamp);
         }
     }
 
@@ -173,13 +180,13 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
         if (!sealed) {
             long stamp = 0;
             try {
-                stamp = accessController.readLock(false);
+                stamp = accessController.readLock(VALUE, INSTANCE);
                 sealed = metadataSealed;
                 if (!sealed) {
                     metadataSealed = true;
                 }
             } finally {
-                accessController.unlockRead(stamp);
+                accessController.unlockRead(VALUE, stamp);
             }
         }
 
@@ -190,7 +197,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     public void overrideMetadata(PropertyMetadata<AsyncObservableSet<E>> metadata) {
         long stamp = 0;
         try {
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (metadataSealed) {
                 throw new IllegalStateException("Metadata cannot be overridden because it is sealed after first use.");
             }
@@ -199,7 +206,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
             this.value = this.metadata.getInitialValue();
             this.name = null;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -207,14 +214,14 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     public ReadOnlyAsyncIntegerProperty sizeProperty() {
         long stamp = 0;
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 AsyncIntegerProperty size0 = this.size0;
-                if (accessController.validate(false, stamp) && size0 != null) {
+                if (accessController.validate(VALUE, INSTANCE, stamp) && size0 != null) {
                     return size0;
                 }
             }
 
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (size0 == null) {
                 size0 =
                     new SimpleAsyncIntegerProperty(this, new PropertyMetadata.Builder<Number>().name("size").create());
@@ -224,7 +231,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
             return size0;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -232,14 +239,14 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     public ReadOnlyAsyncBooleanProperty emptyProperty() {
         long stamp = 0;
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 AsyncBooleanProperty empty0 = this.empty0;
-                if (accessController.validate(false, stamp) && empty0 != null) {
+                if (accessController.validate(VALUE, INSTANCE, stamp) && empty0 != null) {
                     return empty0;
                 }
             }
 
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (empty0 == null) {
                 empty0 =
                     new SimpleAsyncBooleanProperty(
@@ -250,197 +257,287 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
             return empty0;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
     @Override
     public void addListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(InvalidationListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncSetExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncSetExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubInvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubInvalidationListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncSetExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncSetExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(SubInvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super AsyncObservableSet<E>> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super AsyncObservableSet<E>> listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncSetExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncSetExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(ChangeListener<? super AsyncObservableSet<E>> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubChangeListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubChangeListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncSetExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncSubChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncSetExpressionHelper.addListener(
+                        helper, this, getCore(), AsyncSubChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(AsyncSubChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(SubChangeListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SetChangeListener<? super E> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.addListener(helper, this, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SetChangeListener<? super E> listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncSetExpressionHelper.addListener(
-                    helper, this, getCore(), SetChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncSetExpressionHelper.addListener(
+                        helper, this, getCore(), SetChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(SetChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(SetChangeListener<? super E> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncSetExpressionHelper.removeListener(helper, getCore(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
@@ -465,11 +562,11 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
         boolean read = true;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
                 AsyncObservableSet<E> value = this.value;
                 PropertyMetadata<AsyncObservableSet<E>> metadata = this.metadata;
-                if (accessController.validate(true, stamp)) {
+                if (accessController.validate(VALUE, GROUP, stamp)) {
                     if (critical) {
                         PropertyHelper.verifyConsistency(metadata);
                     }
@@ -483,7 +580,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
             }
 
             if (read) {
-                stamp = accessController.readLock(true);
+                stamp = accessController.readLock(VALUE, GROUP);
                 if (valid) {
                     if (critical) {
                         PropertyHelper.verifyConsistency(metadata);
@@ -493,10 +590,10 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
                 }
             }
 
-            long newStamp = accessController.tryConvertToWriteLock(true, stamp);
+            long newStamp = accessController.tryConvertToWriteLock(VALUE, GROUP, stamp);
             if (newStamp == 0) {
-                accessController.unlockRead(stamp);
-                stamp = accessController.writeLock(true);
+                accessController.unlockRead(VALUE, stamp);
+                stamp = accessController.writeLock(VALUE, GROUP);
             } else {
                 stamp = newStamp;
             }
@@ -507,7 +604,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
             return getCore();
         } finally {
-            accessController.unlock(stamp);
+            accessController.unlock(VALUE, stamp);
         }
     }
 
@@ -537,12 +634,12 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
     @Override
     public void set(AsyncObservableSet<E> newValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate, fireEvent = false;
-        AsyncSetExpressionHelper<E> helper;
 
         try {
-            stamp = accessController.writeLock(true);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
             PropertyHelper.verifyAccess(this, metadata);
             PropertyHelper.verifyConsistency(metadata);
 
@@ -564,13 +661,19 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
             value = newValue;
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncSetExpressionHelper.validatesValue(helper)) {
-                    newValue = getCore();
+                    try {
+                        newValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
 
                 if (!(fireEvent = !accessController.isLocked())) {
@@ -578,18 +681,30 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
                     accessController.defer(
                         () -> {
-                            invalidated();
-                            AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            long stamp = 0;
+                            try {
+                                stamp = accessController.writeLock(EVENT, GROUP);
+                                invalidated();
+                                AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            } finally {
+                                accessController.unlockWrite(EVENT, stamp);
+                            }
                         });
+
+                    accessController.unlockWrite(EVENT, eventStamp);
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (fireEvent) {
-            invalidated();
-            AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            try {
+                invalidated();
+                AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
@@ -600,16 +715,13 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
     protected void fireValueChangedEvent(SetChangeListener.Change<? extends E> change) {
         long stamp = 0;
-        AsyncSetExpressionHelper<E> helper;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = this.helper;
+            stamp = accessController.writeLock(EVENT, INSTANCE);
+            AsyncSetExpressionHelper.fireValueChangedEvent(helper, change);
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(EVENT, stamp);
         }
-
-        AsyncSetExpressionHelper.fireValueChangedEvent(helper, change);
     }
 
     protected void invalidated() {}
@@ -625,22 +737,21 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     }
 
     private void markInvalid(AsyncObservableSet<E> oldValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         AsyncObservableSet<E> currentValue = null;
-        AsyncSetExpressionHelper<E> helper;
         boolean invalidate;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((valueStamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
-                if (accessController.validate(true, stamp) && !valid) {
+                if (accessController.validate(VALUE, GROUP, valueStamp) && !valid) {
                     return;
                 }
             }
 
-            stamp = accessController.writeLock(true);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 if (oldValue != null) {
@@ -648,19 +759,30 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
                 }
 
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncSetExpressionHelper.validatesValue(helper)) {
-                    currentValue = getCore();
+                    try {
+                        currentValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            invalidateProperties();
-            invalidated();
-            AsyncSetExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            try {
+                invalidateProperties();
+                invalidated();
+                AsyncSetExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
@@ -669,17 +791,17 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
         long stamp = 0;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 boolean bound = observable != null;
-                if (accessController.validate(false, stamp)) {
+                if (accessController.validate(VALUE, INSTANCE, stamp)) {
                     return bound;
                 }
             }
 
-            stamp = accessController.readLock(false);
+            stamp = accessController.readLock(VALUE, INSTANCE);
             return observable != null;
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(VALUE, stamp);
         }
     }
 
@@ -688,16 +810,16 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
         long stamp = 0;
 
         try {
-            stamp = accessController.readLock(false);
+            stamp = accessController.readLock(EVENT, INSTANCE);
             return AsyncSetExpressionHelper.containsBidirectionalBindingEndpoints(helper);
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(EVENT, stamp);
         }
     }
 
     @Override
     public <U> void bind(
-            ObservableValue<? extends U> source, ValueConverter<U, AsyncObservableSet<E>> converter) {
+            ObservableValue<? extends U> source, ValueConverter<U, ? extends AsyncObservableSet<E>> converter) {
         throw new UnsupportedOperationException();
     }
 
@@ -713,16 +835,15 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         AsyncObservableSet<E> newValue = null;
         PropertyMetadata<AsyncObservableSet<E>> metadata;
-        AsyncSetExpressionHelper<E> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
             if (metadata.getConsistencyGroup() != null) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
@@ -753,34 +874,52 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
                 invalidate = valid;
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncSetExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getCore();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
+            final AsyncObservableSet<E> newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
+
+            Executor executor = metadata.getDispatcher();
+            if (executor == null) {
                 Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
+                executor = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
             }
 
-            if (dispatcher != null) {
-                final AsyncObservableSet<E> newValueCopy = newValue;
-
-                dispatcher.run(
+            if (executor != null) {
+                executor.execute(
                     () -> {
-                        invalidated();
-                        AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
             } else {
-                invalidated();
-                AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+                try {
+                    accessController.changeEventLockOwner(Thread.currentThread());
+                    invalidated();
+                    AsyncSetExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                } finally {
+                    accessController.unlockWrite(EVENT, eventStampCopy);
+                }
             }
         }
     }
@@ -790,10 +929,10 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
         long stamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             unbindUnsynchronized();
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -812,36 +951,165 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
     }
 
     private void fireSubValueChangedEvent(@SuppressWarnings("unused") Observable observable) {
-        long stamp = 0;
-        AsyncSetExpressionHelper<E> helper;
-
+        long eventStamp = 0;
         try {
-            stamp = accessController.writeLock(false);
-            helper = this.helper;
-
+            eventStamp = accessController.writeLock(EVENT, INSTANCE);
+            AsyncSetExpressionHelper.fireValueChangedEvent(
+                helper, AsyncSetExpressionHelper.validatesValue(helper) ? get() : null, true);
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(EVENT, eventStamp);
+        }
+    }
+
+    private void addListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
         }
 
-        AsyncSetExpressionHelper.fireValueChangedEvent(
-            helper, AsyncSetExpressionHelper.validatesValue(helper) ? get() : null, true);
+        deferredListeners.add(new DeferredSetListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(ChangeListener<? super AsyncObservableSet<E>> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SetChangeListener<? super E> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, true));
+    }
+
+    private void removeListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(ChangeListener<? super AsyncObservableSet<E>> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SetChangeListener<? super E> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredSetListener<>(listener, false));
+    }
+
+    private void resolveDeferredListeners() {
+        if (deferredListeners == null) {
+            return;
+        }
+
+        AsyncObservableSet<E> value = getCore();
+
+        while (!deferredListeners.isEmpty()) {
+            DeferredSetListener<E> deferredListener = deferredListeners.remove();
+            if (deferredListener.invalidationListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncSetExpressionHelper.addListener(
+                            helper, this, value, deferredListener.invalidationListener);
+                } else {
+                    helper =
+                        AsyncSetExpressionHelper.removeListener(helper, value, deferredListener.invalidationListener);
+                }
+            } else if (deferredListener.subInvalidationListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncSetExpressionHelper.addListener(
+                            helper, this, value, deferredListener.subInvalidationListener);
+                } else {
+                    helper =
+                        AsyncSetExpressionHelper.removeListener(
+                            helper, value, deferredListener.subInvalidationListener);
+                }
+            } else if (deferredListener.changeListener != null) {
+                if (deferredListener.added) {
+                    helper = AsyncSetExpressionHelper.addListener(helper, this, value, deferredListener.changeListener);
+                } else {
+                    helper = AsyncSetExpressionHelper.removeListener(helper, value, deferredListener.changeListener);
+                }
+            } else if (deferredListener.subChangeListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncSetExpressionHelper.addListener(helper, this, value, deferredListener.subChangeListener);
+                } else {
+                    helper = AsyncSetExpressionHelper.removeListener(helper, value, deferredListener.subChangeListener);
+                }
+            } else if (deferredListener.setChangeListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncSetExpressionHelper.addListener(helper, this, value, deferredListener.setChangeListener);
+                } else {
+                    helper = AsyncSetExpressionHelper.removeListener(helper, value, deferredListener.setChangeListener);
+                }
+            }
+        }
+
+        deferredListeners = null;
     }
 
     protected void verifyAccess() {
         long stamp = 0;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 PropertyMetadata metadata = this.metadata;
-                if (accessController.validate(true, stamp)) {
+                if (accessController.validate(VALUE, GROUP, stamp)) {
                     PropertyHelper.verifyAccess(this, metadata);
                 } else {
-                    accessController.readLock(false);
+                    accessController.readLock(VALUE, INSTANCE);
                     PropertyHelper.verifyAccess(this, this.metadata);
                 }
             }
         } finally {
-            accessController.unlock(stamp);
+            accessController.unlock(VALUE, stamp);
         }
     }
 
@@ -854,7 +1122,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
 
         try {
             if (!AsyncFX.isDebuggerAttached()) {
-                stamp = accessController.writeLock(false);
+                stamp = accessController.writeLock(VALUE, INSTANCE);
             }
 
             if (bean != null) {
@@ -881,7 +1149,7 @@ public abstract class AsyncSetPropertyBase<E> extends AsyncSetProperty<E> {
             return result.toString();
         } finally {
             if (!AsyncFX.isDebuggerAttached() && StampedLock.isWriteLockStamp(stamp)) {
-                accessController.unlockWrite(stamp);
+                accessController.unlockWrite(VALUE, stamp);
             }
         }
     }

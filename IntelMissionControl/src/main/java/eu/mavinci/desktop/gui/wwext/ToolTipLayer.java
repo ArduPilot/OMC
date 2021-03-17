@@ -110,14 +110,23 @@ public class ToolTipLayer extends AbstractLayer implements SelectListener, Mouse
         string = string.replaceAll(Pattern.quote("\u202F"), " ");
 
         Font font = FontHelper.getBaseFont(.9);
-        OrderedText tip = new OrderedText(string, font, point.x, point.y, Color.black, 0x1);
+        OrderedText tip =
+            new OrderedText(
+                string,
+                font,
+                point.x,
+                (int)Math.round(node.getLayoutBounds().getHeight() * scale - point.y),
+                Color.black,
+                0x1);
         tip.setColorInterior(Color.white);
         dc.addOrderedRenderable(tip);
     }
 
     @Override
     public void selected(SelectEvent event) {
-        if (event.isHover()) {
+        // System.out.println(event.getPickPoint());
+        if (event.getEventAction().equals(SelectEvent.HOVER)) {
+            // System.out.println("top ToolTip hoovering");
             if (event.hasObjects()) { // && !this.controller.getDragger().isDragging()) {
                 // System.out.println("top ToolTip topObj:" + event.getTopObject());
                 Object o = PickingHelper.getPickedObject(event, true, true, wwd);
@@ -136,11 +145,6 @@ public class ToolTipLayer extends AbstractLayer implements SelectListener, Mouse
             }
 
             unsetToolTip();
-        } else if (event.isRollover() && isShown) {
-            // FIX: the mouse coordinates are different for HOVER and ROLLOVER, so fix it
-            // by using the viewports height, this is a rather dirty one ...
-            Point rolloverPoint = event.getPickPoint();
-            point = new Point(rolloverPoint.x, wwd.getView().getViewport().height - rolloverPoint.y);
         }
     }
 
@@ -159,5 +163,12 @@ public class ToolTipLayer extends AbstractLayer implements SelectListener, Mouse
     public void mouseDragged(MouseEvent mouseEvent) {}
 
     @Override
-    public void mouseMoved(MouseEvent mouseEvent) {}
+    public void mouseMoved(MouseEvent mouseEvent) {
+        if (!isShown) {
+            return;
+        }
+
+        point = mouseEvent.getPoint();
+        firePropertyChange(AVKey.LAYER, null, this);
+    }
 }

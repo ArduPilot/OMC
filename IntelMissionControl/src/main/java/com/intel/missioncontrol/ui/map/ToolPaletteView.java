@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.map;
 
 import com.intel.missioncontrol.map.ViewMode;
 import com.intel.missioncontrol.ui.ViewBase;
-import com.intel.missioncontrol.ui.controls.ToggleButton;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -32,12 +31,6 @@ public class ToolPaletteView extends ViewBase<ToolPaletteViewModel> {
     @FXML
     private RadioButton viewCockpitButton;
 
-    @FXML
-    private ToggleButton rulerToggleButton;
-
-    @FXML
-    private ToggleButton videoToggleButton;
-
     @Override
     protected Parent getRootNode() {
         return layoutRoot;
@@ -57,8 +50,7 @@ public class ToolPaletteView extends ViewBase<ToolPaletteViewModel> {
         viewStayButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.DEFAULT));
         viewFollowButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.FOLLOW));
         viewCockpitButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.COCKPIT));
-        rulerToggleButton.selectedProperty().bindBidirectional(viewModel.rulerModeEnabledProperty());
-        videoToggleButton.selectedProperty().bindBidirectional(viewModel.liveVideoEnabledProperty());
+
         updateViewButton(viewModel.viewModeProperty().getValue());
     }
 

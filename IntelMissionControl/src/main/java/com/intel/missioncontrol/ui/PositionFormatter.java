@@ -9,15 +9,14 @@ package com.intel.missioncontrol.ui;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.AngleStyle;
 import com.intel.missioncontrol.measure.Dimension;
-import com.intel.missioncontrol.measure.Location;
 import com.intel.missioncontrol.measure.LocationFormat;
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.QuantityFormat;
 import com.intel.missioncontrol.measure.Unit;
 import eu.mavinci.desktop.helper.gdal.ISrsManager;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
-import eu.mavinci.desktop.helper.gdal.SRStransformCacheEntry;
 import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Vec4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +65,10 @@ public class PositionFormatter {
                     position.getLongitude(),
                     elevationModel.getElevationAsGoodAsPossible(position.getLatitude(), position.getLongitude()));
 
-            SRStransformCacheEntry v = srs.fromWgs84(position);
+            Vec4 v = srs.fromWgs84(position);
             if (srs.isGeographic()) {
                 locationFormat.setAngleStyle(angleStyle);
-                Location location = new Location(srs, v.y, v.x, v.z);
-                return lastResult = locationFormat.splitFormat(location);
+                return lastResult = locationFormat.splitFormat(srs.toLocation(Position.fromDegrees(v.y, v.x, v.z)));
             }
 
             QuantityFormat format = new QuantityFormat();
@@ -92,10 +90,7 @@ public class PositionFormatter {
 
         if (elev == null) {
             locationFormat.setAngleStyle(angleStyle);
-            Location location =
-                new Location(
-                    srsManager.getDefault(), position.latitude.degrees, position.longitude.degrees, position.elevation);
-            return lastResult = locationFormat.splitFormat(location);
+            return lastResult = locationFormat.splitFormat(srsManager.getDefault().toLocation(position));
         }
 
         x = lx;

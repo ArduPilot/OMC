@@ -1147,7 +1147,7 @@ class FutureTest extends TestBase {
         double[] lastProgress = new double[1];
         lastProgress[0] = -1;
 
-        future.addProgressListener(
+        future.addListener(
             progress -> {
                 awaiter.assertTrue(progress > lastProgress[0]);
                 lastProgress[0] = progress;

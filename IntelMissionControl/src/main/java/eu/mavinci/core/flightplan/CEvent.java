@@ -6,11 +6,11 @@
 
 package eu.mavinci.core.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.AirplaneEventActions;
 import java.util.Arrays;
 import java.util.List;
@@ -100,7 +100,8 @@ public abstract class CEvent extends CAFlightplanstatement implements IFlightpla
         try {
             copterMode = parent.getFlightplan().getHardwareConfiguration().getPlatformDescription().isInCopterMode();
         } catch (Exception e) {
-            LOGGER.warn(action + ", not available copter mode " + e.getMessage());
+            LOGGER.warn(
+                    action + ", not available copter mode " + e.getMessage());
         }
 
         if (copterMode) {
@@ -133,8 +134,7 @@ public abstract class CEvent extends CAFlightplanstatement implements IFlightpla
                 possibleActions = Arrays.asList(BATTLOW_COPTER_POSSIBLE_ACTIONS);
                 action = AirplaneEventActions.ignoreCopter;
             }
-
-            delay = 3; // default for Gray Hawk
+            delay = 3;  // default for Gray Hawk
             if (minDelay > delay) minDelay = delay;
         } else {
             if (CEventList.NAME_GPSLOSS.equals(name)) {
@@ -163,7 +163,10 @@ public abstract class CEvent extends CAFlightplanstatement implements IFlightpla
             }
         }
 
-        if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+        if (DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
+                    .getSection(GeneralSettings.class)
+                    .getOperationLevel()
                 != OperationLevel.DEBUG) {
             recoveryDisableAble = false;
         }
@@ -450,7 +453,8 @@ public abstract class CEvent extends CAFlightplanstatement implements IFlightpla
 
     public boolean isAvaliable() {
         if (CEventList.NAME_BATLOW.equals(name)) {
-            return StaticInjector.getInstance(ISettingsManager.class)
+            return DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
                     .getSection(GeneralSettings.class)
                     .getOperationLevel()
                 == OperationLevel.DEBUG;

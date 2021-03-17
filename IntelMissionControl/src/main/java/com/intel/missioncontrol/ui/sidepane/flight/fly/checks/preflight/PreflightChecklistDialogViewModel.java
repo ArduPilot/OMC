@@ -15,9 +15,12 @@ import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.Checklist;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItem;
+import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItemViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistViewModel;
 import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.utils.commands.Command;
+import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.plane.AirplaneType;
 import java.util.HashMap;
 import javafx.beans.Observable;
@@ -50,12 +53,13 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
     private final AsyncObjectProperty<IDrone> drone = new SimpleAsyncObjectProperty<>(this);
     private final ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration;
     private final ILanguageHelper languageHelper;
+    private final Command checkAllCommand;
 
     @Inject
     public PreflightChecklistDialogViewModel(ILanguageHelper languageHelper) {
         this.languageHelper = languageHelper;
-        hardwareConfiguration =
-            PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+        checkAllCommand = new DelegateCommand(this::checkAll);
+        hardwareConfiguration = PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
     }
 
     @Override
@@ -104,6 +108,10 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
         checklistScope.checkedCountProperty().bind(checkedCount);
     }
 
+    public Command getCheckAllCommand() {
+        return checkAllCommand;
+    }
+
     public ReadOnlyListProperty<ChecklistViewModel> checklistsProperty() {
         return checklists;
     }
@@ -142,6 +150,14 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
         item.setTitle(languageHelper.getString(item.getTitle()));
         for (int i = 0; i < item.getItems().length; i++) {
             item.getItems()[i] = languageHelper.getString(item.getItems()[i]);
+        }
+    }
+
+    private void checkAll() {
+        for (ChecklistViewModel checklist : checklists) {
+            for (ChecklistItemViewModel item : checklist.getItems()) {
+                item.checkedProperty().set(true);
+            }
         }
     }
 

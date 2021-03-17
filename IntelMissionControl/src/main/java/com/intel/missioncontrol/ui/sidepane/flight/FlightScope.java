@@ -43,12 +43,12 @@ public class FlightScope implements Scope {
         return flightSegment;
     }
 
-    /** The mission selected for execution. */
+    /** The flight plan selected for execution. */
     public AsyncObjectProperty<FlightPlan> selectedFlightPlanProperty() {
         return selectedFlightPlan;
     }
 
-    /** The next waypoint index of the selected mission. */
+    /** The next waypoint index of the selected flight plan. */
     public AsyncIntegerProperty nextWayPointIndexProperty() {
         return nextWayPointIndex;
     }

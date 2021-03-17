@@ -31,8 +31,4 @@ public interface IMapController {
 
     boolean isEditing();
 
-    Position getScreenCenter();
-
-    Position[] get4MapSectorsCenters();
-
 }

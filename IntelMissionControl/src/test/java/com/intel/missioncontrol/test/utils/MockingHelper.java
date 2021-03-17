@@ -6,9 +6,6 @@
 
 package com.intel.missioncontrol.test.utils;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Provides;
@@ -81,19 +78,20 @@ import java.util.Set;
 public class MockingHelper {
 
     public static ISettingsManager createSettingManagerMock() {
-        ISettingsManager settingsManager = mock(SettingsManager.class);
+//        ISettingsManager settingsManager = mock(SettingsManager.class);
         // when(settingsManager.getSection(GeneralSettings.class)).thenReturn(new GeneralSettings());
-        when(settingsManager.getSection(DebugSettings.class)).thenReturn(new DebugSettings());
-        when(settingsManager.getSection(DisplaySettings.class)).thenReturn(new DisplaySettings());
-        when(settingsManager.getSection(PathSettings.class)).thenReturn(new PathSettings(new TestPathProvider()));
-        when(settingsManager.getSection(InternetConnectivitySettings.class))
-            .thenReturn(new InternetConnectivitySettings());
-        when(settingsManager.getSection(AirspacesProvidersSettings.class)).thenReturn(new AirspacesProvidersSettings());
-        when(settingsManager.getSection(UpdateSettings.class)).thenReturn(new UpdateSettings());
-        when(settingsManager.getSection(AnalysisSettings.class)).thenReturn(new AnalysisSettings());
-        when(settingsManager.getSection(FalconDataExportSettings.class)).thenReturn(new FalconDataExportSettings());
-        when(settingsManager.getSection(PlaneSettings.class)).thenReturn(new PlaneSettings());
-        return settingsManager;
+//        when(settingsManager.getSection(DebugSettings.class)).thenReturn(new DebugSettings());
+//        when(settingsManager.getSection(DisplaySettings.class)).thenReturn(new DisplaySettings());
+//        when(settingsManager.getSection(PathSettings.class)).thenReturn(new PathSettings(new TestPathProvider()));
+//        when(settingsManager.getSection(InternetConnectivitySettings.class))
+//            .thenReturn(new InternetConnectivitySettings());
+//        when(settingsManager.getSection(AirspacesProvidersSettings.class)).thenReturn(new AirspacesProvidersSettings());
+//        when(settingsManager.getSection(UpdateSettings.class)).thenReturn(new UpdateSettings());
+//        when(settingsManager.getSection(AnalysisSettings.class)).thenReturn(new AnalysisSettings());
+//        when(settingsManager.getSection(FalconDataExportSettings.class)).thenReturn(new FalconDataExportSettings());
+//        when(settingsManager.getSection(PlaneSettings.class)).thenReturn(new PlaneSettings());
+//        return settingsManager;
+        return null;
     }
 
     public static Set<Module> createTestModules() {

@@ -9,7 +9,6 @@ package com.intel.missioncontrol.helper;
 import com.intel.missioncontrol.Localizable;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinDef;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,8 +63,7 @@ public class DriveInformation {
         return result;
     }
 
-    @Localizable
-    public enum DriveType implements IKeepAll {
+    public enum DriveType implements Localizable {
         UNKNOWN,
         FIXED,
         REMOVABLE

@@ -160,8 +160,8 @@ public class SendSupportDialogViewModel extends DialogViewModel {
                 });
 
         Mission mission = null;
-        if (applicationContext.getCurrentMission() != null) {
-            mission = applicationContext.getCurrentMission();
+        if (applicationContext.getCurrentLegacyMission() != null) {
+            mission = applicationContext.getCurrentLegacyMission();
             useCurrentMission.setValue(true);
         } else if (!missionManager.recentMissionInfosProperty().isEmpty()) {
             try (LockedList<MissionInfo> missionInfos = missionManager.recentMissionInfosProperty().lock()) {

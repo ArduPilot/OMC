@@ -6,8 +6,11 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
+import eu.mavinci.core.flightplan.CDump;
+import eu.mavinci.core.flightplan.IFlightplanContainer;
+import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
 import eu.mavinci.core.flightplan.CDump;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
@@ -31,7 +34,7 @@ public class Dump extends CDump {
     }
 
     public String toString() {
-        return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY_TO_STRING, body);
+        return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(KEY_TO_STRING, body);
     }
 
     @Override

@@ -134,7 +134,7 @@ public class LocateMeApi {
     }
 
     private LocateMeApi.SectorCeiling byPlane() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission != null) {
             IAirplane airplane = currentMission.getLegacyPlane();
             if (airplane != null) {
@@ -157,7 +157,7 @@ public class LocateMeApi {
     }
 
     private LocateMeApi.SectorCeiling byBackend() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission != null) {
             IAirplane airplane = currentMission.getLegacyPlane();
             if (airplane != null) {
@@ -182,7 +182,7 @@ public class LocateMeApi {
     }
 
     private LocateMeApi.SectorCeiling byPilot() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission != null) {
             IAirplane airplane = currentMission.getLegacyPlane();
             if (airplane != null) {
@@ -207,7 +207,7 @@ public class LocateMeApi {
     }
 
     private SectorCeiling byMissionSector() {
-        Mission currentMission = applicationContext.getCurrentMission();
+        Mission currentMission = applicationContext.getCurrentLegacyMission();
         if (currentMission != null) {
             return new SectorCeiling(currentMission.getSector(), currentMission.getMaxElev());
         }
@@ -216,7 +216,7 @@ public class LocateMeApi {
     }
 
     private LocateMeApi.SectorCeiling byMissionOverview() {
-        if (applicationContext.getCurrentMission() == null) {
+        if (applicationContext.getCurrentLegacyMission() == null) {
             try (LockedList<MissionInfo> missionInfos = missionManager.recentMissionInfosProperty().lock()) {
                 return new SectorCeiling(missionInfos);
             }

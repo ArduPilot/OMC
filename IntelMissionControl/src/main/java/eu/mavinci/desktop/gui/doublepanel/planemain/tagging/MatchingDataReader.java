@@ -6,10 +6,10 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.api.ExportService;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.xml.MEntryResolver;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +28,7 @@ import org.xml.sax.XMLReader;
 public class MatchingDataReader {
     private static final Logger LOG = LoggerFactory.getLogger(ExportService.class);
 
-    public AMapLayerMatching readMatchingData(
+    public AMapLayerMatching readMatchingData  (
             MapLayerMatching data, File filename, IHardwareConfigurationManager hardwareConfigurationManager)
             throws SAXException, IOException {
         InputStream is = null;
@@ -45,12 +45,10 @@ public class MatchingDataReader {
                     throw new IOException("can not write Matching Data");
                 }
             }
-
             if (!filename.exists() && !filename.createNewFile()) {
                 LOG.warn("can not write Matching Data");
                 throw new IOException("can not write Matching Data");
             }
-
             is = new FileInputStream(filename);
             SAXParser saxParser;
 
@@ -64,7 +62,10 @@ public class MatchingDataReader {
                 xr.setContentHandler(handler);
                 xr.setEntityResolver(res);
                 xr.setErrorHandler(handler);
-                if (!StaticInjector.getInstance(IVersionProvider.class).getSystem().isAndroid()) { // avoid warning in
+                if (!DependencyInjector.getInstance()
+                        .getInstanceOf(IVersionProvider.class)
+                        .getSystem()
+                        .isAndroid()) { // avoid warning in
                     // android
                     xr.setDTDHandler(handler); // not supported in android
                 }
@@ -74,11 +75,14 @@ public class MatchingDataReader {
 
                 return handler.data;
             } catch (ParserConfigurationException e) {
-                LOG.warn("cant read Matching Data" + filename.getAbsolutePath(), e);
+                LOG.warn("cant read Matching Data", e);
                 return null;
             } catch (SAXParseException e) {
-                LOG.warn("error while reading invalid Matching Data " + filename.getAbsolutePath(), e);
+                LOG.warn("error while reading invalid Matching Data", e);
+                // that wasn't a valid flightplan!
+
                 // try again without validating DTD
+
                 return null;
             }
         } finally {
@@ -113,6 +117,7 @@ public class MatchingDataReader {
         public static final String USE_ALL = "useAll";
         public static final String DIRECTION_FILTER = "directionFilter";
         public static final String ONLY_MAIN_LINES = "onlyMainLines";
+        public static final String ONLY_IN_PIC_AREA = "onlyInPicArea";
         public static final String ONLY_ONE_DIRECTION = "onlyOneDirection";
         public static final String DONT_PERFORATE_LINES = "dontPerforateLines";
 
@@ -143,22 +148,7 @@ public class MatchingDataReader {
         public static final String PITCHFILTER = "pitchfilter";
         public static final String YAWFILTER = "yawfilter";
         public static final String VALUE = "value";
-        public static final String SPREAD = "spread"; // for compatibility
-
-        public static final String FROM = "from";
-        public static final String TO = "to";
-
-        public static final String ISOFILTER = "isofilter";
-        public static final String EXPOSIURETIMEFILTER = "exposuretimefilter";
-        public static final String EXPOSIUREFILTER = "exposurefilter";
-        public static final String IMAGETYPEFILTER = "imagetypefilter";
-        public static final String ANNOTATIONFILTER = "annotationfilter";
-
-        public static final String AREAFILTER = "areafilter";
-        public static final String FLIGHTPLANFILTER = "flightplanfilter";
-        public static final String SELECTEDEXPORTFILTER = "selectedexportfilter";
-
-        // TODO IMC-3043 add new fields
+        public static final String SPREAD = "spread";
 
         public static final String BANDS = "Bands";
         public static final String BAND = "Band";
@@ -194,7 +184,7 @@ public class MatchingDataReader {
         public static final String AVG_LAT = "avg_lat";
         public static final String AVG_ALTWGS84 = "avg_altwgs84";
 
-        public static final String FIX_TYPE = "fixtype";
+        public static final String FIX_TYPE = "fix_type";
 
         public static final String LAT_TAKEOFF = "lat_takeoff";
         public static final String LON_TAKEOFF = "lon_takeoff";

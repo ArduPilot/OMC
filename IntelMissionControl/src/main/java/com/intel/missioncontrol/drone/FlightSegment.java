@@ -7,11 +7,9 @@
 package com.intel.missioncontrol.drone;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 
 /** Flight segment, independent of ArmedState and AutopilotState */
-@Localizable
-public enum FlightSegment implements IKeepAll {
+public enum FlightSegment implements Localizable {
     UNKNOWN,
 
     /** On ground before or after flight. */
@@ -23,7 +21,7 @@ public enum FlightSegment implements IKeepAll {
     /** Hold without any active task */
     HOLD,
 
-    /** Running a mission */
+    /** Running a flight plan */
     PLAN_RUNNING,
 
     /** Returning to home position" */

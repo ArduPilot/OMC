@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import com.intel.missioncontrol.SuppressLinter;
 import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import com.intel.missioncontrol.helper.ManifestInfo;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
@@ -103,8 +104,6 @@ public class AboutDialogViewModel extends DialogViewModel {
     private static final String ABOUT_DIALOG_VIEW_COPYRIGHT =
         "com.intel.missioncontrol.ui.dialogs.AboutDialogView.copyright";
 
-    private StringProperty currentVersion = new SimpleStringProperty();
-    private StringProperty currentBuild = new SimpleStringProperty();
     private StringProperty copyright = new SimpleStringProperty();
     private StringProperty contactEmailAddress = new SimpleStringProperty();
     private StringProperty lastCheckedDate = new SimpleStringProperty();
@@ -159,8 +158,6 @@ public class AboutDialogViewModel extends DialogViewModel {
         this.pathProvider = pathProvider;
         this.licenceManager = licenceManager;
         generalSettings = settingsManager.getSection(GeneralSettings.class);
-        currentVersion.setValue("v." + getCurrentMajor());
-        currentBuild.setValue("build " + getBuildNumber());
         copyright.setValue(languageHelper.getString(ABOUT_DIALOG_VIEW_COPYRIGHT, LocalDateTime.now().getYear()));
         contactEmailAddress.set(UpdateURL.getSupportEmail());
 
@@ -178,10 +175,6 @@ public class AboutDialogViewModel extends DialogViewModel {
         super.initializeViewModel();
 
         mainScope.subscribe(REFRESH_DIALOG_EVENT, (key, payload) -> publish(REFRESH_DIALOG_EVENT));
-    }
-
-    public StringProperty currentVersionProperty() {
-        return currentVersion;
     }
 
     public StringProperty lastCheckedDateProperty() {
@@ -215,7 +208,7 @@ public class AboutDialogViewModel extends DialogViewModel {
                 (licence.isBetaTesting()
                     ? languageHelper.getString(IS_BETA_TESTING)
                         + " "
-                        + languageHelper.getString("com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.yes")
+                        + languageHelper.getString("com.intel.missioncontrol.ui.toggle.Yes")
                     : " "));
 
             editions.set(languageHelper.getString(EDITIONS) + " " + getEditionList(licence));
@@ -420,10 +413,6 @@ public class AboutDialogViewModel extends DialogViewModel {
         return updateAvailable;
     }
 
-    public StringProperty currentBuildProperty() {
-        return currentBuild;
-    }
-
     public StringProperty copyrightProperty() {
         return copyright;
     }
@@ -607,18 +596,18 @@ public class AboutDialogViewModel extends DialogViewModel {
     }
 
     public String getCurrentGitBranch() {
-        return updateManager.getCurrentGitBranch();
+        return ManifestInfo.getBranchName();
     }
 
     public String getBuildCommitId() {
-        return updateManager.getBuildCommitId();
+        return ManifestInfo.getCommitHash();
     }
 
     public String getCurrentMajor() {
-        return updateManager.getCurrentMajor();
+        return ManifestInfo.getVersion();
     }
 
     public String getBuildNumber() {
-        return updateManager.getBuildNumber();
+        return ManifestInfo.getCommitHash();
     }
 }

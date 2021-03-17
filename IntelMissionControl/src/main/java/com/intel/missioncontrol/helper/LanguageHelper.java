@@ -8,8 +8,8 @@ package com.intel.missioncontrol.helper;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
+import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.settings.GeneralSettings;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -70,7 +70,7 @@ public final class LanguageHelper implements ILanguageHelper {
     }
 
     @Override
-    public <E extends Enum<E> & IKeepAll> String toFriendlyName(E value) {
+    public <E extends Enum<E> & Localizable> String toFriendlyName(E value) {
         if (value == null) {
             return "<null>";
         }
@@ -79,7 +79,7 @@ public final class LanguageHelper implements ILanguageHelper {
     }
 
     @Override
-    public <E extends Enum<E>> String toFriendlyName(String customPrefix, E value) {
+    public <E extends Enum<E> & Localizable> String toFriendlyName(String customPrefix, E value) {
         if (value == null) {
             return "<null>";
         }
@@ -94,13 +94,14 @@ public final class LanguageHelper implements ILanguageHelper {
     }
 
     @Override
-    public <E extends Enum<E> & IKeepAll> E fromFriendlyName(Class<? extends Enum<E>> enumType, String name) {
+    public <E extends Enum<E> & Localizable> E fromFriendlyName(Class<? extends Enum<E>> enumType, String name) {
         return fromFriendlyName(enumType, enumType.getName(), name);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <E extends Enum<E>> E fromFriendlyName(Class<? extends Enum<E>> enumType, String customPrefix, String name) {
+    public <E extends Enum<E> & Localizable> E fromFriendlyName(
+            Class<? extends Enum<E>> enumType, String customPrefix, String name) {
         for (Enum<E> enumValue : enumType.getEnumConstants()) {
             String enumConstantName = DOT_JOINER.join(customPrefix, enumValue.name());
             if (resourceBundle.containsKey(enumConstantName)

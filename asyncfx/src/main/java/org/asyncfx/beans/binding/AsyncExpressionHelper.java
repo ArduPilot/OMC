@@ -24,43 +24,47 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
     public static <T> AsyncExpressionHelper<T> addListener(
             AsyncExpressionHelper<T> helper,
             ObservableValue<T> observable,
-            T currentValue, // unused, but indicates that the observable must be validated
+            T currentValue,
             InvalidationListener listener) {
         if ((observable == null) || (listener == null)) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? new SingleInvalidation<>(observable, listener) : helper.addListener(listener);
+        return (helper == null)
+            ? new SingleInvalidation<>(observable, listener)
+            : helper.addListener(listener, currentValue);
     }
 
     public static <T> AsyncExpressionHelper<T> removeListener(
-            AsyncExpressionHelper<T> helper, InvalidationListener listener) {
+            AsyncExpressionHelper<T> helper, T currentValue, InvalidationListener listener) {
         if (listener == null) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? null : helper.removeListener(listener);
+        return (helper == null) ? null : helper.removeListener(listener, currentValue);
     }
 
     public static <T> AsyncExpressionHelper<T> addListener(
             AsyncExpressionHelper<T> helper,
             ObservableValue<T> observable,
-            T currentValue, // unused, but indicates that the observable must be validated
+            T currentValue,
             SubInvalidationListener listener) {
         if ((observable == null) || (listener == null)) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? new SingleSubInvalidation<>(observable, listener) : helper.addListener(listener);
+        return (helper == null)
+            ? new SingleSubInvalidation<>(observable, listener)
+            : helper.addListener(listener, currentValue);
     }
 
     public static <T> AsyncExpressionHelper<T> removeListener(
-            AsyncExpressionHelper<T> helper, SubInvalidationListener listener) {
+            AsyncExpressionHelper<T> helper, T currentValue, SubInvalidationListener listener) {
         if (listener == null) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? null : helper.removeListener(listener);
+        return (helper == null) ? null : helper.removeListener(listener, currentValue);
     }
 
     public static <T> AsyncExpressionHelper<T> addListener(
@@ -78,12 +82,12 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
     }
 
     public static <T> AsyncExpressionHelper<T> removeListener(
-            AsyncExpressionHelper<T> helper, ChangeListener<? super T> listener) {
+            AsyncExpressionHelper<T> helper, T currentValue, ChangeListener<? super T> listener) {
         if (listener == null) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? null : helper.removeListener(listener);
+        return (helper == null) ? null : helper.removeListener(listener, currentValue);
     }
 
     public static <T> AsyncExpressionHelper<T> addListener(
@@ -101,12 +105,12 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
     }
 
     public static <T> AsyncExpressionHelper<T> removeListener(
-            AsyncExpressionHelper<T> helper, SubChangeListener listener) {
+            AsyncExpressionHelper<T> helper, T currentValue, SubChangeListener listener) {
         if (listener == null) {
             throw new NullPointerException();
         }
 
-        return (helper == null) ? null : helper.removeListener(listener);
+        return (helper == null) ? null : helper.removeListener(listener, currentValue);
     }
 
     public static <T> boolean validatesValue(AsyncExpressionHelper<T> helper) {
@@ -137,21 +141,21 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         this.observable = observable;
     }
 
-    protected abstract AsyncExpressionHelper<T> addListener(InvalidationListener listener);
+    protected abstract AsyncExpressionHelper<T> addListener(InvalidationListener listener, T currentValue);
 
-    protected abstract AsyncExpressionHelper<T> removeListener(InvalidationListener listener);
+    protected abstract AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue);
 
-    protected abstract AsyncExpressionHelper<T> addListener(SubInvalidationListener listener);
+    protected abstract AsyncExpressionHelper<T> addListener(SubInvalidationListener listener, T currentValue);
 
-    protected abstract AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener);
+    protected abstract AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue);
 
     protected abstract AsyncExpressionHelper<T> addListener(ChangeListener<? super T> listener, T currentValue);
 
-    protected abstract AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener);
+    protected abstract AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue);
 
     protected abstract AsyncExpressionHelper<T> addListener(SubChangeListener listener, T currentValue);
 
-    protected abstract AsyncExpressionHelper<T> removeListener(SubChangeListener listener);
+    protected abstract AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue);
 
     protected abstract boolean validatesValue();
 
@@ -169,12 +173,12 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener) {
-            return new Generic<>(observable, null, this.listener, listener);
+        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener, T currentValue) {
+            return new Generic<>(observable, currentValue, this.listener, listener);
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue) {
             if (this.listener == null) {
                 return this;
             }
@@ -183,36 +187,41 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener) {
-            return new Generic<>(observable, null).addListener(this.listener).addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue) {
             return this;
         }
 
         @Override
         protected AsyncExpressionHelper<T> addListener(ChangeListener<? super T> listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener) {
+        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue) {
             return this;
         }
 
         @Override
         protected AsyncExpressionHelper<T> addListener(SubChangeListener listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue) {
             return this;
         }
 
@@ -250,22 +259,25 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener) {
-            return new Generic<>(observable, null).addListener(this.listener).addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue) {
             return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener) {
-            return new Generic<>(observable, null, this.listener, listener);
+        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener, T currentValue) {
+            return new Generic<>(observable, currentValue, this.listener, listener);
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue) {
             if (this.listener == null) {
                 return this;
             }
@@ -275,25 +287,27 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
 
         @Override
         protected AsyncExpressionHelper<T> addListener(ChangeListener<? super T> listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener) {
+        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue) {
             return this;
         }
 
         @Override
         protected AsyncExpressionHelper<T> addListener(SubChangeListener listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue) {
             return this;
         }
 
@@ -329,26 +343,28 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue) {
             return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue) {
             return this;
         }
 
@@ -358,7 +374,7 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener) {
+        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue) {
             if (this.listener == null) {
                 return this;
             }
@@ -368,13 +384,14 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
 
         @Override
         protected AsyncExpressionHelper<T> addListener(SubChangeListener listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue) {
             return this;
         }
 
@@ -419,38 +436,41 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(InvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue) {
             return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener);
+        protected AsyncExpressionHelper<T> addListener(SubInvalidationListener listener, T currentValue) {
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue) {
             return this;
         }
 
         @Override
         protected AsyncExpressionHelper<T> addListener(ChangeListener<? super T> listener, T currentValue) {
-            return new Generic<>(observable, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            AsyncExpressionHelper<T> helper = new Generic<>(observable, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener) {
+        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue) {
             return this;
         }
 
@@ -460,7 +480,7 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue) {
             if (this.listener == null) {
                 return this;
             }
@@ -505,6 +525,7 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         private int subInvalidationSize;
         private int changeSize;
         private int subChangeSize;
+        protected boolean locked;
         protected T currentValue;
 
         private Generic(ObservableValue<T> observable, T currentValue) {
@@ -556,49 +577,32 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
             this.currentValue = currentValue;
         }
 
-        private Generic(ObservableValue<T> observable, T currentValue, Generic<T> source) {
-            super(observable);
-            this.currentValue = currentValue;
-
-            if (source.invalidationListeners != null) {
-                invalidationListeners = source.invalidationListeners;
-                invalidationSize = source.invalidationSize;
-            }
-
-            if (source.subInvalidationListeners != null) {
-                subInvalidationListeners = source.subInvalidationListeners;
-                subInvalidationSize = source.subInvalidationSize;
-            }
-
-            if (source.changeListeners != null) {
-                changeListeners = source.changeListeners;
-                changeSize = source.changeSize;
-            }
-
-            if (source.subChangeListeners != null) {
-                subChangeListeners = source.subChangeListeners;
-                subChangeSize = source.subChangeSize;
-            }
-        }
-
         @Override
-        protected Generic<T> addListener(InvalidationListener listener) {
-            Generic<T> helper = new Generic<>(observable, currentValue, this);
-
-            if (helper.invalidationListeners == null) {
-                helper.invalidationListeners = new InvalidationListener[] {listener};
-                helper.invalidationSize = 1;
+        protected Generic<T> addListener(InvalidationListener listener, T currentValue) {
+            if (invalidationListeners == null) {
+                invalidationListeners = new InvalidationListener[] {listener};
+                invalidationSize = 1;
             } else {
-                helper.invalidationListeners = Arrays.copyOf(helper.invalidationListeners, helper.invalidationSize + 1);
-                helper.invalidationSize = trim(helper.invalidationSize, helper.invalidationListeners);
-                helper.invalidationListeners[helper.invalidationSize++] = listener;
+                final int oldCapacity = invalidationListeners.length;
+                if (locked) {
+                    final int newCapacity = (invalidationSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    invalidationListeners = Arrays.copyOf(invalidationListeners, newCapacity);
+                } else if (invalidationSize == oldCapacity) {
+                    invalidationSize = trim(invalidationSize, invalidationListeners);
+                    if (invalidationSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        invalidationListeners = Arrays.copyOf(invalidationListeners, newCapacity);
+                    }
+                }
+
+                invalidationListeners[invalidationSize++] = listener;
             }
 
-            return helper;
+            return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(InvalidationListener listener, T currentValue) {
             if (invalidationListeners != null) {
                 for (int index = 0; index < invalidationSize; index++) {
                     if (invalidationListeners[index].equals(listener)) {
@@ -607,24 +611,28 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
                             return helper;
                         }
 
-                        Generic<T> generic = new Generic<>(observable, currentValue, this);
-
                         if (invalidationSize == 1) {
-                            generic.invalidationListeners = null;
-                            generic.invalidationSize = 0;
+                            invalidationListeners = null;
+                            invalidationSize = 0;
                         } else {
                             final int numMoved = invalidationSize - index - 1;
-                            generic.invalidationSize = invalidationSize - 1;
-                            generic.invalidationListeners = new InvalidationListener[invalidationSize - 1];
-                            System.arraycopy(invalidationListeners, 0, generic.invalidationListeners, 0, index);
+                            final InvalidationListener[] oldListeners = invalidationListeners;
+                            if (locked) {
+                                invalidationListeners = new InvalidationListener[invalidationListeners.length];
+                                System.arraycopy(oldListeners, 0, invalidationListeners, 0, index);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    invalidationListeners, index + 1, generic.invalidationListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, invalidationListeners, index, numMoved);
+                            }
+
+                            invalidationSize--;
+                            if (!locked) {
+                                invalidationListeners[invalidationSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -633,24 +641,32 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
         }
 
         @Override
-        protected Generic<T> addListener(SubInvalidationListener listener) {
-            Generic<T> helper = new Generic<>(observable, currentValue, this);
-
-            if (helper.subInvalidationListeners == null) {
-                helper.subInvalidationListeners = new SubInvalidationListener[] {listener};
-                helper.subInvalidationSize = 1;
+        protected Generic<T> addListener(SubInvalidationListener listener, T currentValue) {
+            if (subInvalidationListeners == null) {
+                subInvalidationListeners = new SubInvalidationListener[] {listener};
+                subInvalidationSize = 1;
             } else {
-                helper.subInvalidationListeners =
-                    Arrays.copyOf(helper.subInvalidationListeners, helper.subInvalidationSize + 1);
-                helper.subInvalidationSize = trim(helper.subInvalidationSize, helper.subInvalidationListeners);
-                helper.subInvalidationListeners[helper.subInvalidationSize++] = listener;
+                final int oldCapacity = subInvalidationListeners.length;
+                if (locked) {
+                    final int newCapacity =
+                        (subInvalidationSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    subInvalidationListeners = Arrays.copyOf(subInvalidationListeners, newCapacity);
+                } else if (subInvalidationSize == oldCapacity) {
+                    subInvalidationSize = trim(subInvalidationSize, subInvalidationListeners);
+                    if (subInvalidationSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        subInvalidationListeners = Arrays.copyOf(subInvalidationListeners, newCapacity);
+                    }
+                }
+
+                subInvalidationListeners[subInvalidationSize++] = listener;
             }
 
-            return helper;
+            return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubInvalidationListener listener, T currentValue) {
             if (subInvalidationListeners != null) {
                 for (int index = 0; index < subInvalidationSize; index++) {
                     if (subInvalidationListeners[index].equals(listener)) {
@@ -659,28 +675,28 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
                             return helper;
                         }
 
-                        Generic<T> generic = new Generic<>(observable, currentValue, this);
-
                         if (subInvalidationSize == 1) {
-                            generic.subInvalidationListeners = null;
-                            generic.subInvalidationSize = 0;
+                            subInvalidationListeners = null;
+                            subInvalidationSize = 0;
                         } else {
                             final int numMoved = subInvalidationSize - index - 1;
-                            generic.subInvalidationSize = subInvalidationSize - 1;
-                            generic.subInvalidationListeners = new SubInvalidationListener[subInvalidationSize - 1];
-                            System.arraycopy(subInvalidationListeners, 0, generic.subInvalidationListeners, 0, index);
+                            final SubInvalidationListener[] oldListeners = subInvalidationListeners;
+                            if (locked) {
+                                subInvalidationListeners = new SubInvalidationListener[subInvalidationListeners.length];
+                                System.arraycopy(oldListeners, 0, subInvalidationListeners, 0, index);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    subInvalidationListeners,
-                                    index + 1,
-                                    generic.subInvalidationListeners,
-                                    index,
-                                    numMoved);
+                                System.arraycopy(oldListeners, index + 1, subInvalidationListeners, index, numMoved);
+                            }
+
+                            subInvalidationSize--;
+                            if (!locked) {
+                                subInvalidationListeners[subInvalidationSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -690,26 +706,34 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
 
         @Override
         protected AsyncExpressionHelper<T> addListener(ChangeListener<? super T> listener, T currentValue) {
-            Generic<T> helper = new Generic<>(observable, currentValue, this);
-
-            if (helper.changeListeners == null) {
-                helper.changeListeners = new ChangeListener[] {listener};
-                helper.changeSize = 1;
+            if (changeListeners == null) {
+                changeListeners = new ChangeListener[] {listener};
+                changeSize = 1;
             } else {
-                helper.changeListeners = Arrays.copyOf(helper.changeListeners, helper.changeSize + 1);
-                helper.changeSize = trim(helper.changeSize, helper.changeListeners);
-                helper.changeListeners[helper.changeSize++] = listener;
+                final int oldCapacity = changeListeners.length;
+                if (locked) {
+                    final int newCapacity = (changeSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    changeListeners = Arrays.copyOf(changeListeners, newCapacity);
+                } else if (changeSize == oldCapacity) {
+                    changeSize = trim(changeSize, changeListeners);
+                    if (changeSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        changeListeners = Arrays.copyOf(changeListeners, newCapacity);
+                    }
+                }
+
+                changeListeners[changeSize++] = listener;
             }
 
-            if (helper.changeSize == 1) {
-                helper.currentValue = currentValue;
+            if (changeSize == 1) {
+                this.currentValue = currentValue;
             }
 
-            return helper;
+            return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener) {
+        protected AsyncExpressionHelper<T> removeListener(ChangeListener<? super T> listener, T currentValue) {
             if (changeListeners != null) {
                 for (int index = 0; index < changeSize; index++) {
                     if (changeListeners[index].equals(listener)) {
@@ -718,23 +742,28 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
                             return helper;
                         }
 
-                        Generic<T> generic = new Generic<>(observable, currentValue, this);
-
                         if (changeSize == 1) {
-                            generic.changeListeners = null;
-                            generic.changeSize = 0;
+                            changeListeners = null;
+                            changeSize = 0;
                         } else {
                             final int numMoved = changeSize - index - 1;
-                            generic.changeSize = changeSize - 1;
-                            generic.changeListeners = new ChangeListener[changeSize - 1];
-                            System.arraycopy(changeListeners, 0, generic.changeListeners, 0, index);
+                            final ChangeListener<? super T>[] oldListeners = changeListeners;
+                            if (locked) {
+                                changeListeners = new ChangeListener[changeListeners.length];
+                                System.arraycopy(oldListeners, 0, changeListeners, 0, index);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(changeListeners, index + 1, generic.changeListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, changeListeners, index, numMoved);
+                            }
+
+                            changeSize--;
+                            if (!locked) {
+                                changeListeners[changeSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -744,26 +773,34 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
 
         @Override
         protected AsyncExpressionHelper<T> addListener(SubChangeListener listener, T currentValue) {
-            Generic<T> helper = new Generic<>(observable, currentValue, this);
-
-            if (helper.subChangeListeners == null) {
-                helper.subChangeListeners = new SubChangeListener[] {listener};
-                helper.subChangeSize = 1;
+            if (subChangeListeners == null) {
+                subChangeListeners = new SubChangeListener[] {listener};
+                subChangeSize = 1;
             } else {
-                helper.subChangeListeners = Arrays.copyOf(helper.subChangeListeners, helper.subChangeSize + 1);
-                helper.subChangeSize = trim(helper.subChangeSize, helper.subChangeListeners);
-                helper.subChangeListeners[helper.subChangeSize++] = listener;
+                final int oldCapacity = subChangeListeners.length;
+                if (locked) {
+                    final int newCapacity = (subChangeSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    subChangeListeners = Arrays.copyOf(subChangeListeners, newCapacity);
+                } else if (subChangeSize == oldCapacity) {
+                    subChangeSize = trim(subChangeSize, subChangeListeners);
+                    if (subChangeSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        subChangeListeners = Arrays.copyOf(subChangeListeners, newCapacity);
+                    }
+                }
+
+                subChangeListeners[subChangeSize++] = listener;
             }
 
-            if (helper.subChangeSize == 1) {
-                helper.currentValue = currentValue;
+            if (subChangeSize == 1) {
+                this.currentValue = currentValue;
             }
 
-            return helper;
+            return this;
         }
 
         @Override
-        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener) {
+        protected AsyncExpressionHelper<T> removeListener(SubChangeListener listener, T currentValue) {
             if (subChangeListeners != null) {
                 for (int index = 0; index < subChangeSize; index++) {
                     if (subChangeListeners[index].equals(listener)) {
@@ -772,24 +809,28 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
                             return helper;
                         }
 
-                        Generic<T> generic = new Generic<>(observable, currentValue, this);
-
                         if (subChangeSize == 1) {
-                            generic.subChangeListeners = null;
-                            generic.subChangeSize = 0;
+                            subChangeListeners = null;
+                            subChangeSize = 0;
                         } else {
                             final int numMoved = subChangeSize - index - 1;
-                            generic.subChangeSize = subChangeSize - 1;
-                            generic.subChangeListeners = new SubChangeListener[subChangeSize - 1];
-                            System.arraycopy(subChangeListeners, 0, generic.subChangeListeners, 0, index);
+                            final SubChangeListener[] oldListeners = subChangeListeners;
+                            if (locked) {
+                                subChangeListeners = new SubChangeListener[subChangeListeners.length];
+                                System.arraycopy(oldListeners, 0, subChangeListeners, 0, index);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    subChangeListeners, index + 1, generic.subChangeListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, subChangeListeners, index, numMoved);
+                            }
+
+                            subChangeSize--;
+                            if (!locked) {
+                                subChangeListeners[subChangeSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -819,40 +860,21 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
 
         @Override
         protected void fireValueChangedEvent(T newValue, boolean subChange) {
-            if (!subChange) {
-                for (int i = 0; i < invalidationSize; i++) {
-                    try {
-                        invalidationListeners[i].invalidated(observable);
-                    } catch (Exception e) {
-                        Thread.currentThread()
-                            .getUncaughtExceptionHandler()
-                            .uncaughtException(Thread.currentThread(), e);
-                    }
-                }
-            }
+            final InvalidationListener[] curInvalidationList = invalidationListeners;
+            final SubInvalidationListener[] curSubInvalidationList = subInvalidationListeners;
+            final int curInvalidationSize = invalidationSize;
+            final int curSubInvalidationSize = subInvalidationSize;
+            final ChangeListener<? super T>[] curChangeList = changeListeners;
+            final SubChangeListener[] curSubChangeList = subChangeListeners;
+            final int curChangeSize = changeSize;
+            final int curSubChangeSize = subChangeSize;
 
-            for (int i = 0; i < subInvalidationSize; i++) {
-                try {
-                    subInvalidationListeners[i].invalidated(observable, subChange);
-                } catch (Exception e) {
-                    Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-                }
-            }
-
-            if (changeSize > 0 || subChangeSize > 0) {
-                final T oldValue = currentValue;
-                currentValue = newValue;
-
+            try {
+                locked = true;
                 if (!subChange) {
-                    final boolean changed =
-                        (currentValue == null) ? (oldValue != null) : !currentValue.equals(oldValue);
-                    if (!changed) {
-                        return;
-                    }
-
-                    for (int i = 0; i < changeSize; i++) {
+                    for (int i = 0; i < curInvalidationSize; i++) {
                         try {
-                            changeListeners[i].changed(observable, oldValue, currentValue);
+                            curInvalidationList[i].invalidated(observable);
                         } catch (Exception e) {
                             Thread.currentThread()
                                 .getUncaughtExceptionHandler()
@@ -861,15 +883,50 @@ public abstract class AsyncExpressionHelper<T> extends ExpressionHelperBase {
                     }
                 }
 
-                for (int i = 0; i < subChangeSize; i++) {
+                for (int i = 0; i < curSubInvalidationSize; i++) {
                     try {
-                        subChangeListeners[i].changed(observable, oldValue, currentValue, subChange);
+                        curSubInvalidationList[i].invalidated(observable, subChange);
                     } catch (Exception e) {
                         Thread.currentThread()
                             .getUncaughtExceptionHandler()
                             .uncaughtException(Thread.currentThread(), e);
                     }
                 }
+
+                if (curChangeSize > 0 || curSubChangeSize > 0) {
+                    final T oldValue = currentValue;
+                    currentValue = newValue;
+
+                    if (!subChange) {
+                        final boolean changed =
+                            (currentValue == null) ? (oldValue != null) : !currentValue.equals(oldValue);
+                        if (!changed) {
+                            return;
+                        }
+
+                        for (int i = 0; i < curChangeSize; i++) {
+                            try {
+                                curChangeList[i].changed(observable, oldValue, currentValue);
+                            } catch (Exception e) {
+                                Thread.currentThread()
+                                    .getUncaughtExceptionHandler()
+                                    .uncaughtException(Thread.currentThread(), e);
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < curSubChangeSize; i++) {
+                        try {
+                            curSubChangeList[i].changed(observable, oldValue, currentValue, subChange);
+                        } catch (Exception e) {
+                            Thread.currentThread()
+                                .getUncaughtExceptionHandler()
+                                .uncaughtException(Thread.currentThread(), e);
+                        }
+                    }
+                }
+            } finally {
+                locked = false;
             }
         }
 

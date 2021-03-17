@@ -7,19 +7,18 @@
 package com.intel.missioncontrol.ui.sidepane.planning.widgets;
 
 import com.google.inject.Inject;
+import com.intel.missioncontrol.measure.property.QuantityBindings;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Dimension.Length;
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.QuantityFormat;
 import com.intel.missioncontrol.measure.Unit;
-import com.intel.missioncontrol.measure.property.QuantityBindings;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.ViewHelper;
 import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
-import com.intel.missioncontrol.ui.controls.AutoCommitSpinner;
-import com.intel.missioncontrol.ui.controls.Button;
 import com.intel.missioncontrol.ui.controls.skins.AppendixSpinnerSkin;
+import com.intel.missioncontrol.ui.controls.AutoCommitSpinner;
 import de.saxsys.mvvmfx.FxmlView;
 import de.saxsys.mvvmfx.InjectViewModel;
 import eu.mavinci.core.flightplan.CPicArea;
@@ -55,11 +54,10 @@ public class GsdWidgetView extends VBox implements FxmlView<GsdWidgetViewModel>,
     private Label labelGsd;
 
     @FXML
-    private Button setGsd;
+    private Label lblAltDistance;
 
     @FXML
-    private Button setDistance;
-
+    private VBox lblAltDistanceBox;
 
     @InjectViewModel
     private GsdWidgetViewModel viewModel;
@@ -76,28 +74,41 @@ public class GsdWidgetView extends VBox implements FxmlView<GsdWidgetViewModel>,
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ViewHelper.initAutoCommitSpinner(
-                gsdInput,
-                viewModel.gsdQuantityProperty(),
-                Unit.METER,
-                settingsManager.getSection(GeneralSettings.class),
-                GSD_FRACTION_DIGITS,
-                CPicArea.MIN_GSD,
-                CPicArea.MAX_GSD,
-                GSD_SPINNER_STEP,
-                false);
+            gsdInput,
+            viewModel.gsdQuantityProperty(),
+            Unit.METER,
+            settingsManager.getSection(GeneralSettings.class),
+            GSD_FRACTION_DIGITS,
+            CPicArea.MIN_GSD,
+            CPicArea.MAX_GSD,
+            GSD_SPINNER_STEP,
+            false);
 
         ViewHelper.initAutoCommitSpinner(
-                altDistanceInput,
-                viewModel.altitudeQuantityProperty(),
-                Unit.METER,
-                settingsManager.getSection(GeneralSettings.class),
-                ALT_FRACTION_DIGITS,
-                ALT_MIN,
-                ALT_MAX,
-                SPINNER_STEP,
-                false);
+            altDistanceInput,
+            viewModel.altitudeQuantityProperty(),
+            Unit.METER,
+            settingsManager.getSection(GeneralSettings.class),
+            ALT_FRACTION_DIGITS,
+            ALT_MIN,
+            ALT_MAX,
+            SPINNER_STEP,
+            false);
 
         gsdInput.setSkin(new AppendixSpinnerSkin<>(gsdInput, "/pixel", 1));
+
+        lblAltDistance.textProperty().bind(viewModel.lblAltDistanceProperty());
+
+        lblAltDistance.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.contains(languageHelper.getString("gsdWidget.labelAltDistance2d")) /*  ಠ_ಠ  */) {
+                lblAltDistanceBox.getStyleClass().remove("icon-distance");
+                lblAltDistanceBox.getStyleClass().add("icon-altitude");
+            } else {
+                lblAltDistanceBox.getStyleClass().remove("icon-altitude");
+                lblAltDistanceBox.getStyleClass().add("icon-distance");
+            }
+        });
+
 
         labelGsd.textProperty().bind(viewModel.lblGsdProperty());
 
@@ -110,31 +121,14 @@ public class GsdWidgetView extends VBox implements FxmlView<GsdWidgetViewModel>,
         upperStr = QuantityBindings.createStringBinding(viewModel.gsdUpperEndOfRangeProperty(), quantityFormat);
 
         gsdWarningLabel
-                .textProperty()
-                .bind(
-                        Bindings.format(
-                                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.widgets.gsdWarningLabel"),
-                                lowerStr,
-                                upperStr));
+            .textProperty()
+            .bind(
+                Bindings.format(
+                    languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.widgets.gsdWarningLabel"),
+                    lowerStr,
+                    upperStr));
         gsdWarningLabel.managedProperty().bind(viewModel.gsdOutSideToleranceProperty());
         gsdWarningLabel.visibleProperty().bind(viewModel.gsdOutSideToleranceProperty());
-
-        gsdInput.disableProperty().bind(setGsd.visibleProperty());
-        altDistanceInput.disableProperty().bind(setDistance.visibleProperty());
-
-        setGsd.managedProperty().bind(setGsd.visibleProperty());
-        setDistance.managedProperty().bind(setDistance.visibleProperty());
-
     }
 
-    @FXML
-    private void hideMe() {
-        setGsd.visibleProperty().setValue(!setGsd.visibleProperty().getValue());
-        setDistance.visibleProperty().setValue(!setDistance.visibleProperty().getValue());
-        if (setDistance.visibleProperty().getValue()) {
-            gsdInput.requestFocus();
-        } else {
-            altDistanceInput.requestFocus();
-        }
-    }
 }

@@ -7,10 +7,8 @@
 package com.intel.missioncontrol.drone;
 
 import com.intel.missioncontrol.Localizable;
-import eu.mavinci.core.obfuscation.IKeepAll;
 
-@Localizable
-public enum AutopilotState implements IKeepAll {
+public enum AutopilotState implements Localizable {
     UNKNOWN,
     MANUAL,
     AUTOPILOT

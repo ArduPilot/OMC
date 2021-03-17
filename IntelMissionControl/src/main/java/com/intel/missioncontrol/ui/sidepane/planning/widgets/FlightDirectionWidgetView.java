@@ -110,6 +110,8 @@ public class FlightDirectionWidgetView extends VBox
     }
 
     private void updateMenuItemsVisibility(PlanType type) {
+        fromUav.setVisible(
+            settingsManager.getSection(GeneralSettings.class).getOperationLevel() == OperationLevel.DEBUG);
         optimizeForTerrainItem.setVisible(type != null && type.canOptimizeYawForTerrain() && type != PlanType.WINDMILL);
         shortestPathItem.setVisible(type != null && type.canOptimizeYawForTime());
     }

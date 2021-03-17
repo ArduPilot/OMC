@@ -9,7 +9,6 @@ package eu.mavinci.plane;
 import static java.util.Comparator.reverseOrder;
 import static java.util.stream.Collectors.toList;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
@@ -17,6 +16,7 @@ import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenter;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.airspace.AirspaceComperatorFloor;
 import eu.mavinci.airspace.EAirspaceManager;
 import eu.mavinci.airspace.IAirspace;
@@ -99,9 +99,11 @@ public class AirplaneCache extends CAirplaneCache implements IAirspaceListener {
     // list to store last 20 positions
     private final ArrayList<Position> positionsBuffer = new ArrayList<>();
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
 
     // map to store range queue of lines that are closer than (GPS error +
     // corridor/2) with their likelihood
@@ -983,7 +985,7 @@ public class AirplaneCache extends CAirplaneCache implements IAirspaceListener {
     public void recv_flightPhase(Integer fp) {
         super.recv_flightPhase(fp);
         if (flightPhase.isGroundTarget()) {
-            StaticInjector.getInstance(IMapClearingCenter.class).clearUavImageCache();
+            DependencyInjector.getInstance().getInstanceOf(IMapClearingCenter.class).clearUavImageCache();
         }
     }
 

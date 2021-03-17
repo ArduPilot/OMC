@@ -6,8 +6,7 @@
 
 package com.intel.missioncontrol;
 
-@Localizable
-public enum StereoMode {
+public enum StereoMode implements Localizable {
     NONE,
     RED_BLUE,
     DEVICE;

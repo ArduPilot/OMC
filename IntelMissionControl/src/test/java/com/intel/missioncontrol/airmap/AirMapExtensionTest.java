@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -44,9 +45,6 @@ import static com.airmap.airmapsdk.networking.services.MappingService.AirMapAirs
 import static com.intel.missioncontrol.airmap.AirMap.makeSector;
 import static com.intel.missioncontrol.airmap.TestUtils.getAirmapTestKey;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 @Disabled("BROKEN TEST, but ignored to get testing in build system")
 public class AirMapExtensionTest {
@@ -97,8 +95,8 @@ public class AirMapExtensionTest {
             throw new IOException("Unexpected code " + response2);
         }
         response2.close();
-        assertNotNull(response2.cacheResponse());
-        assertNull(response2.networkResponse());
+        Assertions.assertNotNull(response2.cacheResponse());
+        Assertions.assertNull(response2.networkResponse());
 
         cache.urls().forEachRemaining(url -> System.out.println(url));
 
@@ -146,7 +144,7 @@ public class AirMapExtensionTest {
             response = AirMap.searchAirspace(BAYLANDS, whitelist, null, true, null);
             {
                 Collection<AirSpaceObject> airSpaceObjects = response.get();
-                assertNotNull(airSpaceObjects);
+                Assertions.assertNotNull(airSpaceObjects);
             }
 
             // load from cache, should succeed
@@ -154,7 +152,7 @@ public class AirMapExtensionTest {
             response = AirMap.searchAirspace(BAYLANDS, whitelist, null, true, null);
             {
                 Collection<AirSpaceObject> airSpaceObjects = response.get();
-                assertNotNull(airSpaceObjects);
+                Assertions.assertNotNull(airSpaceObjects);
             }
 
             // clear cache,
@@ -164,7 +162,7 @@ public class AirMapExtensionTest {
             response = AirMap.searchAirspace(BAYLANDS, whitelist, null, true, null);
             {
                 Collection<AirSpaceObject> airSpaceObjects = response.get();
-                assertNull(airSpaceObjects);
+                Assertions.assertNull(airSpaceObjects);
             }
 
 
@@ -233,7 +231,7 @@ public class AirMapExtensionTest {
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
-            fail();
+            Assertions.fail();
             e.printStackTrace();
         }
 

@@ -26,7 +26,6 @@ import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogResult;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogViewModel;
 import de.saxsys.mvvmfx.utils.commands.FutureCommand;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -45,8 +44,7 @@ public class FlyDroneMenuModel extends MenuModel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DroneConnectionService.class);
 
-    @Localizable
-    public enum MenuIds implements IKeepAll {
+    public enum MenuIds implements Localizable {
         CURRENT_CONNECTION,
         EDIT_CONNECTION,
         DISCONNECT

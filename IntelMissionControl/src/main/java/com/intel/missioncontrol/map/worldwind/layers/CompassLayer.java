@@ -24,14 +24,14 @@ public class CompassLayer extends WWLayerWrapper {
         super(new gov.nasa.worldwind.layers.CompassLayer(), dispatcher);
         gov.nasa.worldwind.layers.CompassLayer compassLayer = (gov.nasa.worldwind.layers.CompassLayer)getWrappedLayer();
         compassLayer.setResizeBehavior(AVKey.RESIZE_SHRINK_ONLY);
-        compassLayer.setIconScale(0.5);
+        compassLayer.setIconScale(0.5 * ScaleHelper.getScaleFactor());
         compassLayer.setPosition(AVKey.NORTHWEST);
         compassLayer.setLocationOffset(new Vec4(ScaleHelper.emsToPixels(2), 0));
 
         ScaleHelper.scalePropProperty()
             .addListener(
                 (observable, oldVal, newVal) -> {
-                    compassLayer.setIconScale(0.5);
+                    compassLayer.setIconScale(0.5 * ScaleHelper.getScaleFactor());
                 });
     }
 

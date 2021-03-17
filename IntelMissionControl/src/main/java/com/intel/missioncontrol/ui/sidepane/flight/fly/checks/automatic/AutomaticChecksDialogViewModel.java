@@ -39,7 +39,7 @@ public class AutomaticChecksDialogViewModel extends DialogViewModel {
     protected void initializeViewModel() {
         super.initializeViewModel();
 
-        flightValidationService.validatorsProperty().addListener(this::setAutoCheckItems, Dispatcher.platform()::run);
+        flightValidationService.validatorsProperty().addListener(this::setAutoCheckItems, Dispatcher.platform());
         setAutoCheckItems(null);
     }
 

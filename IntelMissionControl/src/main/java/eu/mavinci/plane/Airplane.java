@@ -7,7 +7,6 @@
 package eu.mavinci.plane;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Ensure;
@@ -25,6 +24,7 @@ import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenter;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.WeakRunnable;
 import eu.mavinci.airspace.Airspace;
 import eu.mavinci.airspace.IAirspace;
@@ -85,7 +85,8 @@ public class Airplane extends CAirplane
             IAirplaneListenerPosition,
             IAirplaneListenerFlightphase {
 
-    private final GeneralSettings generalSettings = StaticInjector.getInstance(GeneralSettings.class);
+    private final GeneralSettings generalSettings =
+        DependencyInjector.getInstance().getInstanceOf(GeneralSettings.class);
 
     WindEstimate windEstimate;
 
@@ -95,8 +96,9 @@ public class Airplane extends CAirplane
     private static final QuantityFormat quantityFormat;
 
     static {
-        languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
-        quantityFormat = new AdaptiveQuantityFormat(StaticInjector.getInstance(IQuantityStyleProvider.class));
+        languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+        quantityFormat =
+            new AdaptiveQuantityFormat(DependencyInjector.getInstance().getInstanceOf(IQuantityStyleProvider.class));
         quantityFormat.setMaximumFractionDigits(0);
     }
 
@@ -109,7 +111,7 @@ public class Airplane extends CAirplane
     @Override
     protected void init() {
         super.init();
-        dialogService = StaticInjector.getInstance(IDialogService.class);
+        dialogService = DependencyInjector.getInstance().getInstanceOf(IDialogService.class);
 
         // rootHandler = AirplaneListenerDelegatorFactory.createNewAirplaneListenerDelegator();
         rootHandler = new AirplaneListenerDelegator();
@@ -313,14 +315,16 @@ public class Airplane extends CAirplane
                 SingleHealthDescription hd = hds.get(ind);
                 float abs = d.absolute.get(ind);
                 if (hd.isFlag()) {
-                    StaticInjector.getInstance(IApplicationContext.class)
+                    DependencyInjector.getInstance()
+                        .getInstanceOf(IApplicationContext.class)
                         .addToast(
                             Toast.of(ToastType.ALERT)
                                 .setText(languageHelper.getString(KEY + ".warning.red_flag.msg", hd.name))
                                 .setShowIcon(true)
                                 .create());
                 } else {
-                    StaticInjector.getInstance(IApplicationContext.class)
+                    DependencyInjector.getInstance()
+                        .getInstanceOf(IApplicationContext.class)
                         .addToast(
                             Toast.of(ToastType.ALERT)
                                 .setText(
@@ -346,13 +350,15 @@ public class Airplane extends CAirplane
                     }
                 } else {
                     if (hd.isFlag()) {
-                        StaticInjector.getInstance(IApplicationContext.class)
+                        DependencyInjector.getInstance()
+                            .getInstanceOf(IApplicationContext.class)
                             .addToast(
                                 Toast.of(ToastType.INFO)
                                     .setText(languageHelper.getString(KEY + ".warning.yellow_flag.msg", hd.name))
                                     .create());
                     } else {
-                        StaticInjector.getInstance(IApplicationContext.class)
+                        DependencyInjector.getInstance()
+                            .getInstanceOf(IApplicationContext.class)
                             .addToast(
                                 Toast.of(ToastType.INFO)
                                     .setText(
@@ -392,7 +398,7 @@ public class Airplane extends CAirplane
         // simSettingsRestoreAttempted,getAirplaneCache().wasLastRecvStartPosMajorChange());
         if (getAirplaneCache().wasLastRecvStartPosMajorChange()) {
             clearNextPosReceives = true;
-            StaticInjector.getInstance(IMapClearingCenter.class).clearAllCaches();
+            DependencyInjector.getInstance().getInstanceOf(IMapClearingCenter.class).clearAllCaches();
         }
 
         if (!simSettingsRestoreAttempted) {
@@ -417,7 +423,9 @@ public class Airplane extends CAirplane
                         new Runnable() {
                             @Override
                             public void run() {
-                                StaticInjector.getInstance(IMapClearingCenter.class).clearAllCaches();
+                                DependencyInjector.getInstance()
+                                    .getInstanceOf(IMapClearingCenter.class)
+                                    .clearAllCaches();
                             }
                         });
                 }
@@ -477,7 +485,8 @@ public class Airplane extends CAirplane
 
             IAirspace airplane = lowest.getMinimalAirspace();
             Ensure.notNull(airplane, "airplane");
-            StaticInjector.getInstance(IApplicationContext.class)
+            DependencyInjector.getInstance()
+                .getInstanceOf(IApplicationContext.class)
                 .addToast(
                     Toast.of(ToastType.ALERT)
                         .setText(
@@ -547,7 +556,7 @@ public class Airplane extends CAirplane
 
     @Override
     public void recv_powerOn() {
-        StaticInjector.getInstance(IMapClearingCenter.class).clearAllCaches();
+        DependencyInjector.getInstance().getInstanceOf(IMapClearingCenter.class).clearAllCaches();
 
         // Debug.printStackTrace("attempSetStartPos", isWriteable(), isSimulation(), getConnectionState());
         if (getConnectionState() == AirplaneConnectorState.fullyConnected) {

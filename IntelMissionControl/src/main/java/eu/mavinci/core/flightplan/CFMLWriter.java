@@ -6,12 +6,12 @@
 
 package eu.mavinci.core.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPayloadConfiguration;
 import com.intel.missioncontrol.hardware.IPayloadMountConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.Pair;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.xml.XMLWriter;
@@ -77,7 +77,7 @@ public class CFMLWriter {
         // tag-bodies
         XMLWriter xml = new XMLWriter(new PrintWriter(os));
         xml.begin(Tokens.FLIGHTPLANML_HEADER, 2);
-        xml.comment(StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+        xml.comment(DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
 
         xml.start(Tokens.HEAD);
         if (hash != null) {
@@ -128,10 +128,6 @@ public class CFMLWriter {
         write(plan.picAreaTemplates, xml);
         // write(plan.flightPlanDescription, xml);
         xml.tag(Tokens.ENABLE_JUMP_OVER_WAYPOINTS, Tokens.NAME, Boolean.toString(plan.enableJumpOverWaypoints));
-
-        if (plan.getHardwareConfiguration().getPlatformDescription().isObstacleAvoidanceCapable()) {
-            xml.tag(Tokens.OBSTACLE_AVOIDANCE, Tokens.NAME, Boolean.toString(plan.obstacleAvoidanceEnabled));
-        }
 
         xml.end(); // head
 

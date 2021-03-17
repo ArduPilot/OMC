@@ -29,12 +29,12 @@ import com.intel.missioncontrol.ui.dialogs.IDialogContextProvider;
 import com.intel.missioncontrol.ui.scope.planning.PlanningScope;
 import com.intel.missioncontrol.ui.sidepane.FancyTabView;
 import com.intel.missioncontrol.ui.sidepane.planning.aoi.AoiEditComponent;
+import com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningView;
+import com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.emergency.EmergencyActionsView;
 import com.intel.missioncontrol.ui.sidepane.planning.emergency.EmergencyActionsViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.landing.LandingView;
 import com.intel.missioncontrol.ui.sidepane.planning.landing.LandingViewModel;
-import com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningView;
-import com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.settings.GeneralSettingsSectionView;
 import com.intel.missioncontrol.ui.sidepane.planning.settings.GeneralSettingsSectionViewModel;
 import com.intel.missioncontrol.ui.sidepane.planning.starting.StartingView;
@@ -235,6 +235,10 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
                     findAoiSectionView(newValue).ifPresent(form -> form.isExpandedProperty().set(true));
                 });
 
+        viewModel
+            .currentFlightplanProperty()
+            .addListener((observable, oldValue, newValue) -> rebuildPlanningSidePane());
+
         propertyPathStore
             .from(getViewModel().getPlanningScope().currentFlightplanProperty())
             .selectReadOnlyBoolean(FlightPlan::isTemplateProperty)
@@ -252,12 +256,12 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
         flightPlansMenuButton.setModel(viewModel.getFlightPlanMenuModel());
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
             .addListener((observable, oldValue, newValue) -> rebuildPlanningSidePane());
 
         propertyPathStore
-            .from(applicationContext.currentMissionProperty())
+            .from(applicationContext.currentLegacyMissionProperty())
             .select(Mission::currentFlightPlanProperty)
             .selectReadOnlyList(FlightPlan::areasOfInterestProperty)
             .addListener(
@@ -444,8 +448,6 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
                 }));
         form.setRemoveCommand(viewModel.createRemoveAoiCommand(areaOfInterest));
         form.setSubmitCommand(viewModel.createDoneAoiCommand(areaOfInterest));
-        form.isInInitialAddingStateProperty().bind(areaOfInterest.isInitialAddingProperty());
-
         aoiBox.setMinWidth(0);
         aoiBox.setMaxWidth(Double.MAX_VALUE);
         return aoiBox;
@@ -518,37 +520,27 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
         ViewTuple<GeneralSettingsSectionView, GeneralSettingsSectionViewModel> viewTuple =
             FluentViewLoader.fxmlView(GeneralSettingsSectionView.class).context(context).load();
         return collapsed(
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.generalplansettings"),
-                viewTuple.getView()));
+            new TitledPane(languageHelper.getString("planningView.generalplansettings"), viewTuple.getView()));
     }
 
-    private TitledPane loadObstacleAvoidancePlanningSection() {
+    private TitledPane loadObstacleAvoidancePlanningSection(){
         ViewTuple<ObstacleAvoidancePlanningView, ObstacleAvoidancePlanningViewModel> viewTuple =
-            FluentViewLoader.fxmlView(ObstacleAvoidancePlanningView.class).context(context).load();
+                FluentViewLoader.fxmlView(ObstacleAvoidancePlanningView.class).context(context).load();
         return collapsed(
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.title"),
-                viewTuple.getView()));
+                new TitledPane(languageHelper.getString(EditFlightplanView.class,"planningView.obstacleAvoidance"), viewTuple.getView()));
     }
 
     private TitledPane loadStartingSection() {
         ViewTuple<StartingView, StartingViewModel> viewTuple =
             FluentViewLoader.fxmlView(StartingView.class).context(context).load();
-        return collapsed(
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.takeoff"),
-                viewTuple.getView()));
+        return collapsed(new TitledPane(languageHelper.getString("planningView.start"), viewTuple.getView()));
     }
 
     private TitledPane loadLandingSection() {
         ViewTuple<LandingView, LandingViewModel> viewTuple =
             FluentViewLoader.fxmlView(LandingView.class).context(context).load();
         TitledPane section =
-            collapsed(
-                new TitledPane(
-                    languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.landing"),
-                    viewTuple.getView()));
+            collapsed(new TitledPane(languageHelper.getString("planningView.landing"), viewTuple.getView()));
         // TODO make this section show up with a debug license
         //        BindingUtils.bindVisibility(section, viewModel.isLandingVisibleBinding());
         return section;
@@ -558,12 +550,8 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
         ViewTuple<EmergencyActionsView, EmergencyActionsViewModel> viewTuple =
             FluentViewLoader.fxmlView(EmergencyActionsView.class).context(context).load();
         TitledPane section =
-            collapsed(
-                new TitledPane(
-                    languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.emergencyactions"),
-                    viewTuple.getView()));
-        section.managedProperty().set(true);
-        section.visibleProperty().set(true);
+            collapsed(new TitledPane(languageHelper.getString("planningView.emergencyactions"), viewTuple.getView()));
+        BindingUtils.bindVisibility(section, viewModel.isEmergencyActionsVisibleBinding());
         return section;
     }
 
@@ -571,19 +559,14 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
         ViewTuple<HardwareSelectionView, HardwareSelectionViewModel> viewTuple =
             FluentViewLoader.fxmlView(HardwareSelectionView.class).context(context).load();
         viewTuple.getViewModel().bindHardwareConfiguration(viewModel.hardwareConfigurationProperty());
-        return collapsed(
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.hardware"),
-                viewTuple.getView()));
+        return collapsed(new TitledPane(languageHelper.getString("planningView.hardware"), viewTuple.getView()));
     }
 
     private TitledPane loadSummarySection() {
         ViewTuple<FlightplanSummaryView, FlightplanSummaryViewModel> viewTuple =
             FluentViewLoader.fxmlView(FlightplanSummaryView.class).context(context).load();
 
-        TitledPane section =
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.summary"), viewTuple.getView());
+        TitledPane section = new TitledPane(languageHelper.getString("planningView.summary"), viewTuple.getView());
 
         BindingUtils.bindVisibility(section, viewModel.isWarningsVisibleBinding().not());
         return section;
@@ -592,9 +575,7 @@ public class EditFlightplanView extends FancyTabView<EditFlightplanViewModel> {
     private TitledPane loadWarningSection() {
         ViewTuple<WarningsView, WarningsViewModel> viewTuple =
             FluentViewLoader.fxmlView(WarningsView.class).context(context).load();
-        TitledPane section =
-            new TitledPane(
-                languageHelper.getString("com.intel.missioncontrol.ui.sidepane.planning.summary"), viewTuple.getView());
+        TitledPane section = new TitledPane(languageHelper.getString("planningView.summary"), viewTuple.getView());
 
         BindingUtils.bindVisibility(section, viewModel.isWarningsVisibleBinding());
         return section;

@@ -50,9 +50,6 @@ public class AoiLocationTabView extends ViewBase<AoiLocationTabViewModel> {
     private Hyperlink addVertex;
 
     @FXML
-    private Hyperlink addVertexFromUAV;
-
-    @FXML
     private Hyperlink optimizeAoiLink;
 
     @FXML
@@ -100,9 +97,6 @@ public class AoiLocationTabView extends ViewBase<AoiLocationTabViewModel> {
 
         addVertex.disableProperty().bind(viewModel.getAddVertexCommand().notExecutableProperty());
         addVertex.setOnAction((a) -> viewModel.getAddVertexCommand().execute());
-
-        addVertexFromUAV.disableProperty().bind(viewModel.getAddVertexFromUavCommand().notExecutableProperty());
-        addVertexFromUAV.setOnAction((a) -> viewModel.getAddVertexFromUavCommand().execute());
 
         optimizeAoiLink.disableProperty().bind(viewModel.getMaximizeAoiCommand().notExecutableProperty());
         optimizeAoiLink.setOnAction((a) -> viewModel.getMaximizeAoiCommand().execute());

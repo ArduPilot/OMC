@@ -6,8 +6,8 @@
 
 package com.intel.missioncontrol.map;
 
+import com.intel.missioncontrol.Localizable;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import eu.mavinci.core.obfuscation.IKeepAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -33,22 +33,22 @@ class LayerNameTest {
         }
 
         @Override
-        public <E extends Enum<E> & IKeepAll> String toFriendlyName(E value) {
+        public <E extends Enum<E> & Localizable> String toFriendlyName(E value) {
             return null;
         }
 
         @Override
-        public <E extends Enum<E>> String toFriendlyName(String customPrefix, E value) {
+        public <E extends Enum<E> & Localizable> String toFriendlyName(String customPrefix, E value) {
             return null;
         }
 
         @Override
-        public <E extends Enum<E> & IKeepAll> E fromFriendlyName(Class<? extends Enum<E>> class1, String name) {
+        public <E extends Enum<E> & Localizable> E fromFriendlyName(Class<? extends Enum<E>> class1, String name) {
             return null;
         }
 
         @Override
-        public <E extends Enum<E>> E fromFriendlyName(
+        public <E extends Enum<E> & Localizable> E fromFriendlyName(
                 Class<? extends Enum<E>> class1, String customPrefix, String name) {
             return null;
         }

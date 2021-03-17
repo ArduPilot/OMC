@@ -35,7 +35,7 @@ public class MBalloon {
         Vec4 v = worldWindow.getView().project(worldWindow.getModel().getGlobe().getCenter());
         balloon =
             new ScreenAnnotationBalloon(
-                "Calculating Mission...",
+                "Calculating Flight Plan...",
                 new Point((int)v.x - (toolbarPanelVgap / 2), (int)v.y + ((int)v.y * 95 / 100)));
 
         BalloonAttributes attrs = new BasicBalloonAttributes();

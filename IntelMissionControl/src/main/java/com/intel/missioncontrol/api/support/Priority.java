@@ -6,9 +6,9 @@
 
 package com.intel.missioncontrol.api.support;
 
-import eu.mavinci.core.obfuscation.IKeepAll;
+import com.intel.missioncontrol.Localizable;
 
-public enum Priority implements IKeepAll {
+public enum Priority implements Localizable {
     CRITICAL,
     HIGH,
     MEDIUM,

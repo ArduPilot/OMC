@@ -8,9 +8,9 @@ package eu.mavinci.desktop.gui.wwext.sun;
 
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.jogamp.opengl.GL2;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.render.DrawContext;
@@ -20,7 +20,8 @@ public class WWSunModel implements Renderable {
 
     private static final double distanceInEarthRadius = 2;
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();;
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();;
     private static final double distance = globe.getDiameter() / 2 * distanceInEarthRadius;
 
     @Override

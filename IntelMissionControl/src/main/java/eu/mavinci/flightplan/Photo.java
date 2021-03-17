@@ -6,8 +6,12 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
+import eu.mavinci.core.flightplan.CPhoto;
+import eu.mavinci.core.flightplan.IFlightplanContainer;
+import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
+import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.core.flightplan.CPhoto;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
@@ -23,7 +27,8 @@ public class Photo extends CPhoto {
     public static final String KEY_TO_STRING = KEY + ".toString";
     public static final String KEY_WP_MODE = KEY + ".wpMode";
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public Photo(boolean powerOn, double distance, double distanceMax, IFlightplanContainer parent) {
         super(powerOn, distance, distanceMax, parent);
