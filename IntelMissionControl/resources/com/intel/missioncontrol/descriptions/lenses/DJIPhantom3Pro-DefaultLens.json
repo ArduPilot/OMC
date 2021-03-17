@@ -1,0 +1,10 @@
+{
+  "id": "DJIPhantom3Pro-DefaultLens",
+  "name": "20 mm equivalent (integrated)",
+  "focalLength": 3.54,
+  "maxTimeVariation": 2.1,
+  "minRepTime": 1.0,
+  "isManual": false,
+  "lensType": "STANDARD",
+  "description": ""
+}

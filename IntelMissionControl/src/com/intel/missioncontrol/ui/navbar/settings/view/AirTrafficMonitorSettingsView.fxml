@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.view.AirTrafficMonitorSettingsView"
+      style="-fx-pref-width: 25em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.settings.SettingsView.airTrafficMonitor"/>
+
+    <ScrollPane vbarPolicy="AS_NEEDED" hbarPolicy="NEVER" fitToWidth="true">
+        <VBox styleClass="wide-padding">
+            <VBox>
+                <Label fx:id="connectionStateLabel" styleClass="navbar-dialog-control-caption"
+                       text="%airTrafficMonitorView.connectionStateLabel"/>
+                <HBox alignment="CENTER_LEFT" style="-fx-spacing: 1.56em">
+                    <Label fx:id="connectedLabel" alignment="CENTER_RIGHT" styleClass="status-label"
+                           text="%airTrafficMonitorView.connectedLabel"/>
+                    <Button fx:id="btnConnect" mnemonicParsing="false" text="%airTrafficMonitorView.btnConnect"
+                            styleClass="secondary-button">
+                        <styleClass>
+                            <String fx:value="md-main-button"/>
+                            <String fx:value="main-button"/>
+                        </styleClass>
+                    </Button>
+                </HBox>
+            </VBox>
+            <VBox>
+                <Label styleClass="navbar-dialog-control-caption"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.minimumHorizontalDistance"/>
+                <AutoCommitSpinner fx:id="minHorizontalDistanceSpinner"/>
+            </VBox>
+
+            <VBox>
+                <Label styleClass="navbar-dialog-control-caption"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.minimumVerticalDistance"/>
+                <AutoCommitSpinner fx:id="minVerticalDistanceSpinner"/>
+            </VBox>
+
+            <Label styleClass="navbar-dialog-subcaption-label"
+                   text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.rs232Settings"/>
+
+            <VBox>
+                <Label styleClass="navbar-dialog-control-caption"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.port"/>
+                <HBox style="-fx-spacing: 0.3em" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="portComboBox"/>
+                    <Button text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.refresh"
+                            HBox.hgrow="NEVER" styleClass="secondary-button"/>
+                </HBox>
+            </VBox>
+
+            <VBox>
+                <Label styleClass="navbar-dialog-control-caption"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.baudRate"/>
+                <ComboBox fx:id="baudRateComboBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox>
+                <Label styleClass="control-caption-label"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.dataBits"/>
+                <ComboBox fx:id="dataBitsComboBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox>
+                <Label styleClass="control-caption-label"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.stopBits"/>
+                <ComboBox fx:id="stopBitsComboBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox>
+                <Label styleClass="control-caption-label"
+                       text="%com.intel.missioncontrol.ui.settings.view.AirTrafficMonitorSettingsView.parity"/>
+                <ComboBox fx:id="parityComboBox" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

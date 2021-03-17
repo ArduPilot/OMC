@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="layoutRoot"
+      xmlns="http://javafx.com/javafx/8.0.112"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.savechanges.SaveChangesDialogView" styleClass="dialog">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/dialog.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+    </stylesheets>
+    <children>
+        <VBox styleClass="content">
+            <VBox fx:id="missionNameConfirmationContainer" visible="false" styleClass="form-row, unindent">
+                <Label text="%com.intel.missioncontrol.ui.dialogs.ExitConfirmationDialogView.Label.missionName"/>
+                <TextField fx:id="missionName"/>
+
+                <Label wrapText="true" fx:id="message" styleClass="hint-label"/>
+            </VBox>
+            <VBox fx:id="allCheckBoxesContainer" VBox.vgrow="ALWAYS">
+                <VBox styleClass="select-all,normal-padding" VBox.vgrow="ALWAYS">
+                    <CheckBox fx:id="saveAll" VBox.vgrow="ALWAYS"
+
+                              text="%com.intel.missioncontrol.ui.dialogs.ExitConfirmationDialogView.CheckBox.saveAll"
+                              onAction="#saveAllOnAction"
+                              selected="true"/>
+                </VBox>
+                <ScrollPane fx:id="checkBoxesScrollContainer"
+                            styleClass="normal-padding">
+                    <VBox fx:id="checkBoxesContainer">
+                        <StackPane VBox.vgrow="ALWAYS">
+                            <children>
+                                <ListView fx:id="changedItemsList">
+                                </ListView>
+                            </children>
+                        </StackPane>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+        <HBox styleClass="footer, wide-spacing">
+            <Button fx:id="proceedWithoutSaving"
+                    styleClass="secondary-button"
+                    onAction="#exitWithoutSavingOnAction"/>
+            <HBox styleClass="normal-spacing">
+                <Button fx:id="saveAndProceed"
+                        styleClass="primary-button"
+                        onAction="#saveAndExitOnAction"/>
+                <Button fx:id="cancel"
+                        styleClass="secondary-button"
+                        onAction="#closeButtonOnAction"/>
+            </HBox>
+        </HBox>
+    </children>
+</VBox>

@@ -1,0 +1,15 @@
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+
+<fx:root type="javafx.scene.layout.VBox"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.intel.missioncontrol.ui.sidepane.planning.widgets.HeightWidgetView"
+         minWidth="0" maxWidth="Infinity">
+
+    <VBox styleClass="form-row, icon-height">
+        <Label fx:id="spinnerHeightLabel" text="%radiusHeightWidget.labelHeight"/>
+        <AutoCommitSpinner fx:id="spinnerHeight" editable="true" maxWidth="Infinity"/>
+    </VBox>
+
+</fx:root>

@@ -1,0 +1,145 @@
+<!-- ====================================================================== -->
+<!-- FLIGHTPLANML DTD (flat version) ====================================== -->
+<!-- file: flightplanml.dtd 
+
+            SYSTEM "http://www.mavinci.eu/xml/flightplanml.dtd"
+ 
+            xmlns="http://www.mavinci.eu/xml/"
+
+    CC: All ID changed to CDATA (IDs cannot be numerical only!)
+
+    ====================================================================== -->
+
+<!ELEMENT flightplan ((head),(body))>
+
+<!ELEMENT head ((photosettings)?,(eventActions)?,(learningmode)?,(startAlt)?,(landingpoint),((dump)*))>
+
+<!ELEMENT learningmode EMPTY>
+
+<!ELEMENT landingpoint EMPTY>
+<!ATTLIST landingpoint 
+          lat   	CDATA    #REQUIRED
+          lon	    	CDATA    #REQUIRED
+          mode	    	CDATA	"3"
+          alt			CDATA    #REQUIRED
+          altInternal			CDATA    #IMPLIED
+          exitAlt			CDATA    #IMPLIED
+          yaw			CDATA    #REQUIRED
+          id		CDATA	 #REQUIRED
+>
+
+<!ELEMENT startAlt EMPTY>
+<!ATTLIST startAlt
+          alt			CDATA    #REQUIRED
+>
+
+<!ELEMENT eventActions ((event)+)>
+<!ATTLIST eventActions
+          safetyAlt			CDATA    #REQUIRED
+>
+
+<!ELEMENT event EMPTY>
+<!ATTLIST event
+          name			CDATA    #REQUIRED
+	  action		CDATA    #REQUIRED
+	  delay			CDATA    #REQUIRED
+	  recover		CDATA    #REQUIRED
+	  level			CDATA    #IMPLIED
+>
+
+<!ELEMENT body ((startprocedure)|(waypoint)|(photo)|(loop)|(picarea)|(dump)|(picarea)|(preApproach))*>
+
+
+<!ELEMENT dump (#PCDATA)>
+<!ELEMENT wbody (#PCDATA)>
+
+<!ELEMENT alt (#PCDATA)>
+
+<!ELEMENT srtmline (alt)+>
+<!ATTLIST srtmline 
+          sampleDist		CDATA	 #REQUIRED
+>
+
+
+<!-- <!ELEMENT waypoint (#PCDATA|((wbody)?(srtmline)?))> -->
+<!ELEMENT waypoint ANY>
+<!ATTLIST waypoint 
+          lat   		CDATA    #REQUIRED
+          lon	    		CDATA    #REQUIRED
+          alt			CDATA    #REQUIRED
+          id		CDATA	 #REQUIRED
+          assertaltitude	(true|false|linear) "false"
+          radius		CDATA    #REQUIRED
+>
+
+<!ELEMENT startprocedure EMPTY>
+<!ATTLIST startprocedure 
+          id		CDATA	 #REQUIRED
+>
+
+<!ELEMENT preApproach EMPTY>
+<!ATTLIST preApproach
+          lat   		CDATA    #REQUIRED
+          lon	    		CDATA    #REQUIRED
+          alt			CDATA    #REQUIRED
+          id		CDATA	 #REQUIRED
+>
+<!ELEMENT photo EMPTY>
+<!ATTLIST photo 
+          power	(on|off)     #REQUIRED
+          id		CDATA	 #REQUIRED
+          distance   	CDATA    "0.0"
+          distanceMax  	CDATA    "0.0"
+>
+
+<!ELEMENT photosettings EMPTY>
+<!ATTLIST photosettings 
+          maxroll   	CDATA    "180.0"
+          maxnick   	CDATA    "180.0"
+          mintimeinterval   	CDATA    "0.0"
+          yaw   	CDATA    "0.0"
+          onlyonedirection   	(true|false) "false"
+>
+
+<!ELEMENT loop ((photo)|(waypoint)|(picarea)|(dump))*>
+<!ATTLIST loop 
+          counter	CDATA	#REQUIRED
+          time		CDATA 	#REQUIRED
+          id	CDATA	#REQUIRED
+>
+
+<!ELEMENT row (cell)*>
+<!ATTLIST row 
+          start	CDATA	#REQUIRED
+>
+
+<!ELEMENT cell EMPTY>
+<!ATTLIST cell 
+          start	CDATA	#REQUIRED
+          start_corner	CDATA	"0"
+>
+
+<!ELEMENT picarea ((corners),((photo)|(waypoint)|(dump)|(row))* )>
+<!ATTLIST picarea
+	gsd	CDATA	"1"
+	overlapInFlight   CDATA   "0.6"
+	overlapInFlightMin   CDATA   "0.5"
+	overlapParallel   CDATA   "0.1"
+	alt	CDATA   #IMPLIED
+        id	CDATA	#REQUIRED
+        corridorEnabled CDATA #IMPLIED
+        corridorMinLines CDATA #IMPLIED
+        corridorWidth CDATA #IMPLIED
+>
+
+<!ELEMENT corners (point)*>
+
+<!ELEMENT point EMPTY>
+<!ATTLIST point
+          lat		CDATA    #REQUIRED
+          lon	    CDATA    #REQUIRED
+>
+
+<!--==============================================================
+     end of flightplanml.dtd
+=================================================================-->

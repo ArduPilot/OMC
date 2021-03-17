@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import com.intel.missioncontrol.ui.navbar.connection.view.MavLinkConnectionWidget?>
+<?import javafx.scene.control.Separator?>
+
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.112"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.UavConnectView"
+      style="-fx-pref-width: 36em" fx:id="root">
+
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/navbar/connection/view/UavConnectView.css"/>
+    </stylesheets>
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.connection.ConnectionView.uavConnect"/>
+
+    <ScrollPane hbarPolicy="NEVER" fitToWidth="true">
+        <VBox styleClass="navbar-dialog-page-container">
+            <!--<fx:include source="DetectedUavView.fxml"/>-->
+            <!--<Separator/>-->
+            <!--<fx:include fx:id="shortUavInfo" source="ShortUavInfoView.fxml"/>-->
+            <!--<fx:include fx:id="uavConnectorInfo" source="UavConnectorInfoView.fxml"/>-->
+            <VBox styleClass="wide-padding">
+                <MavLinkConnectionWidget fx:id="autoConnect"/>
+            </VBox>
+            <Separator />
+            <VBox styleClass="top-padding,bottom-padding">
+                <Label text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.currentStatus"/>
+                <Text fx:id="connectStatusText" style="-fx-font-weight:bold;-fx-font-size:2em;"/>
+            </VBox>
+            <VBox>
+                <VBox styleClass="toggle-switch-group;top-padding,bottom-padding">
+                    <Label text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.acceptIncomingConnections"/>
+                    <ToggleSwitch fx:id="autoUpdateSwitch"
+                                  text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.yes"/>
+                </VBox>
+                <VBox styleClass="top-padding,bottom-padding">
+                    <Label text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.port"/>
+                    <AutoCommitSpinner fx:id="portSpinner" editable="true"/>
+                    <Label text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.portMessage"
+                           textFill="gray"/>
+                </VBox>
+            </VBox>
+            <VBox styleClass="top-padding,bottom-padding">
+                <Label text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.savedConnections"/>
+                <TableView fx:id="tableView" editable="true" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="selectColumn" reorderable="false" resizable="false"
+                                     sortable="false" prefWidth="30"/>
+                        <TableColumn fx:id="nameColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.name"/>
+                        <TableColumn fx:id="typeColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.type"/>
+                        <TableColumn fx:id="transportColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.transport"/>
+                        <TableColumn fx:id="hostportColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.hostPort"/>
+                        <TableColumn fx:id="trashColumn" reorderable="false" editable="false"/>
+                    </columns>
+                </TableView>
+            </VBox>
+            <HBox styleClass="top-padding,bottom-padding,wide-spacing">
+                <Button styleClass="secondary-button" fx:id="addConnectionButton"
+                        text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.addConnection"
+                        onAction="#OnAddConnectionButtonClicked"/>
+                <Button styleClass="secondary-button" fx:id="connectButton"
+                        text="%com.intel.missioncontrol.ui.navbar.connection.view.uavConnectView.connect"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

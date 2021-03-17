@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<FancyTab xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.start.RecentMissionsView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/start/RecentMissionsView.css"/>
+    </stylesheets>
+    <tabId>
+        <SidePaneTab fx:value="RECENT_MISSIONS"/>
+    </tabId>
+
+    <header>
+        <VBox>
+            <HBox styleClass="primary,header">
+                <Label text="%com.intel.missioncontrol.RecentMissionsView.recentMission"
+                       HBox.hgrow="ALWAYS"/>
+                <HBox alignment="CENTER_RIGHT" HBox.hgrow="NEVER">
+                    <Button styleClass="transparent-icon-button, icon-folder-flat" onAction="#openFromDisk">
+                        <tooltip>
+                            <Tooltip text="%com.intel.missioncontrol.RecentMissionsView.openMissionLink"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
+            </HBox>
+        </VBox>
+    </header>
+
+    <scrollingContent>
+        <ItemsView fx:id="itemsView" styleClass="project-list">
+            <VBox/>
+        </ItemsView>
+    </scrollingContent>
+
+    <footer>
+        <VBox>
+            <HBox styleClass="footer">
+                <ActivityButton fx:id="createMissionButton" styleClass="primary-button"
+                                text="%com.intel.missioncontrol.RecentMissionsView.createMissionBtn"/>
+                <ActivityButton fx:id="openMissionButton" styleClass="secondary-button"
+                                text="%com.intel.missioncontrol.RecentMissionsView.openMissionBtn"/>
+                <ActivityButton fx:id="cloneMissionButton" styleClass="secondary-button"
+                                text="%com.intel.missioncontrol.RecentMissionsView.cloneMissionBtn"/>
+            </HBox>
+
+            <fx:include source="WebNewsView.fxml"/>
+            <fx:include source="IntroductionView.fxml"/>
+        </VBox>
+    </footer>
+
+</FancyTab>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="buildWinBase" name="Create Runnable Jar for Project OpenMissionControl Win-Base" basedir="../">
+
+	<import file="paths.xml" />
+	
+	<!-- the last dependency, builds the setup file with latest exe from the latest jar -->
+	<target name="nsis-compile" description="make null soft installer">
+
+		<exec executable="makensis" failonerror="true">
+			<!--     <arg value="/Onsis.log"/> -->
+			<!--Log to file -->
+			<arg value="-DVERSION=${win_version}"/>
+			<arg value="-DVERSIONTXT=${version}"/>
+			<arg value="ant/setup.nsi"/>
+		</exec>
+
+		<property name="absolute.path" location="setupFiles/OpenMissionControlSetup.exe"/>
+		
+
+	</target>
+	
+
+	<target name="deleteOld" description="Delete old Builded files">
+		<mkdir dir="setupFiles"/>
+		<delete>
+			<fileset dir="setupFiles" includes="*.jar"/>
+			<fileset dir="setupFiles" includes="*.exe"/>
+			<fileset dir="" includes="*.jar"/>
+		</delete>
+	</target>
+
+	
+	<target name="buildWinBase" depends="deleteOld,nsis-compile"></target>
+	
+</project>

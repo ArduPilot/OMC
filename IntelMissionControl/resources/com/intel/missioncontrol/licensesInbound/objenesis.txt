@@ -1,0 +1,4 @@
+License
+Objenesis is open source, under the Apache 2.0 license.
+
+If, for any reason, this license is not appropriate for you, please contact the development team so we can discuss alternatives.

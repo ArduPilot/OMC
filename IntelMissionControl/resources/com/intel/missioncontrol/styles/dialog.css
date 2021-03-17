@@ -1,0 +1,263 @@
+
+
+.select-all {
+    -fx-min-height: 2em;
+    -fx-border-color: theme-textfield-border-color;
+    -fx-border-style: solid solid none solid;
+}
+
+#allCheckBoxesContainer {
+    -fx-min-height: 6em;
+}
+
+#checkBoxesScrollContainer,
+#checkBoxesContainer,
+#changedItemsList,
+#changedItemsList .label {
+    -fx-background-color: theme-textfield-background-color;
+}
+
+#checkBoxesScrollContainer{
+    -fx-border-color: theme-textfield-border-color;
+}
+
+#changedItemsList .check-box {-fx-padding: 0 0 0.5em;}
+
+.about-dialog {
+    -fx-background-color: theme-background-color;
+}
+
+
+.intel-logo {
+    -fx-background-size: 6em;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-pref-width: 1em;
+    -fx-pref-height: 6em;
+    -fx-max-width: 1em;
+    -fx-max-height: 6em;
+}
+
+.about-dialog .separator  {
+    -fx-pref-height: 1;
+}
+
+
+.about-header {
+    -fx-background-color: theme-about-dialog-header-background-color;
+    -fx-padding: 1em 1em 0.5em 1em;
+
+}
+
+.about-header * {
+    -fx-text-fill: theme-about-dialog-header-text-color;
+
+}
+
+.about-header .app-title {
+    -fx-font-size: 2.2em;
+}
+
+.about-header #currentBuild {
+    -fx-font-size: 0.75em;
+}
+
+
+
+.supportBox {
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.support-dialog {
+    -fx-pref-width: 80em;
+    -fx-pref-height: 50em;
+}
+
+
+
+.support-request-details-grid-pane {
+    -fx-hgap: 1.25em;
+}
+
+
+
+#leftContainer, #rightContainer {
+    -fx-padding: 0.835em;
+}
+
+#leftContainer .label, #leftContainer .hyperlink {
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+#rightContainer .label, #rightContainer .hyperlink {
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.hintLabel {
+    -fx-text-fill: theme-menu-item-text-disabled-color;
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+#emails {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+    -fx-background-color: transparent;
+}
+
+
+#emails .list-cell {
+    -fx-background-color: transparent;
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+    -fx-padding: 0.249em 0 0.249em 0;
+}
+
+#emails .list-cell:filled:selected {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+#emails {
+    -fx-pref-height: 10em;
+}
+
+.textFieldExtraWidth {
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+}
+
+.fileListCellPane {
+    -fx-fill-width: true;
+    -fx-pref-height: 2.67em;
+}
+
+#additionalFiles {
+    -fx-pref-height: 18em;
+    -fx-min-height: 9em;
+}
+
+.cannotSendDetailsKeyColumn {
+    -fx-font-weight: 900;
+}
+
+.sendSupportWarningEnabled {
+    -fx-text-fill: theme-warnings-text-color;
+    -fx-alignment: center-left;
+}
+
+.cannotSendDetailsKeyColumn {
+    -fx-font-weight: 900;
+}
+
+.sendSupportWarningEnabled {
+    -fx-text-fill: theme-warnings-text-color;
+    -fx-alignment: center-left;
+}
+
+#rightContainer .table-view .column-header,
+.table-view .column-header .filler,
+.table-view .column-header .nested-column-header {
+    -fx-background-color: theme-table-header-background-color;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+#rightContainer .table-view {
+    -fx-background-color: theme-table-background-color;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-table-cell-border-width: 0;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Dialog                                                                      *
+ *                                                                             *
+ ******************************************************************************/
+
+.st-dialog {
+    -fx-graphic: null;
+    -fx-font-family: "Open Sans", "Arial", sans-serif;
+    -fx-background-color: theme-alert-background-color;
+    -fx-padding: 0 1em 0 0;
+    -fx-max-width: 30em;
+
+}
+.st-dialog > *.button-bar > *.container{
+    -fx-padding: 2em 0 1em 0;
+    -fx-spacing: 1em;
+    -fx-background-color: theme-alert-background-color;
+}
+
+.st-dialog:header *.header-panel{
+    -fx-spacing: 1em;
+    -fx-background-color: theme-alert-background-color;
+}
+.st-dialog:header *.header-panel *.label{
+    -fx-spacing: 1em;
+    -fx-font-size: 1.5em;
+    -fx-fill: theme-alert-label-fill-color;
+}
+
+.st-dialog > .content.label{
+    -fx-padding: 2em 0 0 0;
+    -fx-alignment: center-left;
+}
+
+.advancedParameters-LocationTab-VertexTable .table-view .column-header-background {
+    visibility: visible;
+    -fx-padding: 0;
+}
+
+.dialog {
+    -fx-background-color: theme-dialog-background-color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Validation dialog                                                           *
+ *                                                                             *
+ ******************************************************************************/
+.pd-top-dialog-pane {
+    -fx-padding: 0.5em;
+    -fx-spacing: 1em;
+    -fx-max-height: 40em;
+    -fx-max-width: 34em;
+}
+
+.pd-common-labels {
+    -fx-padding: 1em;
+    -fx-spacing: 0.5em;
+    -fx-max-width: 34em;
+}
+
+.pd-common-pane {
+    -fx-padding: 1em;
+    -fx-spacing: 1em;
+}
+
+.pd-background-color {
+    -fx-background-color: theme-background-color;
+}
+
+.pd-background-color-inherit {
+    -fx-background-color: inherit;
+}
+
+.pd-scroll-pane {
+    -fx-max-width: 34em;
+}
+
+

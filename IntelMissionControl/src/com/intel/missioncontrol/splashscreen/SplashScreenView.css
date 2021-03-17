@@ -1,0 +1,29 @@
+#layoutRoot {
+    -fx-background-image: url('/com/intel/missioncontrol/gfx/splash-background.png');
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: stretch;
+}
+
+.progress-bar {
+    -fx-padding: 0 0 2em 0;
+}
+
+.progress-bar > .track {
+    -fx-background-color: theme-splash-screen-progress-bar-track-background-color;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0.083em;
+    -fx-border-color: theme-splash-screen-progress-bar-border-color;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: theme-splash-screen-progress-bar-background-color;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-background-insets: 0.25em;
+    -fx-padding: 1em 0 0 0;
+}
+
+.label {
+    -fx-text-fill: theme-splash-screen-text-color;
+}

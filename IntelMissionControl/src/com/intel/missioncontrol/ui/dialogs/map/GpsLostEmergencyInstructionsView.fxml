@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.map.GpsLostEmergencyInstructionsView" styleClass="hintPane">
+    <HBox alignment="CENTER_LEFT">
+        <ImageView fx:id="alertImage" preserveRatio="true" pickOnBounds="true">
+            <Image url="@/com/intel/missioncontrol/icons/icon_warning(fill=theme-white).svg"/>
+        </ImageView>
+        <Label fx:id="messageText" wrapText="true" styleClass="hintText"
+               text="%com.intel.missioncontrol.ui.dialogs.map.GpsLostEmergencyInstructionsView.message">
+        </Label>
+        <VBox alignment="TOP_LEFT">
+            <ImageView fx:id="closeButton" styleClass="hintClose">
+                <Image url="@/com/intel/missioncontrol/icons/icon_close(fill=theme-white).svg" />
+            </ImageView>
+        </VBox>
+    </HBox>
+
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/hint-emergency.css"/>
+    </stylesheets>
+</VBox>

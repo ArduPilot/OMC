@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView"
+      style="-fx-pref-width: 26em; -fx-max-width: 26em; -fx-min-height: 9em">
+
+    <Label VBox.vgrow="NEVER" styleClass="caption" style="-fx-padding: 1em 1em 0.5em 1em"
+           text="%com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView.caption"/>
+
+    <Separator VBox.vgrow="NEVER"/>
+
+    <ItemsView fx:id="itemsView" VBox.vgrow="ALWAYS" style="-fx-padding: 1em">
+        <VBox/>
+    </ItemsView>
+
+    <Label fx:id="noTasksLabel" VBox.vgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity" alignment="CENTER"
+           text="%com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView.noTasksRunning"/>
+
+</VBox>

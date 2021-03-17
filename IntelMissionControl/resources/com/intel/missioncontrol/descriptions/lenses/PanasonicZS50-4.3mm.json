@@ -1,0 +1,9 @@
+{
+  "id": "PanasonicZS50-4.3mm",
+  "name": "4.3mm",
+  "focalLength": 4.3,
+  "maxTimeVariation": 2.45,
+  "minRepTime": 1.6,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

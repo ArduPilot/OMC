@@ -1,0 +1,51 @@
+{
+  "id": "DJIMavicAir-DefaultCamera",
+  "name": "12 MP (integrated)",
+  "roll": 0.0,
+  "pitch": 0.0,
+  "yaw": 270.0,
+  "maxRoll": 0.0,
+  "maxPitch": 30.0,
+  "maxYaw": 0.0,
+  "minRoll": 0.0,
+  "minPitch": -90.0,
+  "minYaw": 0.0,
+  "enforcePitchRange": true,
+  "gpsOffsetToTailInM": 0.0,
+  "gpsOffsetToRightWingInM": 0.0,
+  "gpsOffsetToSkyInM": 0.0,
+  "isRollFixed": true,
+  "isPitchFixed": false,
+  "isYawFixed": true,
+  "isRollStabilized": true,
+  "isPitchStabilized": true,
+  "isYawStabilized": true,
+  "ccdHeight": 4.72,
+  "ccdResX": 4000,
+  "ccdResY": 3000,
+  "ccdWidth": 6.30,
+  "ccdXTransl": 0.0,
+  "ccdYTransl": 0.0,
+  "exposureTimeUS": 200.0,
+  "cameraDelayMS": 300.0,
+  "exifModels": [
+    "L1D-20c"
+  ],
+  "pictureSizeInMB": 6.0,
+  "sdCapacityInGB": 110.0,
+  "ensoCalibFile": "",
+  "icarosCalibFile": "",
+  "menciCalibFile": "",
+  "pix4dCalibFile": "",
+  "agisoftCalibFile": "",
+  "filterType": "RGB",
+  "isProjectableToGround": true,
+  "exposureTimeFixed": false,
+  "bandNames": [
+    "rgb"
+  ],
+  "providingFeedback": false,
+  "compatibleLensesIds": [
+    "DJIMavicAir-DefaultLens"
+  ]
+}

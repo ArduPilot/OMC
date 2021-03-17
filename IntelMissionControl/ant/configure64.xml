@@ -1,0 +1,53 @@
+<launch4jConfig>
+    <dontWrapJar>true</dontWrapJar>
+    <headerType>gui</headerType>
+    <stayAlive>true</stayAlive>
+    <outfile>../wrapper/OpenMissionControl.exe</outfile>
+    <priority>normal</priority>
+    <downloadUrl>http://java.com/download</downloadUrl>
+    <customProcName>false</customProcName>
+    <icon>../../OpenMissionControl/resources/com/intel/missioncontrol/app-icon/mission-control-icon.ico</icon>
+    <var>sun.java2d.noddraw=true</var>
+    <var>jogamp.gluegen.UseTempJarCache=false</var>
+    <var>file.encoding=UTF-8</var>
+    <classPath>
+        <mainClass>com.intel.missioncontrol.Bootstrapper</mainClass>
+        <cp>%EXEDIR%/OpenMissionControl.jar</cp>
+        <cp>%EXEDIR%/dependencies/*.jar</cp>
+    </classPath>
+    <jre>
+        <path>%EXEDIR%\\jre</path>
+        <minVersion>9.0.0</minVersion>
+        <maxVersion>9.9.9</maxVersion>
+        <jdkPreference>preferJre</jdkPreference>
+        <initialHeapSize>512</initialHeapSize>
+        <maxHeapSize>1024</maxHeapSize>
+        <maxHeapPercent>50</maxHeapPercent>
+        <opt>--add-modules=java.se.ee</opt>
+        <opt>--add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</opt>
+        <opt>--add-opens=javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED</opt>
+        <opt>-Djava.library.path="%EXEDIR%\\lib64;%EXEDIR%"</opt>
+        <opt>-Djna.library.path="%EXEDIR%\\lib64;%EXEDIR%"</opt>
+        <opt>-Djogamp.gluegen.UseTempJarCache=false</opt>
+        <opt>-Djava.net.preferIPv4Stack=true</opt>
+        <opt>-DGDAL_DATA="%EXEDIR%\\gdal-data"</opt>
+        <opt>-Dmanual_path="%EXEDIR%\\manuals"</opt>
+        <opt>-Dprism.order=d3d</opt>
+        <opt>-Dsun.java2d.d3d=false</opt>
+        <opt>-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager</opt>
+        <opt>-Dcom.intel.missioncontrol.enableDeadlockDetection=true</opt>
+        <bundledJre64Bit>true</bundledJre64Bit>
+    </jre>
+    <versionInfo>
+        <fileVersion>2.0.0.8000</fileVersion>
+        <txtFileVersion>2.0.b8000</txtFileVersion>
+        <productVersion>2.0.0.8000</productVersion>
+        <txtProductVersion>2.0.b8000</txtProductVersion>
+        <fileDescription>Open Mission Control</fileDescription>
+        <copyright>Open</copyright>
+        <productName>Open Mission Control</productName>
+        <companyName>Open</companyName>
+        <internalName>Open Mission Control</internalName>
+        <originalFilename>OpenMissionControl.exe</originalFilename>
+    </versionInfo>
+</launch4jConfig>

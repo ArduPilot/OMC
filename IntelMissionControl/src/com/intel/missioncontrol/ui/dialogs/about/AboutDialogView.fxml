@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.about.AboutDialogView"
+      styleClass="about-dialog" minWidth="540" maxWidth="540" minHeight="460" maxHeight="460">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/dialog.css"/>
+    </stylesheets>
+
+    <BorderPane styleClass="about-header">
+        <left>
+            <Label styleClass="intel-logo"/>
+        </left>
+        <center>
+            <VBox alignment="CENTER_LEFT">
+                <Label styleClass="app-title, wide-padding"
+                       text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.header"/>
+            </VBox>
+        </center>
+        <right>
+            <VBox alignment="CENTER_RIGHT">
+                <Label fx:id="currentVersion"/>
+                <Label fx:id="currentBuild"/>
+            </VBox>
+        </right>
+    </BorderPane>
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+
+        <!--<Tab text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.aboutTab">
+
+            <VBox styleClass="wide-padding, wide-spacing">
+                <Label fx:id="copyrightLabel" VBox.vgrow="NEVER"/>
+                <VBox styleClass="label-value" VBox.vgrow="NEVER">
+                    <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.contact"/>
+                    <Hyperlink fx:id="contactEmailLink" onAction="#onContactEmailClicked" styleClass="label-bold"/>
+                </VBox>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Separator VBox.vgrow="NEVER"/>
+                <VBox VBox.vgrow="NEVER">
+                    <VBox styleClass="label-value">
+                        <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.autoUpdate"/>
+                        <Label fx:id="autoUpdate" styleClass="label-bold"/>
+                    </VBox>
+                    <Hyperlink
+                            text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.changeSettings"
+                            onAction="#onChangeInSettingsClicked"/>
+                </VBox>
+                <VBox styleClass="label-value" VBox.vgrow="NEVER">
+                    <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.lastChecked"/>
+                    <HBox>
+                        <Label fx:id="lastCheckedDateLabel" styleClass="label-bold"/>
+                        <Button fx:id="checkForUpdatesButton" styleClass="flat-icon-button"
+                                onAction="#onCheckForUpdatesButtonClicked">
+                            <graphic>
+                                <ImageView preserveRatio="true" pickOnBounds="true">
+                                    <Image url="@/com/intel/missioncontrol/icons/icon_refresh.svg"/>
+                                </ImageView>
+                            </graphic>
+                        </Button>
+                    </HBox>
+                </VBox>
+                <HBox styleClass="normal-spacing" VBox.vgrow="NEVER">
+
+                    <Label fx:id="updateAvailableLabel"
+                           text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.version.upToDate"/>
+                    <Hyperlink fx:id="viewChangesLink" onAction="#onViewChangesClicked"
+                               text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.viewChanges"/>
+
+
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" styleClass="wide-spacing" VBox.vgrow="NEVER">
+                    <Button fx:id="installUpdateButton"
+                            text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.installUpdate"
+                            onAction="#onInstallUpdateClicked" styleClass="primary-button"/>
+
+                    <Hyperlink
+                            text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.revertVersion"
+                            onAction="#onRevertVersionClicked"/>
+                </HBox>
+            </VBox>
+
+        </Tab>
+        <Tab text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.licenseTab">
+
+            <VBox styleClass="wide-padding, wide-spacing">
+                <GridPane styleClass="wide-spacing" VBox.vgrow="NEVER">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="35"/>
+                        <ColumnConstraints percentWidth="65"/>
+                    </columnConstraints>
+
+                    <VBox styleClass="label-value" GridPane.columnIndex="0">
+                        <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.licenseVersionLabel"/>
+                        <Label fx:id="licenseVersion" styleClass="label-bold"/>
+                        <Hyperlink fx:id="installOrRemoveLic" onAction="#installOrRemoveLicense"/>
+
+                    </VBox>
+                    <VBox fx:id="serialNumberVBox" styleClass="label-value" GridPane.columnIndex="1">
+                        <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.serialNumberLabel"/>
+                        <Label fx:id="serialNumber" styleClass="label-bold"/>
+
+                    </VBox>
+                </GridPane>
+                <VBox VBox.vgrow="NEVER">
+                    <HBox styleClass="wide-spacing">
+                        <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.activeOptionsLabel"
+                               styleClass="label-bold"/>
+                        <Hyperlink
+                                text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.upgradeHyperlink"
+                                onAction="#updateLicenseFile"/>
+                    </HBox>
+                    <HBox styleClass="wide-spacing">
+                        <Label fx:id="maxUserLevel"/>
+                        <Label fx:id="isBetaTesting"/>
+                        <Label fx:id="editions"/>
+                    </HBox>
+                </VBox>
+                <Region VBox.vgrow="ALWAYS" />
+                <Separator VBox.vgrow="NEVER"/>
+                <VBox fx:id="bottomVBox" VBox.vgrow="NEVER" styleClass="wide-spacing">
+                    <VBox>
+                        <VBox styleClass="label-value">
+                            <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.autoUpdate"/>
+                            <Label fx:id="licAutoUpdate" styleClass="label-bold"/>
+                        </VBox>
+                        <Hyperlink
+                                text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.changeSettings"
+                                onAction="#onChangeInSettingsClicked"/>
+                    </VBox>
+
+
+                    <VBox styleClass="label-value">
+                        <Label text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.lastChecked"/>
+                        <HBox>
+                            <Label fx:id="licLastCheckedDateLabel" styleClass="label-bold"/>
+                            <Button fx:id="licCheckForUpdatesButton" styleClass="flat-icon-button"
+                                    onAction="#onCheckForLicenseUpdatesButtonClicked">
+                                <graphic>
+                                    <ImageView preserveRatio="true" pickOnBounds="true">
+                                        <Image url="@/com/intel/missioncontrol/icons/icon_refresh.svg"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
+                        </HBox>
+                    </VBox>
+                    <HBox styleClass="normal-spacing">
+                        <Label fx:id="licUpdateAvailableLabel"
+                               text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.version.upToDate"/>
+
+                        <Hyperlink fx:id="licViewChanges"
+                                   text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.viewChanges"
+                                   onAction="#onLicenseUpdateAvailabelClicked"/>
+
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" styleClass="wide-spacing">
+                        <Button fx:id="licInstallOnlineUpdate"
+                                text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.installOnlineUpdate"
+                                onAction="#onInstallOnlineUpdateClicked" styleClass="secondary-button"/>
+
+                        <Hyperlink fx:id="licInstallLocalUpdate"
+                                   text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.installLocalUpdate"
+                                   onAction="#onInstallLocalUpdateClicked"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+        </Tab> -->
+        <Tab text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.moduleLicenseTab">
+            <VBox spacing="12" styleClass="wide-padding">
+                <ComboBox fx:id="thirdPartyLicensesComboBox"/>
+                <TextArea fx:id="thirdPartyLicenseTextArea" VBox.vgrow="ALWAYS" wrapText="true"/>
+            </VBox>
+        </Tab>
+        <Tab text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.noticeTab">
+            <VBox styleClass="wide-padding">
+
+                <TextArea fx:id="legalNoticeTextArea" VBox.vgrow="ALWAYS" wrapText="true"/>
+
+            </VBox>
+        </Tab>
+
+    </TabPane>
+
+</VBox>

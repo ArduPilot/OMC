@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.GridPane?>
+
+<ToolBar prefHeight="40.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.intel.dronekitsample.ui.ConnectionPanelController">
+  <items>
+     <ComboBox fx:id="connectionCombo" editable="true" prefWidth="300.0" promptText="udp:localhost:5555">
+        <tooltip>
+           <Tooltip text="aircraft address like '(udp|tcp):address:portnum" />
+        </tooltip>
+     </ComboBox>
+     <Button fx:id="connectButton" defaultButton="true" minWidth="100.0" mnemonicParsing="false" onAction="#connect" text="Connect" GridPane.columnIndex="1" />
+     <Label fx:id="label" minWidth="150.0" text="Label" />
+  </items>
+</ToolBar>

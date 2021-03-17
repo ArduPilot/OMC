@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <settings default="intel_copyright">
+    <module2copyright>
+      <element module="INMAV_Intel_copyright_header_scope" copyright="intel_copyright" />
+    </module2copyright>
+  </settings>
+</component>

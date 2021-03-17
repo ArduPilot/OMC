@@ -1,0 +1,114 @@
+<!-- ====================================================================== -->
+<!-- WMS Proxy DTD (flat version) ====================================== -->
+<!-- file: matching.dtd 
+
+            SYSTEM "http://www.mavinci.eu/xml/matching.dtd"
+ 
+            xmlns="http://www.mavinci.eu/xml/"
+
+    ====================================================================== -->
+
+<!ELEMENT matching (useAll?,altFilter?,angleFilter?,angleSpeedFilter?,directionFilter?,connectorposition?,picarea*,match*)>
+
+<!ELEMENT useAll EMPTY>
+<!ATTLIST useAll 
+          enabled   	CDATA    #REQUIRED
+>
+
+
+<!ELEMENT altFilter EMPTY>
+<!ATTLIST altFilter 
+          min   	CDATA    #REQUIRED
+          max   	CDATA    #REQUIRED
+>
+
+<!ELEMENT angleFilter EMPTY>
+<!ATTLIST angleFilter 
+          roll   	CDATA    #REQUIRED
+          pitch   	CDATA    #REQUIRED
+>
+
+<!ELEMENT angleSpeedFilter EMPTY>
+<!ATTLIST angleSpeedFilter 
+          roll   	CDATA    #REQUIRED
+          pitch   	CDATA    #REQUIRED
+          yaw   	CDATA    #REQUIRED
+>
+
+<!ELEMENT fuzzynessFilter EMPTY>
+<!ATTLIST fuzzynessFilter 
+          pixel   	CDATA    #REQUIRED
+>
+
+
+<!ELEMENT connectorposition EMPTY>
+<!ATTLIST connectorposition 
+          lat   		CDATA    #REQUIRED
+          lon   		CDATA    #REQUIRED
+          gps_altitude		CDATA	#REQUIRED
+          gps_ellipsoid		CDATA	#REQUIRED
+          timestamp		CDATA	#REQUIRED
+          rtk_avg_time  	CDATA    #REQUIRED
+          real_lon   		CDATA    #REQUIRED
+          real_lat   		CDATA    #REQUIRED
+          real_altwgs84		CDATA    #REQUIRED
+          real_antenna_alt	CDATA    #REQUIRED
+          
+	  avg_lon		CDATA   #IMPLIED
+	  avg_lat		CDATA   #IMPLIED
+	  avg_altwgs84		CDATA   #IMPLIED
+>
+
+<!ELEMENT directionFilter EMPTY>
+<!ATTLIST directionFilter 
+          onlyMainLines		(true|false) "true"
+          onlyOneDirection   	(true|false) "false"
+          dontPerforateLines   	(true|false) "true"
+	  onlyInPicArea   	(true|false) "false"
+>
+
+<!ELEMENT coverage EMPTY>
+<!ATTLIST coverage 
+          resolution		CDATA    #REQUIRED
+>
+
+<!ELEMENT picarea ((point)*)>
+<!ATTLIST picarea
+	gsd	CDATA	"1"
+>
+
+<!ELEMENT point EMPTY>
+<!ATTLIST point
+          lat		CDATA    #REQUIRED
+          lot	    CDATA    #REQUIRED
+>
+
+<!ELEMENT match (#PCDATA)>
+<!ATTLIST match
+          number	CDATA	#REQUIRED
+          lineNumber	CDATA	#REQUIRED
+          lat		CDATA	#REQUIRED
+          lon		CDATA	#REQUIRED
+          alt		CDATA	#REQUIRED
+          groundspeed		CDATA	#REQUIRED
+          rollrate		CDATA	#REQUIRED
+          pitchrate		CDATA	#REQUIRED
+          yawrate		CDATA	#REQUIRED
+          roll		CDATA	#REQUIRED
+          pitch		CDATA	#REQUIRED
+          yaw		CDATA	#REQUIRED
+          timestamp		CDATA	#REQUIRED
+          gps_ellipsoid		CDATA	#REQUIRED
+          gps_altitude		CDATA	#REQUIRED
+	  heading		CDATA	#REQUIRED
+	  time_since_last_fix		CDATA   #IMPLIED
+	  timestamp_exif		CDATA	#IMPLIED
+	  delay_type		CDATA	#IMPLIED
+	  focallength_exif		CDATA	#IMPLIED
+	  exposuretime_exif		CDATA	#IMPLIED
+	  model_exif		CDATA	#IMPLIED
+	  fix_type		CDATA	#IMPLIED
+>
+<!--==============================================================
+     end of matching.dtd
+=================================================================-->

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>gov.nasa.worldwind</groupId>
+  <artifactId>worldwindx</artifactId>
+  <versioning>
+    <release>2.1-HEAD</release>
+    <versions>
+      <version>2.1-HEAD</version>
+    </versions>
+    <lastUpdated>20180705001628</lastUpdated>
+  </versioning>
+</metadata>

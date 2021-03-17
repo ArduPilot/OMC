@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<VBox fx:id="localLayoutRoot" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.start.IntroductionView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/start/IntroductionView.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+
+    <HBox>
+        <Label styleClass="header-label" AnchorPane.leftAnchor="0.0" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+               text="%com.intel.missioncontrol.ui.sidepane.start.IntroductionView.caption" />
+        <Button id="hideBeginnerViewButton" styleClass="large-transparent-icon-button, icon-close-inverse"
+                AnchorPane.rightAnchor="0.0" onAction="#onHideViewAction" />
+    </HBox>
+
+    <TilePane id="buttonsPane" prefColumns="2">
+        <Button fx:id="openDemoMissionButton" styleClass="secondary-button" maxWidth="Infinity"
+                text="%com.intel.missioncontrol.ui.sidepane.start.IntroductionView.button.open.demo.mission"
+                onAction="#onCreateDemoMission"/>
+        <!--<Button fx:id="readManualButton" styleClass="secondary-button" maxWidth="Infinity"
+                text="%com.intel.missioncontrol.ui.sidepane.start.IntroductionView.button.read.manual"
+                onAction="#onShowReadManual"/>-->
+        <Button fx:id="viewVideoTourButton" styleClass="secondary-button" maxWidth="Infinity"
+                text="%com.intel.missioncontrol.ui.sidepane.start.IntroductionView.button.view.video.tour"
+                onAction="#onShowVideoTour"/>
+    </TilePane>
+
+</VBox>

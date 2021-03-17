@@ -1,0 +1,212 @@
+#shadowRect {
+    -fx-effect: dropshadow(gaussian, theme-pane-shadow-color, 5, 0, 1, 0);
+}
+
+#nav {
+    -fx-background-color: theme-navbar-background-color;
+}
+
+#expandButtonRegular {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-menu(fill=theme-white).svg');
+}
+
+#expandButtonDeluxe {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-menu-deluxe.png');
+}
+
+#expandButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-menu.svg');
+}
+
+#planningButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-planning(fill=theme-white).svg');
+}
+
+#flightButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-flight(fill=theme-white).svg');
+}
+
+#analysisButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-analytics(fill=theme-white).svg');
+}
+
+#bugReportButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-support(fill=theme-white).svg');
+}
+
+#mapLayersButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-layers(fill=theme-white).svg');
+}
+
+#settingsButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-generalsettings(fill=theme-white).svg');
+}
+
+#toolsButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-tools(fill=theme-white).svg');
+}
+
+#notConnectedButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_connection_lost(fill=theme-white).svg');
+}
+
+#notConnectedButton:disabled {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_connection_lost.svg');
+}
+
+#connectedButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_connect(fill=theme-white).svg');
+}
+
+.navbar-button {
+    -fx-pref-width: 29em;
+    -fx-min-width: 4em;
+    -fx-min-height: 4em;
+    -fx-max-height: 4em;
+    -fx-pref-height: 4em;
+    -fx-background-color: theme-navbar-button-background-color;
+    -fx-background-radius: 0;
+    -fx-alignment: baseline-left;
+    -fx-text-fill: theme-navbar-button-text-color;
+    -fx-text-overrun: clip;
+    -fx-text-indent: 2em;
+    -fx-graphic-text-gap: 2em;
+    -fx-font-size: 1.33em;
+    -fx-padding: 0 0 0 4em;
+    -fx-background-size: 2em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: 1em center;
+}
+
+.navbar-button .radio {
+    -fx-pref-height: 0.0;
+    -fx-pref-width: 0.0;
+    visibility: collapsed;
+}
+
+.navbar-button .dot {
+    visibility: collapsed;
+}
+
+.navbar-button:hover,
+.navbar-button:pressed,
+.navbar-button:focused:pressed,
+.navbar-button:focused,
+.navbar-button:selected {
+    -fx-text-fill: theme-navbar-button-text-color;
+}
+
+.navbar-button:hover {
+    -fx-background-color: theme-navbar-button-background-hover-color;
+}
+
+.navbar-button:pressed {
+    -fx-background-color: theme-navbar-button-background-pressed-color;
+}
+
+.navbar-button:selected {
+    -fx-background-color: theme-navbar-button-background-selected-color;
+}
+
+.navbar-button:disabled {
+    -fx-text-fill: theme-navbar-button-text-disabled-color;
+}
+
+.unfocused-navbar-button {
+    -fx-background-color: theme-unfocused-navbar-button-background-color;
+}
+
+
+/*************************************************************************************************
+ *  Navbar dialog
+ *************************************************************************************************/
+.navbar-page {
+    -fx-background-color: #00000080;
+}
+
+/*************************************************************************************************
+ *  Navbar dialog menu
+ *************************************************************************************************/
+#menuPane {
+    -fx-background-color: theme-navbar-dialog-menu-background-color;
+}
+
+#menuPane .primary {
+    -fx-text-fill: theme-navbar-dialog-menu-text-color;
+    -fx-min-height: 3.5em;
+    -fx-max-height: 3.5em;
+    -fx-pref-height: 3.5em;
+    -fx-padding: 0;
+}
+
+#menuPane .secondary {
+    -fx-max-width: Infinity;
+    -fx-background-color: theme-navbar-dialog-menu-background-color;
+    -fx-text-fill: theme-navbar-dialog-menu-text-color;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-min-height: 2.5em;
+    -fx-max-height: 2.5em;
+    -fx-pref-height: 2.5em;
+    -fx-padding: 0 0.4em;
+
+    -fx-font-weight: normal;
+}
+
+#menuPane .secondary .radio {
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+    visibility: collapsed;
+}
+
+#menuPane .secondary .dot {
+    visibility: collapsed;
+}
+
+/* The 'hover', 'selected' and 'pressed' pseudo-classes must appear in this order
+ * to work as expected. Pseudo-classes that are defined later in the file take
+ * precedence to ones defined earlier.
+ */
+#menuPane .secondary:hover {
+    -fx-background-color: theme-navbar-dialog-menu-background-hover-color;
+    -fx-text-fill: theme-navbar-dialog-menu-text-color;
+}
+
+#menuPane .secondary:selected {
+    -fx-background-color: theme-navbar-dialog-menu-background-selected-color;
+    -fx-text-fill: theme-navbar-dialog-menu-text-selected-color;
+}
+
+#menuPane .secondary:pressed {
+    -fx-background-color: theme-navbar-dialog-menu-background-pressed-color;
+    -fx-text-fill: theme-navbar-dialog-menu-text-color;
+}
+
+#menuPane .secondary:disabled {
+    -fx-text-fill: theme-navbar-dialog-menu-text-disabled-color;
+}
+
+/*************************************************************************************************
+ *  Navbar dialog content
+ *************************************************************************************************/
+#contentPane {
+    -fx-background-color: theme-navbar-section-background-color;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+#contentPane:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+#contentPane .primary {
+    -fx-text-fill: theme-navbar-dialog-caption-text-color;
+}
+
+
+.map-layers {
+    -fx-effect: dropshadow( gaussian, theme-pane-shadow-color, 5, 0, 1, 0 );
+}

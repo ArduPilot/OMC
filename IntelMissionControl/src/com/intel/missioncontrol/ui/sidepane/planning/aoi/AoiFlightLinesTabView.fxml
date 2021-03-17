@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.SegmentButton?>
+<?import java.net.URL?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<AdornerSplitView xmlns:fx="http://javafx.com/fxml" fx:id="rootPane"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.aoi.AoiFlightLinesTabView"
+                  styleClass="normal-padding">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+
+    <VBox>
+
+        <VBox fx:id="overlapFlightDirectionBox" styleClass="form-row, icon-frontlap">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.overlapFlightDirection"/>
+            <AutoCommitSpinner fx:id="overlapFlightSpinner" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.overlapFlightDirection.tooltip"/>
+        </VBox>
+
+        <VBox styleClass="form-row, icon-sidelap">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.overlapParallel"/>
+            <AutoCommitSpinner fx:id="overlapParallelSpinner" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.overlapParallel.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="minOverlapFlightDirectionBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minOverlapFlightDirection"/>
+            <AutoCommitSpinner fx:id="overlapFlightMinSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="scanPatternBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.scanPattern"/>
+            <HBox alignment="CENTER_LEFT">
+                <fx:define>
+                    <ToggleGroup fx:id="scanPatternGroup"/>
+                </fx:define>
+                <SegmentButton toggleGroup="$scanPatternGroup"
+                               styleClass="first, iconized, icon-scanpattern-side"
+                               userData="leftRight">
+                    <tooltip>
+                        <Tooltip text="%eu.mavinci.core.flightplan.CPicArea$VerticalScanPatternTypes.leftRight"/>
+                    </tooltip>
+                </SegmentButton>
+
+                <SegmentButton toggleGroup="$scanPatternGroup"
+                               styleClass="iconized, icon-scanpattern-updown"
+                               userData="upDown">
+                    <tooltip>
+                        <Tooltip text="%eu.mavinci.core.flightplan.CPicArea$VerticalScanPatternTypes.upDown"/>
+                    </tooltip>
+                </SegmentButton>
+
+                <SegmentButton fx:id="segmentWiseLeftRightToggle" toggleGroup="$scanPatternGroup"
+                               styleClass="iconized, icon-scanpattern-leftright"
+                               userData="segmentWiseLeftRight">
+                    <tooltip>
+                        <Tooltip
+                                text="%eu.mavinci.core.flightplan.CPicArea$VerticalScanPatternTypes.segmentWiseLeftRight"/>
+                    </tooltip>
+                </SegmentButton>
+            </HBox>
+        </VBox>
+
+        <VBox fx:id="verticalStartBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.verticalStart"/>
+            <ComboBox fx:id="verticalStartCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="rotationBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.rotation"/>
+
+            <HBox alignment="CENTER_LEFT">
+                <fx:define>
+                    <ToggleGroup fx:id="rotationDirectionGroup"/>
+                </fx:define>
+
+                <SegmentButton toggleGroup="$rotationDirectionGroup"
+                               styleClass="first, iconized, icon-rotation-left"
+                               userData="LEFT">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.geometry.RotationDirection.LEFT"/>
+                    </tooltip>
+                </SegmentButton>
+
+                <SegmentButton toggleGroup="$rotationDirectionGroup"
+                               styleClass="iconized, icon-rotation-right"
+                               userData="RIGHT">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.geometry.RotationDirection.RIGHT"/>
+                    </tooltip>
+                </SegmentButton>
+            </HBox>
+        </VBox>
+
+        <VBox fx:id="circleBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.circles"/>
+            <AutoCommitSpinner fx:id="circleCountSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="imagesPerCircleBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minImagesPerCircle"/>
+            <AutoCommitSpinner fx:id="minImagesPerCircleSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="scanDirectionBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.scanDirection"/>
+            <ComboBox fx:id="scanDirectionCombo" maxWidth="Infinity"
+                      AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                      AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.scanDirection.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="startCaptureBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.startCaptureAt"/>
+            <ComboBox fx:id="startCaptureCombo" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox styleClass="form-row">
+            <CheckBox fx:id="chkSingleDirection"
+                      text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.chkSingleDirection"
+                      AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                      AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.chkSingleDirection.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="flightDirectionBox"/>
+
+        <VBox fx:id="restrictions3D">
+            <VBox styleClass="form-row">
+                <Label fx:id="minObjectdistanceSpinnerLabel"
+                       text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minObjectDistance"/>
+
+                <AutoCommitSpinner fx:id="minObjectdistanceSpinner" editable="true"
+                                   maxWidth="Infinity" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                   AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minObjectdistanceSpinner.tooltip"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label fx:id="maxObjectdistanceSpinnerLabel"
+                       text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.maxObjectDistance"/>
+
+                <AutoCommitSpinner fx:id="maxObjectDistanceSpinner" editable="true"
+                                   maxWidth="Infinity" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                   AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.maxObjectdistanceSpinner.tooltip"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minGroundDistance"/>
+
+                <AutoCommitSpinner fx:id="minGroundDistanceSpinner" editable="true"
+                                   maxWidth="Infinity" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                   AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.minGroundDistanceSpinner.tooltip"/>
+            </VBox>
+        </VBox>
+
+        <VBox fx:id="jumpPatternBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.jumpPattern"/>
+
+            <HBox alignment="CENTER_LEFT">
+                <fx:define>
+                    <ToggleGroup fx:id="jumpPatternGroup"/>
+                </fx:define>
+
+                <SegmentButton toggleGroup="$jumpPatternGroup"
+                               styleClass="iconized, icon-jumppattern-skip"
+                               userData="interleaving">
+                    <tooltip>
+                        <Tooltip text="%eu.mavinci.core.flightplan.CPicArea$JumpPatternTypes.interleaving"/>
+                    </tooltip>
+                </SegmentButton>
+
+                <SegmentButton toggleGroup="$jumpPatternGroup"
+                               styleClass="iconized, icon-jumpattern-switch"
+                               userData="lineByLine">
+                    <tooltip>
+                        <Tooltip text="%eu.mavinci.core.flightplan.CPicArea$JumpPatternTypes.lineByLine"/>
+                    </tooltip>
+                </SegmentButton>
+            </HBox>
+        </VBox>
+
+        <VBox fx:id="cameraPitchOffsetBox" styleClass="form-row, icon-camera-pitch">
+            <Label
+                    text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchOffset"/>
+            <AutoCommitSpinner fx:id="cameraPitchOffsetSpinner" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchOffset.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="cameraPitchOffsetLineBeginBox" styleClass="form-row">
+            <Label styleClass="label-regular"
+                   text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchOffsetLineBeginBox"/>
+            <AutoCommitSpinner fx:id="cameraPitchOffsetSpinnerLineBegin" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchOffsetLineBeginBox.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="cameraTiltBox" styleClass="form-row, help, icon-spread">
+            <CheckBox fx:id="chkCameraTilt" styleClass="label-regular"
+                      text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchVariance"/>
+            <AutoCommitSpinner fx:id="cameraTiltSpinner" editable="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraPitchVariance.toolTip"/>
+        </VBox>
+
+        <VBox fx:id="cameraTiltMaxChangeBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.maxPitchChange"/>
+            <AutoCommitSpinner fx:id="cameraTiltMaxChangeSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="cameraRollOffsetBox" styleClass="form-row, icon-camera-yaw">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraYawOffset"/>
+            <AutoCommitSpinner fx:id="cameraRollOffsetSpinner" editable="true" maxWidth="Infinity" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraYawSpinner.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="cameraRollBox" styleClass="form-row, icon-spread">
+            <CheckBox fx:id="chkCameraRoll" styleClass="label-regular"
+                      text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraYawVariance"/>
+            <AutoCommitSpinner fx:id="cameraRollSpinner" editable="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.cameraYawVariance.toolTip"/>
+        </VBox>
+
+        <VBox fx:id="cameraRollMaxChangeBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiFlightLinesTabView.maxYawChange"/>
+            <AutoCommitSpinner fx:id="cameraRollMaxChangeSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+    </VBox>
+
+</AdornerSplitView>

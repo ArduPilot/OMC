@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<fx:root xmlns:fx="http://javafx.com/fxml/1" type="javafx.scene.layout.StackPane"
+         HBox.hgrow="ALWAYS">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+    <TitledPane fx:id="titledPane">
+        <AdornerSplitView>
+            <VBox fx:id="formContent">
+                <padding>
+                    <Insets/>
+                </padding>
+
+                <!--
+                    Content will be added here programmatically
+                -->
+
+                <HBox styleClass="form-row, wide-spacing">
+
+                    <Button fx:id="doneButton" text="%aoiSectionWidget.buttonDone" styleClass="secondary-button"
+                            onAction="#submit"/>
+
+                    <Button fx:id="showAdvanced" styleClass="secondary-button, iconized, icon-settings"
+                            text="%aoiSectionWidget.hyperlinkAvancedParameters" onAction="#showAdvancedParameters">
+                        <tooltip>
+                            <Tooltip text="%aoiSectionWidget.hyperlinkAvancedParameters.toolTip"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
+            </VBox>
+        </AdornerSplitView>
+        <graphic>
+            <HBox alignment="CENTER_LEFT">
+                <Label styleClass="label-bold" style="-fx-padding:0.5em 0.5em 0.5em 0;" fx:id="titleLabel"/>
+                <Button fx:id="editButton"
+                        styleClass="flat-icon-button, icon-select"
+                        mnemonicParsing="false" onAction="#selectThisAOI">
+                    <tooltip>
+                        <Tooltip text="%aoiSectionView.editButton.toolTip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </graphic>
+    </TitledPane>
+    <Button fx:id="buttonRemove" StackPane.alignment="TOP_RIGHT"
+            styleClass="flat-icon-button, destructive, icon-trash"
+            mnemonicParsing="false" onAction="#removeForm">
+        <tooltip>
+            <Tooltip text="%aoiSectionView.buttonRemove.toolTip"/>
+        </tooltip>
+    </Button>
+</fx:root>

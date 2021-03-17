@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import com.intel.missioncontrol.ui.map.ColorLegend?>
+<?import com.intel.missioncontrol.ui.map.ColorLegendItem?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTabPane?>
+<?import gov.nasa.worldwind.javafx.WWNode?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="layoutRoot" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111"
+           fx:controller="com.intel.missioncontrol.ui.MainView"
+           stylesheets="@/com/intel/missioncontrol/ui/MainView.css">
+
+    <VBox fx:id="windowContentContainer">
+        <HBox VBox.vgrow="ALWAYS">
+            <StackPane HBox.hgrow="ALWAYS">
+                <WWNode fx:id="worldWindNode"/>
+                <ItemsView fx:id="mapCreditsView" pickOnBounds="false">
+                    <HBox style="-fx-spacing:1em; -fx-padding:0.5em" pickOnBounds="false"/>
+                </ItemsView>
+                <Pane fx:id="colorLegendContainer" StackPane.alignment="BOTTOM_RIGHT" mouseTransparent="true" >
+                    <StackPane.margin>
+                        <Insets right="120" bottom="75"/>
+                    </StackPane.margin>
+                    <ColorLegend caption="%mainview.coverageLbl" styleClass="normal-padding">
+                        <ColorLegendItem color="#006900" text="%mainview.coverageGoodLbl"/>
+                        <ColorLegendItem color="#f3d54e" text="%mainview.coverageMediumLbl"/>
+                        <ColorLegendItem color="#b70000" text="%mainview.coverageBadLbl"/>
+                    </ColorLegend>
+                </Pane>
+                <fx:include source="map/ToolPaletteView.fxml"/>
+                <fx:include fx:id="searchView" source="search/SearchView.fxml"/>
+                <fx:include source="notifications/ToastStackView.fxml"/>
+            </StackPane>
+
+            <VBox HBox.hgrow="NEVER" id="sidepane" pickOnBounds="false">
+                <fx:include fx:id="demoMissionWarningView"
+                            source="sidepane/start/DemoMissionWarningView.fxml"/>
+                <FancyTabPane fx:id="fancyTabPane" VBox.vgrow="ALWAYS"
+                              tabIdType="com.intel.missioncontrol.ui.navigation.SidePaneTab">
+                    <fx:include source="sidepane/start/RecentMissionsView.fxml"/>
+                    <fx:include source="sidepane/planning/StartPlanningView.fxml"/>
+                    <fx:include source="sidepane/planning/EditFlightplanView.fxml"/>
+                    <fx:include source="sidepane/analysis/DataImportView.fxml"/>
+                    <fx:include source="sidepane/analysis/TransferringDataView.fxml"/>
+                    <fx:include source="sidepane/analysis/DatasetView.fxml"/>
+                    <fx:include source="sidepane/analysis/datatransfer/popup/TransferDataPopupView.fxml"/>
+                    <fx:include source="sidepane/flight/FlightDisconnectedView.fxml"/>
+                    <fx:include source="sidepane/flight/FlightConnectedView.fxml"/>
+                </FancyTabPane>
+            </VBox>
+        </HBox>
+
+        <HBox VBox.vgrow="NEVER" styleClass="statusbar-container" snapToPixel="false"
+              stylesheets="@/com/intel/missioncontrol/styles/icons.css">
+            <Button fx:id="statusBarSrsButton" styleClass="flat-button"
+                    onAction="#srsButtonClicked" HBox.hgrow="NEVER">
+                <tooltip>
+                    <Tooltip text="%com.intel.missioncontrol.ui.MainView.srsButton.tooltip"/>
+                </tooltip>
+            </Button>
+            <Label fx:id="statusLabel" HBox.hgrow="ALWAYS" style="-fx-padding:0 1em;"
+                   maxWidth="Infinity"/>
+            <Label fx:id="statusBarNotificationLabel"  style="-fx-padding:0 1em;" />
+            <HBox styleClass="actionbar-container, normal-spacing" alignment="CENTER_RIGHT">
+                <ToggleButton fx:id="warningsButton" styleClass="flat-button, iconized, icon-warning-regular"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ToggleButton fx:id="backgroundTasksButton" styleClass="flat-icon-button, icon-bg-tasks">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.MainView.backgroundTasksButton.tooltip"/>
+                    </tooltip>
+                </ToggleButton>
+            </HBox>
+        </HBox>
+    </VBox>
+
+    <StackPane fx:id="navBarDialogContainer" pickOnBounds="false" StackPane.alignment="TOP_LEFT"
+               minHeight="${layoutRoot.height}" maxHeight="${layoutRoot.height}">
+        <fx:include fx:id="mapLayersView" source="navbar/layers/MapLayersView.fxml"/>
+        <fx:include fx:id="toolsView" source="navbar/tools/ToolsView.fxml"/>
+        <fx:include fx:id="settingsView" source="navbar/settings/SettingsView.fxml"/>
+        <fx:include fx:id="connectionView" source="navbar/connection/ConnectionView.fxml"/>
+    </StackPane>
+
+    <fx:include fx:id="navBarView" source="navbar/NavBarView.fxml" StackPane.alignment="TOP_LEFT"/>
+
+</StackPane>

@@ -1,0 +1,44 @@
+#textLabel,
+#actionLink,
+#actionCheckBox {
+    -fx-font-size: 1.2em;
+    -fx-text-fill: theme-toast-text-color;
+}
+
+#actionLink {
+    -fx-underline: true;
+    -fx-text-fill: theme-toast-text-hover-color;
+}
+
+.check-box:hover {
+    -fx-text-fill: theme-toast-text-color;
+}
+
+.check-box:selected {
+    -fx-text-fill: theme-toast-text-color;
+}
+
+#closeButton {
+    -fx-background-size: 2.5em;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: theme-transparent-icon-button-background-color;
+    -fx-background-radius: 0;
+    -fx-background-insets: -1em 0 -1em 0;
+    -fx-border-width: 0;
+    -fx-min-width: 4em;
+    -fx-max-width: 4em;
+    -fx-max-height: Infinity;
+}
+
+#closeButton:hover {
+    -fx-background-color: theme-transparent-icon-button-background-hover-color;
+}
+
+#closeButton:pressed {
+    -fx-background-color: theme-transparent-icon-button-background-pressed-color;
+}
+
+#closeButton:disabled {
+    -fx-opacity: 0.7;
+}

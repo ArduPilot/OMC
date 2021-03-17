@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.LogFileView"
+      style="-fx-pref-width: 36em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.connection.ConnectionView.logFile"/>
+
+    <HBox VBox.vgrow="ALWAYS">
+        <StackPane VBox.vgrow="ALWAYS">
+            <VBox styleClass="wide-padding" VBox.vgrow="ALWAYS">
+                <fx:include source="LogFileListView.fxml" VBox.vgrow="ALWAYS"/>
+            </VBox>
+            <VBox fx:id="logFilePlayerPane" styleClass="wide-padding">
+                <fx:include source="LogFilePlayerView.fxml" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </StackPane>
+    </HBox>
+
+</VBox>

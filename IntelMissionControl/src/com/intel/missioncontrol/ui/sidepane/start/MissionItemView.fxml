@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Tooltip?>
+<RadioButton fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+             fx:controller="com.intel.missioncontrol.ui.sidepane.start.MissionItemView" styleClass="normal-padding">
+    <graphic>
+        <HBox alignment="CENTER" prefWidth="Infinity">
+            <VBox HBox.hgrow="ALWAYS" alignment="CENTER_LEFT">
+                <Label fx:id="nameLabel" styleClass="project-name"/>
+                <HBox>
+                    <Label text="%com.intel.missioncontrol.ui.sidepane.start.MissionItemView.lastUpdated"
+                           styleClass="hint-label"/>
+                    <Label fx:id="lastUpdateLabel" styleClass="hint-label"/>
+                </HBox>
+                <HBox styleClass="label-value">
+                    <VBox fx:id="flightPlansInfo">
+                        <Label fx:id="flightPlansCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.MissionItemView.flightPlansCount"/>
+                    </VBox>
+                    <VBox fx:id="flightsInfo">
+                        <Label fx:id="flightsCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.MissionItemView.flightsCount"/>
+                    </VBox>
+                    <VBox fx:id="datasetsInfo">
+                        <Label fx:id="datasetsCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.MissionItemView.datasetsCount"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Pane HBox.hgrow="NEVER" fx:id="imagePane"/>
+        </HBox>
+    </graphic>
+    <tooltip>
+        <Tooltip fx:id="fullName"/>
+    </tooltip>
+</RadioButton>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.launch.confirm.LaunchConfirmView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/sidepane.popup.css" />
+    </stylesheets>
+    <TextFlow styleClass="text-paragraph" >
+        <Text text="%com.intel.missioncontrol.ui.flight.FlightView.launch.confirm.falcon.paragraph.1"/>
+    </TextFlow>
+    <TextFlow styleClass="text-paragraph" >
+        <Text text="%com.intel.missioncontrol.ui.flight.FlightView.launch.confirm.falcon.paragraph.2"/>
+    </TextFlow>
+</VBox>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+
+<?import java.net.URL?>
+<HBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.start.DemoMissionWarningView"
+      styleClass="demo-mission-warning, iconized, icon-warning-blocker">
+<stylesheets>
+    <URL value="@/com/intel/missioncontrol/ui/sidepane/start/DemoMissionWarningView.css"/>
+    <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+</stylesheets>
+    <Label fx:id="missionName"/>
+    <Label id="renameLink" onMouseClicked="#onRenameAction"
+           text="%com.intel.missioncontrol.ui.start.DemoMissionWarningView.renameAction"/>
+    <Label text="%com.intel.missioncontrol.ui.start.DemoMissionWarningView.rename"/>
+
+</HBox>
+

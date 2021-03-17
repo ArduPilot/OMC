@@ -1,0 +1,19 @@
+{
+  "id": "e25bed06-ba8e-488c-9ff7-06a54c644ae9",
+  "name": "Wildfire",
+  "type": "wildfire",
+  "country": "USA",
+  "state": "California",
+  "city": "Tehachapi",
+  "last_updated": "2016-08-12T18:45:02.000Z",
+  "properties": {
+    "date_effective": "August 11, 2016"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -118.432234530465,
+      35.0969494022499
+    ]
+  }
+}

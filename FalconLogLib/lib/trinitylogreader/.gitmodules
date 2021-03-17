@@ -1,0 +1,8 @@
+[submodule "lib/crc32"]
+	path = lib/crc32
+	url = https://stash.asctec.local/scm/atl/crc32.git
+	branch = develop
+[submodule "lib/asl"]
+	path = lib/asl
+	url = https://stash.asctec.local/scm/atl/asl.git
+	branch = develop

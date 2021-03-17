@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import java.net.URL?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.intel.missioncontrol.ui.navbar.layers.GeoTiffExternalSourceView"
+            fx:id="layoutRoot"
+            style="-fx-pref-height: 32em; -fx-pref-width: 65em;">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+    </stylesheets>
+
+    <VBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <VBox fx:id="rootNode">
+            <TableView fx:id="tableView" VBox.vgrow="ALWAYS" editable="true" maxHeight="Infinity"
+                       style="-fx-padding: 0 0.5em 0 0.5em">
+                <columns>
+                    <TableColumn fx:id="enabledColumn" editable="false" prefWidth="45"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.enabled"/>
+                    <TableColumn fx:id="nameColumn" editable="false" prefWidth="150"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.filename"/>
+                    <TableColumn fx:id="typeColumn" editable="false" prefWidth="70"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.type"/>
+                    <TableColumn fx:id="diskUsageColumn" editable="false" prefWidth="80"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.diskUsage"/>
+                    <TableColumn fx:id="elevationColumn" editable="false" prefWidth="270"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.elevation"/>
+                    <TableColumn fx:id="modifiedColumn" editable="false" prefWidth="120"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.modified"/>
+                    <TableColumn fx:id="deleteColumn" editable="false" maxWidth="30"
+                                 text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.tabs.geotiff.table.type.delete"/>
+                </columns>
+            </TableView>
+        </VBox>
+        <BorderPane VBox.vgrow="ALWAYS" styleClass="wide-padding">
+            <left>
+                <VBox VBox.vgrow="ALWAYS">
+                    <Button fx:id="addGeotiffFile"
+                            styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.addFiles"
+                            onAction="#addGeotiffFile"/>
+                </VBox>
+            </left>
+            <right>
+                <Button styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.layers.ManageExternalSourceView.done"
+                        onAction="#closeWindow"/>
+            </right>
+        </BorderPane>
+    </VBox>
+</AnchorPane>

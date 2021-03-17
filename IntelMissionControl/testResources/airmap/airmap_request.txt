@@ -1,0 +1,7 @@
+GET https://api.airmap.com/airspace/v2/search?geometry_format=geojson&geometry=POLYGON(-122.17967594289738%2037.233442685843016,-122.17967594289738%2037.59317082004017,-121.72677386705263%2037.59317082004017,-121.72677386705263%2037.233442685843016,-122.17967594289738%2037.233442685843016)&full=true HTTP/1.1
+x-Api-Key: TodoAirmapApiKey
+Host: api.airmap.com
+Connection: Keep-Alive
+Accept-Encoding: gzip
+User-Agent: okhttp/3.6.0
+

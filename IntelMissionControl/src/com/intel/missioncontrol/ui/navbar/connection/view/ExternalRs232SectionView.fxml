@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            VBox.vgrow="ALWAYS" fx:id="rootNode"
+            fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.ExternalRs232SectionView">
+    <VBox>
+        <TitledPane text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.connectionSetup">
+
+            <VBox fx:id="portSettings">
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.port"/>
+                    <HBox>
+                        <ComboBox fx:id="portsCombobox" maxWidth="Infinity"/>
+                        <Button styleClass="flat-icon-button" fx:id="refreshPortsButton"/>
+                    </HBox>
+                </VBox>
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.baudRate"/>
+                    <AutoCommitSpinner fx:id="baud" editable="true" maxWidth="Infinity"/>
+                </VBox>
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.dataBits"/>
+                    <ComboBox fx:id="dataBits" maxWidth="Infinity"/>
+                </VBox>
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.stopBits"/>
+                    <ComboBox fx:id="stopBits" maxWidth="Infinity"/>
+                </VBox>
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalRs232SectionView.parity"/>
+                    <ComboBox fx:id="parity" maxWidth="Infinity"/>
+                </VBox>
+            </VBox>
+
+
+        </TitledPane>
+        <fx:include fx:id="rtkConfigurationView" source="RtkConfigurationView.fxml"/>
+        <fx:include source="RtkStatisticsView.fxml"/>
+    </VBox>
+</VBox>

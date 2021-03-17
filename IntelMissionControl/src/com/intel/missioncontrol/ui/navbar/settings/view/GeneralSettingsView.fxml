@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.view.GeneralSettingsView"
+      style="-fx-pref-width: 25em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.settings.SettingsView.general"/>
+
+    <ScrollPane hbarPolicy="NEVER" fitToWidth="true">
+        <VBox styleClass="content">
+            <VBox styleClass="form-row">
+                <Label text="%generalSettingsView.operationLevelLabel"/>
+                <ComboBox fx:id="operationLevelsBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%generalSettingsView.langualeLabel"/>
+                <ComboBox fx:id="localesBox" maxWidth="Infinity"/>
+                <Label fx:id="restartHintLabel"
+                       text="%com.intel.missioncontrol.ui.restartHintLabel" styleClass="restart-hint-label"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%generalSettingsView.unitsLabel"/>
+                <ComboBox fx:id="unitSystemsBox" maxWidth="Infinity"/>
+            </VBox>
+
+
+            <VBox styleClass="form-row">
+                <Label text="%generalSettingsView.angleStyle"/>
+                <ComboBox fx:id="angleStyleBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%generalSettingsView.mapInteractionMode"/>
+                <ComboBox fx:id="mapInteractionModeBox" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row, label-value">
+                <Label text="%generalSettingsView.spatialReferenceLabel"/>
+                <HBox alignment="CENTER_LEFT">
+                    <Label fx:id="labelSpatial" style="-fx-padding: 0 1em 0 0;" styleClass="label-bold"
+                           nodeOrientation="LEFT_TO_RIGHT" textOverrun="WORD_ELLIPSIS"/>
+                    <Hyperlink mnemonicParsing="false"
+                               onAction="#onSrsChangeAction"
+                               text="%com.intel.missioncontrol.ui.settings.view.GeneralSettingsView.change"/>
+                </HBox>
+            </VBox>
+            <VBox styleClass="normal-spacing">
+                <!--<ToggleSwitch fx:id="autoUpdateSwitch"
+                              text="%com.intel.missioncontrol.ui.settings.view.DataPrivacySettingsView.automaticUpdate"/> -->
+                <ToggleSwitch fx:id="updateMapTilesSwitch"
+                              text="%com.intel.missioncontrol.ui.settings.view.DataPrivacySettingsView.updateMapTiles"/>
+            </VBox>
+
+            <VBox styleClass="form-row" visible="false" managed="false">
+                <Label text="%generalSettingsView.themeLabel"/>
+                <ComboBox fx:id="themesBox" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

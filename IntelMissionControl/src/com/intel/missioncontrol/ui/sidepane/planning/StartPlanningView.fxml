@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Hyperlink?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<FancyTab xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.planning.StartPlanningView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+    <tabId>
+        <SidePaneTab fx:value="START_PLANNING"/>
+    </tabId>
+    <header>
+        <VBox>
+            <HBox styleClass="primary,header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white"
+                        onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary,header">
+                <MenuButton fx:id="flightPlansMenuButton" HBox.hgrow="NEVER" styleClass="drop-down-selector"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+    </header>
+    <scrollingContent>
+        <AdornerSplitView>
+            <VBox fx:id="layoutRoot" styleClass="content">
+                <VBox styleClass="form-row, unindent">
+                    <Label fx:id="templateLabel" text="%newFlightPlanView.templateLabel"/>
+                    <HBox>
+                        <ComboBox fx:id="templateComboBox" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                                  HBox.hgrow="ALWAYS" styleClass="wide-drawer"/>
+                        <Button fx:id="templateSettingsButton" alignment="CENTER_RIGHT" mnemonicParsing="false"
+                                styleClass="flat-icon-button, icon-settings-flat"
+                                onAction="#showFpTemplateManagement">
+                            <tooltip>
+                                <Tooltip text="%newFlightPlanView.toolTip"/>
+                            </tooltip>
+                        </Button>
+                    </HBox>
+                    <Label fx:id="templateWarningText" styleClass="hint-label"
+                           text="%newFlightPlanView.templateWarningLabel"/>
+                </VBox>
+                <VBox styleClass="form-row, unindent">
+                    <Label text="%com.intel.missioncontrol.ui.planning.settings.GeneralSettingsSectionView.terrainMode"/>
+                    <HBox alignment="CENTER_LEFT">
+                        <ComboBox fx:id="terrainModeCombobox" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                                  HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    </HBox>
+                    <HBox fx:id="notUsingSurfaceElevationInSettings">
+                        <Label text="%com.intel.missioncontrol.ui.planning.settings.GeneralSettingsSectionView.useOfTerrainDisabled"/>
+                        <Hyperlink
+                                text="%com.intel.missioncontrol.ui.planning.settings.GeneralSettingsSectionView.settings"
+                                onAction="#navigateToElevationSettings"/>
+                    </HBox>
+                </VBox>
+                <VBox styleClass="form-row, unindent">
+                    <ActivityButton fx:id="startPlanningButton" styleClass="primary-button" mnemonicParsing="false"
+                                    onAction="#handleTemplateButton" text="%newFlightPlanView.templateButton"/>
+                </VBox>
+            </VBox>
+        </AdornerSplitView>
+    </scrollingContent>
+
+</FancyTab>

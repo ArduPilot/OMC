@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<fx:root fx:id="rootNode" type="javafx.scene.layout.VBox" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.widget.AirplaneSpeedWidgetView">
+
+    <VBox styleClass="simulation-component-padding">
+        <Label fx:id="simulationSpeedLabel"/>
+        <Slider
+                fx:id="simulationSpeedSlider"
+                style="-fx-padding: 0.5em 0em 0em 0.25em;"
+        />
+    </VBox>
+    <GridPane style="-fx-padding: 0.5em 0 0 0;-fx-alignment: center-left;-fx-vgap: 0.5em;-fx-hgap: 0.5em;">
+        <ToggleSwitch fx:id="maximumSpeedSwitch" styleClass="settings-toggle-switch"
+                      GridPane.columnIndex="0" GridPane.rowIndex="0"
+                      text="%com.intel.missioncontrol.ui.connection.view.widget.AirplaneSpeedWidgetView.maximumSpeed"/>
+    </GridPane>
+</fx:root>

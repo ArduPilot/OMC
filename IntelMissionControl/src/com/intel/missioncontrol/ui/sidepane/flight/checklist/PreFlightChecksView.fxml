@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<AnchorPane fx:id="rootNode" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.intel.missioncontrol.ui.sidepane.flight.checklist.PreFlightChecksView"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <GridPane AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" hgap="5" vgap="10" alignment="TOP_LEFT">
+        <VBox spacing="10">
+            <HBox spacing="5" style="-fx-alignment: center-left">
+                <ImageView fx:id="imageStatus"/>
+                <Label fx:id="preFlightValidationStatus"/>
+            </HBox>
+            <HBox spacing="5" style="-fx-alignment: center-left">
+                <ImageView fx:id="checklistImageStatus"/>
+                <Label fx:id="checklistStatus"/>
+                <Button fx:id="showChecklistButton" onAction="#showPopupChecklist" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.flight.checklist.buttonText"/>
+            </HBox>
+            <AnchorPane>
+                <VBox fx:id="formsContainer" AnchorPane.leftAnchor="2" AnchorPane.rightAnchor="20"
+                      AnchorPane.topAnchor="1"/>
+            </AnchorPane>
+        </VBox>
+    </GridPane>
+</AnchorPane>

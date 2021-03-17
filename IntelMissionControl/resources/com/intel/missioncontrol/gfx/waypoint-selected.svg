@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <title>waypoint-selected</title>
+  <g>
+    <path d="M100,126a26,26,0,1,1,26-26A26.0292,26.0292,0,0,1,100,126Z" fill="#0aaeef"/>
+    <path d="M100,76a24,24,0,1,1-24,24,24,24,0,0,1,24-24m0-4a28,28,0,1,0,28,28,28.0317,28.0317,0,0,0-28-28Z" fill="#003c71"/>
+  </g>
+</svg>

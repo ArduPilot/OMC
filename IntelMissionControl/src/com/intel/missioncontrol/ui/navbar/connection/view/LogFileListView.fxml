@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.LogFileListView">
+    <HBox>
+        <Label
+                text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.listOfLogFiles"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Hyperlink fx:id="showFilteredFiles"
+                   onAction="#onMouseClickedShowFilteredFiles"
+                   text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.showFiltered"/>
+    </HBox>
+    <HBox fx:id="boxLogFileTable" VBox.vgrow="SOMETIMES">
+        <TableView fx:id="logFileTable" HBox.hgrow="SOMETIMES">
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+            </columnResizePolicy>
+            <placeholder>
+                <Label text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.NoLogFilesFound"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="columnFileName"
+                             text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.ColumnName.Name"
+                             resizable="false"/>
+                <TableColumn fx:id="columnFileSize"
+                             text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.ColumnName.Size"
+                             resizable="false"/>
+                <TableColumn fx:id="columnFileDate"
+                             text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.ColumnName.Date"
+                             resizable="false"/>
+            </columns>
+        </TableView>
+    </HBox>
+    <HBox>
+        <Button
+                fx:id="loadLogFile"
+                onAction="#onLoadLogFile"
+                text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.LoadLogFile"
+                styleClass="secondary-button"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button
+                onAction="#onBrowse"
+                text="%com.intel.missioncontrol.ui.connection.view.LogFileListView.Browse"
+                styleClass="secondary-button"/>
+    </HBox>
+</VBox>

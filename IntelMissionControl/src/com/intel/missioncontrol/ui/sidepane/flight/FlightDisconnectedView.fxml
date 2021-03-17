@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<FancyTab xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView">
+    <tabId>
+        <SidePaneTab fx:value="FLIGHT_DISCONNECTED"/>
+    </tabId>
+
+    <header>
+        <VBox>
+            <HBox styleClass="primary,header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white" onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary,header">
+                <Label fx:id="connectionStatus" HBox.hgrow="NEVER"
+                       text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.status.notConnected"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="showHelpButton" HBox.hgrow="NEVER" styleClass="flat-button, icon-help"
+                        maxHeight="Infinity">
+                    <tooltip>
+                        <Tooltip
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.tooltip.helpOnConnection"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </header>
+
+    <scrollingContent>
+        <VBox fx:id="layoutRoot">
+            <HBox alignment="CENTER_LEFT" styleClass="secondary-sidepane-blue-header" fx:id="discoveringMessageBox">
+                <ImageView fx:id="searchingInProgress" fitWidth="16" fitHeight="16">
+                    <Image url="@/com/intel/missioncontrol/icons/icon_progress.svg"/>
+                </ImageView>
+                <Label fx:id="discoveringMessage"
+                       text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.searchingForAvailableDevices"
+                       styleClass="discoveringMessage"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="settingButton" HBox.hgrow="NEVER" styleClass="flat-button" maxHeight="Infinity">
+                    <graphic>
+                        <ImageView fitWidth="16" fitHeight="16">
+                            <Image url="@/com/intel/missioncontrol/icons/icon_menu-generalsettings.svg"/>
+                        </ImageView>
+                    </graphic>
+                    <tooltip>
+                        <Tooltip
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.tooltip.setting"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <VBox styleClass="normal-padding">
+                <Label alignment="CENTER_LEFT"
+                       text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.connectToUAV"/>
+                <HBox alignment="CENTER_LEFT" styleClass="secondary-sidepane-white-header">
+                    <ComboBox fx:id="connectToUAVComboBox" HBox.hgrow="ALWAYS" maxWidth="325" editable="false"/>
+                    <Button fx:id="connectToUAVPlus" HBox.hgrow="NEVER" styleClass="flat-button, icon-plus"
+                            maxHeight="Infinity">
+                        <tooltip>
+                            <Tooltip
+                                    text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.newConnection"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
+
+            </VBox>
+            <VBox fx:id="mavlinkTypeConfig" visible="false">
+                <GridPane prefHeight="140" prefWidth="310">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="35"/>
+                        <ColumnConstraints percentWidth="65"/>
+                    </columnConstraints>
+
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                          GridPane.valignment="CENTER" alignment="CENTER_RIGHT">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.connectionName"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                          GridPane.valignment="CENTER" alignment="CENTER_LEFT">
+                        <TextField fx:id="mavlinkConnectionName" HBox.hgrow="ALWAYS" focusTraversable="false"
+                                   promptText="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.connectionNameHint"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                          GridPane.valignment="CENTER" alignment="CENTER_RIGHT">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.protocol"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="1" GridPane.rowIndex="1"
+                          GridPane.valignment="CENTER" alignment="CENTER_LEFT">
+                        <ComboBox fx:id="mavlinkProtocolTypeCombo" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="0" GridPane.rowIndex="2"
+                          GridPane.valignment="CENTER" alignment="CENTER_RIGHT">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.hostIpAddress"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="1" GridPane.rowIndex="2"
+                          GridPane.valignment="CENTER" alignment="CENTER_LEFT">
+                        <TextField fx:id="hostTextField"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="0" GridPane.rowIndex="3"
+                          GridPane.valignment="CENTER" alignment="CENTER_RIGHT">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.port"/>
+                    </HBox>
+                    <HBox styleClass="normal-padding" GridPane.columnIndex="1" GridPane.rowIndex="3"
+                          GridPane.valignment="CENTER" alignment="CENTER_LEFT">
+                        <AutoCommitSpinner fx:id="portSpinner" editable="true"/>
+                    </HBox>
+                    <HBox styleClass="wide-padding" GridPane.columnIndex="1" GridPane.rowIndex="4"
+                          GridPane.valignment="CENTER" alignment="CENTER_RIGHT">
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.add"
+                                styleClass="secondary-button"
+                                fx:id="addButton" HBox.hgrow="NEVER"/>
+                    </HBox>
+                </GridPane>
+
+            </VBox>
+        </VBox>
+    </scrollingContent>
+
+    <footer>
+        <HBox alignment="CENTER_LEFT" styleClass="wide-spacing,wide-padding">
+            <ActivityButton fx:id="connectViaIDL" styleClass="primary-button"
+                            text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.button.connectViaIDL"
+                            onAction="#OnConnectViaIDL"/>
+            <ActivityButton fx:id="simulate" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.sidepane.flight.FlightDisconnectedView.button.simulate"
+                            onAction="#OnSimulate"/>
+        </HBox>
+    </footer>
+
+</FancyTab>

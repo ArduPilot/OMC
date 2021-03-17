@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.SegmentButton?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<AdornerSplitView xmlns:fx="http://javafx.com/fxml" fx:id="rootPane"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.aoi.AoiDimensionsTabView"
+                  styleClass="normal-padding">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+    <VBox>
+        <VBox fx:id="aoiSettingsPane"/>
+
+        <VBox fx:id="minCaptureHeight" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.chkCropBelow"/>
+            <AutoCommitSpinner fx:id="cropBelowSpinner" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.cropBelowSpinner.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="maxCaptureHeight" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.chkCropAbove"/>
+            <AutoCommitSpinner fx:id="cropAboveSpinner" editable="true" maxWidth="Infinity" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.cropAboveSpinner.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="scanTopSurfaceBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.scanTopSurfaceSwitch"/>
+            <ToggleSwitch fx:id="scanTopSurfaceSwitch"/>
+        </VBox>
+
+        <VBox fx:id="facadeScanSideBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiDimensionsTabView.outerSurfaceGroup"/>
+
+            <HBox>
+                <fx:define>
+                    <ToggleGroup fx:id="facadeScanSideGroup"/>
+                </fx:define>
+
+                <SegmentButton toggleGroup="$facadeScanSideGroup"
+                               styleClass="first, iconized, icon-wall-left"
+                               userData="left"/>
+                <SegmentButton toggleGroup="$facadeScanSideGroup"
+                               styleClass="iconized, icon-wall-right"
+                               userData="right"/>
+            </HBox>
+        </VBox>
+
+    </VBox>
+</AdornerSplitView>

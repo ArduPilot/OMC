@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.navbar.connection.view.widget.AirplaneSpeedComponent?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import java.lang.Float?>
+<?import java.util.ArrayList?>
+<BorderPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.LogFilePlayerView" VBox.vgrow="ALWAYS"
+            styleClass="log-file-player-section-container" fx:id="rootNode">
+    <top>
+        <VBox style="-fx-spacing: 0.5em;">
+            <Label text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.logFile"/>
+            <Hyperlink fx:id="logFileFileName" wrapText="true"/>
+        </VBox>
+    </top>
+    <center>
+        <VBox style="-fx-spacing: 1em;">
+            <Separator visible="false"/>
+            <GridPane style="-fx-hgap: 1em; -fx-vgap: 1em;">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="45"/>
+                </columnConstraints>
+                <HBox GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Button fx:id="logPlayerBack" styleClass="secondary-button" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="logPlayerPlay" styleClass="secondary-button" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="logPlayerPause" styleClass="secondary-button" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="logPlayerFwd" styleClass="secondary-button" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <HBox GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <AutoCommitSpinner fx:id="logPlayerTime" editable="true" prefWidth="NaN" minWidth="NaN"
+                                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Label style="-fx-padding:0.1em 0 0 0;" text=" / "/>
+                    <Label style="-fx-padding:0.1em 0 0 0;" fx:id="logPlayerTimeTotal"/>
+                    <Label style="-fx-padding:0.1em 0 0 0;" text=" ("/>
+                    <Label style="-fx-padding:0.1em 0 0 0;" fx:id="estimatedLogPlayerSpeed"/>
+                    <Label style="-fx-padding:0.1em 0 0 0;" text="x)"/>
+                </HBox>
+                <VBox GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-spacing: 0.5em;">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.keyFrame"/>
+                    <HBox>
+                        <AutoCommitSpinner fx:id="logPlayerKeyframe" editable="true" maxWidth="Infinity"
+                                           HBox.hgrow="ALWAYS"/>
+                        <Label style="-fx-padding:0.1em 0 0 0; -fx-pref-width: 1em; -fx-min-width: 1em;" text=" / "/>
+                        <Label style="-fx-padding:0.1em 0 0 0; -fx-min-width: 3em;" maxWidth="Infinity"
+                               fx:id="logPlayerKeyframeTotal" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+            </GridPane>
+            <!--<AirplaneSpeedComponent initValue="1" fx:id="airplaneSpeedComponent"
+                                    title="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.simulationSpeed.title">
+                <maxValue>
+                    <Float fx:constant="MAX_VALUE"/>
+                </maxValue>
+                <sliderValues>
+                    <ArrayList>
+                        <Float fx:value="0.25"/>
+                        <Float fx:value="0.5"/>
+                        <Float fx:value="1.0"/>
+                        <Float fx:value="2.0"/>
+                        <Float fx:value="4.0"/>
+                        <Float fx:value="8.0"/>
+                        <Float fx:value="16.0"/>
+                    </ArrayList>
+                </sliderValues>
+            </AirplaneSpeedComponent>-->
+            <Separator visible="false"/>
+            <GridPane style="-fx-hgap: 1em; -fx-vgap: 1em;">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="35"/>
+                </columnConstraints>
+
+                <!--<Button  fx:id="logPlayerAddMarker" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="0"-->
+                <!--text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.addMarker" maxWidth="Infinity" >-->
+                <!--<graphic>-->
+                <!--<ImageView pickOnBounds="true" preserveRatio="true">-->
+                <!--<Image url="@/com/intel/missioncontrol/icons/icon_logplayer-add-marker.svg"/>-->
+                <!--</ImageView>-->
+                <!--</graphic>-->
+                <!--</Button>-->
+
+                <!--<Button fx:id="logPlayerOpenPlot" styleClass="secondary-button"  GridPane.columnIndex="1" GridPane.rowIndex="0"-->
+                <!--text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.openPlot" maxWidth="Infinity" >-->
+                <!--<graphic>-->
+                <!--<ImageView pickOnBounds="true" preserveRatio="true">-->
+                <!--<Image url="@/com/intel/missioncontrol/icons/icon_logplayer-open-plot.svg"/>-->
+                <!--</ImageView>-->
+                <!--</graphic>-->
+                <!--</Button>-->
+
+                <!--<Button fx:id="logPlayerSupportRequest" styleClass="secondary-button" GridPane.columnIndex="0" GridPane.rowIndex="1"-->
+                <!--text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.supportRequest" maxWidth="Infinity" />-->
+
+                <Button fx:id="logPlayerClearTrack" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.clearTrack"
+                        maxWidth="Infinity">
+                    <graphic>
+                        <ImageView pickOnBounds="true" preserveRatio="true">
+                            <Image url="@/com/intel/missioncontrol/icons/icon_close.svg"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+            </GridPane>
+        </VBox>
+    </center>
+    <bottom>
+        <VBox style="-fx-spacing: 0.5em;">
+            <Separator/>
+            <VBox>
+                <Button styleClass="secondary-button" fx:id="stopReplay"
+                        text="%com.intel.missioncontrol.ui.connection.view.LogFilePlayerView.stopReplay"/>
+            </VBox>
+        </VBox>
+    </bottom>
+</BorderPane>

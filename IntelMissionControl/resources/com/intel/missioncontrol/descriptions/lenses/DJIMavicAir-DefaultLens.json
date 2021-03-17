@@ -1,0 +1,10 @@
+{
+  "id": "DJIMavicAir-DefaultLens",
+  "name": "35 mm equivalent (integrated)",
+  "focalLength": 4.28,
+  "maxTimeVariation": 2.1,
+  "minRepTime": 1.0,
+  "isManual": false,
+  "lensType": "STANDARD",
+  "description": ""
+}

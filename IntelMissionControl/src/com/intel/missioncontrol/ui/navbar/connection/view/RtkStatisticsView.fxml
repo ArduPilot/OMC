@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+
+<ScrollPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.RtkStatisticsView"
+            fx:id="statisticsPane"
+            fitToWidth="true"
+            hbarPolicy="NEVER">
+
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/navbar/connection/ConnectionView.css"/>
+    </stylesheets>
+
+    <VBox>
+        <HBox VBox.vgrow="ALWAYS">
+            <TitledPane text="%com.intel.missioncontrol.ui.connection.view.RtkStatisticTableView.statistics">
+                <TableView fx:id="statistics" style="-fx-pref-height: 34em">
+                    <columns>
+                        <TableColumn
+                                fx:id="variables"
+                                text="%com.intel.missioncontrol.ui.connection.view.RtkStatisticTableView.statistics.column.variable"
+                                sortable="false"
+                                resizable="false"
+                        />
+                        <TableColumn
+                                fx:id="values"
+                                text="%com.intel.missioncontrol.ui.connection.view.RtkStatisticTableView.statistics.column.value"
+                                sortable="false"
+                                resizable="false"
+                        />
+                    </columns>
+                </TableView>
+            </TitledPane>
+        </HBox>
+        <HBox VBox.vgrow="ALWAYS">
+            <TitledPane text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics">
+                <TableView fx:id="detailedStatistics">
+                    <columns>
+                        <TableColumn
+                                text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics.column.packageType">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="packageType"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn
+                                text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics.column.description">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="description"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn fx:id="status"
+                                     text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics.column.status">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="status"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn
+                                text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics.column.count">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="count"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                        <TableColumn
+                                text="%com.intel.missioncontrol.ui.connection.view.NtripConnectionView.detailedStatistics.column.rate">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="rate"/>
+                            </cellValueFactory>
+                        </TableColumn>
+                    </columns>
+                </TableView>
+            </TitledPane>
+        </HBox>
+    </VBox>
+</ScrollPane>

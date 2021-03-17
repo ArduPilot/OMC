@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" VBox.vgrow="ALWAYS"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.ExternalBluetoothSectionView">
+    <TitledPane text="%com.intel.missioncontrol.ui.connection.view.ExternalUdpSectionView.connectionSetup">
+        <HBox>
+            <VBox fx:id="bluetoothSettings" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-spacing: 1em;">
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalBluetoothSectionView.devices"/>
+                    <HBox styleClass="normal-spacing">
+                        <ComboBox fx:id="deviceCombo" maxWidth="Infinity"
+                                  HBox.hgrow="ALWAYS"/>
+                        <Button styleClass="flat-icon-button" fx:id="refreshDevicesButton"/>
+                    </HBox>
+                </VBox>
+                <VBox styleClass="form-row">
+                    <Label text="%com.intel.missioncontrol.ui.connection.view.ExternalBluetoothSectionView.services"/>
+                    <ComboBox fx:id="serviceCombo" maxWidth="Infinity"/>
+                </VBox>
+            </VBox>
+        </HBox>
+    </TitledPane>
+    <fx:include fx:id="rtkConfigurationView" source="RtkConfigurationView.fxml"/>
+    <fx:include source="RtkStatisticsView.fxml"/>
+</VBox>

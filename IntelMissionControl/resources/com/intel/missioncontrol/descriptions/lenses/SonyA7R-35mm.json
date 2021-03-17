@@ -1,0 +1,9 @@
+{
+  "id": "SonyA7R-35mm",
+  "name": "35mm",
+  "focalLength": 35.0,
+  "maxTimeVariation": 1.85,
+  "minRepTime": 1.6,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

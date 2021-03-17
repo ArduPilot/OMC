@@ -1,0 +1,36 @@
+.button-area {
+    -fx-padding: 1.0em 0.5em 0.5em 0.5em;
+    -fx-spacing: 1.0em
+}
+
+.table-row-cell:selected > .templateRemoveButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_close(fill=theme-white).svg');
+    -fx-alignment: center;
+    -fx-background-size: 1em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.table-row-cell > .templateRemoveButton {
+	-fx-background-image: url('/com/intel/missioncontrol/icons/icon_close(fill=theme-button-text-color).svg');
+    -fx-alignment: center;
+    -fx-background-size: 1em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.table-row-cell:selected > .templateRevertButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-revert(fill=theme-white).svg');
+    -fx-alignment: center;
+    -fx-background-size: 1.2em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.table-row-cell > .templateRevertButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_menu-revert.svg');
+    -fx-alignment: center;
+    -fx-background-size: 1.2em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}

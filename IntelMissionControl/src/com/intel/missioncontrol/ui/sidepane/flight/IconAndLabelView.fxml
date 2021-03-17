@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml" fx:id="iconAndLabelBox"
+         fx:controller="com.intel.missioncontrol.ui.sidepane.flight.IconAndLabelView" AnchorPane.topAnchor="0.0"
+         AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+         alignment="TOP_CENTER" spacing="1">
+
+    <ImageView fx:id="image" />
+
+    <Label fx:id="labelCaption" />
+
+</fx:root>

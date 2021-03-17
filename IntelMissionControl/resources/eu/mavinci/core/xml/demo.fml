@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE flightplanml PUBLIC "-//EU//MAVINCI//XML" "http://www.mavinci.eu/xml/flightplanml.dtd">
+<?xml-stylesheet type="text/xsl" href="flightplanml.xsl" ?>
+<flightplan>
+  <!-- created with MAVinci Desktop for Linux64 (SN: 00:13:3B:04:02:07) 2.5BETA.b10441 at 21:56:00 06.03.2012 -->
+  <head>
+    <photosettings maxroll="10.0" maxnick="10.0" mintimeinterval="0.8" yaw="0.0" onlyonedirection="false"/>
+    <landingpoint id="2" lon="8.635945320129395" lat="49.368778228759766" mode="3" alt="10000" yaw="0.0"/>
+  </head>
+  <body>
+    <startprocedure id="4"/>
+    <picarea id="3" gsd="0.04" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0">
+      <corners>
+        <point lon="8.642461916223558" lat="49.371395230405774"/>
+        <point lon="8.650138976252626" lat="49.369799550527226"/>
+        <point lon="8.64560930503449" lat="49.36273383208348"/>
+        <point lon="8.637050808940137" lat="49.3628516467867"/>
+      </corners>
+      <photo power="on" distance="2400.0000000000005" distanceMax="4000.0" id="-50"/>
+      <waypoint lon="8.636045366549064" lat="49.365196930864435" alt="24615" radius="0" id="-52" assertaltitude="true"/>
+      <waypoint lon="8.636046135856745" lat="49.361497703886315" alt="24615" radius="0" id="-53" assertaltitude="false"/>
+      <waypoint lon="8.638368769865277" lat="49.36149788657937" alt="24615" radius="0" id="-62" assertaltitude="false"/>
+      <waypoint lon="8.638367584891839" lat="49.36886383318799" alt="24615" radius="0" id="-63" assertaltitude="false"/>
+      <waypoint lon="8.637206094385864" lat="49.36886374765254" alt="24615" radius="0" id="-56" assertaltitude="false"/>
+      <waypoint lon="8.637207455814442" lat="49.36148176420559" alt="24615" radius="0" id="-57" assertaltitude="false"/>
+      <waypoint lon="8.639530089081612" lat="49.361481923565826" alt="24615" radius="0" id="-66" assertaltitude="false"/>
+      <waypoint lon="8.639528577399028" lat="49.372489758031705" alt="24615" radius="0" id="-67" assertaltitude="false"/>
+      <waypoint lon="8.641851729285058" lat="49.37248987076998" alt="24615" radius="0" id="-72" assertaltitude="false"/>
+      <waypoint lon="8.641852725263956" lat="49.36144996253927" alt="24615" radius="0" id="-73" assertaltitude="false"/>
+      <waypoint lon="8.640691409372293" lat="49.36144991202512" alt="24615" radius="0" id="-70" assertaltitude="false"/>
+      <waypoint lon="8.640690141565335" lat="49.37259328794586" alt="24615" radius="0" id="-71" assertaltitude="false"/>
+      <waypoint lon="8.643013298335266" lat="49.37259337734272" alt="24615" radius="0" id="-76" assertaltitude="false"/>
+      <waypoint lon="8.64301404283879" lat="49.361424800605846" alt="24615" radius="0" id="-77" assertaltitude="false"/>
+      <waypoint lon="8.645336673449592" lat="49.36142484330228" alt="24615" radius="0" id="-86" assertaltitude="false"/>
+      <waypoint lon="8.64533645309286" lat="49.372696887764064" alt="24615" radius="0" id="-87" assertaltitude="false"/>
+      <waypoint lon="8.644174872263788" lat="49.37269687224287" alt="24615" radius="0" id="-80" assertaltitude="false"/>
+      <waypoint lon="8.64417535784713" lat="49.36143170072757" alt="24615" radius="0" id="-81" assertaltitude="false"/>
+      <waypoint lon="8.646497988784189" lat="49.36143172009133" alt="24615" radius="0" id="-90" assertaltitude="false"/>
+      <waypoint lon="8.646498031987562" lat="49.3722140422932" alt="24615" radius="0" id="-91" assertaltitude="false"/>
+      <waypoint lon="8.648821170892974" lat="49.37221401498122" alt="24615" radius="0" id="-96" assertaltitude="false"/>
+      <waypoint lon="8.648820650349595" lat="49.362030997484695" alt="24615" radius="0" id="-97" assertaltitude="false"/>
+      <waypoint lon="8.64765932076787" lat="49.36203101696909" alt="24615" radius="0" id="-94" assertaltitude="false"/>
+      <waypoint lon="8.647659594785127" lat="49.371972609796636" alt="24615" radius="0" id="-95" assertaltitude="false"/>
+      <waypoint lon="8.649982722311082" lat="49.37197255914356" alt="24615" radius="0" id="-100" assertaltitude="false"/>
+      <waypoint lon="8.649982250482967" lat="49.36565454781272" alt="24615" radius="0" id="-101" assertaltitude="false"/>
+      <waypoint lon="8.651143665405016" lat="49.36565450498968" alt="24615" radius="0" id="-106" assertaltitude="false"/>
+      <waypoint lon="8.651144214911088" lat="49.3712482422237" alt="24615" radius="0" id="-107" assertaltitude="false"/>
+      <photo power="off" distance="2400.0000000000005" distanceMax="4000.0" id="5"/>
+    </picarea>
+  </body>
+</flightplan>

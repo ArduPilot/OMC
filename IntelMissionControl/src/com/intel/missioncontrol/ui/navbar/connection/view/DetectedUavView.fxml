@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.DetectedUavView">
+    <VBox styleClass="form-row">
+        <Label text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.detectedUav"/>
+        <HBox style="-fx-spacing: 0.5em">
+            <ComboBox fx:id="selectedUav"
+                      promptText="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.selectedUav"
+                      HBox.hgrow="ALWAYS"/>
+            <Button style="-fx-padding:0.2em 0 0 0;" fx:id="refreshButton" onAction="#refreshAction"/>
+        </HBox>
+    </VBox>
+    <HBox styleClass="wide-spacing">
+        <VBox styleClass="form-row">
+            <Label fx:id="uavPinLabel" text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.uavPinLabel"/>
+            <VBox fx:id="uavPinsListBlock">
+                <ComboBox fx:id="uavPinsList" editable="true"/>
+            </VBox>
+        </VBox>
+
+        <VBox style="-fx-padding:1.6em 0 0;">
+            <Button fx:id="connectButton"
+                    text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.connectButton"
+                    onAction="#connectAction" styleClass="primary-button"/>
+            <HBox fx:id="connectingBlock" alignment="CENTER_LEFT" style="-fx-spacing: 1em;">
+                <ImageView fx:id="iconProgress" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@/com/intel/missioncontrol/icons/icon_progress.svg"/>
+                </ImageView>
+                <Label text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.connectingLabel"/>
+                <Hyperlink style="-fx-alignment: CENTER_LEFT; -fx-padding: 0 0 0 0;"
+                           onAction="#onConnectingCancelClicked"
+                           text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.connectingCancel"/>
+            </HBox>
+            <Button fx:id="disconnectButton"
+                    text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.disconnectButton"
+                    styleClass="secondary-button"/>
+        </VBox>
+    </HBox>
+
+    <HBox>
+        <VBox style="-fx-padding: 0.25em 0.5em;">
+            <CheckBox fx:id="userDisconnectCheck"
+                      text="%com.intel.missioncontrol.ui.connection.view.DetectedUavView.userDisconnectCheck"/>
+        </VBox>
+    </HBox>
+</VBox>

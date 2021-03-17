@@ -1,0 +1,44 @@
+.label {
+    -fx-text-fill: theme-label-inverse-text-color !important;
+    -fx-font-weight: bold;
+}
+
+.icon-warning .label {
+    -fx-text-fill: theme-warning-inverse-color !important;
+}
+
+.notice .label {
+    -fx-font-weight: normal !important;
+}
+
+.hyperlink {
+    -fx-text-fill: theme-digital-blue !important;
+}
+
+.hyperlink:pressed {
+    -fx-text-fill: theme-blue !important;
+}
+
+.caption {
+    -fx-font-weight: bold;
+}
+
+.content {
+    -fx-background-color: #252525;
+    -fx-background-radius: 0.5em;
+}
+
+.arrow {
+    -fx-fill: #252525;
+    -fx-stroke-width: 0;
+    -fx-border-color: transparent;
+}
+
+
+.icon-warning {
+    -fx-background-size: 1.33em;
+    -fx-background-position: left 0.3em;
+    -fx-background-repeat: no-repeat;
+    -fx-padding: 0 0 0 2em;
+}
+

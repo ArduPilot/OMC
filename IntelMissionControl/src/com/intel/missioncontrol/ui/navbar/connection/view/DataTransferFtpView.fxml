@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.sidepane.flight.widget.ProgressButton?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      style="-fx-pref-width: 36em" fx:id="layoutRoot"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.DataTransferFtpView" alignment="TOP_LEFT">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.dataTransfer"/>
+
+    <GridPane styleClass="grid-pane" style="-fx-padding: 0 0 0 1em;">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+        </columnConstraints>
+
+        <Label GridPane.columnIndex="0" GridPane.rowIndex="0"
+               text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.fromUAVLabel"/>
+
+        <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" alignment="BOTTOM_LEFT">
+            <ProgressButton fx:id="photologButton" onActionHandler="#photologButtonClicked" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            animatedDots="true"
+                            text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.photologBtn"
+                            textInProgress="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.photologBtn"/>
+            <Separator orientation="VERTICAL" visible="false" style="-fx-pref-width: 1em;"/>
+            <Hyperlink fx:id="photologButtonCancel" text="Cancel" visible="false"/>
+        </HBox>
+
+        <HBox GridPane.columnIndex="0" GridPane.rowIndex="2" alignment="BOTTOM_LEFT">
+            <ProgressButton fx:id="flightLogsButton" onActionHandler="#flightLogsButtonClicked" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            animatedDots="true"
+                            text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.flightLogsBtn"
+                            textInProgress="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.flightLogsBtn"/>
+            <Separator orientation="VERTICAL" visible="false" style="-fx-pref-width: 1em;"/>
+            <Hyperlink fx:id="flightLogsButtonCancel" text="Cancel" visible="false"/>
+        </HBox>
+
+        <Hyperlink GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2" fx:id="uavUrl"/>
+
+        <Label GridPane.columnIndex="0" GridPane.rowIndex="4" style="-fx-padding: 2em 0 0 0"
+               text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.fromStationLabel"/>
+
+        <HBox GridPane.columnIndex="0" GridPane.rowIndex="5">
+            <ProgressButton fx:id="gpsRawDataButton" onActionHandler="#gpsRawDataButtonClicked" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            animatedDots="true"
+                            text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.gpsRawDataBtn"
+                            textInProgress="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.gpsRawDataBtn"/>
+            <Separator orientation="VERTICAL" visible="false" style="-fx-pref-width: 1em;"/>
+            <Hyperlink fx:id="gpsRawDataCancel" text="Cancel" visible="false"/>
+        </HBox>
+
+        <Hyperlink GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="connectorUrl"/>
+
+        <Label GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="2" style="-fx-padding: 2em 0 0 0"
+               text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.fromGpsLabel"/>
+
+        <HBox GridPane.columnIndex="0" GridPane.rowIndex="8" alignment="BOTTOM_LEFT">
+            <ProgressButton fx:id="gpsDebuggingButton" onActionHandler="#gpsDebuggingButtonClicked" maxWidth="Infinity"
+                            HBox.hgrow="ALWAYS"
+                            animatedDots="true"
+                            text="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.gpsDebuggingBtn"
+                            textInProgress="%com.intel.missioncontrol.ui.connection.view.DataTransferPopupView.gpsDebuggingBtn"/>
+            <Separator orientation="VERTICAL" visible="false" style="-fx-pref-width: 1em;"/>
+            <Hyperlink fx:id="gpsDebuggingButtonCancel" text="Cancel" visible="false"/>
+        </HBox>
+
+    </GridPane>
+</VBox>

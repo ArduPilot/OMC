@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import com.emxsys.chart.EnhancedLineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import java.net.URL?>
+
+<AnchorPane fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intel.missioncontrol.ui.sidepane.flight.widget.AltitudeWidgetView">
+    <EnhancedLineChart fx:id="altitudeChart"  AnchorPane.topAnchor="0"
+                       AnchorPane.rightAnchor="1" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" createSymbols="false" legendVisible="false">
+        <xAxis>
+            <NumberAxis  fx:id="xAxis" lowerBound="-30" upperBound="13" autoRanging="false"  visible="false"  />
+        </xAxis>
+        <yAxis>
+            <NumberAxis fx:id="yAxis" side="LEFT" visible="true" autoRanging="true"/>
+        </yAxis>
+    </EnhancedLineChart>
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/altitude-widget.css"/>
+    </stylesheets>
+</AnchorPane>

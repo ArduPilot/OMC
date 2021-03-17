@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.view.FilesAndFoldersSettingsView"
+      style="-fx-pref-width: 40em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.settings.SettingsView.filesFolders"/>
+
+    <ScrollPane hbarPolicy="NEVER" fitToWidth="true">
+        <VBox styleClass="wide-padding">
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.sessionDefaultBaseFolderLabel"/>
+                <HBox spacing="5">
+                    <TextField fx:id="projectFolderTextField" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                               editable="false"/>
+                    <Button text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.browse"
+                            onAction="#setFolderForSessionBasedFolder" styleClass="secondary-button"/>
+                    <Button fx:id="openProjectFolderButton" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.openFolder"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.agiSoftPhotoScanPathLabel"/>
+                <HBox spacing="5">
+                    <TextField fx:id="photoScanTextField" HBox.hgrow="ALWAYS" maxWidth="Infinity" editable="false"/>
+                    <Button text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.browse"
+                            onAction="#setFolderForAgiSoftPhotoScanProPath" styleClass="secondary-button"/>
+                    <Button fx:id="openPhotoScanButton" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.openFolder"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.contextCaptureMasterDesktopPathLabel"/>
+                <HBox spacing="5">
+                    <TextField fx:id="contextCaptureTextField" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                               editable="false"/>
+                    <Button text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.browse"
+                            onAction="#setFolderForContextCaptureMasterDesktopPath" styleClass="secondary-button"/>
+                    <Button fx:id="openContextCaptureFolderButton" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.openFolder"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.pix4DDesktopPathLabel"/>
+                <HBox spacing="5">
+                    <TextField fx:id="pix4TextField" HBox.hgrow="ALWAYS" maxWidth="Infinity" editable="false"/>
+                    <Button text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.browse"
+                            onAction="#setFolderForPix4DDesktopPath" styleClass="secondary-button"/>
+                    <Button fx:id="openPix4DFolderButton" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.settings.view.FilesAndFoldersSettingsView.openFolder"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

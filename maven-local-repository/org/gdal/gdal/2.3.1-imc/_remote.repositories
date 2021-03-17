@@ -1,0 +1,4 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon Sep 17 16:47:08 CEST 2018
+gdal-2.3.1-imc.jar>=
+gdal-2.3.1-imc.pom>=

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.tools.view.PhotoDataView"
+      style="-fx-pref-width: 26em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.tools.ToolsView.photoData"/>
+
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="parameterNameColumn"
+                         text="%com.intel.missioncontrol.ui.tools.UavDataView.table.caption.parameter.name"/>
+            <TableColumn fx:id="parameterValueColumn"
+                         text="%com.intel.missioncontrol.ui.tools.UavDataView.table.caption.parameter.value"/>
+        </columns>
+    </TableView>
+
+</VBox>

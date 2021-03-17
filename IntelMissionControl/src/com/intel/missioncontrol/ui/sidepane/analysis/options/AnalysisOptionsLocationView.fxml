@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AdornerSplitView fx:id="layoutRoot" xmlns:fx="http://javafx.com/fxml"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.options.AnalysisOptionsLocationView"
+                  styleClass="content">
+<VBox>
+    <VBox styleClass="form-row, icon-rtk">
+        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.locationOfRtkBase"/>
+
+        <VBox styleClass="normal-spacing">
+            <fx:define>
+                <ToggleGroup fx:id="rtkLocationGroup"/>
+            </fx:define>
+
+            <RadioButton fx:id="rbtnRtkAssumedLocation"
+                         text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.rbtnRtkAssumedLocation"
+                         toggleGroup="$rtkLocationGroup" userData="ASSUMED"
+                         AdornerSplitView.styleClass="flat-icon-button, icon-warning-minor"
+                         AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.imgRtkLocationWarning"/>
+
+            <RadioButton fx:id="rbtnRtkManualLocation"
+                         text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.rbtnRtkManualLocation"
+                         toggleGroup="$rtkLocationGroup" userData="MANUAL"/>
+        </VBox>
+    </VBox>
+
+    <VBox styleClass="form-row, label-value">
+        <Label text="%generalSettingsView.spatialReferenceLabel"/>
+        <HBox styleClass="normal-spacing" alignment="CENTER_LEFT">
+            <Label fx:id="lblSrs" styleClass="label-bold"/>
+            <Hyperlink fx:id="lnkChangeSrs" onAction="#changeSrs"
+                       text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lnkChangeSrs"/>
+        </HBox>
+    </VBox>
+
+    <VBox fx:id="assumedLocationBox" visible="false">
+        <Label fx:id="lblAssumedLocationAverage" visible="false"/>
+
+        <HBox styleClass="form-row, summary" style="-fx-spacing:0.5em !important;" maxWidth="Infinity">
+            <VBox styleClass="label-value">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lat"/>
+                <Label fx:id="lblLatitude" styleClass="label-bold"/>
+            </VBox>
+
+            <VBox styleClass="label-value">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lon"/>
+                <Label fx:id="lblLongitude" styleClass="label-bold"/>
+            </VBox>
+
+            <VBox styleClass="label-value">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.alt"/>
+                <Label fx:id="lblAltitude" styleClass="label-bold"/>
+            </VBox>
+        </HBox>
+
+        <VBox styleClass="form-row">
+            <HBox styleClass="wide-spacing">
+                <Button fx:id="btnShowOnMap" onAction="#showOnMap"
+                        styleClass="secondary-button, iconized, icon-show-on-map">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.btnShowOnMap"/>
+                    </tooltip>
+                </Button>
+
+                <Button fx:id="btnConfirmCorrectLocation" onAction="#confirmCorrectLocation"
+                        styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.btnConfirmCorrectLocation"/>
+
+                <Label fx:id="undoConfirmRtkLocationBox" visible="false"
+                       styleClass="label-bold, iconized, icon-complete"
+                       text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.locationCorrect"/>
+
+
+                <Button fx:id="btnUndoConfirmRtkLocation" visible="false" onAction="#undoConfirmRtkLocation"
+                        styleClass="secondary-button, iconized, icon-rotation-right"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lnkUndoConfirmRtkLocation"/>
+            </HBox>
+        </VBox>
+    </VBox>
+    <VBox fx:id="manualLocationBox" visible="false">
+
+
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.rtkBaseLocation"/>
+            <ComboBox fx:id="rtkBaseLocationsCombo" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+        </VBox>
+        <VBox styleClass="skip-label, form-row">
+            <Button fx:id="btnUseAssumedLocation" styleClass="secondary-button"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.btnUseAssumedLocation"
+                    onAction="#useAssumedLocation"/>
+        </VBox>
+
+        <VBox style="-fx-padding:0 0 1em;">
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lat"/>
+
+                <AutoCommitSpinner fx:id="latitudeSpinner" editable="true"
+                                   maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.lon"/>
+
+                <AutoCommitSpinner fx:id="longitudeSpinner" editable="true"
+                                   maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.alt"/>
+                <AutoCommitSpinner fx:id="altitudeSpinner" editable="true" maxWidth="Infinity"/>
+            </VBox>
+            <VBox styleClass="form-row">
+                <Button fx:id="btnShowOnMapManual" onAction="#showOnMap"
+                        styleClass="secondary-button, iconized, icon-show-on-map"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.btnShowOnMap"/>
+            </VBox>
+        </VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.geoidOffsetSpinner"/>
+            <AutoCommitSpinner fx:id="geoidOffsetSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.antennaHeightSpinner"/>
+            <AutoCommitSpinner fx:id="antennaHeightSpinner" editable="true" maxWidth="Infinity"/>
+        </VBox>
+
+
+        <VBox styleClass="form-row">
+            <Button fx:id="btnSaveLocation" styleClass="secondary-button" onAction="#saveLocation"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsLocationView.btnSaveLocation"/>
+        </VBox>
+
+    </VBox>
+</VBox>
+</AdornerSplitView>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/dependencyLibs/AndroidCompat/AndroidCompat.iml" filepath="$PROJECT_DIR$/dependencyLibs/AndroidCompat/AndroidCompat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ClientLib/ClientLib.iml" filepath="$PROJECT_DIR$/ClientLib/ClientLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DroneKit.iml" filepath="$PROJECT_DIR$/DroneKit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/dependencyLibs/Mavlink/Mavlink.iml" filepath="$PROJECT_DIR$/dependencyLibs/Mavlink/Mavlink.iml" />
+      <module fileurl="file://$PROJECT_DIR$/samples/DesktopApp/SampleApp.iml" filepath="$PROJECT_DIR$/samples/DesktopApp/SampleApp.iml" />
+    </modules>
+  </component>
+</project>

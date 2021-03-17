@@ -1,0 +1,78 @@
+
+.connection-menu-button-connected {
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_dot(fill=theme-green).svg");
+    -fx-background-size: 1em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: 90%;
+}
+
+.connection-menu-button-connected-warning {
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_warning(fill=theme-warning-color).svg"), url("/com/intel/missioncontrol/icons/icon_dot(fill=theme-green).svg");
+    -fx-background-position: 80%, 90%;
+}
+
+#refreshButton, .refresh-button, .refresh-button:disabled {
+    -fx-background-color: transparent;
+    -fx-border-color: inherit;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 1.8em;
+    -fx-min-width: 1.8em;
+    -fx-max-width: 1.8em;
+}
+
+/**
+ Log file player section
+*/
+
+#logPlayerBack{
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_logplayer-back.svg');
+}
+
+#logPlayerPlay {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_logplayer-play.svg');
+}
+
+#logPlayerPause {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_logplayer-pause.svg');
+}
+
+#logPlayerFwd {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_logplayer-fwd.svg');
+}
+
+#logPlayerBack, #logPlayerPlay, #logPlayerPause,#logPlayerFwd {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: 1.35em;
+}
+
+.log-file-player-section-container {
+    -fx-background-color: theme-navbar-section-background-color;
+}
+
+/*Set custom thumb color for slider*/
+
+.simulation-component-padding .slider .axis{
+    -fx-tick-label-font-size: 1em;
+}
+
+.simulation-component-padding .slider .thumb, .simulation-component-padding .slider:focused .thumb {
+    -fx-background-color: theme-slider-thumb-background-color;
+}
+
+.simulation-component-padding .slider:hover .thumb {
+    -fx-background-color: theme-slider-thumb-background-hover-color;
+}
+
+.simulation-component-padding .slider:pressed .thumb {
+    -fx-background-color: theme-slider-thumb-background-pressed-color;
+}
+
+.simulation-component-padding .slider:disabled .thumb {
+    -fx-background-color: theme-slider-thumb-background-disabled-color;
+}
+
+.simulation-component-padding .slider .track {
+    -fx-background-color: theme-slider-background-color;
+}

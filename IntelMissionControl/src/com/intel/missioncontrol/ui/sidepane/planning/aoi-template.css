@@ -1,0 +1,117 @@
+#headerLabels {
+    -fx-font-weight: bold;
+    -fx-font-size: 1.33em;
+    -fx-text-fill: theme-label-text-color;
+    -fx-padding: 0 0 0.5em 0;
+}
+
+.aoi {
+    -fx-pref-width: 26em;
+    -fx-min-height: 3em;
+    -fx-font-weight: normal !important;
+    -fx-text-fill: theme-first-aoi-text-color;
+    -fx-font-size: 1.33em;
+    -fx-padding: 0 1em 0 3.1em;
+    -fx-background-size: 2.66em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: left;
+}
+
+.aoi:hover {
+    -fx-background-color: theme-first-aoi-background-hover-color;
+    -fx-text-fill: theme-first-aoi-hover-text-color;
+}
+
+.POLYGON,
+#POLYGON_Planning .label{
+   -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-polygon.svg");
+}
+
+.CORRIDOR,
+#CORRIDOR_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-corridor.svg");
+}
+
+.SEARCH,
+#SEARCH_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-search.svg");
+}
+.SPIRAL,
+#SPIRAL_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-spiral.svg");
+}
+
+.CITY,
+#CITY_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-city.svg");
+}
+
+.COPTER3D,
+#COPTER3D_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-copter3D.svg");
+}
+
+.BUILDING,
+#BUILDING_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-building.svg");
+}
+
+.TOWER,
+#TOWER_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-tower.svg");
+}
+
+.WINDMILL,
+#WINDMILL_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-windmill.svg");
+}
+
+.FACADE,
+#FACADE_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-facade.svg");
+}
+
+.NO_FLY_ZONE_POLY,
+.NO_FLY_ZONE_CIRC,
+#NO_FLY_ZONE_CIRC_Planning .label,
+#NO_FLY_ZONE_POLY_Planning .label {
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-restricted.svg");
+}
+.GEOFENCE_POLY,
+.GEOFENCE_CIRC,
+#GEOFENCE_POLY_Planning .label,
+#GEOFENCE_CIRC_Planning .label {
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-geofence.svg");
+}
+
+.TARGET_POINTS,
+#TARGET_POINTS .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-add-manual.svg");
+}
+
+.MANUAL,
+#MANUAL_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-add-manual.svg");
+}
+.POINT_OF_INTEREST,
+#POINT_OF_INTEREST_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-poi.svg");
+}
+.PANORAMA,
+#PANORAMA_Planning .label{
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_plan_tool-panorama.svg");
+}
+
+
+
+
+
+
+
+.templateEditContent {
+    -fx-background-color: theme-flightplan-template-background-color;
+}
+
+.templateEditContent .titled-pane, .templateEditContent .titled-pane > .title, .templateEditContent .titled-pane > *.content {
+    -fx-background-color: inherit;
+}

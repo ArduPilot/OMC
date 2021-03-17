@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.planning.summary.FlightplanSummaryView"
+      fx:id="layoutRoot" styleClass="unpad">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/icons.css"/>
+    </stylesheets>
+    <HBox styleClass="summary, form-row, icon-plan">
+        <VBox styleClass="label-value">
+            <Label text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.timeToFly" />
+            <Label fx:id="flightTimeLabel" styleClass="label-bold"/>
+        </VBox>
+        <VBox styleClass="label-value">
+            <Label text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.distance"
+                   styleClass="label-regular"/>
+            <Label fx:id="distanceLabel" styleClass="label-bold" />
+        </VBox>
+        <VBox styleClass="label-value">
+            <Label text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.images"/>
+            <HBox>
+                <Button fx:id="imageCountLabel" mnemonicParsing="false"
+                        styleClass="flat-button, icon-pencil, label-bold"
+                        style="-fx-background-position: right center; -fx-background-size: 1.33em; -fx-text-alignment:left; -fx-padding: -0.3em 1.4em 0 0;">
+                    <tooltip>
+                        <Tooltip
+                                text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.openDialog.toolTip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </HBox>
+    <GridPane styleClass="form-row" fx:id="coverageBox">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="33.3333" hgrow="ALWAYS"/>
+            <ColumnConstraints percentWidth="33.3333" hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS"
+               maxWidth="Infinity" text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.coverage"
+               style="-fx-text-fill: theme-table-header-text-color;"/>
+        <Label GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"
+               maxWidth="Infinity" text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.total"
+               style="-fx-text-fill: theme-table-header-text-color;"/>
+        <Label GridPane.rowIndex="0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS"
+               maxWidth="Infinity" text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.pctAOI"
+               style="-fx-text-fill: theme-table-header-text-color;"/>
+
+        <Region GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS"
+                maxWidth="Infinity"
+                style="-fx-pref-height: 2; -fx-background-color: theme-separator-color"/>
+
+        <Label GridPane.rowIndex="2" GridPane.columnIndex="0"
+               text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.trueOrtho"/>
+        <Label GridPane.rowIndex="3" GridPane.columnIndex="0"
+               text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.pseudoOrtho"/>
+
+        <Label fx:id="trueOrthoAreaLabel" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="label-bold"/>
+        <Label fx:id="pseudoOrthoAreaLabel" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="label-bold"/>
+
+        <StackPane GridPane.rowIndex="2" GridPane.columnIndex="2"
+                   GridPane.hgrow="ALWAYS" maxWidth="Infinity" fx:id="trueOrthoProgress" style="-fx-padding:0.25em 0;">
+            <ProgressBar fx:id="trueOrthoProgressBar" style="-fx-pref-height:1.6em;"/>
+            <Label fx:id="trueOrthoProgressBarLabel"/>
+        </StackPane>
+        <StackPane GridPane.rowIndex="3" GridPane.columnIndex="2"
+                   GridPane.hgrow="ALWAYS" maxWidth="Infinity" fx:id="pseudoOrthoProgress"
+                   style="-fx-padding:0.25em 0;">
+            <ProgressBar fx:id="pseudoOrthoProgressBar" style="-fx-pref-height:1.6em;"/>
+            <Label fx:id="pseudoOrthoProgressBarLabel"/>
+        </StackPane>
+    </GridPane>
+</VBox>

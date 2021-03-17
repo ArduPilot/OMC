@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="MAVinciPaths">
+	
+	<dirname property="path.root.norm" file="../javaBuild"/><!-- dirname removes the last part of the path -->
+	
+	<property name="path.buildSysten" value="${path.root.norm}/../../../buildSystem"/>
+	<!--<property name="path.build" value="${path.root.norm}/javaBuild"/>
+	<property name="path.airspace" value="${path.root.norm}/MAVinciAirspaces"/>
+	<property name="path.core" value="${path.root.norm}/MAVinciDesktopCore"/>
+	<property name="path.base" value="${path.root.norm}/MAVinciDesktopBase"/>
+	<property name="path.wwj" value="${path.root.norm}/WorldWindJava"/>
+	<property name="path.joglUtil" value="${path.root.norm}/joglUtil"/>
+	<property name="path.swingUtils" value="${path.root.norm}/MAVinciSwingUtils"/>
+	<property name="path.ftp4j" value="${path.root.norm}/ftp4j"/>
+	<property name="path.licenceMangager" value="${path.root.norm}/MAVinciLicenceManager"/>
+	<property name="path.win" value="${path.root.norm}/MAVinciDesktopWin"/>
+	-->
+	<property name="path.imc" value="${path.root.norm}/OpenMissionControl"/>
+	<property name="path.mnfy.dir" value="${path.buildSysten}/tools"/>
+	
+	
+	
+	
+	
+	<!--<property name="ftp4j.jar" value="${path.ftp4j}/ftp4j-1.7.2.m1.jar"/>
+	<property name="jsch.jar" value="${path.base}/lib/jsch-0.1.51.jar"/>
+	<property name="jssc.jar" value="${path.base}/lib/jssc-2.8.0.jar"/>
+	<property name="jna.jar" value="${path.base}/lib/jna-4.2.2.jar"/>
+	<property name="jnaerator.jar" value="${path.base}/lib/jnaerator-runtime-0.13-SNAPSHOT.jar"/>
+	<property name="gson.jar" value="${path.base}/lib/gson-2.8.0.jar"/>
+		
+	<property name="controlsfx.jar" value="${path.base}/lib/controlsfx.jar"/>
+	<property name="jinput.jar" value="${path.base}/lib/jinput.jar"/>
+	<property name="pdfbox.jar" value="${path.base}/lib/pdfbox-app-1.8.10_withoutBC.jar"/>
+
+	<property name="jsr.jar" value="${path.core}/lib/jsr305-3.0.2.jar"/>
+	-->
+	<!-- ROSS bag parsing -->
+	<!--<property name="bag.jar" value="${path.base}/lib/bag-reader-java-1.6.jar"/>
+	<property name="common-compress.jar" value="${path.base}/lib/commons-compress-1.10.jar"/>
+	<property name="guava.jar" value="${path.base}/lib/guava-18.0.jar"/>
+	<property name="jackson-databind.jar" value="${path.base}/lib/jackson-databind-2.6.5.jar"/>
+	<property name="lz4.jar" value="${path.base}/lib/lz4-1.4.0.jar"/>
+	<property name="slf4j.jar" value="${path.base}/lib/slf4j-api-1.7.16.jar"/>
+	-->
+	<!-- <property name="debugOn" value="on"/> -->
+	
+	<!--
+	<condition property="debug.proguard" value="-dontobfuscate
+		-dontoptimize
+		-renamesourcefileattribute SourceFile
+		-keepattributes Exceptions,InnerClasses,Signature,Deprecated,
+		                SourceFile,LineNumberTable,*Annotation*,EnclosingMethod" else="">
+		<equals arg1="${debugOn}" arg2="on"/>
+	</condition>
+	<condition property="debug.javac.debug" value="true" else="false">
+		<equals arg1="${debugOn}" arg2="on"/>
+	</condition>
+	<condition property="debug.javac.debuglevel" value="lines,vars,source" else="">
+		<equals arg1="${debugOn}" arg2="on"/>
+	</condition>
+	
+	
+	<macrodef name="svnrevert">
+	   	<attribute name="file"/>
+		<sequential>
+   			<echo>reverting file @{file}</echo>
+		   	<exec executable="svn" failonerror="true">
+				<arg value="revert"/>
+				<arg value="@{file}"/>
+			</exec>	
+	   	</sequential>
+	</macrodef>
+	-->
+	
+	
+	<macrodef name="pyObfuscate">
+	   	<attribute name="file"/>
+		<sequential>
+
+			<echo>python3 ${path.mnfy.dir}/mnfy.py @{file}</echo>
+			<exec executable="python3" failonerror="true" output="@{file}.pyObfus">
+				<arg value="${path.mnfy.dir}/mnfy.py"/>
+				<arg value="@{file}"/>
+			</exec>
+			<move file="@{file}.pyObfus" tofile="@{file}"/>
+	   	</sequential>
+	</macrodef>
+	
+	
+</project>

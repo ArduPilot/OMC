@@ -1,0 +1,27 @@
+.progress-bar > .track  {
+   -fx-background-color: transparent ;
+   -fx-control-inner-background: transparent;
+   -fx-text-box-border: theme-white-hover;
+}
+
+.progress_back {
+    -fx-min-height: 1em;
+    -fx-max-height: 1em;
+    -fx-pref-height: 1em;
+}
+
+.progress_back > .bar {
+    -fx-background-color: theme-gray-BB;
+    -fx-background-insets: 0;
+}
+
+.progress_front {
+    -fx-min-height: 1em;
+    -fx-max-height: 1em;
+    -fx-pref-height: 1em;
+}
+
+.progress_front > .bar {
+    -fx-background-color: theme-digital-blue;
+    -fx-background-insets: 0;
+}

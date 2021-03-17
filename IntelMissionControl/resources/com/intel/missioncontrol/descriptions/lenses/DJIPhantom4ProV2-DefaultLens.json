@@ -1,0 +1,10 @@
+{
+  "id": "DJIPhantom4ProV2-DefaultLens",
+  "name": "24 mm equivalent (integrated)",
+  "focalLength": 8.8,
+  "maxTimeVariation": 2.1,
+  "minRepTime": 1.0,
+  "isManual": false,
+  "lensType": "STANDARD",
+  "description": ""
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" VBox.vgrow="ALWAYS"
+      fx:controller="com.intel.missioncontrol.ui.navbar.connection.view.ExternalUdpSectionView">
+    <TitledPane
+            text="%com.intel.missioncontrol.ui.connection.view.ExternalUdpSectionView.connectionSetup">
+        <VBox fx:id="portSettings" styleClass="wide-padding, wide-spacing">
+            <Label fx:id="title"
+                   text="%com.intel.missioncontrol.ui.connection.view.ExternalUdpSectionView.title" styleClass="label-bold"/>
+            <VBox styleClass="form-row">
+                <Label fx:id="portLabel"
+                       text="%com.intel.missioncontrol.ui.connection.view.ExternalUdpSectionView.udpPort"/>
+                <AutoCommitSpinner fx:id="portSpinner" editable="true" prefWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </TitledPane>
+    <fx:include source="RtkStatisticsView.fxml"/>
+</VBox>

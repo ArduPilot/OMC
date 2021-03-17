@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="layoutRoot" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intel.missioncontrol.splashscreen.SplashScreenView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/splashscreen/SplashScreenView.css"/>
+    </stylesheets>
+    <ProgressBar fx:id="progressBar" progress="0"
+                 AnchorPane.leftAnchor="36" AnchorPane.rightAnchor="36" AnchorPane.bottomAnchor="12" />
+    <Label fx:id="versionLabel" text="v1.0" textAlignment="CENTER" alignment="CENTER"
+           AnchorPane.leftAnchor="0" AnchorPane.bottomAnchor="10" AnchorPane.rightAnchor="0"/>
+</AnchorPane>
