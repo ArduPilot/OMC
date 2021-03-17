@@ -11,7 +11,6 @@ import com.intel.missioncontrol.drone.connection.MavlinkDroneConnection;
 import com.intel.missioncontrol.drone.connection.mavlink.IMavlinkParameter;
 import com.intel.missioncontrol.drone.connection.mavlink.Parameter;
 import com.intel.missioncontrol.drone.connection.mavlink.StatusTextFilter;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IMavlinkFlightPlanOptions;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.mission.FlightPlan;
@@ -21,10 +20,9 @@ import io.dronefleet.mavlink.common.MavAutopilot;
 import io.dronefleet.mavlink.common.MavLandedState;
 import io.dronefleet.mavlink.common.MavModeFlag;
 import io.dronefleet.mavlink.common.MavType;
+import io.dronefleet.mavlink.common.StorageInformation;
 import io.dronefleet.mavlink.util.EnumValue;
-import java.math.BigInteger;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,13 +57,12 @@ public class PX4Drone extends MavlinkDrone {
                 .initialValue(MavLandedState.MAV_LANDED_STATE_UNDEFINED)
                 .create());
 
-    PX4Drone(MavlinkDroneConnection droneConnection, IHardwareConfiguration hardwareConfiguration) {
-        super(droneConnection, hardwareConfiguration);
+    private PX4Drone(MavlinkDroneConnection droneConnection, IPlatformDescription platformDescription) {
+        super(droneConnection, platformDescription);
     }
 
-    public static PX4Drone create(
-            MavlinkDroneConnection droneConnection, IHardwareConfiguration hardwareConfiguration) {
-        PX4Drone drone = new PX4Drone(droneConnection, hardwareConfiguration);
+    public static PX4Drone create(MavlinkDroneConnection droneConnection, IPlatformDescription platformDescription) {
+        PX4Drone drone = new PX4Drone(droneConnection, platformDescription);
         drone.initializeBindings();
         return drone;
     }
@@ -90,6 +87,15 @@ public class PX4Drone extends MavlinkDrone {
                         px4CustomModeOld.set(false);
                         raiseDroneConnectionExceptionEvent(
                             new DroneConnectionException(Heartbeat.class, true, "Invalid autopilot type"));
+                    }
+
+                    if (heartbeat.type().entry() != MavType.MAV_TYPE_QUADROTOR
+                            && heartbeat.type().entry() != MavType.MAV_TYPE_HEXAROTOR
+                            && heartbeat.type().entry() != MavType.MAV_TYPE_OCTOROTOR) {
+                        px4CustomMode.set(PX4CustomMode.UNDEFINED);
+                        px4CustomModeOld.set(false);
+                        raiseDroneConnectionExceptionEvent(
+                            new DroneConnectionException(Heartbeat.class, true, "Invalid vehicle type"));
                     }
 
                     EnumValue<MavModeFlag> baseMode = heartbeat.baseMode();
@@ -138,27 +144,30 @@ public class PX4Drone extends MavlinkDrone {
             .whenFailed(e -> getHealth().calibrationStatusProperty().set(IHealth.CalibrationStatus.UNKNOWN));
 
         // StorageStatus:
-        // updated once after connecting
+        // TODO update interval
         droneConnection
-            .getCommandProtocolSender()
-            .requestStorageInformationAsync()
-            .whenSucceeded(
-                storageInformation -> {
+            .getTelemetryReceiver()
+            .periodicallyRequestStorageInformationAsync(
+                Duration.ofSeconds(1),
+                payload -> {
+                    StorageInformation storageInformation = payload.getPayload();
                     Storage.Status storageStatus;
                     double availableCapacityMiB = 0.0;
-                    double totalCapacityMiB = 0.0;
                     if (storageInformation.storageCount() == 0) {
                         storageStatus = Storage.Status.NO_STORAGE_DEVICE;
                     } else {
                         storageStatus = Storage.Status.OK;
                         availableCapacityMiB = storageInformation.availableCapacity();
-                        totalCapacityMiB = storageInformation.totalCapacity();
                     }
 
                     Storage storage = getStorage();
                     storage.statusProperty().set(storageStatus);
                     storage.availableSpaceMiBProperty().set(availableCapacityMiB);
-                    storage.totalSpaceMiBProperty().set(totalCapacityMiB);
+                },
+                // timeout:
+                () -> {
+                    getStorage().statusProperty().set(Storage.Status.UNKNOWN);
+                    getStorage().availableSpaceMiBProperty().set(Double.NaN);
                 })
             .whenFailed(
                 e -> {
@@ -169,33 +178,6 @@ public class PX4Drone extends MavlinkDrone {
                     } else {
                         LOGGER.info("requestStorageInformation error:", e);
                         getStorage().statusProperty().set(Storage.Status.STORAGE_DEVICE_ERROR);
-                    }
-                });
-    }
-
-    @Override
-    protected Future<Instant> requestFlightStartTimeAsync() {
-        return droneConnection
-            .getCommandProtocolSender()
-            .requestFlightInformationAsync()
-            .thenApply(
-                flightInformation -> {
-                    if (flightInformation.takeoffTimeUtc().intValue() == 0) {
-                        return null;
-                    } else {
-                        // FlightInformation is marked as subject to change in mavlink docs, and definition does not
-                        // match results with PX4 implementation as of 03/2019.
-                        long dt =
-                            BigInteger.valueOf(flightInformation.timeBootMs())
-                                .subtract(flightInformation.takeoffTimeUtc())
-                                .longValue();
-
-                        //flight duration:
-                        Duration d = dt >= 0 ? Duration.ofMillis(dt) : null;
-                        if (d == null) {
-                            return null;
-                        }
-                        return Instant.now().minus(d);
                     }
                 });
     }
@@ -289,7 +271,7 @@ public class PX4Drone extends MavlinkDrone {
                 "createAutopilotParameterList must be called from UI thread because of FlightPlan access");
         }
 
-        IPlatformDescription platformDesc = hardwareConfigurationProperty().get().getPlatformDescription();
+        IPlatformDescription platformDesc = platformDescriptionProperty().get();
         if (!platformDesc.areEmergencyActionsSettable()) {
             LOGGER.info("Platform " + platformDesc.getName() + " does not allow setting PX4 emergency parameters");
             return Collections.emptyList();
@@ -347,9 +329,6 @@ public class PX4Drone extends MavlinkDrone {
 
         return params;
     }
-
-    @Override
-    protected void applyFlightPlanInitialSettings(MavlinkFlightPlan mavlinkFlightPlan) {}
 
     @Override
     protected Future<Boolean> evaluateMessageAsync(DroneMessage message) {

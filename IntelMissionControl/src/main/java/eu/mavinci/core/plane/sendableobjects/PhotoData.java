@@ -41,7 +41,7 @@ public class PhotoData extends MObject {
     public float plane_yaw = (float)0.0;
 
     /** Altitude above starting point in cm. */
-    public double alt = 0;
+    public float alt = 0;
 
     /** Latitude of last GPS fix. */
     public double lat = 0.0F;

@@ -23,7 +23,7 @@ public enum FlightSegment implements IKeepAll {
     /** Hold without any active task */
     HOLD,
 
-    /** Running a mission */
+    /** Running a flight plan */
     PLAN_RUNNING,
 
     /** Returning to home position" */

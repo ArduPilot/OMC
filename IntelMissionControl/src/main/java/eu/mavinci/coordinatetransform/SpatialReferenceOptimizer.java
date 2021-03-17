@@ -6,25 +6,26 @@
 
 package eu.mavinci.coordinatetransform;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.coordinatetransform.MapProjection.ProjectionType;
 import eu.mavinci.desktop.helper.gdal.ISrsManager;
 import eu.mavinci.desktop.helper.gdal.SrsManager;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.gdal.osr.SpatialReference;
+
 import java.util.Comparator;
 import java.util.Random;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.optim.PointValuePair;
-import org.gdal.osr.SpatialReference;
 
 public class SpatialReferenceOptimizer {
     static int optimizerActualNo;
-    private final ISrsManager srsManager = StaticInjector.getInstance(ISrsManager.class);
+    private final ISrsManager srsManager = DependencyInjector.getInstance().getInstanceOf(ISrsManager.class);
 
     /*
      * Try all epsg systems first before using full automatic optimizer.

@@ -28,7 +28,6 @@ import de.saxsys.mvvmfx.utils.commands.AsyncCommand;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.commands.FutureCommand;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
@@ -97,17 +96,11 @@ public class ConnectDroneViewModel extends ViewModelBase {
         availableConnectionItems.addListener(
             (Observable o) -> {
                 var items = availableConnectionItems.get();
-                if (selectedConnectionItem.get() == null && items.size() > 0) {
+                if (items.size() > 0) {
                     selectedConnectionItem.set(items.get(0));
-                } else {
-                    if (items.contains(selectedConnectionItem.get())) {
-                        int i = items.indexOf(selectedConnectionItem.get());
-                        selectedConnectionItem.set(null); // to refresh list non offline <=> (OFFLINE)
-                        selectedConnectionItem.set(items.get(i));
-                    }
                 }
             },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         renameMissionCommand = new DelegateCommand(applicationContext::renameCurrentMission);
 
@@ -159,7 +152,7 @@ public class ConnectDroneViewModel extends ViewModelBase {
                         change.getRemoved().forEach(this::onConnectionItemDisconnected);
                     }
                 },
-                Dispatcher.background()::run);
+                Dispatcher.background());
     }
 
     private void onConnectionItemConnected(IReadOnlyConnectionItem connectionItem) {
@@ -174,27 +167,28 @@ public class ConnectDroneViewModel extends ViewModelBase {
                     Toast.of(ToastType.INFO)
                         .setText(
                             languageHelper.getString(
-                                ConnectDroneViewModel.class, "connectedTo", connectionItem.getName()));
+                                ConnectDroneViewModel.class, "connectedTo", connectionItem.getName()))
+                        ;
 
                 if (navigationService.getSidePanePage() != SidePanePage.FLY_DRONE) {
                     // TODO if eG dataset pane => dont switch automatically
                     toastBuilder
                         .setTimeout(Toast.LONG_TIMEOUT)
                         .setAction(
-                            languageHelper.getString(ConnectDroneViewModel.class, "gotoFlightTab"),
-                            false,
-                            true,
-                            () -> {
-                                // TODO: select newly connected drone first.
-                                if (selectedConnectionItem.get() == null) {
-                                    selectedConnectionItem.setValue(connectionItem);
-                                }
+                        languageHelper.getString(ConnectDroneViewModel.class, "gotoFlightTab"),
+                        false,
+                        true,
+                        () -> {
+                            // TODO: select newly connected drone first.
+                            if (selectedConnectionItem.get() == null) {
+                                selectedConnectionItem.setValue(connectionItem);
+                            }
 
-                                if (navigationService.getSidePanePage() == SidePanePage.START_PLANNING) {
-                                    navigationService.navigateTo(SidePanePage.FLY_DRONE);
-                                }
-                            },
-                            Dispatcher.platform()::run);
+                            if (navigationService.getSidePanePage() == SidePanePage.START_PLANNING) {
+                                navigationService.navigateTo(SidePanePage.FLY_DRONE);
+                            }
+                        },
+                        Dispatcher.platform());
                 }
 
                 Toast toast = toastBuilder.create();
@@ -258,11 +252,7 @@ public class ConnectDroneViewModel extends ViewModelBase {
                             String errorMessage =
                                 (ex instanceof TimeoutException)
                                     ? languageHelper.getString(ConnectDroneViewModel.class, "timeout")
-                                    : ex instanceof ExecutionException ? ex.getCause().getMessage() : ex.getMessage();
-
-                            if (errorMessage == null) {
-                                errorMessage = ex.getClass().getSimpleName();
-                            }
+                                    : ex.getMessage();
 
                             Toast toast =
                                 Toast.of(ToastType.ALERT)

@@ -8,36 +8,30 @@ package com.intel.missioncontrol.measure.property;
 
 import com.intel.missioncontrol.measure.Quantity;
 import com.intel.missioncontrol.measure.UnitInfo;
+import java.util.concurrent.Executor;
+import org.asyncfx.Optional;
 import org.asyncfx.beans.property.AsyncProperty;
 import org.asyncfx.beans.property.ConsistencyGroup;
 import org.asyncfx.beans.property.PropertyMetadata;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationContext;
 
 public class QuantityPropertyMetadata<Q extends Quantity<Q>> extends PropertyMetadata<Quantity<Q>> {
 
     public static class Builder<V extends Quantity<V>> {
-        private String name;
-        private boolean hasName;
-        private boolean customBean;
-        private boolean hasCustomBean;
-        private Dispatcher dispatcher;
-        private boolean hasDispatcher;
-        private V initialValue;
-        private boolean hasInitialValue;
-        private ConsistencyGroup consistencyGroup;
-        private boolean hasConsistencyGroup;
-        private IQuantityStyleProvider quantityStyleProvider;
-        private boolean hasQuantityStyleProvider;
-        private UnitInfo<V> unitInfo;
-        private boolean hasUnitInfo;
+        private Optional<String> name = Optional.empty();
+        private Optional<Boolean> customBean = Optional.empty();
+        private Optional<Quantity<V>> initialValue = Optional.empty();
+        private Optional<ConsistencyGroup> consistencyGroup = Optional.empty();
+        private Optional<SynchronizationContext> synchronizationContext = Optional.empty();
+        private Optional<IQuantityStyleProvider> quantityStyleProvider = Optional.empty();
+        private Optional<UnitInfo<V>> unitInfo = Optional.empty();
 
         /**
          * The name of the property. If this value is not specified, the name of the property field will be
          * automatically detected at runtime. Generally, you should not manually specify the name.
          */
         public Builder<V> name(String name) {
-            this.name = name;
-            this.hasName = true;
+            this.name = Optional.of(name);
             return this;
         }
 
@@ -46,8 +40,12 @@ public class QuantityPropertyMetadata<Q extends Quantity<Q>> extends PropertyMet
          * {@link AsyncProperty#reset()}.
          */
         public Builder<V> initialValue(V value) {
-            this.initialValue = value;
-            this.hasInitialValue = true;
+            this.initialValue = Optional.of(value);
+            return this;
+        }
+
+        public Builder<V> consistencyGroup(ConsistencyGroup value) {
+            this.consistencyGroup = Optional.of(value);
             return this;
         }
 
@@ -55,9 +53,8 @@ public class QuantityPropertyMetadata<Q extends Quantity<Q>> extends PropertyMet
          * Specifies the synchronization context that is used when the property is bound to another property, or when
          * any of the -Async methods are called.
          */
-        public Builder<V> dispatcher(Dispatcher dispatcher) {
-            this.dispatcher = dispatcher;
-            this.hasDispatcher = true;
+        public Builder<V> synchronizationContext(SynchronizationContext synchronizationContext) {
+            this.synchronizationContext = Optional.of(synchronizationContext);
             return this;
         }
 
@@ -67,96 +64,56 @@ public class QuantityPropertyMetadata<Q extends Quantity<Q>> extends PropertyMet
          * automatic name detection will be disabled.
          */
         public Builder<V> customBean(boolean value) {
-            this.customBean = value;
-            this.hasCustomBean = true;
-            return this;
-        }
-
-        /**
-         * Adds this property to a consistency group. If a property is part of a consistency group, it can only be
-         * modified within a critical section. Modifications of multiple properties within a consistency group will
-         * appear as atomic operations to observers.
-         */
-        public Builder<V> consistencyGroup(ConsistencyGroup value) {
-            this.consistencyGroup = value;
-            this.hasConsistencyGroup = true;
+            this.customBean = Optional.of(value);
             return this;
         }
 
         public Builder<V> quantityStyleProvider(IQuantityStyleProvider quantityStyleProvider) {
-            this.quantityStyleProvider = quantityStyleProvider;
-            this.hasQuantityStyleProvider = true;
+            this.quantityStyleProvider = Optional.of(quantityStyleProvider);
             return this;
         }
 
         public Builder<V> unitInfo(UnitInfo<V> unitInfo) {
-            this.unitInfo = unitInfo;
-            this.hasUnitInfo = true;
+            this.unitInfo = Optional.of(unitInfo);
             return this;
         }
 
         public QuantityPropertyMetadata<V> create() {
             return new QuantityPropertyMetadata<V>(
                 name,
-                hasName,
                 customBean,
-                hasCustomBean,
                 initialValue,
-                hasInitialValue,
                 consistencyGroup,
-                hasConsistencyGroup,
-                dispatcher,
-                hasDispatcher,
+                synchronizationContext.isPresent() ? Optional.of(synchronizationContext.get()) : Optional.empty(),
+                synchronizationContext.isPresent() ? synchronizationContext.get()::hasAccess : null,
                 quantityStyleProvider,
-                hasQuantityStyleProvider,
-                unitInfo,
-                hasUnitInfo);
+                unitInfo);
         }
     }
 
-    final IQuantityStyleProvider quantityStyleProvider;
-    final boolean hasQuantityStyleProvider;
-    final UnitInfo<Q> unitInfo;
-    final boolean hasUnitInfo;
+    final Optional<IQuantityStyleProvider> quantityStyleProvider;
+    final Optional<UnitInfo<Q>> unitInfo;
 
     QuantityPropertyMetadata(
-            String name,
-            boolean hasName,
-            Boolean customBean,
-            boolean hasCustomBean,
-            Quantity<Q> initialValue,
-            boolean hasInitialValue,
-            ConsistencyGroup consistencyGroup,
-            boolean hasConsistencyGroup,
-            Dispatcher dispatcher,
-            boolean hasDispatcher,
-            IQuantityStyleProvider quantityStyleProvider,
-            boolean hasQuantityStyleProvider,
-            UnitInfo<Q> unitInfo,
-            boolean hasUnitInfo) {
-        super(
-            name,
-            hasName,
-            customBean,
-            hasCustomBean,
-            initialValue,
-            hasInitialValue,
-            consistencyGroup,
-            hasConsistencyGroup,
-            dispatcher,
-            hasDispatcher);
+            Optional<String> name,
+            Optional<Boolean> customBean,
+            Optional<Quantity<Q>> initialValue,
+            Optional<ConsistencyGroup> consistencyGroup,
+            Optional<Executor> executor,
+            HasAccessDelegate hasAccess,
+            Optional<IQuantityStyleProvider> quantityStyleProvider,
+            Optional<UnitInfo<Q>> unitInfo) {
+        super(name, customBean, initialValue, consistencyGroup, executor, hasAccess);
         this.quantityStyleProvider = quantityStyleProvider;
-        this.hasQuantityStyleProvider = hasQuantityStyleProvider;
         this.unitInfo = unitInfo;
-        this.hasUnitInfo = hasUnitInfo;
     }
 
     public IQuantityStyleProvider getQuantityStyleProvider() {
-        return quantityStyleProvider;
+        return quantityStyleProvider.orElse(null);
     }
 
     public UnitInfo<Q> getUnitInfo() {
-        return unitInfo;
+        return unitInfo.orElse(null);
     }
 
     @Override
@@ -167,51 +124,27 @@ public class QuantityPropertyMetadata<Q extends Quantity<Q>> extends PropertyMet
             QuantityPropertyMetadata<Q> quantityMetadata = (QuantityPropertyMetadata<Q>)metadata;
 
             return new QuantityPropertyMetadata<>(
-                Accessor.hasName(baseMetadata) ? Accessor.getName(baseMetadata) : Accessor.getName(this),
-                Accessor.hasName(baseMetadata) || Accessor.hasName(this),
-                Accessor.hasCustomBean(baseMetadata)
-                    ? Accessor.getCustomBean(baseMetadata)
-                    : Accessor.getCustomBean(this),
-                Accessor.hasCustomBean(baseMetadata) || Accessor.hasCustomBean(this),
-                Accessor.hasInitialValue(baseMetadata)
-                    ? Accessor.getInitialValue(baseMetadata)
-                    : Accessor.getInitialValue(this),
-                Accessor.hasInitialValue(baseMetadata) || Accessor.hasInitialValue(this),
-                Accessor.hasConsistencyGroup(baseMetadata)
-                    ? Accessor.getConsistencyGroup(baseMetadata)
-                    : Accessor.getConsistencyGroup(this),
-                Accessor.hasConsistencyGroup(baseMetadata) || Accessor.hasConsistencyGroup(this),
-                Accessor.hasDispatcher(baseMetadata)
-                    ? Accessor.getDispatcher(baseMetadata)
-                    : Accessor.getDispatcher(this),
-                Accessor.hasDispatcher(baseMetadata) || Accessor.hasDispatcher(this),
-                quantityMetadata.hasQuantityStyleProvider
+                PropertyMetadata.Accessor.getName(baseMetadata),
+                PropertyMetadata.Accessor.getCustomBean(baseMetadata),
+                PropertyMetadata.Accessor.getInitialValue(baseMetadata),
+                PropertyMetadata.Accessor.getConsistencyGroup(baseMetadata),
+                PropertyMetadata.Accessor.getExecutor(baseMetadata),
+                PropertyMetadata.Accessor.getHasAccess(baseMetadata),
+                quantityMetadata.quantityStyleProvider.isPresent()
                     ? quantityMetadata.quantityStyleProvider
                     : quantityStyleProvider,
-                quantityMetadata.hasQuantityStyleProvider || hasQuantityStyleProvider,
-                quantityMetadata.hasUnitInfo ? quantityMetadata.unitInfo : unitInfo,
-                quantityMetadata.hasUnitInfo || hasUnitInfo);
+                quantityMetadata.unitInfo.isPresent() ? quantityMetadata.unitInfo : unitInfo);
         }
 
         return new QuantityPropertyMetadata<>(
-            Accessor.hasName(baseMetadata) ? Accessor.getName(baseMetadata) : Accessor.getName(this),
-            Accessor.hasName(baseMetadata) || Accessor.hasName(this),
-            Accessor.hasCustomBean(baseMetadata) ? Accessor.getCustomBean(baseMetadata) : Accessor.getCustomBean(this),
-            Accessor.hasCustomBean(baseMetadata) || Accessor.hasCustomBean(this),
-            Accessor.hasInitialValue(baseMetadata)
-                ? Accessor.getInitialValue(baseMetadata)
-                : Accessor.getInitialValue(this),
-            Accessor.hasInitialValue(baseMetadata) || Accessor.hasInitialValue(this),
-            Accessor.hasConsistencyGroup(baseMetadata)
-                ? Accessor.getConsistencyGroup(baseMetadata)
-                : Accessor.getConsistencyGroup(this),
-            Accessor.hasConsistencyGroup(baseMetadata) || Accessor.hasConsistencyGroup(this),
-            Accessor.hasDispatcher(baseMetadata) ? Accessor.getDispatcher(baseMetadata) : Accessor.getDispatcher(this),
-            Accessor.hasDispatcher(baseMetadata) || Accessor.hasDispatcher(this),
+            PropertyMetadata.Accessor.getName(baseMetadata),
+            PropertyMetadata.Accessor.getCustomBean(baseMetadata),
+            PropertyMetadata.Accessor.getInitialValue(baseMetadata),
+            PropertyMetadata.Accessor.getConsistencyGroup(baseMetadata),
+            PropertyMetadata.Accessor.getExecutor(baseMetadata),
+            PropertyMetadata.Accessor.getHasAccess(baseMetadata),
             quantityStyleProvider,
-            hasQuantityStyleProvider,
-            unitInfo,
-            hasUnitInfo);
+            unitInfo);
     }
 
 }

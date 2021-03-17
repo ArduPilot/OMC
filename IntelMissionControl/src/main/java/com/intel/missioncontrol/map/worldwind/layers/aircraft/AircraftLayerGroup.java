@@ -9,13 +9,14 @@ package com.intel.missioncontrol.map.worldwind.layers.aircraft;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
+import org.asyncfx.beans.property.AsyncObjectProperty;
+import org.asyncfx.beans.property.AsyncProperty;
+import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import com.intel.missioncontrol.map.ILayer;
 import com.intel.missioncontrol.map.IMapModel;
 import com.intel.missioncontrol.map.LayerGroup;
 import com.intel.missioncontrol.map.LayerGroupType;
 import com.intel.missioncontrol.map.LayerName;
-import com.intel.missioncontrol.map.worldwind.IWWMapView;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.modules.MapModule;
@@ -40,40 +41,35 @@ import gov.nasa.worldwind.layers.Layer;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.binding.Bindings;
-import org.asyncfx.beans.property.AsyncObjectProperty;
-import org.asyncfx.beans.property.AsyncProperty;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
+import playground.liveview.ILiveVideoWidgetService;
 
 public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
 
     private final AsyncObjectProperty<Mission> currentMission = new SimpleAsyncObjectProperty<>(this);
     private final List<IMapLayer> legacyMapLayers = new ArrayList<>();
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final IMapModel mapModel;
-    private final IWWMapView mapView;
+    private final ILiveVideoWidgetService liveVideoWidgetService;
     private final AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings;
-    private final ILinkBoxConnectionService linkBoxConnectionService;
 
     @Inject
     public AircraftLayerGroup(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IMapModel mapModel,
-            IWWMapView mapView,
             IApplicationContext applicationContext,
             INavigationService navigationService,
             ILicenceManager licenceManager,
             GeneralSettings generalSettings,
             AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings,
-            ILinkBoxConnectionService linkBoxConnectionService) {
+            ILiveVideoWidgetService liveVideoWidgetService) {
         super(LayerGroupType.AIRCRAFT_GROUP);
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.mapModel = mapModel;
-        this.mapView = mapView;
+        this.liveVideoWidgetService = liveVideoWidgetService;
         this.aircraftLayerVisibilitySettings = aircraftLayerVisibilitySettings;
         this.currentMission.bind(applicationContext.currentMissionProperty());
-        this.linkBoxConnectionService = linkBoxConnectionService;
-        this.currentMission.addListener((observable, oldValue, newValue) -> revalidate(newValue), dispatcher::run);
+        this.currentMission.addListener((observable, oldValue, newValue) -> revalidate(newValue), syncRoot::runAsync);
         setName(new LayerName("%" + getClass().getName()));
 
         internalProperty()
@@ -86,18 +82,13 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
                     navigationService.workflowStepProperty(),
                     generalSettings.operationLevelProperty(),
                     licenceManager.isGrayHawkEditionProperty()));
-    }
 
-    private static ILayer createLayer(
-            Layer wwLayer, Dispatcher dispatcher, String name, AsyncProperty<Boolean> enabled) {
-        ILayer layer = new WWLayerWrapper(wwLayer, dispatcher);
-        layer.setName(new LayerName(name));
-        layer.enabledProperty().bindBidirectional(enabled);
-        return layer;
+        // the live video checkbox needs special treatment, because it is synchronous
+        aircraftLayerVisibilitySettings.liveVideoProperty().bindBidirectional(liveVideoWidgetService.isVisibleProperty());
     }
 
     private void revalidate(Mission mission) {
-        dispatcher.verifyAccess();
+        syncRoot.verifyAccess();
 
         legacyMapLayers.clear();
         subLayersProperty().clear();
@@ -124,49 +115,58 @@ public class AircraftLayerGroup extends LayerGroup implements IKeepClassname {
             .addAll(
                 createLayer(
                     new PlaneModelLayer(plane),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".model",
                     aircraftLayerVisibilitySettings.model3DProperty()),
                 createLayer(
                     new PlaneTextOverlayLayer(plane),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".text",
                     aircraftLayerVisibilitySettings.model3DProperty()),
                 createLayer(
-                    new TrackLayer(plane, mapView),
-                    dispatcher,
+                    new TrackLayer(plane),
+                    syncRoot,
                     prefix + ".track",
                     aircraftLayerVisibilitySettings.trackProperty()),
                 createLayer(
                     new StartingPosLayer(plane, mapModel),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".startingPos",
                     aircraftLayerVisibilitySettings.startingPositionProperty()),
                 createLayer(
                     new AssistedBoundingBoxLayer(plane),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".boundingBox",
                     aircraftLayerVisibilitySettings.boundingBoxProperty()),
                 createLayer(
                     pic.getWWLayer(),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".pics",
                     aircraftLayerVisibilitySettings.imageAreaPreviewProperty()),
                 createLayer(
                     cov.getWWLayer(),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".coverage",
                     aircraftLayerVisibilitySettings.coveragePreviewProperty()),
                 createLayer(
                     camView.getWWLayer(),
-                    dispatcher,
+                    syncRoot,
                     prefix + ".camView",
                     aircraftLayerVisibilitySettings.cameraFieldOfViewProperty()),
                 createLayer(
-                    new BackendLayer(linkBoxConnectionService),
-                    dispatcher,
+                    new BackendLayer(plane),
+                    syncRoot,
                     prefix + ".gcs",
                     aircraftLayerVisibilitySettings.groundStationProperty()));
+
+    }
+
+    private static ILayer createLayer(
+            Layer wwLayer, SynchronizationRoot syncRoot, String name, AsyncProperty<Boolean> enabled) {
+        ILayer layer = new WWLayerWrapper(wwLayer, syncRoot);
+        layer.setName(new LayerName(name));
+        layer.enabledProperty().bindBidirectional(enabled);
+        return layer;
     }
 
     public AircraftLayerVisibilitySettings getAircraftLayerVisibility() {

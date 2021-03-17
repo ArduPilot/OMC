@@ -13,15 +13,15 @@ import com.intel.missioncontrol.map.LayerDefaults;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
 import eu.mavinci.core.obfuscation.IKeepAll;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(name = "%com.intel.missioncontrol.map.worldwind.layers.grids.ContourLinesLayer", enabled = false)
 @PublishSource(module = "World Wind", licenses = "nasa-world-wind")
 public class ContourLinesLayer extends WWLayerWrapper implements IKeepAll {
 
     @Inject
-    ContourLinesLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new eu.mavinci.desktop.gui.doublepanel.planemain.wwd.ContourLinesLayer(), dispatcher);
+    ContourLinesLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new eu.mavinci.desktop.gui.doublepanel.planemain.wwd.ContourLinesLayer(), syncRoot);
     }
 
 }

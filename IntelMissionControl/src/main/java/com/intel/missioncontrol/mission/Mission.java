@@ -17,6 +17,7 @@ import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.MavinciObjectFactory;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.SrsSettings;
+import com.intel.missioncontrol.ui.sidepane.analysis.DatasetMenuModel;
 import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.CPicArea;
 import eu.mavinci.core.flightplan.visitors.ExtractPicAreasVisitor;
@@ -515,8 +516,8 @@ public class Mission implements Comparable<Mission>, ISectorReferenced {
 
         this.isLoaded = true;
 
-        // Use the legacy session class to read the missions.
-        // We also listen for change notifications of the legacy mission class
+        // Use the legacy session class to read the flight plans.
+        // We also listen for change notifications of the legacy flight plan class
         // to reflect those changes in the properties of the Mission class.
         //
         if (!flightPlans.isEmpty()) {
@@ -537,7 +538,7 @@ public class Mission implements Comparable<Mission>, ISectorReferenced {
                 if (matchings.isEmpty() && currentMatching.get() == null) {
                     Matching matching =
                         new Matching(
-                                getDirectoryFile().toPath(),
+                            languageHelper.toFriendlyName(DatasetMenuModel.MenuIds.NEW_DATASET),
                             hardwareConfigurationManager);
                     matchings.add(matching);
                     currentMatching.set(matching);

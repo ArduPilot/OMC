@@ -16,7 +16,6 @@ import eu.mavinci.core.flightplan.FMLReader.Tokens;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.core.plane.AirplaneEventActions;
 import eu.mavinci.desktop.main.debug.Debug;
-import eu.mavinci.flightplan.LandingPoint;
 import eu.mavinci.flightplan.PicArea;
 import eu.mavinci.flightplan.Point;
 import eu.mavinci.flightplan.ReferencePoint;
@@ -158,7 +157,7 @@ public class FMLHandler extends DefaultHandler implements Tokens {
                 String isAutoStr = atts.getValue(IS_AUTO);
                 String elevationStr = atts.getValue(ELEVATION);
                 double elevation = 0;
-                // in case of the new format of the mission reading the elevation value
+                // in case of the new format of the flight plan reading the elevation value
                 if (elevationStr != null) {
                     elevation = Double.parseDouble(elevationStr);
                 }
@@ -227,7 +226,7 @@ public class FMLHandler extends DefaultHandler implements Tokens {
                 String isAutoStr = atts.getValue(IS_AUTO);
                 String elevationStr = atts.getValue(ELEVATION);
                 double elevation = 0;
-                // in case of the new format of the mission reading the elevation value
+                // in case of the new format of the flight plan reading the elevation value
                 if (elevationStr != null) {
                     elevation = Double.parseDouble(elevationStr);
                 }
@@ -253,21 +252,6 @@ public class FMLHandler extends DefaultHandler implements Tokens {
                     takeoff.setAltInMAboveFPRefPoint(
                         flightPlan.getTakeofftAltWgs84WithElevation() - flightPlan.getRefPointAltWgs84WithElevation());
                     takeoff.setSilentUnmute();
-
-                    if (plan.landingpoint.isDefaultPosition()) {
-                        if (takeoff.getLatLon().equals(LatLon.ZERO)) {
-                            takeoff.setValues(
-                                lat, lon, alt, altWgs84, geoidSep, yaw, isDefined, hasAlt, hasYaw, true, elevation);
-                        }
-
-                        plan.landingpoint.setLatLon(takeoff.getLatLon());
-                        plan.landingpoint.setMode(LandingModes.LAND_AT_TAKEOFF);
-                        plan.landingpoint.setAltInMAboveFPRefPoint(LandingPoint.DEFAULT_ALTITUDEINMETER);
-                        plan.landingpoint.setId(ReentryPoint.INVALID_REENTRYPOINT);
-                        plan.landingpoint.setLandAutomatically(false);
-                    }
-
-                    if (plan.landingpoint != null) plan.landingpoint.doSubRecalculationStage2();
                 }
 
             } catch (Throwable t) {
@@ -312,7 +296,7 @@ public class FMLHandler extends DefaultHandler implements Tokens {
                         tempHardwareConfig.getPayloadMount(slotI).setPayload(payloadI, camera);
                     }
 
-                    // that sounds very dangerous but hardwareConfiguration in the mission has to be initialized
+                    // that sounds very dangerous but hardwareConfiguration in the flight plan has to be initialized
                     // before picAreas...
                     // so again everything is very stateful
                     plan.hardwareConfiguration.initializeFrom(tempHardwareConfig);
@@ -321,7 +305,7 @@ public class FMLHandler extends DefaultHandler implements Tokens {
                     Debug.getLog()
                         .log(
                             Level.WARNING,
-                            "could not parse payload description while reading the mission FML. cameraId:"
+                            "could not parse payload description while reading the flight plan FML. cameraId:"
                                 + cameraId
                                 + " slotIdx:"
                                 + slotIdx
@@ -353,11 +337,9 @@ public class FMLHandler extends DefaultHandler implements Tokens {
             } else if (qName.equals(BASED_ON_TEMPLATE)) {
                 plan.basedOnTemplate = atts.getValue(NAME);
             } else if (qName.equals(RECALCULATE_ON_EVERY_CHANGE)) {
-                plan.recalculateOnEveryChange = Boolean.parseBoolean(atts.getValue(NAME));
+                plan.recalculateOnEveryChange = Boolean.valueOf(atts.getValue(NAME));
             } else if (qName.equals(ENABLE_JUMP_OVER_WAYPOINTS)) {
-                plan.enableJumpOverWaypoints = Boolean.parseBoolean(atts.getValue(NAME));
-            } else if (qName.equals(OBSTACLE_AVOIDANCE)) {
-                plan.obstacleAvoidanceEnabled = Boolean.parseBoolean(atts.getValue(NAME));
+                plan.enableJumpOverWaypoints = Boolean.valueOf(atts.getValue(NAME));
             } else if (qName.equals(PICAREA_TEMPLATES)) {
                 plan.picAreaTemplates = new ArrayList<>();
             } else if (qName.equals(PIC_AREA)) {

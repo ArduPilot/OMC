@@ -30,7 +30,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Spinner;
-import javafx.scene.layout.VBox;
 
 public class EmergencyActionsView extends ViewBase<EmergencyActionsViewModel> {
 
@@ -47,9 +46,6 @@ public class EmergencyActionsView extends ViewBase<EmergencyActionsViewModel> {
 
     @Inject
     private ILanguageHelper languageHelper;
-
-    @FXML
-    private VBox settableEmergencyActions;
 
     @FXML
     private ToggleSwitch autoSafetyAltitudeSwitch;
@@ -84,9 +80,6 @@ public class EmergencyActionsView extends ViewBase<EmergencyActionsViewModel> {
     @Override
     public void initializeView() {
         super.initializeView();
-
-        settableEmergencyActions.visibleProperty().bind(viewModel.emergencyActionsSettableProperty());
-        settableEmergencyActions.managedProperty().bind(viewModel.emergencyActionsSettableProperty());
 
         safetyAltitudeSpinner.disableProperty().bind(autoSafetyAltitudeSwitch.selectedProperty());
         initAltitudeSpinner(safetyAltitudeSpinner, viewModel.safetyAltitudeQuantityProperty());

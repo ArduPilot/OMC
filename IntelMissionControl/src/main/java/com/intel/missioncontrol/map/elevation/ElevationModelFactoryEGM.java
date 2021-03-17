@@ -25,7 +25,7 @@ public class ElevationModelFactoryEGM extends BasicElevationModelFactory {
             em = new MapboxElevationModel(domElement, params);
         }
         // I give it up... I have no clue why this is breaking dependency injection
-        // IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+        // IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
         ElevationModelShiftWrapperEGM e = new ElevationModelShiftWrapperEGM(em, egmModel);
         e.handleZeroAsUnavaliable(false);
         return e;

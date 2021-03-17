@@ -9,7 +9,6 @@ package com.intel.missioncontrol.ui.navbar.settings.connection;
 import com.intel.missioncontrol.drone.connection.IReadOnlyConnectionItem;
 import com.intel.missioncontrol.drone.connection.MavlinkDroneConnectionItem;
 import com.intel.missioncontrol.drone.connection.TcpIpTransportType;
-import com.intel.missioncontrol.hardware.DescriptionNotFoundException;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import javafx.beans.binding.Bindings;
@@ -18,12 +17,8 @@ import org.asyncfx.beans.property.UIAsyncBooleanProperty;
 import org.asyncfx.beans.property.UIAsyncIntegerProperty;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncStringProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class ConnectionSettingsTableItem {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionSettingsTableItem.class);
-
     private final UIAsyncBooleanProperty isOnline = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty isKnown = new UIAsyncBooleanProperty(this);
     private final UIAsyncStringProperty name = new UIAsyncStringProperty(this);
@@ -59,14 +54,8 @@ class ConnectionSettingsTableItem {
                         return null;
                     }
 
-                    IHardwareConfiguration hardwareConfiguration;
-                    try {
-                        hardwareConfiguration =
-                            hardwareConfigurationManager.getHardwareConfiguration(connectionItem.getPlatformId());
-                    } catch (DescriptionNotFoundException e) {
-                        LOGGER.warn("Error loading platform " + connectionItem.getPlatformId() + ", using default", e);
-                        hardwareConfiguration = hardwareConfigurationManager.getImmutableDefault();
-                    }
+                    IHardwareConfiguration hardwareConfiguration =
+                        hardwareConfigurationManager.getHardwareConfiguration(connectionItem.getPlatformId());
 
                     return hardwareConfiguration != null
                         ? hardwareConfiguration.getPlatformDescription().getName()

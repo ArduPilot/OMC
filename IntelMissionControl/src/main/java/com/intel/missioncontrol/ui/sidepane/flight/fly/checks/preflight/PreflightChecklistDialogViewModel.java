@@ -8,16 +8,19 @@ package com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.drone.IDrone;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.ui.common.CheckListUtils;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.Checklist;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItem;
+import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistItemViewModel;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistScope;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistViewModel;
 import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.utils.commands.Command;
+import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.plane.AirplaneType;
 import java.util.HashMap;
 import javafx.beans.Observable;
@@ -48,14 +51,15 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
     private final IntegerProperty totalCount = new SimpleIntegerProperty();
     private final HashMap<AirplaneType, ListProperty<ChecklistViewModel>> planeChecklist = new HashMap<>();
     private final AsyncObjectProperty<IDrone> drone = new SimpleAsyncObjectProperty<>(this);
-    private final ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration;
+    private final ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescription;
     private final ILanguageHelper languageHelper;
+    private final Command checkAllCommand;
 
     @Inject
     public PreflightChecklistDialogViewModel(ILanguageHelper languageHelper) {
         this.languageHelper = languageHelper;
-        hardwareConfiguration =
-            PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+        checkAllCommand = new DelegateCommand(this::checkAll);
+        platformDescription = PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::platformDescriptionProperty);
     }
 
     @Override
@@ -67,12 +71,12 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
         initPlaneChecklists();
 
         // TODO: fix this
-        hardwareConfiguration.addListener(
+        platformDescription.addListener(
             (observable, oldValue, newValue) -> {
                 checklistScope.currentChecklistProperty().setValue(null);
 
                 if (newValue != null) {
-                    AirplaneType currentAirplaneType = newValue.getPlatformDescription().getAirplaneType();
+                    AirplaneType currentAirplaneType = newValue.getAirplaneType();
 
                     if (planeChecklist.containsKey(currentAirplaneType)) {
                         checklistScope.currentChecklistProperty().setValue(planeChecklist.get(currentAirplaneType));
@@ -102,6 +106,10 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
 
         checklistScope.totalCountProperty().bind(totalCount);
         checklistScope.checkedCountProperty().bind(checkedCount);
+    }
+
+    public Command getCheckAllCommand() {
+        return checkAllCommand;
     }
 
     public ReadOnlyListProperty<ChecklistViewModel> checklistsProperty() {
@@ -142,6 +150,14 @@ public class PreflightChecklistDialogViewModel extends DialogViewModel {
         item.setTitle(languageHelper.getString(item.getTitle()));
         for (int i = 0; i < item.getItems().length; i++) {
             item.getItems()[i] = languageHelper.getString(item.getItems()[i]);
+        }
+    }
+
+    private void checkAll() {
+        for (ChecklistViewModel checklist : checklists) {
+            for (ChecklistItemViewModel item : checklist.getItems()) {
+                item.checkedProperty().set(true);
+            }
         }
     }
 

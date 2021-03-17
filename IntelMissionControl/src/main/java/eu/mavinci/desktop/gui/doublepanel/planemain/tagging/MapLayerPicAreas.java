@@ -75,22 +75,20 @@ public class MapLayerPicAreas extends MapLayer implements ISectorReferenced, IMa
 
                 // prevent equal doubled picAreas
                 boolean isNew = true;
-                for (MapLayerPicArea oldArea : getMatching().getPicAreas()) {
+                for (IFlightplanStatement oldArea : getMatching().getPicAreas()) {
                     if (oldArea.equals(newArea)) {
-                        oldArea.setDeleteDisabled(true);
                         isNew = false;
                         break;
                     }
                 }
 
                 if (isNew) {
-                    newArea.setDeleteDisabled(true);
                     addMapLayer(newArea);
                     addedSomething = true;
                 }
             }
         } catch (Throwable t) {
-            Debug.getLog().log(Level.WARNING, "Could not import PicAreas from mission into new Matching", t);
+            Debug.getLog().log(Level.WARNING, "Could not import PicAreas from Flightplan into new Matching", t);
         }
 
         return addedSomething;
@@ -172,8 +170,7 @@ public class MapLayerPicAreas extends MapLayer implements ISectorReferenced, IMa
     }
 
     @Override
-    public void addBeforeToFlightplanContainer(IFlightplanStatement addBeforeThisOne, IFlightplanStatement statement)
-            throws FlightplanContainerFullException, FlightplanContainerWrongAddingException {
+    public void addBeforeToFlightplanContainer(IFlightplanStatement addBeforeThisOne, IFlightplanStatement statement) throws FlightplanContainerFullException, FlightplanContainerWrongAddingException {
         addMapLayer((IMapLayer)statement);
     }
 

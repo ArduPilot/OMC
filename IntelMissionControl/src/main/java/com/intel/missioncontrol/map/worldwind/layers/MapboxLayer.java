@@ -44,21 +44,22 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class MapboxLayer extends FastMercatorTiledImageLayer {
 
     public static class Keys {
         static final String defMapID_pureSat = "TODO-mapID";
         public static final String defAccessToken =
-                "TODO Access token";
+            "TODO Access token";
 
         static final String defMapID_hybrid = "TODO-mapID";
         static final String defAccessTokenHybrid =
-                "TODO-MapBox Access token";
+            "TODO-MapBox Access token";
 
         static final String defMapID_pureStreets = "TODO-mapID";
         static final String defAccessTokenPureStreets =
-                "TODO-MapBox Access token";
+            "TODO-MapBox Access token";
     }
 
     @LayerDefaults(name = "%com.intel.missioncontrol.map.worldwind.layers.Streets")
@@ -66,7 +67,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
 
         @Inject
         public Streets(
-                @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+                @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
                 INetworkInterceptor networkInterceptor,
                 IPathProvider pathProvider,
                 INetworkInformation networkInformation) {
@@ -75,7 +76,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
                     MapType.STREETS,
                     new Options(pathProvider.getCacheDirectory().resolve("mapbox2").toFile(), networkInterceptor),
                     networkInformation),
-                dispatcher);
+                syncRoot);
         }
     }
 
@@ -83,7 +84,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
     public static final class Satellite extends WWLayerWrapper {
         @Inject
         public Satellite(
-                @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+                @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
                 INetworkInterceptor networkInterceptor,
                 IPathProvider pathProvider,
                 INetworkInformation networkInformation) {
@@ -92,7 +93,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
                     MapType.SATELLITE,
                     new Options(pathProvider.getCacheDirectory().resolve("mapbox2").toFile(), networkInterceptor),
                     networkInformation),
-                dispatcher);
+                syncRoot);
         }
     }
 
@@ -100,7 +101,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
     public static final class Hybrid extends WWLayerWrapper {
         @Inject
         public Hybrid(
-                @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+                @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
                 INetworkInterceptor networkInterceptor,
                 IPathProvider pathProvider,
                 INetworkInformation networkInformation) {
@@ -109,7 +110,7 @@ public class MapboxLayer extends FastMercatorTiledImageLayer {
                     MapType.HYBRID,
                     new Options(pathProvider.getCacheDirectory().resolve("mapbox2").toFile(), networkInterceptor),
                     networkInformation),
-                dispatcher);
+                syncRoot);
         }
     }
 

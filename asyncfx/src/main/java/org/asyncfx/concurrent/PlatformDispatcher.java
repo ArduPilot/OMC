@@ -17,20 +17,10 @@ import org.jetbrains.annotations.NotNull;
 class PlatformDispatcher implements Dispatcher {
 
     static final PlatformDispatcher INSTANCE = new PlatformDispatcher();
-    static Thread THREAD;
-
-    static {
-        Platform.runLater(() -> THREAD = Thread.currentThread());
-    }
 
     @Override
-    public boolean hasAccess() {
-        return Platform.isFxApplicationThread();
-    }
-
-    @Override
-    public boolean isSequential() {
-        return true;
+    public void execute(@NotNull Runnable runnable) {
+        run(runnable);
     }
 
     @Override
@@ -81,8 +71,8 @@ class PlatformDispatcher implements Dispatcher {
 
     @Override
     public Future<Void> runLaterAsync(
-            Runnable runnable, Duration delay, Duration period, CancellationSource cancellationSource) {
-        return PlatformFutureFactory.getInstance().newRunFuture(runnable, delay, period, cancellationSource);
+            Runnable runnable, Duration duration, Duration period, CancellationSource cancellationSource) {
+        return PlatformFutureFactory.getInstance().newRunFuture(runnable, duration, period, cancellationSource);
     }
 
     @Override
@@ -123,8 +113,8 @@ class PlatformDispatcher implements Dispatcher {
     }
 
     @Override
-    public <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration delay) {
-        return PlatformFutureFactory.getInstance().newGetFuture(supplier, delay);
+    public <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration duration) {
+        return PlatformFutureFactory.getInstance().newGetFuture(supplier, duration);
     }
 
     @Override
@@ -158,8 +148,4 @@ class PlatformDispatcher implements Dispatcher {
         return PlatformFutureFactory.getInstance().newGetFuture(supplier, delay, cancellationSource);
     }
 
-    @Override
-    public String toString() {
-        return "JavaFX application thread";
-    }
 }

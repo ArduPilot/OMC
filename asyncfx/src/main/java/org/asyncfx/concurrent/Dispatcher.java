@@ -7,11 +7,12 @@
 package org.asyncfx.concurrent;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 import org.asyncfx.concurrent.Future.RunnableWithProgress;
 import org.asyncfx.concurrent.Future.SupplierWithProgress;
 
-public interface Dispatcher {
+public interface Dispatcher extends Executor {
 
     /** Returns a dispatcher that executes code on the JavaFX application thread. */
     static Dispatcher platform() {
@@ -21,43 +22,6 @@ public interface Dispatcher {
     /** Returns a dispatcher that executes code on a background thread pool. */
     static Dispatcher background() {
         return BackgroundDispatcher.INSTANCE;
-    }
-
-    static Dispatcher fromThread(Thread thread) {
-        if (thread == PlatformDispatcher.THREAD) {
-            return PlatformDispatcher.INSTANCE;
-        }
-
-        if (thread instanceof FutureExecutorService.ExecutorThread) {
-            return BackgroundDispatcher.INSTANCE;
-        }
-
-        return null;
-    }
-
-    /** Returns whether the current thread has access to the dispatcher. */
-    boolean hasAccess();
-
-    default void verifyAccess() {
-        if (!hasAccess()) {
-            throw new IllegalStateException(
-                "Illegal cross-thread access: expected = "
-                    + toString()
-                    + "; currentThread = "
-                    + Thread.currentThread());
-        }
-    }
-
-    /** Returns whether this dispatcher is sequential, which is a requirement for order-sensitive operations. */
-    boolean isSequential();
-
-    default void verifySequential() {
-        if (!isSequential()) {
-            throw new RuntimeException(
-                "Cannot post an order-sensitive operation to a non-sequential dispatcher (dispatcher = "
-                    + toString()
-                    + ")");
-        }
     }
 
     /**
@@ -99,7 +63,7 @@ public interface Dispatcher {
      * {@link Runnable}.
      */
     Future<Void> runLaterAsync(
-            Runnable runnable, Duration delay, Duration period, CancellationSource cancellationSource);
+            Runnable runnable, Duration duration, Duration period, CancellationSource cancellationSource);
 
     /** Returns a future that is executed asynchronously by calling the given {@link RunnableWithProgress}. */
     Future<Void> runLaterAsync(RunnableWithProgress runnable);
@@ -138,7 +102,7 @@ public interface Dispatcher {
     /**
      * Returns a future that is executed asynchronously after a specified delay by calling the given {@link Supplier}.
      */
-    <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration delay);
+    <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration duration);
 
     /** Returns a future that is executed asynchronously by calling the given {@link Supplier}. */
     <T> Future<T> getLaterAsync(Supplier<T> supplier, CancellationSource cancellationSource);

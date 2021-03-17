@@ -6,7 +6,12 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Executor;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.WeakListener;
@@ -16,7 +21,6 @@ import javafx.beans.value.ObservableValue;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.binding.AsyncExpressionHelper;
 import org.asyncfx.beans.binding.ValueConverter;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -30,7 +34,7 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
         super(metadata);
     }
 
-    AsyncBooleanPropertyBase(PropertyObject bean, PropertyMetadata<Boolean> metadata) {
+    AsyncBooleanPropertyBase(ObservableObject bean, PropertyMetadata<Boolean> metadata) {
         super(bean, metadata);
     }
 
@@ -51,7 +55,7 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
     }
 
     @Override
-    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, Boolean> converter) {
+    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, ? extends Boolean> converter) {
         if (source == null) {
             throw new NullPointerException("Cannot bind to null.");
         }
@@ -61,18 +65,17 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean newValue = false;
         PropertyMetadata<Boolean> metadata;
-        AsyncExpressionHelper<Boolean> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
-            if (metadata.getConsistencyGroup() != null) {
+            if (PropertyMetadata.Accessor.getConsistencyGroup(metadata).isPresent()) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
             }
 
@@ -85,16 +88,13 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
                 unbindCore();
                 observable = newObservable;
                 if (listener == null) {
-                    listener = new Listener(this);
+                    listener = new Listener(this, metadata.getExecutor());
                 }
 
-                PropertyHelper.addListener(observable, listener, accessController);
+                observable.addListener(listener);
 
                 if (observable instanceof ReadOnlyAsyncBooleanProperty) {
-                    newValue =
-                        (boolean)
-                            PropertyHelper.getValueUncritical(
-                                (ReadOnlyAsyncBooleanProperty)observable, accessController);
+                    newValue = ((ReadOnlyAsyncBooleanProperty)observable).getUncritical();
                 } else {
                     newValue = observable.get();
                 }
@@ -106,35 +106,38 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
                 invalidate = valid;
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getCore();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
-                Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-            }
+            final boolean newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
 
-            if (dispatcher != null) {
-                final boolean newValueCopy = newValue;
-
-                dispatcher.run(
+            metadata.getExecutor()
+                .execute(
                     () -> {
-                        invalidated();
-                        AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
-            } else {
-                invalidated();
-                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
-            }
         }
     }
 
@@ -156,11 +159,13 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
         }
     }
 
-    private static class Listener implements InvalidationListener, WeakListener, Runnable {
+    private static class Listener implements InvalidationListener, WeakListener {
         private final WeakReference<AsyncBooleanPropertyBase> wref;
+        private final Executor executor;
 
-        Listener(AsyncBooleanPropertyBase ref) {
+        Listener(AsyncBooleanPropertyBase ref, Executor executor) {
             this.wref = new WeakReference<>(ref);
+            this.executor = executor;
         }
 
         @Override
@@ -169,15 +174,7 @@ public abstract class AsyncBooleanPropertyBase extends AsyncBooleanPropertyBaseI
             if (ref == null) {
                 observable.removeListener(this);
             } else {
-                ref.getExecutor().execute(this);
-            }
-        }
-
-        @Override
-        public void run() {
-            AsyncBooleanPropertyBase ref = wref.get();
-            if (ref != null) {
-                ref.markInvalid();
+                executor.execute(ref::markInvalid);
             }
         }
 

@@ -214,11 +214,4 @@ public class DelegatingNetworkStatus implements NetworkStatus {
         firePropertyChange(available ? NetworkStatus.HOST_AVAILABLE : NetworkStatus.HOST_UNAVAILABLE, null, hostName);
     }
 
-    @Override
-    public String toString() {
-        return "DelegatingNetworkStatus{" +
-                "offlineMode=" + offlineMode +
-                ", networkInformation=" + networkInformation +
-                '}';
-    }
 }

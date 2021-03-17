@@ -4,7 +4,7 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
 <?import com.intel.missioncontrol.ui.controls.ActivityButton?>
 <?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
@@ -51,27 +51,24 @@
     </header>
 
     <content>
-        <VBox>
-            <VBox styleClass="content">
-                <VBox styleClass="form-row, unindent">
-                    <Label text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.connectToDrone"/>
-                    <HBox>
-                        <ComboBox fx:id="availableConnectionsComboBox" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                        <Button fx:id="settingsButton" HBox.hgrow="NEVER"
-                                styleClass="flat-icon-button, icon-settings-flat">
-                            <tooltip>
-                                <Tooltip
-                                        text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.tooltip.setting"/>
-                            </tooltip>
-                        </Button>
-                    </HBox>
+        <VBox styleClass="content">
+            <VBox styleClass="form-row,unindent">
+                <Label text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.connectToDrone"/>
+                <HBox>
+                    <ComboBox fx:id="availableConnectionsComboBox" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="settingsButton" HBox.hgrow="NEVER" styleClass="flat-icon-button, icon-settings-flat">
+                        <tooltip>
+                            <Tooltip
+                                    text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.tooltip.setting"/>
+                        </tooltip>
+                    </Button>
+                </HBox>
 
-                </VBox>
             </VBox>
-            <HBox styleClass="footer">
-                <ActivityButton fx:id="connectToDroneButton" styleClass="primary-button, landfill"
+            <HBox styleClass="form-row,unindent">
+                <ActivityButton fx:id="connectToDroneButton" styleClass="primary-button"
                                 text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.button.connectToDrone"
-                                onAction="#OnConnectToDrone" />
+                                onAction="#OnConnectToDrone"/>
                 <ActivityButton fx:id="simulateButton" styleClass="secondary-button"
                                 text="%com.intel.missioncontrol.ui.sidepane.flight.connect.ConnectDroneView.button.simulate"
                                 onAction="#OnSimulate"/>

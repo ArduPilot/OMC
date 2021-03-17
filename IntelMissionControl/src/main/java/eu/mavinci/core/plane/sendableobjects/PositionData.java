@@ -20,7 +20,7 @@ public class PositionData extends MObject {
     public int time_usec = 0;
 
     /** Altitude above starting point in cm. */
-    public double altitude = 0;
+    public int altitude = 0;
 
     /** Latitude of last GPS fix. */
     public double lat = 0.0F;
@@ -69,9 +69,6 @@ public class PositionData extends MObject {
      * direction and otherwise
      */
     public boolean forwardDirection = true;
-
-    /** In case we lost some position updates due to link loss or similar issues * */
-    public boolean lostPositionUpdates = false;
 
     /**
      * in seconds

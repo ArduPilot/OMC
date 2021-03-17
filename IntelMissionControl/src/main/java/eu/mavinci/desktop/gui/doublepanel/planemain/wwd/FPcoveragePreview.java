@@ -7,10 +7,10 @@
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.visitors.ExtractTypeVisitor;
 import eu.mavinci.core.plane.sendableobjects.PhotoData;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerCoverage;
@@ -167,7 +167,7 @@ public class FPcoveragePreview extends AMapLayerCoverage implements ComputeCorne
 
     @Override
     public String getTooltipAddon() {
-        return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
+        return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
     }
 
     @Override

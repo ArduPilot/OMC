@@ -13,16 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ObservableValue;
-import org.asyncfx.AsyncFX;
-import org.asyncfx.beans.AccessController;
-import org.asyncfx.beans.binding.AsyncExpressionHelper;
-import org.asyncfx.beans.binding.AsyncListExpressionHelper;
-import org.asyncfx.beans.binding.AsyncSetExpressionHelper;
-import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
 import org.asyncfx.concurrent.FutureCompletionSource;
+import org.asyncfx.concurrent.Futures;
 
 public final class PropertyHelper {
 
@@ -35,8 +28,16 @@ public final class PropertyHelper {
      * specified by the property's metadata.
      */
     public static <T> Future<Void> setValueAsync(AsyncProperty<T> property, T value) {
+        PropertyMetadata.HasAccessDelegate hasAccessDelegate =
+            PropertyMetadata.Accessor.getHasAccess(property.getMetadata());
+        if (hasAccessDelegate == null || hasAccessDelegate.hasAccess()) {
+            property.setValue(value);
+            return Futures.successful();
+        }
+
         FutureCompletionSource<Void> futureCompletionSource = new FutureCompletionSource<>();
-        property.getExecutor()
+        property.getMetadata()
+            .getExecutor()
             .execute(
                 () -> {
                     property.setValue(value);
@@ -52,7 +53,13 @@ public final class PropertyHelper {
      * will run synchronously on the current thread.
      */
     public static <T> void setValueSafe(AsyncProperty<T> property, T value) {
-        property.getExecutor().execute(() -> property.setValue(value));
+        PropertyMetadata.HasAccessDelegate hasAccessDelegate =
+            PropertyMetadata.Accessor.getHasAccess(property.getMetadata());
+        if (hasAccessDelegate == null || hasAccessDelegate.hasAccess()) {
+            property.setValue(value);
+        } else {
+            property.getMetadata().getExecutor().execute(() -> property.setValue(value));
+        }
     }
 
     /**
@@ -61,8 +68,16 @@ public final class PropertyHelper {
      * metadata.
      */
     public static <T> Future<Void> resetValueAsync(AsyncProperty<T> property) {
+        PropertyMetadata.HasAccessDelegate hasAccessDelegate =
+            PropertyMetadata.Accessor.getHasAccess(property.getMetadata());
+        if (hasAccessDelegate == null || hasAccessDelegate.hasAccess()) {
+            property.reset();
+            return Futures.successful();
+        }
+
         FutureCompletionSource<Void> futureCompletionSource = new FutureCompletionSource<>();
-        property.getExecutor()
+        property.getMetadata()
+            .getExecutor()
             .execute(
                 () -> {
                     property.reset();
@@ -78,53 +93,12 @@ public final class PropertyHelper {
      * will run synchronously on the current thread.
      */
     public static <T> void resetValueSafe(AsyncProperty<T> property) {
-        property.getExecutor().execute(property::reset);
-    }
-
-    static Dispatcher verifyAccess(ReadOnlyAsyncProperty property, PropertyMetadata metadata) {
-        Dispatcher metadataDispatcher = metadata.getDispatcher();
-        if (metadataDispatcher != null) {
-            if (AsyncFX.isVerifyPropertyAccess() && !metadataDispatcher.hasAccess()) {
-                throw new IllegalStateException(
-                    "Illegal cross-thread access: expected = "
-                        + metadataDispatcher
-                        + "; currentThread = "
-                        + Dispatcher.fromThread(Thread.currentThread())
-                        + ".");
-            }
-
-            return metadataDispatcher;
+        PropertyMetadata.HasAccessDelegate hasAccessDelegate =
+            PropertyMetadata.Accessor.getHasAccess(property.getMetadata());
+        if (hasAccessDelegate == null || hasAccessDelegate.hasAccess()) {
+            property.reset();
         } else {
-            Object bean = property.getBean();
-            Dispatcher dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-
-            if (AsyncFX.isVerifyPropertyAccess() && dispatcher != null && !dispatcher.hasAccess()) {
-                throw new IllegalStateException(
-                    "Illegal cross-thread access: expected = "
-                        + dispatcher
-                        + "; currentThread = "
-                        + Dispatcher.fromThread(Thread.currentThread())
-                        + ".");
-            }
-
-            return dispatcher;
-        }
-    }
-
-    static void verifyConsistency(PropertyMetadata metadata) {
-        if (!AsyncFX.isVerifyPropertyAccess()) {
-            return;
-        }
-
-        ConsistencyGroup consistencyGroup = metadata.getConsistencyGroup();
-        if (consistencyGroup != null) {
-            for (ReadOnlyAsyncProperty property : consistencyGroup.getProperties()) {
-                if (!property.getAccessController().isLocked()) {
-                    throw new IllegalStateException(
-                        "Illegal access: property is part of a consistency group"
-                            + " and can only be accessed within a critical section.");
-                }
-            }
+            property.getMetadata().getExecutor().execute(property::reset);
         }
     }
 
@@ -135,7 +109,7 @@ public final class PropertyHelper {
         }
 
         String reflectiveName = null;
-        if (bean != null && !metadata.isCustomBean()) {
+        if (!metadata.isCustomBean()) {
             reflectiveName = getReflectivePropertyName(bean, property);
         }
 
@@ -144,129 +118,6 @@ public final class PropertyHelper {
 
     static long getNextUniqueId() {
         return uniqueIdCounter.incrementAndGet();
-    }
-
-    @SuppressWarnings("unchecked")
-    static void addListener(
-            ObservableValue property, InvalidationListener listener, AccessController accessController) {
-        if (!(property instanceof ReadOnlyAsyncProperty)
-                || ((ReadOnlyAsyncProperty)property).getAccessController() != accessController) {
-            property.addListener(listener);
-            return;
-        }
-
-        if (property instanceof AsyncObjectPropertyBaseImpl) {
-            AsyncObjectPropertyBaseImpl propertyImpl = ((AsyncObjectPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncBooleanPropertyBaseImpl) {
-            AsyncBooleanPropertyBaseImpl propertyImpl = ((AsyncBooleanPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncIntegerPropertyBaseImpl) {
-            AsyncIntegerPropertyBaseImpl propertyImpl = ((AsyncIntegerPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncLongPropertyBaseImpl) {
-            AsyncLongPropertyBaseImpl propertyImpl = ((AsyncLongPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncFloatPropertyBaseImpl) {
-            AsyncFloatPropertyBaseImpl propertyImpl = ((AsyncFloatPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncDoublePropertyBaseImpl) {
-            AsyncDoublePropertyBaseImpl propertyImpl = ((AsyncDoublePropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncStringPropertyBaseImpl) {
-            AsyncStringPropertyBaseImpl propertyImpl = ((AsyncStringPropertyBaseImpl)property);
-            propertyImpl.helper =
-                AsyncExpressionHelper.addListener(propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncListPropertyBase) {
-            AsyncListPropertyBase propertyImpl = ((AsyncListPropertyBase)property);
-            propertyImpl.helper =
-                AsyncListExpressionHelper.addListener(
-                    propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncSetPropertyBase) {
-            AsyncSetPropertyBase propertyImpl = ((AsyncSetPropertyBase)property);
-            propertyImpl.helper =
-                AsyncSetExpressionHelper.addListener(
-                    propertyImpl.helper, propertyImpl, propertyImpl.getCore(), listener);
-        } else {
-            throw new IllegalArgumentException("property");
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    static void removeListener(
-            ObservableValue property, InvalidationListener listener, AccessController accessController) {
-        if (!(property instanceof ReadOnlyAsyncProperty)
-                || ((ReadOnlyAsyncProperty)property).getAccessController() != accessController) {
-            property.removeListener(listener);
-            return;
-        }
-
-        if (property instanceof AsyncObjectPropertyBaseImpl) {
-            AsyncObjectPropertyBaseImpl propertyImpl = ((AsyncObjectPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncBooleanPropertyBaseImpl) {
-            AsyncBooleanPropertyBaseImpl propertyImpl = ((AsyncBooleanPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncIntegerPropertyBaseImpl) {
-            AsyncIntegerPropertyBaseImpl propertyImpl = ((AsyncIntegerPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncLongPropertyBaseImpl) {
-            AsyncLongPropertyBaseImpl propertyImpl = ((AsyncLongPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncFloatPropertyBaseImpl) {
-            AsyncFloatPropertyBaseImpl propertyImpl = ((AsyncFloatPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncDoublePropertyBaseImpl) {
-            AsyncDoublePropertyBaseImpl propertyImpl = ((AsyncDoublePropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncStringPropertyBaseImpl) {
-            AsyncStringPropertyBaseImpl propertyImpl = ((AsyncStringPropertyBaseImpl)property);
-            propertyImpl.helper = AsyncExpressionHelper.removeListener(propertyImpl.helper, listener);
-        } else if (property instanceof AsyncListPropertyBase) {
-            AsyncListPropertyBase propertyImpl = ((AsyncListPropertyBase)property);
-            propertyImpl.helper =
-                AsyncListExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
-        } else if (property instanceof AsyncSetPropertyBase) {
-            AsyncSetPropertyBase propertyImpl = ((AsyncSetPropertyBase)property);
-            propertyImpl.helper =
-                AsyncSetExpressionHelper.removeListener(propertyImpl.helper, propertyImpl.getCore(), listener);
-        } else {
-            throw new IllegalArgumentException("property");
-        }
-    }
-
-    static Object getValueUncritical(ReadOnlyAsyncProperty property, AccessController accessController) {
-        if (property.getAccessController() != accessController) {
-            return property.getValueUncritical();
-        }
-
-        if (property instanceof AsyncObjectPropertyBaseImpl) {
-            return ((AsyncObjectPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncBooleanPropertyBaseImpl) {
-            return ((AsyncBooleanPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncIntegerPropertyBaseImpl) {
-            return ((AsyncIntegerPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncLongPropertyBaseImpl) {
-            return ((AsyncLongPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncFloatPropertyBaseImpl) {
-            return ((AsyncFloatPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncDoublePropertyBaseImpl) {
-            return ((AsyncDoublePropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncStringPropertyBaseImpl) {
-            return ((AsyncStringPropertyBaseImpl)property).getCore();
-        } else if (property instanceof AsyncListPropertyBase) {
-            return ((AsyncListPropertyBase)property).getCore();
-        } else if (property instanceof AsyncSetPropertyBase) {
-            return ((AsyncSetPropertyBase)property).getCore();
-        }
-
-        throw new IllegalArgumentException("property");
     }
 
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")

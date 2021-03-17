@@ -8,20 +8,19 @@ package com.intel.missioncontrol.drone;
 
 import com.intel.missioncontrol.drone.connection.IDroneConnectionExceptionListener;
 import com.intel.missioncontrol.drone.connection.IDroneMessageListener;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.mission.FlightPlan;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Quaternion;
 import java.time.Duration;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.concurrent.Future;
 
 public interface IDrone {
-    ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfigurationProperty();
+    ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescriptionProperty();
 
     /** main flight battery */
     ReadOnlyAsyncObjectProperty<? extends IBattery> batteryProperty();
@@ -39,21 +38,8 @@ public interface IDrone {
      */
     ReadOnlyAsyncObjectProperty<? extends IRemoteControl> remoteControlProperty();
 
-    /**
-     * The progress of a flight plan upload, between 0.0 and 1.0, if an upload is ongoing. NaN otherwise. Flight plan
-     * upload occurs during execution of takeOffAsync or startFlightPlanAsync.
-     */
-    ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty();
-
-    /**
-     * The flight plan currently stored on the drone after uploading one. Null if no flight plan has been uploaded.
-     * Flight plan upload occurs during execution of takeOffAsync or startFlightPlanAsync.
-     */
     ReadOnlyAsyncObjectProperty<FlightPlan> activeFlightPlanProperty();
 
-    /**
-     * The index of the next waypoint of activeFlightPlanProperty, which will be targeted by the drone.
-      * Only valid if activeFlightPlanProperty is not null. */
     ReadOnlyAsyncIntegerProperty activeFlightPlanWaypointIndexProperty();
 
     /** current position (WGS84 lat/lon with altitude in meters above takeoff position) */
@@ -83,8 +69,8 @@ public interface IDrone {
     /** List of connected cameras */
     ReadOnlyAsyncListProperty<? extends ICamera> camerasProperty();
 
-    /** Obstacle avoidance including distance sensors */
-    ReadOnlyAsyncObjectProperty<? extends IObstacleAvoidance> obstacleAvoidanceProperty();
+    /** list of distance sensors */
+    ReadOnlyAsyncListProperty<? extends IDistanceSensor> distanceSensorsProperty();
 
     // Events
     void addListener(IDroneConnectionExceptionListener droneConnectionExceptionListener);
@@ -109,4 +95,10 @@ public interface IDrone {
     Future<Void> pauseFlightPlanAsync();
 
     Future<Void> returnHomeAsync();
+
+    /**
+     * Set the active flightplan, uploading data to the drone. The flightPlanTransferPercentageProperty shows progress
+     * of the upload until the result future completes.
+     */
+    Future<Void> setActiveFlightPlanAsync(FlightPlanWithWayPointIndex flightPlan);
 }

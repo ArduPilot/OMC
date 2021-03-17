@@ -49,11 +49,13 @@
     </build>
 
     <modules>
+        <module>CloudSync</module>
         <module>IntelMissionControl</module>
         <module>WorldWindJava</module>
         <module>LibInsight</module>
         <module>InsightService</module>
         <module>asyncfx</module>
+        <module>flightplanning</module>
     </modules>
 
 </project>

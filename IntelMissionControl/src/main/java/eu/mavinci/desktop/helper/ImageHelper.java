@@ -6,15 +6,15 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
+import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
-import com.intel.missioncontrol.settings.OperationLevel;
 import com.sun.media.jai.codec.FileSeekableStream;
 import com.sun.media.jai.codec.MemoryCacheSeekableStream;
 import com.sun.media.jai.codec.SeekableStream;
 import com.sun.media.jai.codec.TIFFDecodeParam;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.cir.Histogram;
 import eu.mavinci.desktop.gui.widgets.MProgressMonitor;
 import java.awt.Dimension;
@@ -125,7 +125,8 @@ public class ImageHelper {
      * @param maskWideTarget
      * @throws IOException
      */
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public static boolean createMask(Vector<File> sampleImgs, File maskNarrowTarget, File maskWideTarget, String name)
             throws IOException {
@@ -211,7 +212,10 @@ public class ImageHelper {
 
             double norm = sampleImgs.size() * 3; // 3 because of band count
 
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
+                        .getSection(GeneralSettings.class)
+                        .getOperationLevel()
                     == OperationLevel.DEBUG) {
                 x = 0;
                 y = 0;
@@ -284,7 +288,10 @@ public class ImageHelper {
                 }
             }
 
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
+                        .getSection(GeneralSettings.class)
+                        .getOperationLevel()
                     == OperationLevel.DEBUG) {
                 // 2d array to buffImg
                 x = 0;
@@ -482,7 +489,10 @@ public class ImageHelper {
             }
 
             // 2d array to buffImg -cluster map
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
+                        .getSection(GeneralSettings.class)
+                        .getOperationLevel()
                     == OperationLevel.DEBUG) {
                 int max = 0;
                 for (y = 0; y != params.height; y++) {

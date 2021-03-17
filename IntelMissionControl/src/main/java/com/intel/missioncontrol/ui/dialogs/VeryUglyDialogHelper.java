@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.dialogs;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.api.support.ErrorCategory;
 import com.intel.missioncontrol.api.support.Priority;
 import com.intel.missioncontrol.api.support.SupportManager;
@@ -17,6 +16,7 @@ import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.WindowHelper;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +147,7 @@ public class VeryUglyDialogHelper implements IVeryUglyDialogHelper {
     }
 
     public static void initModalityOrPutToFront(Dialog dialog, Window ownerWindow) {
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isWindows()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isWindows()) {
             Stage owner = WindowHelper.getPrimaryStage();
             dialog.initOwner((ownerWindow == null) ? (owner.getScene().getWindow()) : (ownerWindow));
         } else {

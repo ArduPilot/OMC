@@ -4,7 +4,7 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
 <?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
 <?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
@@ -13,8 +13,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.VBox?>
-<?import com.intel.missioncontrol.ui.controls.Button?>
-<?import javafx.scene.layout.HBox?>
 <AdornerSplitView fx:id="rootNode" xmlns="http://javafx.com/javafx"
                   xmlns:fx="http://javafx.com/fxml"
                   fx:controller="com.intel.missioncontrol.ui.sidepane.planning.landing.LandingView">
@@ -28,15 +26,12 @@
 
         <VBox fx:id="locationEditBox">
 
-            <HBox styleClass="form-row, normal-spacing">
+            <VBox styleClass="form-row">
                 <ToggleButton fx:id="chooseLandingPositionButton"
                               styleClass="secondary-button, iconized, icon-crosshair"
                               onAction="#onToggleChooseLandingPositionClicked"
                               text="%com.intel.missioncontrol.ui.planning.landing.LandingView.setOnMap"/>
-                <Button fx:id="landingPositionFromUavButton" styleClass="secondary-button, iconized, icon-uav"
-                        onAction="#landingPositionFromUavButtonClicked"
-                        text="%com.intel.missioncontrol.ui.planning.landing.LandingView.fromUAV"/>
-            </HBox>
+            </VBox>
 
             <VBox styleClass="form-row, icon-latitude">
                 <Label text="%com.intel.missioncontrol.ui.planning.landing.LandingView.latitudeLabel"/>
@@ -58,7 +53,8 @@
         </VBox>
 
         <VBox styleClass="form-row, icon-elevation" fx:id="elevationBox">
-            <Label fx:id="elevationLabel"/>
+            <Label fx:id="elevationLabel"
+                   text="%com.intel.missioncontrol.ui.planning.landing.LandingView.elevationSpinner"/>
             <AutoCommitSpinner fx:id="elevationSpinner" editable="true" maxWidth="Infinity"
                                AdornerSplitView.styleClass="flat-icon-button, icon-help"
                                AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.landing.LandingView.elevationSpinner.tooltip"/>

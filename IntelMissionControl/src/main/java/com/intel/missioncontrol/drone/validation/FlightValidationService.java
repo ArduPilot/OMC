@@ -8,12 +8,10 @@ package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.drone.IDrone;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.InvalidationListener;
@@ -56,13 +54,13 @@ public class FlightValidationService implements IFlightValidationService {
     private final SensorCalibrationValidator.Factory sensorCalibrationValidatorFactory;
     private final StorageValidator.Factory storageValidatorFactory;
     private final CameraValidator.Factory cameraValidatorFactory;
-    private final VideoStreamValidator.Factory videoStreamValidatorFactory;
     private final TakeoffPositionValidator.Factory takeoffPositionValidatorFactory;
-    private final ObstacleAvoidanceValidator.Factory obstacleAvoidanceValidatorFactory;
+
     private final FlightValidationStatus errorStatus;
     private final FlightValidationStatus warningStatus;
     private final FlightValidationStatus loadingStatus;
     private final FlightValidationStatus okStatus;
+
     private CancellationSource cts = new CancellationSource();
 
     @Inject
@@ -80,9 +78,7 @@ public class FlightValidationService implements IFlightValidationService {
             SensorCalibrationValidator.Factory sensorCalibrationValidatorFactory,
             StorageValidator.Factory storageValidatorFactory,
             CameraValidator.Factory cameraValidatorFactory,
-            VideoStreamValidator.Factory videoStreamValidatorFactory,
-            TakeoffPositionValidator.Factory takeoffPositionValidatorFactory,
-            ObstacleAvoidanceValidator.Factory obstacleAvoidanceValidatorFactory) {
+            TakeoffPositionValidator.Factory takeoffPositionValidatorFactory) {
         this.annoyingTestValidatorFactory = annoyingTestValidatorFactory;
         this.automaticModeValidatorFactory = automaticModeValidatorFactory;
         this.batteryValidatorFactory = batteryValidatorFactory;
@@ -95,9 +91,7 @@ public class FlightValidationService implements IFlightValidationService {
         this.sensorCalibrationValidatorFactory = sensorCalibrationValidatorFactory;
         this.storageValidatorFactory = storageValidatorFactory;
         this.cameraValidatorFactory = cameraValidatorFactory;
-        this.videoStreamValidatorFactory = videoStreamValidatorFactory;
         this.takeoffPositionValidatorFactory = takeoffPositionValidatorFactory;
-        this.obstacleAvoidanceValidatorFactory = obstacleAvoidanceValidatorFactory;
 
         errorStatus =
             new FlightValidationStatus(
@@ -115,17 +109,14 @@ public class FlightValidationService implements IFlightValidationService {
             new FlightValidationStatus(
                 AlertType.COMPLETED, languageHelper.getString(FlightValidationService.class, "autoChecksAllPassed"));
 
-        ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration =
-            propertyPathStore.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+        ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescription =
+            propertyPathStore.from(drone).selectReadOnlyAsyncObject(IDrone::platformDescriptionProperty);
 
         validators.set(FXAsyncCollections.observableArrayList());
 
-        IHardwareConfiguration hwConfig = hardwareConfiguration.get();
-        applyPlatformDescription(hwConfig == null ? null : hwConfig.getPlatformDescription());
-        hardwareConfiguration.addListener(
-            (o, oldValue, newValue) ->
-                applyPlatformDescription(newValue == null ? null : newValue.getPlatformDescription()),
-            Dispatcher.background()::run);
+        applyPlatformDescription(platformDescription.get());
+        platformDescription.addListener(
+            (o, oldValue, newValue) -> applyPlatformDescription(newValue), Dispatcher.background());
 
         updateCombinedStatus();
     }
@@ -187,11 +178,6 @@ public class FlightValidationService implements IFlightValidationService {
                     break;
                 case ANNOYING_TEST:
                     newValidators.add(annoyingTestValidatorFactory.create(cts));
-                case VIDEO_STREAM:
-                    newValidators.add(videoStreamValidatorFactory.create());
-                    break;
-                case OBSTACLE_AVOIDANCE:
-                    newValidators.add(obstacleAvoidanceValidatorFactory.create(cts));
                     break;
                 case COMBINED:
                 default:
@@ -210,31 +196,36 @@ public class FlightValidationService implements IFlightValidationService {
         this.validators.setAll(newValidators);
     }
 
-    private void updateCombinedStatus() {
+    private synchronized void updateCombinedStatus() {
         // Combined status: first of: Any error / any warning / any running / ok.
-        boolean errors = false, warnings = false, loadings = false;
         try (LockedList<IFlightValidator> validators = this.validators.lock()) {
-            for (IFlightValidator validator : validators) {
-                FlightValidationStatus v = validator.getValidationStatus();
-                if (v == null || v.getAlertType() == AlertType.LOADING) {
-                    loadings = true;
-                } else if (v.getAlertType() == AlertType.WARNING) {
-                    warnings = true;
-                } else if (v.getAlertType() == AlertType.ERROR) {
-                    errors = true;
-                    break;
-                }
+            if (validators
+                    .stream()
+                    .anyMatch(
+                        v -> {
+                            FlightValidationStatus s = v.getValidationStatus();
+                            return s != null && s.getAlertType() == AlertType.ERROR;
+                        })) {
+                combinedStatus.set(errorStatus);
+            } else if (validators
+                    .stream()
+                    .anyMatch(
+                        v -> {
+                            FlightValidationStatus s = v.getValidationStatus();
+                            return s != null && s.getAlertType() == AlertType.WARNING;
+                        })) {
+                combinedStatus.set(warningStatus);
+            } else if (validators
+                    .stream()
+                    .anyMatch(
+                        v -> {
+                            FlightValidationStatus s = v.getValidationStatus();
+                            return s == null || s.getAlertType() == AlertType.LOADING;
+                        })) {
+                combinedStatus.set(loadingStatus);
+            } else {
+                combinedStatus.set(okStatus);
             }
-        }
-
-        if(errors) {
-            combinedStatus.set(errorStatus);
-        } else if (warnings) {
-            combinedStatus.set(warningStatus);
-        } else if (loadings) {
-            combinedStatus.set(loadingStatus);
-        } else {
-            combinedStatus.set(okStatus);
         }
     }
 
@@ -264,15 +255,5 @@ public class FlightValidationService implements IFlightValidationService {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.COMBINED;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

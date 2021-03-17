@@ -6,12 +6,12 @@
 
 package eu.mavinci.desktop.gui.asctec.openpayload;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.ExifInfos;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
@@ -55,7 +55,8 @@ public class OpenPayloadDataRetreiver {
     static boolean stopBroadcastListening;
     static boolean isBroadcastListening;
     static boolean oneBroadcastReceived;
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public static void createMatching(
             final IAirplane plane, IHardwareConfigurationManager hardwareConfigurationManager) {
@@ -218,7 +219,7 @@ public class OpenPayloadDataRetreiver {
                 Ensure.notNull(strxml, "strxml");
                 FileHelper.writeStringToFile(strxml, new File(fpFolder, "onAirFlightplan.fml"));
             } catch (IOException e2) {
-                Debug.getLog().log(Level.SEVERE, "Unable to copy mission", e2);
+                Debug.getLog().log(Level.SEVERE, "Unable to copy Flightplan", e2);
                 return false;
             }
 

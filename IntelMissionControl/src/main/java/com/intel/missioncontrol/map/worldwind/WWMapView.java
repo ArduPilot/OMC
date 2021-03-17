@@ -12,7 +12,6 @@ import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.common.PostConstruct;
 import com.intel.missioncontrol.map.ViewMode;
-import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.impl.MView;
 import com.intel.missioncontrol.map.worldwind.impl.ViewAdapter;
 import com.intel.missioncontrol.map.worldwind.property.WWAsyncDoubleProperty;
@@ -37,12 +36,12 @@ import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final Provider<IWWGlobes> globesProvider;
     private final AsyncObjectProperty<ViewMode> viewMode;
     private final AsyncObjectProperty<MapRotationStyle> mapRotationStyle;
@@ -53,18 +52,16 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
     @Inject
     public WWMapView(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             Provider<IWWGlobes> globesProvider,
             IApplicationContext applicationContext,
-            GeneralSettings generalSettings,
-            IElevationModel elevationModel) {
+            GeneralSettings generalSettings) {
         super(
             new MView(
                 PropertyPath.from(applicationContext.currentMissionProperty())
                     .selectReadOnlyObject(Mission::droneProperty),
-                dispatcher,
-                elevationModel));
-        this.dispatcher = dispatcher;
+                syncRoot));
+        this.syncRoot = syncRoot;
         this.globesProvider = globesProvider;
 
         generalSettings
@@ -73,7 +70,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
                 (observable, oldValue, newValue) -> {
                     ((MViewInputHandler)getAdaptedView().getViewInputHandler()).setMapRotationStyle(newValue);
                 },
-                dispatcher::run);
+                syncRoot);
 
         ((MViewInputHandler)getAdaptedView().getViewInputHandler())
             .setMapRotationStyle(generalSettings.getMapRotationStyle());
@@ -83,7 +80,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
                 this,
                 new PropertyMetadata.Builder<ViewMode>()
                     .initialValue(ViewMode.DEFAULT)
-                    .dispatcher(dispatcher)
+                    .synchronizationContext(syncRoot)
                     .create()) {
                 @Override
                 protected void invalidated() {
@@ -93,7 +90,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
         mapRotationStyle =
             new SimpleAsyncObjectProperty<>(
-                this, new PropertyMetadata.Builder<MapRotationStyle>().dispatcher(dispatcher).create()) {
+                this, new PropertyMetadata.Builder<MapRotationStyle>().synchronizationContext(syncRoot).create()) {
                 @Override
                 protected void invalidated() {
                     ((MViewInputHandler)getAdaptedView().getViewInputHandler()).setMapRotationStyle(get());
@@ -102,7 +99,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
         flatEarth =
             new SimpleAsyncBooleanProperty(
-                this, new PropertyMetadata.Builder<Boolean>().dispatcher(dispatcher).create()) {
+                this, new PropertyMetadata.Builder<Boolean>().synchronizationContext(syncRoot).create()) {
                 @Override
                 protected void invalidated() {
                     if (get() && viewMode.get().isPlaneCentered()) {
@@ -117,7 +114,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
             new WWAsyncDoubleProperty(
                 this,
                 "zoom",
-                dispatcher,
+                syncRoot,
                 MView.ZOOM,
                 getAdaptedView(),
                 zoom -> {
@@ -132,7 +129,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
             new WWAsyncObjectProperty<>(
                 this,
                 "heading",
-                dispatcher,
+                syncRoot,
                 MView.HEADING,
                 getAdaptedView(),
                 heading -> getAdaptedView().setHeading(heading));
@@ -141,7 +138,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
             new WWAsyncObjectProperty<>(
                 this,
                 "eyePosition",
-                dispatcher,
+                syncRoot,
                 MView.EYE_POSITION,
                 getAdaptedView(),
                 eyePosition -> getAdaptedView().setEyePosition(eyePosition));
@@ -185,7 +182,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
     @Override
     public Future<Void> goToPositionAsync(Position center) {
-        return dispatcher.runLaterAsync(
+        return syncRoot.runAsync(
             () -> {
                 if (getViewMode() != ViewMode.DEFAULT) {
                     return;
@@ -197,7 +194,7 @@ public class WWMapView extends ViewAdapter<MView> implements IWWMapView {
 
     @Override
     public Future<Void> goToSectorAsync(Sector sector, OptionalDouble maxElev) {
-        return dispatcher.runLaterAsync(
+        return syncRoot.runAsync(
             () -> {
                 if (getViewMode() != ViewMode.DEFAULT) {
                     return;

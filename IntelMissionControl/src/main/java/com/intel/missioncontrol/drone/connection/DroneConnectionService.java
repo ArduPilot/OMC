@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.drone.connection;
 
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.settings.ConnectionSettings;
@@ -190,22 +189,16 @@ public class DroneConnectionService implements IDroneConnectionService {
         }
 
         connectionState.set(ConnectionState.CONNECTING);
-        try {
-            return connector
-                .connectAsync()
-                .whenSucceeded(
-                    (drone) -> {
-                        connectorMap.put(drone, connector);
-                        connectedDroneConnectionItems.add(connectionItem);
-                    })
-                .whenFailed(e -> LOGGER.warn("Connect failed", e))
-                .whenDone((v) -> updateConnectionState());
-        } catch (Exception e) {
-            // Hardware configuration not available
-            SettableFuture<IDrone> future = SettableFuture.create();
-            future.setException(e);
-            return Futures.fromListenableFuture(future);
-        }
+
+        return connector
+            .connectAsync()
+            .whenSucceeded(
+                (drone) -> {
+                    connectorMap.put(drone, connector);
+                    connectedDroneConnectionItems.add(connectionItem);
+                })
+            .whenFailed(e -> LOGGER.warn("Connect failed", e))
+            .whenDone((v) -> updateConnectionState());
     }
 
     @Override

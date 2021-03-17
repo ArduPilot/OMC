@@ -6,17 +6,21 @@
 
 package eu.mavinci.core.plane;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CFlightplanManager;
 import eu.mavinci.core.listeners.IListener;
 import eu.mavinci.core.plane.listeners.AirplaneListenerDelegator;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerBackendConnectionLost;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerConnectionState;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerDelegator;
+import eu.mavinci.core.plane.listeners.IBackendBroadcastListener;
 import eu.mavinci.core.plane.sendableobjects.AndroidState;
+import eu.mavinci.core.plane.sendableobjects.Backend;
 import eu.mavinci.core.plane.sendableobjects.Config_variables;
+import eu.mavinci.core.plane.sendableobjects.MVector;
+import eu.mavinci.core.plane.sendableobjects.Port;
 import eu.mavinci.core.plane.sendableobjects.SimulationSettings;
 import eu.mavinci.core.plane.tcp.AAirplaneConnector;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -26,7 +30,7 @@ import java.util.logging.Level;
 public class CAirplane extends AAirplaneConnector implements IAirplaneListenerConnectionState, ICAirplane {
 
     private static IHardwareConfigurationManager hardwareConfigurationManager =
-        StaticInjector.getInstance(IHardwareConfigurationManager.class);
+        DependencyInjector.getInstance().getInstanceOf(IHardwareConfigurationManager.class);
 
     public IAirplaneListenerDelegator getRootHandler() {
         return rootHandler;
@@ -683,7 +687,8 @@ public class CAirplane extends AAirplaneConnector implements IAirplaneListenerCo
     // return super.getConnectionState();
     // }
 
-    public void tryReconnect() {}
+    public void tryReconnect() {
+    }
 
     public void requestSimulationSettings() {
         if (connector == null) {

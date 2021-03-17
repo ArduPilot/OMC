@@ -78,7 +78,7 @@ public class FlightPlanTemplate {
             copyOfLegacyPlan.open(flightPlan.getLegacyFlightplan().getFile());
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
-                .log(Level.WARNING, "Cannot create a mission based on a template " + this + " : " + e.getCause());
+                .log(Level.WARNING, "Cannot create a flightplan based on a template " + this + " : " + e.getCause());
             FlightPlan plan = new FlightPlan(copyOfLegacyPlan, false);
             return plan;
         }
@@ -99,7 +99,7 @@ public class FlightPlanTemplate {
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
                 .severe(
-                    "Cannot reload a mission from a file "
+                    "Cannot reload a flightplan from a file "
                         + flightPlan.getLegacyFlightplan().getFile()
                         + " : "
                         + e.getCause());
@@ -116,7 +116,7 @@ public class FlightPlanTemplate {
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
                 .severe(
-                    "Cannot create a mission from a file "
+                    "Cannot create a flightplan from a file "
                         + flightPlan.getLegacyFlightplan().getFile()
                         + " : "
                         + e.getCause());

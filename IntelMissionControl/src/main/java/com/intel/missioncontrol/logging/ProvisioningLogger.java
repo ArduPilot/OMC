@@ -29,7 +29,7 @@ public class ProvisioningLogger implements ProvisionListener {
     }
 
     private static class ProvisionNode {
-        final Class<?> type;
+        final Class type;
         final String name;
         final ProvisionNode parent;
         final List<ProvisionNode> children = new ArrayList<>();
@@ -37,7 +37,7 @@ public class ProvisioningLogger implements ProvisionListener {
         TriState constructionState = TriState.UNSET;
         TriState exceptionRoot = TriState.UNSET;
 
-        ProvisionNode(Class<?> type, ProvisionNode parent) {
+        ProvisionNode(Class type, ProvisionNode parent) {
             this.type = type;
             this.parent = parent;
 
@@ -136,46 +136,46 @@ public class ProvisioningLogger implements ProvisionListener {
         }
     }
 
-    private ThreadLocal<ProvisionNode> currentNode = ThreadLocal.withInitial(() -> null);
-    private ThreadLocal<Set<Object>> instances = ThreadLocal.withInitial(HashSet::new);
+    private ProvisionNode currentNode;
+    private Set<Object> instances = new HashSet<>();
 
     @Override
-    public <T> void onProvision(ProvisionInvocation<T> invocation) {
+    public synchronized <T> void onProvision(ProvisionInvocation<T> invocation) {
         if (!Platform.isFxApplicationThread()) {
             invocation.provision();
             return;
         }
 
-        Class<?> type = invocation.getBinding().getKey().getTypeLiteral().getRawType();
+        Class type = invocation.getBinding().getKey().getTypeLiteral().getRawType();
 
-        ProvisionNode previousNode = currentNode.get();
-        ProvisionNode cn = new ProvisionNode(type, previousNode);
-        currentNode.set(cn);
+        ProvisionNode previousNode = currentNode;
+        currentNode = new ProvisionNode(type, previousNode);
         if (previousNode != null) {
-            previousNode.children.add(cn);
+            previousNode.children.add(currentNode);
         }
 
         try {
             T instance = invocation.provision();
-            if (instances.get().add(instance)) {
-                cn.constructionState = TriState.TRUE;
+            if (!instances.contains(instance)) {
+                instances.add(instance);
+                currentNode.constructionState = TriState.TRUE;
             } else {
-                cn.constructionState = TriState.FALSE;
+                currentNode.constructionState = TriState.FALSE;
             }
         } catch (ProvisionException e) {
-            if (cn.exceptionRoot == TriState.UNSET) {
-                cn.exceptionRoot = TriState.TRUE;
+            if (currentNode.exceptionRoot == TriState.UNSET) {
+                currentNode.exceptionRoot = TriState.TRUE;
             }
 
-            if (cn.circularDependency == TriState.UNSET) {
+            if (currentNode.circularDependency == TriState.UNSET) {
                 Message message = e.getErrorMessages().iterator().next();
                 Throwable cause = message.getCause();
                 if (cause != null) {
                     String msg = cause.getMessage();
                     if (msg != null && msg.contains("circular")) {
-                        cn.circularDependency = TriState.TRUE;
+                        currentNode.circularDependency = TriState.TRUE;
 
-                        ProvisionNode parent = cn.parent;
+                        ProvisionNode parent = currentNode.parent;
                         while (parent != null) {
                             parent.circularDependency = TriState.FALSE;
                             parent = parent.parent;
@@ -187,15 +187,15 @@ public class ProvisioningLogger implements ProvisionListener {
             throw e;
         } finally {
             if (previousNode == null) {
-                instances.get().clear();
-                LOGGER.debug(cn.toString());
+                instances.clear();
+                LOGGER.debug(currentNode.toString());
             }
 
-            if (cn.exceptionRoot != TriState.UNSET) {
+            if (currentNode.exceptionRoot != TriState.UNSET) {
                 previousNode.exceptionRoot = TriState.FALSE;
             }
 
-            currentNode.set(previousNode);
+            currentNode = previousNode;
         }
     }
 

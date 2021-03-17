@@ -14,14 +14,14 @@ import com.intel.missioncontrol.map.LayerDefaults;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
 import gov.nasa.worldwind.geom.Vec4;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class ScalebarLayer extends WWLayerWrapper {
 
     @Inject
-    ScalebarLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new gov.nasa.worldwind.layers.ScalebarLayer(), dispatcher);
+    ScalebarLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new gov.nasa.worldwind.layers.ScalebarLayer(), syncRoot);
         gov.nasa.worldwind.layers.ScalebarLayer scalebarLayer =
             (gov.nasa.worldwind.layers.ScalebarLayer)getWrappedLayer();
         updateWidgetScale(scalebarLayer);

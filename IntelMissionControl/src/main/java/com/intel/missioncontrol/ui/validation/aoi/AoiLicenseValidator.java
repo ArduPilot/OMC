@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 /**
- * check A-14: licence of one of the UAVs of selected type does not allow the execution of the mission with specific
+ * check A-14: licence of one of the UAVs of selected type does not allow the execution of the flight plan with specific
  * AOIs
  */
 public class AoiLicenseValidator extends OnPicAreaChangedValidator {

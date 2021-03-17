@@ -6,21 +6,15 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.Orientation;
-import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.Metadata;
-import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.MetadataAdapter;
-import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.jsonMetadata.MetadataTagMapper;
-import eu.mavinci.desktop.helper.MFileFilter;
 import eu.mavinci.desktop.helper.MathHelper;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
@@ -29,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -40,13 +33,12 @@ import thebuzzmedia.exiftool.ExifTool.Tag;
 
 public class ExifInfos {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExifInfos.class);
-
-    public static final int MIN_SIZE_TO_TEST_EXIF = 10 * 124; // 1024
-    public static final int FOCAL_LENGTH_UNKNOWABLE = -2;
-    public static final String TIME_PREFIX = "time_";
+    private static Logger LOGGER = LoggerFactory.getLogger(ExifInfos.class);
 
     public static boolean enableAllWarning = true;
+    public static final int MIN_SIZE_TO_TEST_EXIF = 10 * 1024;
+    public static final int FOCAL_LENGHT_UNKNOWABLE = -2;
+    public static final String TIME_PREFIX = "time_";
 
     public String xmpMake = null;
     public String model = null;
@@ -64,12 +56,10 @@ public class ExifInfos {
     public CPhotoLogLine embeddedLog = null; // extracted from exif comments
     public int meteringMode = -1;
 
-    private Position position;
-    private Position baseStationPosition;
-    private String baseStationFixType;
-    private File file;
+    File file;
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     /** generating empty default class */
     public ExifInfos() {}
@@ -80,7 +70,7 @@ public class ExifInfos {
      * @param file
      * @throws IOException
      */
-    public ExifInfos(final File file) throws IOException {
+    public ExifInfos(File file) throws IOException {
         this();
         this.file = file;
         try {
@@ -100,7 +90,7 @@ public class ExifInfos {
                     // example filename K00016.DAT-CalibratedData-12062014_214422-_01_01_1904 02-20-18_758_0.0000 0.0000
                     // _WL_896,41_GapIndex_ 745.tifDateTimeOriginalBackup
                     SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy HHmmss");
-                    String[] tmp = name.split("_|-|,");
+                    String tmp[] = name.split("_|-|,");
                     // System.out.println(Arrays.asList(tmp));
                     datetime = formatter.parse(tmp[2] + " " + tmp[3]);
                     // System.out.println(datetime);
@@ -113,7 +103,7 @@ public class ExifInfos {
                     }
 
                     exposureSec = 10. / 1000; // 10ms TODO read this from filenames in future, ask rikola to add this!
-                    focalLengthMM = FOCAL_LENGTH_UNKNOWABLE; // mark as unknown, but it is ok that this is unknown!
+                    focalLengthMM = FOCAL_LENGHT_UNKNOWABLE; // mark as unknown, but it is ok that this is unknown!
                     return;
                 }
 
@@ -122,7 +112,10 @@ public class ExifInfos {
                     "Unable to extract timestamp from a image which filename looks like it contains it" + file, e);
             }
 
-            if (StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            if (DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
+                        .getSection(GeneralSettings.class)
+                        .getOperationLevel()
                     != OperationLevel.DEBUG) {
                 if (!file.exists()) {
                     throw new FileNotFoundException(file.getAbsolutePath());
@@ -148,7 +141,7 @@ public class ExifInfos {
 
             try {
                 valueMap =
-                    getMetadata(
+                    ExifTool.instance.getImageMeta(
                         file,
                         Tag.DATE_TIME_ORIGINAL,
                         Tag.EXPOSURE_TIME,
@@ -162,6 +155,8 @@ public class ExifInfos {
                         Tag.METERING_MODE,
                         Tag.DATE_TIME_ORIGINAL_BACKUP,
                         Tag.DATE_TIME_CREATED,
+                        //Tag.GPS_TIMESTAMP,
+                        //Tag.GPS_DATESTAMP,
                         Tag.IMAGE_WIDTH,
                         Tag.IMAGE_HEIGHT);
             } catch (Exception e) {
@@ -183,6 +178,7 @@ public class ExifInfos {
             if (userComment == null) {
                 try {
                     userComment = valueMap.get(Tag.USER_COMMENT);
+                    // System.out.println("comment:"+userComment);
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.error("Unable to extract EXIF userComment via ExifTool from image at " + file + ".", e1);
@@ -191,67 +187,63 @@ public class ExifInfos {
             }
 
             if (datetime == null) {
-                String dateOriginal;
-
+                String d = null;
                 try {
-                    dateOriginal = valueMap.get(Tag.DATE_TIME_ORIGINAL_BACKUP);
-
-                    if (dateOriginal != null) {
-                        if (!dateOriginal.equals("null")) {
+                    d = valueMap.get(Tag.DATE_TIME_ORIGINAL_BACKUP);
+                    if (d != null) {
+                        if (d.equals("null")) {
+                            // handle as null
+                        } else {
                             SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                            datetime = formatter.parse(dateOriginal);
+                            datetime = formatter.parse(d);
                         }
                     }
                 } catch (Exception e1) {
-                    dateOriginal = null;
+                    d = null;
                 }
 
-                if (dateOriginal == null && datetime == null) {
+                if (d == null && datetime == null) {
                     try {
-                        dateOriginal = valueMap.get(Tag.DATE_TIME_ORIGINAL);
+                        d = valueMap.get(Tag.DATE_TIME_ORIGINAL);
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                        datetime = formatter.parse(dateOriginal);
-                    } catch (Exception e1) {
-                        try {
-                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-                            datetime = formatter.parse(dateOriginal);
-                        } catch (Exception e2) { // TODO d = null; change error level
-                            dateOriginal = null;
-                        }
+                        datetime = formatter.parse(d);
+                    } catch (Exception e1) { // TODO d = null; change error level
+                        d = null;
                     }
                 }
             }
 
             if (datetime == null) {
-                String dateCreated = null;
-                try {
-                    dateCreated = valueMap.get(Tag.DATE_TIME_CREATED);
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                    datetime = formatter.parse(dateCreated);
-                } catch (Exception e1) {
-                    if (enableAllWarning) {
-                        LOGGER.error(
-                            "Unable to extract / process EXIF datetime "
-                                + dateCreated
-                                + " via ExifTool from image at "
-                                + file
-                                + ". Using file last modification time as backup",
-                            e1);
+                String d = null;
+                if (d == null && datetime == null) {
+                    try {
+                        d = valueMap.get(Tag.DATE_TIME_CREATED);
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                        datetime = formatter.parse(d);
+                    } catch (Exception e1) {
+                        if (enableAllWarning) {
+                            LOGGER.error(
+                                "Unable to extract / process EXIF datetime "
+                                    + d
+                                    + " via ExifTool from image at "
+                                    + file
+                                    + ". Using file last modification time as backup",
+                                e1);
+                        }
                     }
                 }
             }
 
             if (exposureSec <= 0) {
-                String exposureTime = null;
-
+                String d = null;
                 try {
-                    exposureTime = valueMap.get(Tag.EXPOSURE_TIME);
-                    exposureSec = Double.parseDouble(exposureTime);
+                    d = valueMap.get(Tag.EXPOSURE_TIME);
+                    exposureSec = Double.parseDouble(d);
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.warn(
                             "Unable to extract / process EXIF exposure "
-                                + exposureTime
+                                + d
                                 + " time via ExifTool from image at "
                                 + file,
                             e1);
@@ -260,18 +252,14 @@ public class ExifInfos {
             }
 
             if (focalLengthMM <= 0) {
-                String focalLength = null;
-
+                String d = null;
                 try {
-                    focalLength = valueMap.get(Tag.FOCAL_LENGTH);
-                    focalLengthMM = Double.parseDouble(focalLength);
+                    d = valueMap.get(Tag.FOCAL_LENGTH);
+                    focalLengthMM = Double.parseDouble(d);
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.warn(
-                            "Unable to extract / process EXIF focallength "
-                                + focalLength
-                                + " via ExifTool from image at "
-                                + file,
+                            "Unable to extract / process EXIF focallength " + d + " via ExifTool from image at " + file,
                             e1);
                     }
                 }
@@ -282,101 +270,91 @@ public class ExifInfos {
             }
 
             if (model == null) {
-                String model = null;
-
+                String d = null;
                 try {
-                    model = valueMap.get(Tag.MODEL);
-                    this.model = model.trim();
+                    d = valueMap.get(Tag.MODEL);
+                    model = d.trim();
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.warn(
-                            "Unable to extract EXIF modelname " + model + " via ExifTool from image at " + file, e1);
+                            "Unable to extract EXIF modelname " + d + " via ExifTool from image at " + file, e1);
                     }
                 }
             }
 
             if (imageWidth <= 0) {
-                String imageWidth = null;
-
+                String d = null;
                 try {
-                    imageWidth = valueMap.get(Tag.IMAGE_WIDTH);
-                    this.imageWidth = Integer.parseInt(imageWidth.trim());
+                    d = valueMap.get(Tag.IMAGE_WIDTH);
+                    imageWidth = Integer.parseInt(d.trim());
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.warn(
-                            "Unable to extract EXIF imageWidth " + imageWidth + " via ExifTool from image at " + file,
-                            e1);
+                            "Unable to extract EXIF imageWidth " + d + " via ExifTool from image at " + file, e1);
                     }
                 }
             }
 
             if (imageHeight <= 0) {
-                String imageHeight = null;
-
+                String d = null;
                 try {
-                    imageHeight = valueMap.get(Tag.IMAGE_HEIGHT);
-                    this.imageHeight = Integer.parseInt(imageHeight.trim());
+                    d = valueMap.get(Tag.IMAGE_HEIGHT);
+                    imageHeight = Integer.parseInt(d.trim());
                 } catch (Exception e1) {
                     if (enableAllWarning) {
                         LOGGER.warn(
-                            "Unable to extract EXIF imageHeight " + imageHeight + " via ExifTool from image at " + file,
-                            e1);
+                            "Unable to extract EXIF imageHeight " + d + " via ExifTool from image at " + file, e1);
                     }
                 }
             }
 
             if (aperture < 0) {
-                String aperture = null;
-
+                String d = null;
                 try {
-                    aperture = valueMap.get(Tag.APERTURE);
-                    this.aperture = Double.parseDouble(aperture);
+                    d = valueMap.get(Tag.APERTURE);
+                    aperture = Double.parseDouble(d);
 
                 } catch (Exception e1) {
                     // this is not very severe, since some compatibleLenseIds are not providing this information!
                     if (enableAllWarning) {
                         LOGGER.trace(
-                            "Unable to extract /process aperture " + aperture + " via ExifTool from image at " + file,
-                            e1);
+                            "Unable to extract /process aperture " + d + " via ExifTool from image at " + file, e1);
                     }
                 }
             }
 
             if (iso < 0) {
-                String iso = null;
-
+                String d = null;
                 try {
-                    iso = valueMap.get(Tag.ISO);
-                    this.iso = Double.parseDouble(iso);
+                    d = valueMap.get(Tag.ISO);
+                    iso = Double.parseDouble(d);
 
                 } catch (Exception e1) {
                     // this is not very severe, since some compatibleLenseIds are not providing this information!
                     if (enableAllWarning) {
-                        LOGGER.trace(
-                            "Unable to extract /process iso " + iso + " via ExifTool from image at " + file, e1);
+                        LOGGER.trace("Unable to extract /process iso " + d + " via ExifTool from image at " + file, e1);
                     }
                 }
             }
 
             if (meteringMode < 0) {
-                String meteringMode = null;
-
+                String d = null;
                 try {
-                    meteringMode = valueMap.get(Tag.METERING_MODE);
-                    this.meteringMode = Integer.parseInt(meteringMode);
+                    d = valueMap.get(Tag.METERING_MODE);
+                    meteringMode = Integer.parseInt(d);
 
                 } catch (Exception e1) {
                     // this is not very severe, since some compatibleLenseIds are not providing this information!
                     if (enableAllWarning) {
                         LOGGER.trace(
-                            "Unable to extract /process metering mode "
-                                + meteringMode
-                                + " via ExifTool from image at "
-                                + file,
+                            "Unable to extract /process metering mode " + d + " via ExifTool from image at " + file,
                             e1);
                     }
                 }
             }
+
+            // System.out.println("time2:"+ ( System.currentTimeMillis()-start2));
+
         } finally {
             if (datetime != null) {
                 timestamp = datetime.getTime() / 1000.;
@@ -400,19 +378,22 @@ public class ExifInfos {
                 iso = -1;
             }
 
-            if (!(userComment == null)) {
-                userComment = userComment.trim();
+            if (userComment == null) {
+                return;
+            }
 
-                if (!userComment.isEmpty()) {
-                    try {
-                        embeddedLog = new CPhotoLogLine(userComment);
-                    } catch (Exception e) {
-                        LOGGER.info("Problems parsing command EXIF-user comment for embeddedLog: " + userComment, e);
-                    }
+            userComment = userComment.trim();
+            if (!userComment.isEmpty()) {
+                try {
+                    embeddedLog = new CPhotoLogLine(userComment);
+                } catch (Exception e) {
+                    LOGGER.warn("Problems parsing command EXIF-user comment: " + userComment, e);
                 }
             }
         }
     }
+
+    Position pos;
 
     /**
      * warning, this call is maybe slow..
@@ -423,12 +404,12 @@ public class ExifInfos {
      * @throws IllegalArgumentException
      */
     public Position getGPSPosition() throws IllegalArgumentException, SecurityException, IOException {
-        if (position != null) {
-            return position;
+        if (pos != null) {
+            return pos;
         }
 
         Map<Tag, String> valueMap =
-            getMetadata(
+            ExifTool.instance.getImageMeta(
                 file,
                 Tag.MODEL,
                 Tag.GPS_ALTITUDE,
@@ -440,23 +421,21 @@ public class ExifInfos {
 
         double lat = Double.parseDouble(valueMap.get(Tag.GPS_LATITUDE));
         double lon = Double.parseDouble(valueMap.get(Tag.GPS_LONGITUDE));
-        double alt = Double.parseDouble(valueMap.get(Tag.GPS_ALTITUDE)); // TODO for GH /100
-
-        /** Seems like exiftool already takes care of the format of the lat/lon/alt depending on the type */
-        if (valueMap.get(Tag.GPS_ALTITUDE_REF).equals("1") && alt > 0) {
+        double alt = Double.parseDouble(valueMap.get(Tag.GPS_ALTITUDE));
+        if (valueMap.get(Tag.GPS_ALTITUDE_REF).equals("1")) {
             alt = -alt;
         }
 
-        if (valueMap.get(Tag.GPS_LONGITUDE_REF).equals("W") && lon > 0) {
+        if (valueMap.get(Tag.GPS_LONGITUDE_REF).equals("W")) {
             lon = -lon;
         }
 
-        if (valueMap.get(Tag.GPS_LATITUDE_REF).equals("S") && lat > 0) {
+        if (valueMap.get(Tag.GPS_LATITUDE_REF).equals("S")) {
             lat = -lat;
         }
 
-        position = Position.fromDegrees(lat, lon, alt);
-        return position;
+        pos = Position.fromDegrees(lat, lon, alt);
+        return pos;
     }
 
     /**
@@ -470,7 +449,7 @@ public class ExifInfos {
      * @throws IllegalArgumentException
      */
     public LatLon getGPSLatLonFromXmp() throws IllegalArgumentException, SecurityException, IOException {
-        Map<Tag, String> valueMap = getMetadata(file, Tag.XMP_LATITUDE, Tag.XMP_LONGITUDE);
+        Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(file, Tag.XMP_LATITUDE, Tag.XMP_LONGITUDE);
 
         double lat = Double.parseDouble(valueMap.get(Tag.XMP_LATITUDE));
         double lon = Double.parseDouble(valueMap.get(Tag.XMP_LONGITUDE));
@@ -489,12 +468,12 @@ public class ExifInfos {
      * @throws IllegalArgumentException
      */
     public double getRelativeAltitudeFromXmp() throws IllegalArgumentException, SecurityException, IOException {
-        Map<Tag, String> valueMap = getMetadata(file, Tag.XMP_RELATIVE_ALTITUDE);
+        Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(file, Tag.XMP_RELATIVE_ALTITUDE);
 
         return Double.parseDouble(valueMap.get(Tag.XMP_RELATIVE_ALTITUDE));
     }
 
-    private Orientation orientation;
+    Orientation orientation;
 
     /**
      * warning, this call is maybe slow..
@@ -510,7 +489,7 @@ public class ExifInfos {
         }
 
         Map<Tag, String> valueMap =
-            getMetadata(
+            ExifTool.instance.getImageMeta(
                 file, Tag.ROLL, Tag.PITCH, Tag.YAW, Tag.GPS_PITCH_ANGLE, Tag.GPS_ROLL_ANGLE, Tag.GPS_IMG_DIRECTION);
         double roll = 0;
         double pitch = 0;
@@ -530,13 +509,13 @@ public class ExifInfos {
         }
 
         try {
-            pitch = 90 + Double.parseDouble(valueMap.get(Tag.PITCH)); // for GH jpg correct/equal to other function
-            // pitch = Double.parseDouble(valueMap.get(Tag.PITCH));
+            pitch = 90 + Double.parseDouble(valueMap.get(Tag.PITCH));
+            //pitch = Double.parseDouble(valueMap.get(Tag.PITCH));
             parsed = true;
         } catch (Exception e) {
             try {
                 pitch = 90 + Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE));
-                pitch = Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE)); // TODO check
+                //pitch = Double.parseDouble(valueMap.get(Tag.GPS_PITCH_ANGLE));
                 parsed = true;
             } catch (Exception e1) {
             }
@@ -575,9 +554,9 @@ public class ExifInfos {
         if (orientation != null) {
             return orientation;
         }
-        // for DJI
+
         Map<Tag, String> valueMap =
-            getMetadata(
+            ExifTool.instance.getImageMeta(
                 file,
                 Tag.XMP_GIMBAL_ROLL_DEGREE,
                 Tag.XMP_GIMBAL_PITCH_DEGREE,
@@ -588,6 +567,7 @@ public class ExifInfos {
         double roll = 0;
         double pitch = 0;
         double yaw = 0;
+        boolean parsed = false;
         try {
             // TODO: verify
             roll = -Double.parseDouble(valueMap.get(Tag.XMP_GIMBAL_ROLL_DEGREE));
@@ -603,88 +583,6 @@ public class ExifInfos {
 
         orientation = new Orientation(roll, pitch, yaw);
         return orientation;
-    }
-
-    /**
-     * warning, this call is maybe slow..
-     *
-     * @return
-     * @throws IOException
-     * @throws SecurityException
-     * @throws IllegalArgumentException
-     */
-    public Orientation getOrientationFromGH() throws Exception {
-        if (orientation != null) {
-            return orientation;
-        }
-
-        Map<Tag, String> valueMap =
-            getMetadata(
-                file,
-                Tag.AIRFRAME_ROLL_DEGREE,
-                Tag.AIRFRAME_PITCH_DEGREE,
-                Tag.AIRFRAME_YAW_DEGREE,
-                Tag.GIMBAL_PITCH_DEGREE,
-                Tag.GIMBAL_ROLL_DEGREE,
-                Tag.GIMBAL_YAW_DEGREE);
-        double roll = 0;
-        double pitch = 0;
-        double yaw = 0;
-
-        try {
-            // TODO: verify
-            roll = -Double.parseDouble(valueMap.get(Tag.GIMBAL_ROLL_DEGREE));
-            // roll = Double.parseDouble(valueMap.get(Tag.GIMBAL_ROLL_DEGREE));
-            pitch = 90 + Double.parseDouble(valueMap.get(Tag.GIMBAL_PITCH_DEGREE));
-            // pitch = Double.parseDouble(valueMap.get(Tag.GIMBAL_PITCH_DEGREE));
-            yaw = Double.parseDouble(valueMap.get(Tag.GIMBAL_YAW_DEGREE));
-
-            // roll = roll + Double.parseDouble(valueMap.get(Tag.AIRFRAME_ROLL_DEGREE));
-            // pitch = pitch + Double.parseDouble(valueMap.get(Tag.AIRFRAME_PITCH_DEGREE));
-            // yaw = Double.parseDouble(valueMap.get(Tag.AIRFRAME_YAW_DEGREE));
-        } catch (Exception e) {
-            throw new Exception("cannot read orientation from xmp metadata: " + file);
-        }
-
-        orientation = new Orientation(roll, pitch, yaw);
-        return orientation;
-    }
-    /**
-     * warning, this call is maybe slow..
-     *
-     * @return
-     * @throws IOException
-     * @throws SecurityException
-     * @throws IllegalArgumentException
-     */
-    public Position getBaseStationPosition() throws IllegalArgumentException, SecurityException, IOException {
-        if (baseStationPosition != null) {
-            return baseStationPosition;
-        }
-
-        try {
-            Map<Tag, String> valueMap =
-                getMetadata(
-                    file, Tag.MODEL, Tag.BASE_STATION_ALTITUDE, Tag.BASE_STATION_LATITUDE, Tag.BASE_STATION_LONGITUDE);
-            double lat = Double.parseDouble(valueMap.get(Tag.BASE_STATION_LATITUDE));
-            double lon = Double.parseDouble(valueMap.get(Tag.BASE_STATION_LONGITUDE));
-            double alt = Double.parseDouble(valueMap.get(Tag.BASE_STATION_ALTITUDE));
-            baseStationPosition = Position.fromDegrees(lat, lon, alt);
-        } catch (Exception e) {
-            baseStationPosition = null;
-        }
-
-        return baseStationPosition;
-    }
-
-    public String getBaseStationFixType() throws IllegalArgumentException, SecurityException, IOException {
-        if (baseStationFixType != null) {
-            return baseStationFixType;
-        }
-
-        Map<Tag, String> valueMap = getMetadata(file, Tag.MODEL, Tag.BASE_STATION_FIX_TYPE);
-        baseStationFixType = valueMap.get(Tag.BASE_STATION_FIX_TYPE);
-        return baseStationFixType;
     }
 
     @Override
@@ -714,6 +612,9 @@ public class ExifInfos {
             IGenericCameraConfiguration cameraConfiguration, boolean checkCameraTrueImageFalse) {
         if (fromThumpFilename) {
             return null;
+            // System.out.println("cam:"+camera+ " exifModel:"+exifModel+" focalLenMM:"+focalLengthMM+ "
+            // aperture:"+aperture + "
+            // exposureSec:"+exposureSec +" timestamp:"+timestamp);
         }
 
         String fixString =
@@ -741,11 +642,7 @@ public class ExifInfos {
 
                 return null;
             } else {
-                if (aperture <= 0
-                        && !cameraConfiguration
-                            .getLens()
-                            .getDescription()
-                            .isLensApertureNotAvailable()) { // negative means exif does not cotain any info about this
+                if (aperture <= 0 && !cameraConfiguration.getLens().getDescription().isLensApertureNotAvailable()) { // negative means exif does not cotain any info about this
                     return languageHelper.getString(PhotoFile.KEY + ".undefinedAperture");
                 }
             }
@@ -792,65 +689,5 @@ public class ExifInfos {
         }
 
         return null;
-    }
-
-    private Map<Tag, String> getMetadata(final File image, final Tag... tags)
-            throws IllegalArgumentException, SecurityException, IOException {
-        /* request image description tag */
-        if (MFileFilter.tiffFilter.accept(image)) {
-            return applyImageDescription(image, Tag.IMAGE_DESCRIPTION, tags);
-        } else if (MFileFilter.jpegFilter.accept(image)) { // TODO add only if GH
-            return applyImageDescription(image, Tag.USER_COMMENT, tags);
-        } else {
-            Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(image, tags);
-            return valueMap;
-        }
-    }
-
-    private Map<Tag, String> applyImageDescription(File image, Tag sourceTag, Tag[] tags)
-            throws IllegalArgumentException, SecurityException, IOException {
-        Tag[] tagsWithDescription = Arrays.copyOf(tags, tags.length + 1);
-        tagsWithDescription[tags.length] = sourceTag;
-        Map<Tag, String> valueMap = ExifTool.instance.getImageMeta(image, tagsWithDescription);
-        var imageDescription = valueMap.get(sourceTag);
-        if ((imageDescription != null) && (imageDescription.length() != 0)) {
-            applyImageDescription(valueMap, sourceTag, tags);
-        }
-
-        return valueMap;
-    }
-
-    private void applyImageDescription(final Map<Tag, String> valueMap, Tag sourceTag, final Tag... tags) {
-        var serializer = new Gson();
-        if (valueMap.get(sourceTag).isEmpty() || valueMap.get(sourceTag).equals("default")) {
-            return;
-        }
-
-        // LOGGER.warn("JSON TAG: " + valueMap.get(sourceTag));
-        Metadata metadata = null;
-        try {
-            metadata = serializer.fromJson(valueMap.get(sourceTag), Metadata.class);
-            if (metadata == null) {
-                return;
-            }
-        } catch (JsonSyntaxException e) {
-            LOGGER.info("No description info " + " via ExifTool from image at " + file, e);
-        }
-
-        var adapter = new MetadataAdapter(metadata);
-        var mapper = new MetadataTagMapper(adapter);
-
-        for (Tag tag : tags) {
-            try {
-                // dont overwrite if already available or new value is empty
-                if ((valueMap.get(tag) == null) || (valueMap.get(tag).length() == 0)) {
-                    var value = mapper.getValueByTag(tag);
-                    if (value != null) {
-                        valueMap.put(tag, value);
-                    }
-                }
-            } catch (NullPointerException ignored) {
-            }
-        }
     }
 }

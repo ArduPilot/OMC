@@ -6,7 +6,6 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.map.worldwind.impl.GlobeSelector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
@@ -15,11 +14,7 @@ import eu.mavinci.desktop.helper.IRecomputeListener;
 import eu.mavinci.desktop.helper.Recomputer;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Position;
-import gov.nasa.worldwind.globes.EllipsoidalGlobe;
-import gov.nasa.worldwind.globes.FlatGlobe;
-import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import gov.nasa.worldwind.render.DrawContext;
 import java.util.ArrayList;
 
 public class DatasetTrackLayer extends RenderableLayer implements IRecomputeListener {
@@ -60,18 +55,5 @@ public class DatasetTrackLayer extends RenderableLayer implements IRecomputeList
         }
 
         renderable.setPositions(posList);
-    }
-
-    @Override
-    public void render(DrawContext dc) {
-        Globe globe = dc.getGlobe();
-        if (globe instanceof EllipsoidalGlobe
-                || (globe instanceof GlobeSelector && !(((GlobeSelector)globe).getGlobe() instanceof FlatGlobe))) {
-            renderable.setFollowTerrain(false);
-        } else {
-            renderable.setFollowTerrain(true);
-        }
-
-        super.render(dc);
     }
 }

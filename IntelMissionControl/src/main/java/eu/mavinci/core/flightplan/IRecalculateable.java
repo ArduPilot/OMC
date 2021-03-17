@@ -9,7 +9,7 @@ package eu.mavinci.core.flightplan;
 public interface IRecalculateable {
 
     /**
-     * executing the updating of any derived values of this mission element
+     * executing the updating of any derived values of this flight plan element
      * @return false in case of a failiure
      */
     boolean doSubRecalculationStage1();

@@ -89,7 +89,7 @@ public interface Future<V> extends ListenableFuture<V> {
      * changes. The reported progress will reflect the combined progress of the entire chain of futures that preceded
      * this future.
      */
-    void addProgressListener(ProgressListener listener);
+    void addListener(ProgressListener listener);
 
     /** Returns whether this future has completed successfully. */
     boolean isSuccess();

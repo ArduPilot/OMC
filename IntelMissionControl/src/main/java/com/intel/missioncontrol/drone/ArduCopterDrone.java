@@ -9,7 +9,7 @@ package com.intel.missioncontrol.drone;
 import com.intel.missioncontrol.drone.connection.DroneMessage;
 import com.intel.missioncontrol.drone.connection.MavlinkDroneConnection;
 import com.intel.missioncontrol.drone.connection.mavlink.IMavlinkParameter;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import io.dronefleet.mavlink.ardupilotmega.CopterMode;
 import io.dronefleet.mavlink.common.Heartbeat;
 import io.dronefleet.mavlink.common.MavAutopilot;
@@ -38,8 +38,8 @@ public class ArduCopterDrone extends MavlinkDrone {
             this,
             new PropertyMetadata.Builder<ArduCopterCustomMode>().initialValue(ArduCopterCustomMode.undefined).create());
 
-    private ArduCopterDrone(MavlinkDroneConnection droneConnection, IHardwareConfiguration hardwareConfiguration) {
-        super(droneConnection, hardwareConfiguration);
+    private ArduCopterDrone(MavlinkDroneConnection droneConnection, IPlatformDescription platformDescription) {
+        super(droneConnection, platformDescription);
 
         // Heartbeat
         droneConnection
@@ -70,7 +70,7 @@ public class ArduCopterDrone extends MavlinkDrone {
                             ? ArduCopterCustomMode.fromCustomMode(heartbeat.customMode())
                             : ArduCopterCustomMode.undefined);
                 },
-                hardwareConfiguration.getPlatformDescription().getConnectionProperties().getLinkLostTimeoutSeconds(),
+                platformDescription.getConnectionProperties().getLinkLostTimeoutSeconds(),
                 () -> {
                     // timeout
                     arduCopterCustomModeOld.set(true);
@@ -79,8 +79,8 @@ public class ArduCopterDrone extends MavlinkDrone {
     }
 
     public static ArduCopterDrone create(
-            MavlinkDroneConnection droneConnection, IHardwareConfiguration hardwareConfiguration) {
-        ArduCopterDrone drone = new ArduCopterDrone(droneConnection, hardwareConfiguration);
+            MavlinkDroneConnection droneConnection, IPlatformDescription platformDescription) {
+        ArduCopterDrone drone = new ArduCopterDrone(droneConnection, platformDescription);
         drone.initializeBindings();
         return drone;
     }
@@ -214,12 +214,23 @@ public class ArduCopterDrone extends MavlinkDrone {
     }
 
     @Override
-    protected void applyFlightPlanInitialSettings(MavlinkFlightPlan mavlinkFlightPlan) {}
-
-    @Override
     protected Future<Boolean> evaluateMessageAsync(DroneMessage message) {
         return Futures.successful(true);
     }
+
+    // TODO remove, now in hardware description json file
+    //    @Override
+    //    protected MavlinkFlightPlanOptions getMavlinkFlightPlanOptions(Position safetyAltitudePosition) {
+    //        return new MavlinkFlightPlanOptions(
+    //            MavlinkFlightPlanOptions.PrependMissionItem.WAYPOINT_AND_TAKEOFF,
+    //            safetyAltitudePosition,
+    //            true,
+    //            MavlinkFlightPlanOptions.GimbalAndAttitudeCommand.MOUNT_CONTROL,
+    //            MavlinkFlightPlanOptions.CameraTriggerCommand.DO_DIGICAM_CONTROL,
+    //            3.0f,
+    //            Angle.fromDegrees(15.0f),
+    //            20.0);
+    //    }
 
     @Override
     protected Future<Void> sendSetLandingModeAsync() {

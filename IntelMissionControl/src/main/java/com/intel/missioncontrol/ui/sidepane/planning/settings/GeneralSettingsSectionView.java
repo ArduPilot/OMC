@@ -98,9 +98,6 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
     private ToggleButton chooseRefPointPositionButton;
 
     @FXML
-    private Button referencePositionFromUavButton;
-
-    @FXML
     private Spinner<VariantQuantity> refPointLatitudeSpinner;
 
     @FXML
@@ -113,9 +110,6 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
     private VBox maxSpeedPane;
 
     @FXML
-    private VBox maxSpeedBox;
-
-    @FXML
     private Button recalculateNowBtn;
 
     @FXML
@@ -123,6 +117,9 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
 
     @FXML
     public HBox notUsingSurfaceElevationInSettings;
+
+    @FXML
+    private ToggleSwitch enableJumpOverWaypoints;
 
     @Inject
     private ISettingsManager settingsManager;
@@ -141,10 +138,7 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
 
         recalculateSwitch.selectedProperty().bindBidirectional(viewModel.recalculateOnEveryChangeProperty());
         stoppingSwitch.selectedProperty().bindBidirectional(viewModel.stopAtWaypointsProperty());
-
-        referencePositionFromUavButton
-            .disableProperty()
-            .bind(viewModel.getReferencePositionFromUavCommand().notExecutableProperty().or(viewModel.manualRefPointProperty()));
+        enableJumpOverWaypoints.selectedProperty().bindBidirectional(viewModel.enableJumpOverWaypointsProperty());
 
         initSpeedModeCombobox();
         initTerrainModeCombobox();
@@ -165,9 +159,6 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
 
         maxSpeedSpinner.editableProperty().bind(viewModel.maxSpeedSpinnerEnabledProperty());
         maxSpeedSpinner.disableProperty().bind(viewModel.maxSpeedSpinnerEnabledProperty().not());
-
-        maxSpeedBox.visibleProperty().bind(viewModel.maxSpeedSpinnerEnabledProperty());
-        maxSpeedBox.managedProperty().bind(maxSpeedBox.visibleProperty());
 
         stoppingSwitch.disableProperty().bind(viewModel.maxSpeedSpinnerEnabledProperty().not());
 
@@ -402,11 +393,6 @@ public class GeneralSettingsSectionView extends ViewBase<GeneralSettingsSectionV
     @FXML
     public void onToggleChooseRefPositionClicked() {
         viewModel.getToggleChooseRefPointCommand().execute();
-    }
-
-    @FXML
-    public void referencePositionFromUavButtonClicked() {
-        viewModel.getReferencePositionFromUavCommand().execute();
     }
 
     public void navigateToElevationSettings(ActionEvent actionEvent) {

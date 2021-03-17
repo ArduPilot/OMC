@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import com.intel.missioncontrol.drone.connection.DroneConnectionType;
 import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
 import com.intel.missioncontrol.drone.connection.IReadOnlyConnectionItem;
+import com.intel.missioncontrol.drone.connection.MavlinkConnectionListener;
 import com.intel.missioncontrol.drone.connection.MavlinkDroneConnectionItem;
 import com.intel.missioncontrol.drone.connection.TcpIpTransportType;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
@@ -58,7 +59,7 @@ import org.slf4j.LoggerFactory;
 
 public class ConnectionDialogViewModel
         extends DialogViewModel<ConnectionDialogViewModel.Result, ConnectionDialogViewModel.Payload> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionDialogViewModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MavlinkConnectionListener.class);
 
     public enum DialogType {
         Create,
@@ -368,21 +369,27 @@ public class ConnectionDialogViewModel
     private void updatePlatformItems() {
         List<IPlatformDescription> availablePlatforms = Arrays.asList(hardwareConfigurationManager.getPlatforms());
 
-        List<IPlatformDescription> platforms =
+        List<IPlatformDescription> mavlinkPlatforms =
             availablePlatforms
                 .stream()
-                .filter(desc -> desc.getConnectionType().equals(DroneConnectionType.MAVLINK) || desc.getConnectionType().equals(DroneConnectionType.MOCK))
+                .filter(desc -> desc.getConnectionType().equals(DroneConnectionType.MAVLINK))
                 .collect(Collectors.toList());
 
         List<IPlatformDescription> fixedWings =
-            platforms
+            mavlinkPlatforms
                 .stream()
                 .filter(IPlatformDescription::isInFixedWingEditionMode)
                 .collect(Collectors.toList());
         List<IPlatformDescription> multicopters =
-            platforms.stream().filter(desc -> !desc.isInFixedWingEditionMode()).collect(Collectors.toList());
+            mavlinkPlatforms.stream().filter(desc -> !desc.isInFixedWingEditionMode()).collect(Collectors.toList());
 
         availablePlatformItems.clear();
+
+        availablePlatforms.addAll(
+            availablePlatforms
+                .stream()
+                .filter(desc -> desc.getConnectionType().equals(DroneConnectionType.MOCK))
+                .collect(Collectors.toList()));
 
         if (!fixedWings.isEmpty()) {
             availablePlatformItems.add(new PlatformItem(PlatformItemType.FIXED_WING));

@@ -12,7 +12,6 @@ import java.lang.ref.WeakReference;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import org.asyncfx.concurrent.Future;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -146,10 +145,4 @@ public interface IApplicationContext {
 
     ReadOnlyListProperty<Toast> toastsProperty();
 
-
-    /**
-     * Miscellaneous variables/properties that are used from different (mostly independent) parts of the application
-     */
-    // non-persistent setting for live video widget visibility
-    SimpleBooleanProperty liveVideoActive = new SimpleBooleanProperty(false);
 }

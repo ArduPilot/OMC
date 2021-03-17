@@ -8,13 +8,12 @@ package eu.mavinci.core.flightplan;
 
 import static eu.mavinci.core.flightplan.CPicArea.FacadeScanningSide.left;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Ensure;
-import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.Unit;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.visitors.ContainsTypeVisitor;
 import eu.mavinci.core.flightplan.visitors.IFlightplanVisitor;
 import eu.mavinci.core.helper.MinMaxPair;
@@ -22,6 +21,7 @@ import eu.mavinci.core.helper.Pair;
 import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.gui.doublepanel.calculator.AltitudeGsdCalculator;
 import eu.mavinci.desktop.helper.MathHelper;
+import eu.mavinci.flightplan.Flightplan;
 import eu.mavinci.flightplan.Point;
 import eu.mavinci.flightplan.ReferencePoint;
 import eu.mavinci.flightplan.WindmillData;
@@ -32,15 +32,12 @@ import gov.nasa.worldwind.geom.Vec4;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class CPicArea extends AReentryContainer implements IMuteable, IRecalculateable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CPicArea.class);
-
-    private final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
 
     public static final double DEF_GSD = 0.001;
     public static final double MIN_GSD = 0.0002;
@@ -1137,7 +1134,8 @@ public abstract class CPicArea extends AReentryContainer implements IMuteable, I
             return false;
         }
 
-        return !CFlightplan.class.isAssignableFrom(cls) && !CPicArea.class.isAssignableFrom(cls);
+        return !CFlightplan.class.isAssignableFrom(cls)
+            && !CPicArea.class.isAssignableFrom(cls);
     }
 
     public boolean setAlt(double alt) {
@@ -1624,9 +1622,7 @@ public abstract class CPicArea extends AReentryContainer implements IMuteable, I
         if (scanDirection == ScanDirectionsTypes.towardLaning) {
             var fp = getFlightplan();
             Ensure.notNull(fp);
-            // Commented the code based on the bug IMC-3392:
-            // Commented code always overrides the settings irrespective of the saved flight plan
-            // ((Flightplan)fp).setEnableJumpOverWaypoints(true);
+            ((Flightplan)fp).setEnableJumpOverWaypoints(true);
         }
 
         flightplanStatementChanged(this);
@@ -1832,28 +1828,18 @@ public abstract class CPicArea extends AReentryContainer implements IMuteable, I
 
     public MinMaxPair getRestrictionIntervalInFpHeights(Position pos, double clearance) {
         if (planType.isNoFlyZone() || planType.isGeofence()) {
-            double minHeight = 0;
-            double maxHeight = 0;
+            double minHeight;
+            double maxHeight;
             if (isRestrictionFloorEnabled()) {
                 if (getRestrictionFloorRef() == RestrictedAreaHeightReferenceTypes.ABOVE_SEALEVEL) {
-                    try {
-                        minHeight =
-                            getRestrictionHeightAboveWgs84(pos, getRestrictionFloor(), getRestrictionFloorRef())
-                                - getFlightplan().getRefPointAltWgs84WithElevation()
-                                + elevationModel.getElevation(pos);
-                    } catch (ElevationModelRequestException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
+                    minHeight =
+                        getRestrictionHeightAboveWgs84(pos, getRestrictionFloor(), getRestrictionFloorRef())
+                            - getFlightplan().getRefPointAltWgs84WithElevation();
                 } else {
                     // above ground
-                    try {
-                        minHeight =
-                            getRestrictionHeightAboveWgs84(pos, getRestrictionFloor(), getRestrictionFloorRef())
-                                - getFlightplan().getRefPointAltWgs84WithElevation()
-                                + elevationModel.getElevation(pos);
-                    } catch (ElevationModelRequestException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
+                    minHeight =
+                        getRestrictionHeightAboveWgs84(pos, getRestrictionFloor(), getRestrictionFloorRef())
+                            - getFlightplan().getRefPointAltWgs84WithElevation();
                 }
             } else {
                 minHeight = Double.NEGATIVE_INFINITY;
@@ -1861,24 +1847,14 @@ public abstract class CPicArea extends AReentryContainer implements IMuteable, I
 
             if (isRestrictionCeilingEnabled()) {
                 if (getRestrictionCeilingRef() == RestrictedAreaHeightReferenceTypes.ABOVE_SEALEVEL) {
-                    try {
-                        maxHeight =
-                            getRestrictionHeightAboveWgs84(pos, getRestrictionCeiling(), getRestrictionCeilingRef())
-                                - getFlightplan().getRefPointAltWgs84WithElevation()
-                                + elevationModel.getElevation(pos);
-                    } catch (ElevationModelRequestException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
+                    maxHeight =
+                        getRestrictionHeightAboveWgs84(pos, getRestrictionCeiling(), getRestrictionCeilingRef())
+                            - getFlightplan().getRefPointAltWgs84WithElevation();
                 } else {
                     // above ground
-                    try {
-                        maxHeight =
-                            getRestrictionHeightAboveWgs84(pos, getRestrictionCeiling(), getRestrictionCeilingRef())
-                                - getFlightplan().getRefPointAltWgs84WithElevation()
-                                + elevationModel.getElevation(pos);
-                    } catch (ElevationModelRequestException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
+                    maxHeight =
+                        getRestrictionHeightAboveWgs84(pos, getRestrictionCeiling(), getRestrictionCeilingRef())
+                            - getFlightplan().getRefPointAltWgs84WithElevation();
                 }
             } else {
                 maxHeight = Double.POSITIVE_INFINITY;

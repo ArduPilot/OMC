@@ -6,11 +6,11 @@
 
 package com.intel.missioncontrol.map.worldwind.layers;
 
-import com.intel.missioncontrol.settings.ISettings;
-import com.intel.missioncontrol.settings.SettingsMetadata;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
+import com.intel.missioncontrol.settings.ISettings;
+import com.intel.missioncontrol.settings.SettingsMetadata;
 
 @SettingsMetadata(section = "generalLayerVisibility")
 public class GeneralLayerVisibility implements ISettings {
@@ -49,9 +49,6 @@ public class GeneralLayerVisibility implements ISettings {
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
 
     private final AsyncBooleanProperty tooltipLayerVisible =
-        new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
-
-    private final AsyncBooleanProperty airtrafficVisible =
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(true).create());
 
     public AsyncBooleanProperty mapBoxHybridLayerVisibleProperty() {
@@ -96,9 +93,5 @@ public class GeneralLayerVisibility implements ISettings {
 
     public AsyncBooleanProperty tooltipLayerVisibleProperty() {
         return tooltipLayerVisible;
-    }
-
-    public AsyncBooleanProperty airtrafficVisibleProperty() {
-        return airtrafficVisible;
     }
 }

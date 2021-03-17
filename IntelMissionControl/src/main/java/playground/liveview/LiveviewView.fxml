@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+  -->
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import playground.liveview.AspectRegion?>
+<?import playground.liveview.WrapperPane?>
+<?import playground.liveview.WrappedImageView?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="playground.liveview.LiveviewView"
+            fx:id="root"
+            prefHeight="400.0" prefWidth="600.0">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/navbar/layers/MapLayersView.css" />
+        <URL value="@/com/intel/missioncontrol/styles/icons.css" />
+    </stylesheets>
+    <left>
+        <TitledPane text="TestTitledPain">
+            <HBox styleClass="layer-row" alignment="CENTER_LEFT">
+                <CheckBox fx:id="chkVisible" text="Live Video" />
+                <Region minWidth="20"/>
+                <Button fx:id="btnDetach" styleClass="transparent-icon-button, icon-fullscreen" onAction="#handleDetach">
+                </Button>
+            </HBox>
+        </TitledPane>
+    </left>
+    <center>
+        <StackPane fx:id="content" style="-fx-background-color: #abd2ae">
+
+            <VBox StackPane.alignment="BOTTOM_LEFT" maxWidth="200" maxHeight="-Infinity">
+                <StackPane.margin>
+                    <Insets left="20" bottom="20" />
+                </StackPane.margin>
+
+            <VBox>
+
+                <children>
+                        <WrappedImageView style="-fx-background-color: #0bd2ae">
+                            <Image url="@/com/intel/missioncontrol/gfx/mavinciLiveview.png" />
+                        </WrappedImageView>
+                    <HBox>
+                    <children>
+                    <Button text="Click" />
+                    <Region HBox.hgrow="SOMETIMES"/>
+                    <Label text="hello?" />
+                    </children>
+                    </HBox>
+                </children>
+            </VBox>
+            </VBox>
+
+
+            <!--</AnchorPane>-->
+            <Button text="Try GC" StackPane.alignment="TOP_LEFT" onAction="#tryGC" prefWidth="30">
+                <StackPane.margin>
+                    <Insets top="20" left="30" />
+                </StackPane.margin>
+            </Button>
+
+
+            <fx:include source="LiveVideoPane.fxml" fx:id="liveVideoPane" />
+        </StackPane>
+
+    </center>
+
+</BorderPane>

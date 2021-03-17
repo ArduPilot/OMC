@@ -6,7 +6,7 @@
 
 package eu.mavinci.licence;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
 import java.util.List;
@@ -41,7 +41,7 @@ public enum Editions {
      * @return true if active Licence matches edition
      */
     public boolean isEnabled() {
-        Licence licence = StaticInjector.getInstance(ILicenceManager.class).getActiveLicence();
+        Licence licence = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence();
         if (this == Manned) {
             if (licence != null) {
                 return licence.isMannedEdition();

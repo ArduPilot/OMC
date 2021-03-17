@@ -53,8 +53,7 @@ public class DescriptionProvider implements IDescriptionProvider {
 
     @Inject
     public DescriptionProvider(IPathProvider pathProvider, IFileExtractor fileExtractor) {
-        // the dependency to file extractor makes sure that files got extracted before (as long as its not mocked by
-        // dependency injector with a proxy class
+        // the dependency to file extractor makes sure that files got extracted before
 
         platformDescriptions.clear();
         camerasDescriptions.clear();

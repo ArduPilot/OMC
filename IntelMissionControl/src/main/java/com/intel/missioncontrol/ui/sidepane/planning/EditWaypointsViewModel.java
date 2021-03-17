@@ -280,7 +280,7 @@ public class EditWaypointsViewModel extends DialogViewModel<Boolean, Void> {
             .addListener(
                 ((observable, oldValue, newValue) -> {
                     // if the set of waypoints changes this is typicall due to
-                    // recompuation of mission which will anyway crate new unselected objects,
+                    // recompuation of flight plan which will anyway crate new unselected objects,
                     // or due to deleting of the selection, where is also doen't hurt if we deselect first
                     deselectWaypoints(SelectionFilter.ANY);
                     waypoints.setAll(fp.waypointsProperty());

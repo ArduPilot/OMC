@@ -23,8 +23,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides base functionality for all non-trivial futures, such as completing the future and adding
@@ -32,17 +30,14 @@ import org.slf4j.LoggerFactory;
  */
 class CompletableFuture<V> extends AbstractFuture<V> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompletableFuture.class);
-
     interface FutureProvider<V, R> {
         Future<R> provide(Future<V> predecessor, ProgressInfo progressInfo);
     }
 
     private static <T> Future<T> verifyNotNull(Future<T> future) {
         if (future == null) {
-            String message = "Async continuations must return a " + Future.class.getSimpleName() + " instance.";
-            LOGGER.error(message);
-            throw new NullPointerException(message);
+            throw new NullPointerException(
+                "Async continuations must return a " + Future.class.getSimpleName() + " instance.");
         }
 
         return future;

@@ -15,9 +15,9 @@ import com.intel.missioncontrol.drone.FlightSegment;
 import com.intel.missioncontrol.drone.GnssInfo;
 import com.intel.missioncontrol.drone.GnssState;
 import com.intel.missioncontrol.drone.ICamera;
+import com.intel.missioncontrol.drone.IDistanceSensor;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.drone.IHealth;
-import com.intel.missioncontrol.drone.IObstacleAvoidance;
 import com.intel.missioncontrol.drone.IRemoteControl;
 import com.intel.missioncontrol.drone.IStorage;
 import com.intel.missioncontrol.drone.connection.IDroneConnectionExceptionListener;
@@ -26,7 +26,6 @@ import com.intel.missioncontrol.drone.legacy.PlaneHealth;
 import com.intel.missioncontrol.drone.legacy.PlaneHealth.PlaneHealthChannel;
 import com.intel.missioncontrol.drone.legacy.PlaneHealth.PlaneHealthChannelInfo;
 import com.intel.missioncontrol.drone.legacy.PlaneHealth.PlaneHealthChannelStatus;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.measure.Unit;
@@ -119,7 +118,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
@@ -127,9 +125,6 @@ import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
 
-// This class was used for legacy IAirplane / mavinci desktop compatibility and is broken.
-// Refer to other implementations of the IDrone interface.
-@Deprecated(forRemoval = true)
 public class Drone
         implements IAirplaneListenerConnectionState,
             IAirplaneListenerFlightphase,
@@ -154,8 +149,7 @@ public class Drone
             ICommandListenerResult,
             IDrone {
 
-    private final AsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration =
-        new SimpleAsyncObjectProperty<>(this);
+    private final AsyncObjectProperty<IPlatformDescription> platformDescription = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<Battery> battery = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<GnssInfo> gnssInfo = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<Position> position = new SimpleAsyncObjectProperty<>(this);
@@ -269,7 +263,7 @@ public class Drone
 
         battery.setValue(new Battery());
         gnssInfo.setValue(new GnssInfo());
-        hardwareConfiguration.setValue(legacyPlane.getHardwareConfiguration());
+        platformDescription.setValue(legacyPlane.getHardwareConfiguration().getPlatformDescription());
         flightSegment.setValue(FlightSegment.UNKNOWN);
     }
 
@@ -737,8 +731,8 @@ public class Drone
     }
 
     @Override
-    public ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfigurationProperty() {
-        return hardwareConfiguration;
+    public ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescriptionProperty() {
+        return platformDescription;
     }
 
     @Override
@@ -758,11 +752,6 @@ public class Drone
 
     @Override
     public ReadOnlyAsyncObjectProperty<? extends IRemoteControl> remoteControlProperty() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty() {
         return null;
     }
 
@@ -1018,7 +1007,7 @@ public class Drone
     }
 
     @Override
-    public ReadOnlyAsyncObjectProperty<? extends IObstacleAvoidance> obstacleAvoidanceProperty() {
+    public ReadOnlyAsyncListProperty<? extends IDistanceSensor> distanceSensorsProperty() {
         return null;
     }
 
@@ -1254,14 +1243,14 @@ public class Drone
         }
     }
 
-    public IHardwareConfiguration getHardwareConfiguration() {
+    public IPlatformDescription getPlatformDescription() {
         Flightplan flightPlan = getOnAirFlightplan();
 
         if (flightPlan == null) {
             return null;
         }
 
-        return flightPlan.getHardwareConfiguration();
+        return flightPlan.getHardwareConfiguration().getPlatformDescription();
     }
 
     private Flightplan getOnAirFlightplan() {
@@ -1487,7 +1476,7 @@ public class Drone
     }
 
     public boolean isCopter() {
-        IPlatformDescription platformDescription = getHardwareConfiguration().getPlatformDescription();
+        IPlatformDescription platformDescription = getPlatformDescription();
 
         if (platformDescription == null) {
             return false;
@@ -1563,7 +1552,7 @@ public class Drone
             .runLaterAsync(() -> getLegacyPlane().setFlightPhase(AirplaneFlightphase.startFlight))
             .whenSucceeded(
                 (v) -> {
-                    // TODO: start mission
+                    // TODO: start flight plan
                     flightSegment.setValue(FlightSegment.PLAN_RUNNING);
                 });
     }
@@ -1583,7 +1572,7 @@ public class Drone
             .runLaterAsync(() -> getLegacyPlane().setFlightPhase(AirplaneFlightphase.startFlight))
             .whenSucceeded(
                 (v) -> {
-                    // TODO: resume mission
+                    // TODO: resume flight plan
                     flightSegment.setValue(FlightSegment.PLAN_RUNNING);
                 });
     }
@@ -1596,6 +1585,11 @@ public class Drone
                     // TODO: return home
                     flightSegment.setValue(FlightSegment.PLAN_RUNNING);
                 });
+    }
+
+    @Override
+    public Future<Void> setActiveFlightPlanAsync(FlightPlanWithWayPointIndex flightPlan) {
+        return null;
     }
 
     public BooleanProperty sendInProgressProperty() {

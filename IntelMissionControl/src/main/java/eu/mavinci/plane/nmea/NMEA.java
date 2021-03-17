@@ -6,8 +6,8 @@
 
 package eu.mavinci.plane.nmea;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.protocol.CNMEA;
 import eu.mavinci.desktop.helper.MathHelper;
 import gov.nasa.worldwind.geom.Position;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NMEA extends CNMEA {
 
-    private static final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private static final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
 
     public static String createGPGGA(Position refPositionAboveMSL) {
 

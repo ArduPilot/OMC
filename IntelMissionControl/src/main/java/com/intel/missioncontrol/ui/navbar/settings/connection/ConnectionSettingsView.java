@@ -7,7 +7,8 @@
 package com.intel.missioncontrol.ui.navbar.settings.connection;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.drone.connection.TcpIpTransportType;
+import org.asyncfx.beans.binding.ConversionBindings;
+import org.asyncfx.beans.binding.Converters;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
@@ -41,13 +42,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.asyncfx.beans.binding.ConversionBindings;
-import org.asyncfx.beans.binding.Converters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConnectionSettingsView extends ViewBase<ConnectionSettingsViewModel> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionSettingsView.class);
 
     private final GeneralSettings generalSettings;
     private static final String ICON_COMPLETE = "/com/intel/missioncontrol/icons/icon_complete(fill=theme-green).svg";
@@ -322,18 +318,13 @@ public class ConnectionSettingsView extends ViewBase<ConnectionSettingsViewModel
             connectionDetailsColumn,
             item ->
                 Bindings.createStringBinding(
-                    () -> {
-                        String host = item.hostProperty().getValue();
-                        int port = item.portProperty().getValue().intValue();
-                        TcpIpTransportType transportType = item.connectionTransportTypeProperty().getValue();
-
-                        if (host != null && port > 0 && transportType != null) {
-                            return host + " : " + port + " (" + transportType + ")";
-                        }
-
-                        LOGGER.warn("Invalid connection settings for " + item.nameProperty().getValue());
-                        return "";
-                    },
+                    () ->
+                        item.hostProperty().getValue()
+                            + " : "
+                            + item.portProperty().getValue()
+                            + " ("
+                            + item.connectionTransportTypeProperty().getValue()
+                            + ")",
                     item.hostProperty(),
                     item.portProperty(),
                     item.connectionTransportTypeProperty()),
@@ -380,27 +371,23 @@ public class ConnectionSettingsView extends ViewBase<ConnectionSettingsViewModel
                     protected void updateItem(TRow item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item == null || empty) {
-                            textProperty().unbind();
-                            graphicProperty().unbind();
-                            setText(null);
-                            setGraphic(null);
+                            if (textBinding != null) {
+                                textProperty().unbind();
+                                setText(null);
+                                setTooltip(null);
+                            }
+
+                            if (graphicBinding != null) {
+                                graphicProperty().unbind();
+                                setGraphic(null);
+                            }
                         } else {
                             if (textBinding != null) {
                                 textProperty().bind(textBinding.apply(item));
-
+                                Tooltip tooltip = new Tooltip();
                                 setWrapText(true);
-                                tooltipProperty()
-                                    .bind(
-                                        Bindings.createObjectBinding(
-                                            () -> {
-                                                String text = textProperty().get();
-                                                if (text != null && !text.isEmpty()) {
-                                                    return new Tooltip(text);
-                                                }
-
-                                                return null;
-                                            },
-                                            textProperty()));
+                                tooltip.textProperty().bind(textProperty());
+                                setTooltip(tooltip);
                             }
 
                             if (graphicBinding != null) {

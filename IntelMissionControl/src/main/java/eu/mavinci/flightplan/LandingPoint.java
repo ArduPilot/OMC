@@ -38,9 +38,7 @@ public final class LandingPoint extends Point
 
     private int id = ReentryPoint.INVALID_REENTRYPOINT;
     private LandingModes mode = DEFAULT_LANDING_MODES;
-
-    public static final double DEFAULT_ALTITUDEINMETER = 50;
-    private double altitudeInMeter = DEFAULT_ALTITUDEINMETER;
+    private double altitudeInMeter = 50;
 
     private boolean landAutomatically;
 
@@ -173,12 +171,6 @@ public final class LandingPoint extends Point
     @Override
     public Position getPosition() {
         return new Position(getLatLon(), altitudeInMeter);
-    }
-
-    public Boolean isDefaultPosition() {
-        return (this.getPosition().getLatitude().equals(Angle.ZERO)
-                && this.getPosition().getLongitude().equals(Angle.ZERO)
-                && this.getPosition().getAltitude() == DEFAULT_ALTITUDEINMETER);
     }
 
     public void setMode(LandingModes mode) {

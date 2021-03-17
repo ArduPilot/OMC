@@ -12,10 +12,8 @@ import io.dronefleet.mavlink.common.MavCmd;
 import io.dronefleet.mavlink.common.MavFrame;
 import io.dronefleet.mavlink.common.MavMissionType;
 import io.dronefleet.mavlink.common.MavMountMode;
-import io.dronefleet.mavlink.common.MavVtolState;
 import io.dronefleet.mavlink.common.MissionItem;
 import io.dronefleet.mavlink.common.MissionItemInt;
-import io.dronefleet.mavlink.common.VtolTransitionHeading;
 import io.dronefleet.mavlink.util.EnumValue;
 import javafx.util.Duration;
 
@@ -33,6 +31,22 @@ public class MavlinkMissionItem {
     private final double y;
     private final double z;
     private final MavMissionType missionType;
+
+    @Override
+    public String toString() {
+        return "MavlinkMissionItem{"
+            + "seq="
+            + seq
+            + ", command="
+            + command
+            + ", x="
+            + x
+            + ", y="
+            + y
+            + ", z="
+            + z
+            + '}';
+    }
 
     private MavlinkMissionItem(
             MavFrame frame,
@@ -216,53 +230,6 @@ public class MavlinkMissionItem {
             MavMissionType.MAV_MISSION_TYPE_MISSION);
     }
 
-    public static MavlinkMissionItem createVtolTakeoffMissionItem(
-            Position position, VtolTransitionHeading vtolTransitionHeading, double yawDeg, boolean autocontinue) {
-        return new MavlinkMissionItem(
-            MavFrame.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            MavCmd.MAV_CMD_NAV_VTOL_TAKEOFF,
-            autocontinue ? 1 : 0,
-            0,
-            EnumValue.of(vtolTransitionHeading).value(),
-            0.0f, //NaN does not work here with Ardupilot
-            (float)yawDeg,
-            position.latitude.degrees,
-            position.longitude.degrees,
-            position.elevation,
-            MavMissionType.MAV_MISSION_TYPE_MISSION);
-    }
-
-    public static MavlinkMissionItem createVtolTransitionMissionItem(
-            MavVtolState mavVtolState, boolean autocontinue) {
-
-        float vtolState;
-        switch (mavVtolState)
-        {
-            case MAV_VTOL_STATE_MC:
-            case MAV_VTOL_STATE_FW:
-                vtolState = EnumValue.of(mavVtolState).value();
-                break;
-            case MAV_VTOL_STATE_UNDEFINED:
-            case MAV_VTOL_STATE_TRANSITION_TO_FW:
-            case MAV_VTOL_STATE_TRANSITION_TO_MC:
-            default:
-                throw new IllegalArgumentException("invalid mavVtolState");
-        }
-
-        return new MavlinkMissionItem(
-                MavFrame.MAV_FRAME_MISSION,
-                MavCmd.MAV_CMD_DO_VTOL_TRANSITION,
-                autocontinue ? 1 : 0,
-                vtolState,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                MavMissionType.MAV_MISSION_TYPE_MISSION);
-    }
-
     public static MavlinkMissionItem createChangeSpeedMissionItem(
             double groundSpeedMetersPerSecond, boolean autocontinue) {
         return new MavlinkMissionItem(
@@ -390,90 +357,7 @@ public class MavlinkMissionItem {
             position.latitude.degrees,
             position.longitude.degrees,
             position.elevation, // altitude of landing point relative to takeoff altitude. 0 if same elevation as
-            // takeoff.
+                                // takeoff.
             MavMissionType.MAV_MISSION_TYPE_MISSION);
-    }
-
-    public static MavlinkMissionItem createVtolLandMissionItem(Position position, boolean autocontinue) {
-        return new MavlinkMissionItem(
-            MavFrame.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            MavCmd.MAV_CMD_NAV_VTOL_LAND,
-            autocontinue ? 1 : 0,
-            0,
-            0,
-            Float.NaN,
-            Float.NaN,
-            position.latitude.degrees,
-            position.longitude.degrees,
-            position.elevation, // altitude of landing point relative to takeoff altitude. 0 if same elevation as
-            // takeoff.
-            MavMissionType.MAV_MISSION_TYPE_MISSION);
-    }
-
-    @Override
-    public String toString() {
-        if (frame == MavFrame.MAV_FRAME_GLOBAL_RELATIVE_ALT) {
-            return "MavlinkMissionItem{"
-                + "seq="
-                + seq
-                + ", x(lat)="
-                + x
-                + ", y(lon)="
-                + y
-                + ", z(alt)="
-                + z
-                + ", command="
-                + command
-                + " ("
-                + EnumValue.of(command).value()
-                + "), param1="
-                + param1
-                + ", param2="
-                + param2
-                + ", param3="
-                + param3
-                + ", param4="
-                + param4
-                + ", frame="
-                + frame
-                + ", current="
-                + current
-                + ", autocontinue="
-                + autocontinue
-                + ", missionType="
-                + missionType
-                + '}';
-        }
-
-        return "MavlinkMissionItem{"
-            + "seq="
-            + seq
-            + ", command="
-            + command
-            + " ("
-            + EnumValue.of(command).value()
-            + "), param1="
-            + param1
-            + ", param2="
-            + param2
-            + ", param3="
-            + param3
-            + ", param4="
-            + param4
-            + ", x(param5)="
-            + x
-            + ", y(param6)="
-            + y
-            + ", z(param7)="
-            + z
-            + ", frame="
-            + frame
-            + ", current="
-            + current
-            + ", autocontinue="
-            + autocontinue
-            + ", missionType="
-            + missionType
-            + '}';
     }
 }

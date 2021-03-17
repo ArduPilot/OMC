@@ -7,16 +7,6 @@
 package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.drone.BatteryAlertLevel;
-import com.intel.missioncontrol.drone.IBattery;
-import com.intel.missioncontrol.drone.IDrone;
-import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
-import eu.mavinci.core.helper.StringHelper;
-import java.util.ArrayList;
-import java.util.List;
-import javafx.beans.binding.Bindings;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.AsyncDoubleProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
@@ -25,6 +15,13 @@ import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
 import org.asyncfx.beans.property.SimpleAsyncDoubleProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
+import com.intel.missioncontrol.drone.BatteryAlertLevel;
+import com.intel.missioncontrol.drone.IBattery;
+import com.intel.missioncontrol.drone.IDrone;
+import com.intel.missioncontrol.helper.ILanguageHelper;
+import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
+import eu.mavinci.core.helper.StringHelper;
+import javafx.beans.binding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,15 +104,5 @@ public class BatteryValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.BATTERY;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

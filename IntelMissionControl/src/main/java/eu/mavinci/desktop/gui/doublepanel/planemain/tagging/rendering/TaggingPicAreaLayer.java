@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging.rendering;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.IMapController;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
 import com.intel.missioncontrol.ui.navigation.WorkflowStep;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerPicArea;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
@@ -32,12 +32,13 @@ import gov.nasa.worldwind.render.ShapeAttributes;
 import java.awt.Point;
 import java.util.LinkedList;
 import java.util.Vector;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class TaggingPicAreaLayer extends AbstractLayer implements IMapLayerListener {
 
     public static final double HIGHLIGHT_SCALE = FlightplanLayer.HIGHLIGHT_SCALE;
-    private static final INavigationService navigationService = StaticInjector.getInstance(INavigationService.class);
+    private static final INavigationService navigationService =
+        DependencyInjector.getInstance().getInstanceOf(INavigationService.class);
 
     MapLayerPicArea pic;
 
@@ -46,16 +47,16 @@ public class TaggingPicAreaLayer extends AbstractLayer implements IMapLayerListe
 
     private final IMapController mapController;
     private final ISelectionManager selectionManager;
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
 
     public TaggingPicAreaLayer(
             MapLayerPicArea pic,
             IMapController mapController,
             ISelectionManager selectionManager,
-            Dispatcher dispatcher) {
+            SynchronizationRoot syncRoot) {
         this.pic = pic;
         this.mapController = mapController;
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.selectionManager = selectionManager;
         iconLayer.setAlwaysUseAbsoluteElevation(false); // this will help to make shure, no icon is under the terrain
         iconLayer.setRenderAlwaysOverGround(true);
@@ -76,7 +77,7 @@ public class TaggingPicAreaLayer extends AbstractLayer implements IMapLayerListe
     eu.mavinci.flightplan.Point selectedPoint;
 
     protected void reconstructLayer() {
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 Object selection = selectionManager.getSelection();
                 isSelected = false;

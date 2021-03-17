@@ -189,7 +189,7 @@ public class SettingsManager implements ISettingsManager {
             }
         }
 
-        throw new IllegalArgumentException("Unknown settings section: " + sectionType.getName() + " in file " + settingsFile.getAbsolutePath());
+        throw new IllegalArgumentException("Unknown settings section: " + sectionType.getName());
     }
 
     private JsonObject loadJsonFromFile(Path file) {

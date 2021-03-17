@@ -34,7 +34,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
 
     public static final String PREFIX_MATCHED_PLG = "matched_";
 
-    public double alt;
+    public int alt;
     public int alt_ultrasonic = Integer.MIN_VALUE;
     public double gps_altitude_cm;
     public boolean dji_altitude;
@@ -101,29 +101,24 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
         try {
             // Use XMP metadata if available (more accurate for DJI drones)
             double relAltitude = exifInfos.getRelativeAltitudeFromXmp();
-            alt = relAltitude * 100;
+            alt = (int)Math.round(relAltitude * 100);
             double elevation = p.getElevation(); // elevation in meters above sea level according to EXIF specification.
-            // gps_altitude_cm = elevation * 100;
+            //gps_altitude_cm = (int)Math.round(elevation * 100);
             gps_altitude_cm = 0; // DJI gps wrong
             dji_altitude = true;
         } catch (Exception e) {
             double elevation = p.getElevation(); // elevation in meters above sea level according to EXIF specification.
-            gps_altitude_cm = alt = elevation * 100; // GH in m
+            gps_altitude_cm = alt = (int)Math.round(elevation * 100);
             dji_altitude = false;
         }
 
         try {
             Orientation orientation;
             try {
-                // GH
-                orientation = exifInfos.getOrientationFromGH(); // TODO check this
+                // Use XMP metadata if available (necessary for DJI drones)
+                orientation = exifInfos.getOrientationFromXmp(); // TODO check this
             } catch (Exception e) {
-                try {
-                    // Use XMP metadata if available (necessary for DJI drones)
-                    orientation = exifInfos.getOrientationFromXmp(); // TODO check this
-                } catch (Exception e1) {
-                    orientation = exifInfos.getOrientation();
-                }
+                orientation = exifInfos.getOrientation();
             }
 
             planeYaw = cameraYaw = orientation.getYaw();
@@ -140,7 +135,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
         cameraYaw = or.getYaw();
         this.lat = lat;
         this.lon = lon;
-        this.alt = elev * 100;
+        this.alt = (int)Math.round(elev * 100);
     }
 
     @Override
@@ -201,7 +196,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
         gps_ellipsoid_cm = 0; // TODO FIXME, get this from JSON
         type = PhotoLogLineType.TIGGER;
         fixType = GPSFixType.dgps; // TODO FIXME, get this from JSON
-        alt = geotag.geotag.pressure_height_m * 100;
+        alt = (int)Math.round(geotag.geotag.pressure_height_m * 100);
 
         groundSpeed_cms = (int)Math.round(geotag.geotag.speed_m_per_s.getLength() * 100);
         heading =
@@ -229,7 +224,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
         planePitch = pd.plane_pitch;
         planeYaw = pd.plane_yaw;
 
-        alt = pd.alt;
+        alt = Math.round(pd.alt);
         lat = pd.lat;
         lon = pd.lon;
 
@@ -321,7 +316,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
         imageNumber = Integer.parseInt(parts[1]);
         lon = Double.parseDouble(parts[6]);
         lat = Double.parseDouble(parts[5]);
-        alt = Double.parseDouble(parts[3]);
+        alt = Integer.parseInt(parts[3]);
         alt_ultrasonic = Integer.parseInt(parts[4]);
         groundSpeed_cms = Integer.parseInt(parts[7]);
 
@@ -627,7 +622,7 @@ public class CPhotoLogLine implements Comparable<CPhotoLogLine> {
 
         File f =
             new File(
-                "/home/marco/data/Open Mission Control/sessions/Demo_Session/matchings/2012_10_12_Corn_Hail_Damage_at_Nienburg/matched_photo-Fri-12-Oct-2012_09-26-46.plg");
+                "/home/marco/data/Intel Mission Control/sessions/Demo_Session/matchings/2012_10_12_Corn_Hail_Damage_at_Nienburg/matched_photo-Fri-12-Oct-2012_09-26-46.plg");
 
         System.out.println("Reading and fixing camera_yaw interpolation bug in: " + f);
 

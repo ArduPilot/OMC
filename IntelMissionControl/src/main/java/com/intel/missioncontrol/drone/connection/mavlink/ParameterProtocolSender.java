@@ -21,12 +21,8 @@ import java.util.regex.Pattern;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
 import org.asyncfx.concurrent.FutureCompletionSource;
-import org.asyncfx.concurrent.Futures;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ParameterProtocolSender extends PayloadSender {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ParameterProtocolSender.class);
 
     public ParameterProtocolSender(
             MavlinkEndpoint recipient, MavlinkHandler handler, CancellationSource cancellationSource) {
@@ -235,25 +231,17 @@ public class ParameterProtocolSender extends PayloadSender {
     }
 
     public Future<Void> setParamAsync(IMavlinkParameter parameter) {
-        Future<Void> res;
         if (parameter instanceof Parameter) {
-            res = setParamAsync((Parameter)parameter);
+            return setParamAsync((Parameter)parameter);
         } else if (parameter instanceof ExtendedParameter) {
-            res = setExtParamAsync((ExtendedParameter)parameter);
+            return setExtParamAsync((ExtendedParameter)parameter);
         } else {
             throw new IllegalArgumentException("Unknown IMavlinkParameter instance");
         }
-
-        res.whenFailed(e -> LOGGER.error("Error setting MAVLink parameter: " + parameter.toString(), e));
-        return res;
     }
 
     // Set multiple mavlink parameters simultaneously (normal or extended).
     public Future<Void> setParamsAsync(List<IMavlinkParameter> parameters) {
-        if (parameters.size() == 0) {
-            return Futures.successful();
-        }
-
         CancellationSource cts = new CancellationSource();
         this.cancellationSource.addListener(cts::cancel);
 

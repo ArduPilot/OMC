@@ -21,7 +21,7 @@ public class PositionOrientationData extends MObject {
     public int time_usec = 0;
 
     /** Altitude above starting point in cm. */
-    public double altitude = 0;
+    public float altitude = 0;
 
     /** Latitude of last GPS fix. */
     public double lat = 0.0F;

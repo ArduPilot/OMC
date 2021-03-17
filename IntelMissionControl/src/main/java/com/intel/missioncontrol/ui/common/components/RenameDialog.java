@@ -6,13 +6,13 @@
 
 package com.intel.missioncontrol.ui.common.components;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.SystemInformation;
 import com.intel.missioncontrol.helper.WindowHelper;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.util.Optional;
 import java.util.function.Function;
 import javafx.scene.Node;
@@ -109,7 +109,7 @@ public class RenameDialog {
 
     private static void setGenericStyle(Dialog dialog) {
         dialog.initStyle(StageStyle.UTILITY);
-        ISettingsManager settingsManager = StaticInjector.getInstance(ISettingsManager.class);
+        ISettingsManager settingsManager = DependencyInjector.getInstance().getInstanceOf(ISettingsManager.class);
         dialog.getDialogPane()
             .getStylesheets()
             .addAll(settingsManager.getSection(GeneralSettings.class).getTheme().getStylesheets());

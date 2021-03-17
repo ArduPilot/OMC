@@ -72,8 +72,8 @@ public class MainMenuCommandManager {
 
     private static final String MANUAL_PATH_ARG = "manual_path";
     private static final String DEFAULT_MANUAL_FOLDER = "../manuals";
-    private static final String MANUAL_FILE = "omc-quick-start-guide.pdf";
-    private static final String QUICK_START_GUIDE_FILE = "omc-quick-start-guide.pdf";
+    private static final String MANUAL_FILE = "manual.pdf";
+    private static final String QUICK_START_GUIDE_FILE = "imc-quick-start-guide.pdf";
 
     private final ViewModel ownerViewModel;
     private final IApplicationContext applicationContext;
@@ -156,7 +156,8 @@ public class MainMenuCommandManager {
         menuModel
             .find(MainMenuModel.Project.RENAME)
             .setActionHandler(
-                applicationContext::renameCurrentMission, applicationContext.currentMissionProperty().isNotNull());
+                () -> Dispatcher.platform().run(applicationContext::renameCurrentMission),
+                applicationContext.currentMissionProperty().isNotNull());
 
         menuModel
             .find(MainMenuModel.Project.SHOW)
@@ -667,7 +668,7 @@ public class MainMenuCommandManager {
                         missionManager.refreshRecentMissionInfos();
                     }
                 },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
     }
 
     private void handleTicketDownload() {
@@ -690,7 +691,7 @@ public class MainMenuCommandManager {
     }
 
     private void handleOldSupportUpload() {
-        supportManager.scanReportFolder(true);
+        supportManager.scanReportFolder();
     }
 
 }

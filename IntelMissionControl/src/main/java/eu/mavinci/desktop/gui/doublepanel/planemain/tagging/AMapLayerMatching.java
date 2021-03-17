@@ -68,37 +68,17 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
     protected boolean rollEnabled = false;
     protected boolean pitchEnabled = false;
     protected boolean yawEnabled = false;
+    protected double altitudeValue = 0;
+    protected double rollValue = 0;
+    protected double pitchValue = 0;
+    protected double yawValue = 0;
+    protected double altitudeSpread = 0;
+    protected double rollSpread = 0;
+    protected double pitchSpread = 0;
+    protected double yawSpread = 0;
 
-    protected double altitudeFrom = 0;
-    protected double rollFrom = 0;
-    protected double pitchFrom = 0;
-    protected double yawFrom = 0;
-
-    protected double altitudeTo = 0;
-    protected double rollTo = 0;
-    protected double pitchTo = 0;
-    protected double yawTo = 0;
-
-    protected double altitudeMin = 0;
-    protected double altitudeMax = 0;
-    protected double rollMin = 0;
-    protected double rollMax = 0;
-    protected double pitchMin = 0;
-    protected double pitchMax = 0;
-    protected double yawMin = 0;
-    protected double yawMax = 0;
-
-    protected boolean isoEnabled = false;
-    protected boolean exposureTimeEnabled = false;
-    protected boolean exposureEnabled = false;
-    protected boolean imageTypeEnabled = false;
-    protected boolean annotationEnabled = false;
-    protected boolean areaEnabled = false;
-    protected boolean flightplanEnabled = false;
-    protected String flightplanSelection = "";
-
-    protected String selectedExportFilter = "All except filtered";
-    protected String selectedExportFilterFlag = "1";
+    protected boolean onlyInPicArea = true;
+    protected boolean useAll = false;
 
     private ProjectionType projectionType = ProjectionType.INSPECTIONS_3D;
 
@@ -111,12 +91,6 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
     private LocationType locationType = LocationType.ASSUMED;
 
     private int countFiltered;
-    private int areaNotPassedFilter;
-    private int rollNotPassedFilter;
-    private int yawNotPassedFilter;
-    private int pitchNotPassedFilter;
-    private int rangeNotPassedFilter;
-
     private long totalSizeFilteredBytes;
     private String filteredFileType = "";
     private final GpsFixTypeCounter gpsFixTypeCounter = new GpsFixTypeCounter();
@@ -160,13 +134,6 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
 
                     gpsFixTypeCounter.clear();
                     countFiltered = 0;
-                    areaNotPassedFilter = 0;
-                    rollNotPassedFilter = 0;
-                    yawNotPassedFilter = 0;
-                    pitchNotPassedFilter = 0;
-                    rangeNotPassedFilter = 0;
-
-                    // TODO IMC-3043 add here all filters extra
                     totalSizeFilteredBytes = 0L;
                     filteredFileType = "";
 
@@ -174,32 +141,10 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
                         if (subLayer instanceof MapLayerMatch) {
                             MapLayerMatch match = (MapLayerMatch)subLayer;
                             if (!match.isPassFilter) {
-                                if (!match.getAreaPassFilter()) {
-                                    areaNotPassedFilter++;
-                                }
-
-                                if (!match.getRollPassFilter()) {
-                                    rollNotPassedFilter++;
-                                }
-
-                                if (!match.getYawPassFilter()) {
-                                    yawNotPassedFilter++;
-                                }
-
-                                if (!match.getPitchPassFilter()) {
-                                    pitchNotPassedFilter++;
-                                }
-
-                                if (!match.getRangePassFilter()) {
-                                    rangeNotPassedFilter++;
-                                }
-
                                 continue;
                             }
 
                             countFiltered++;
-                            // TODO IMC-3043 add here all filters extra
-
                             GPSFixType fix = match.getPhotoLogLine().fixType;
                             gpsFixTypeCounter.increment(fix);
 
@@ -344,6 +289,20 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
         setChanged(true);
     }
 
+    public boolean isUsingAll() {
+        return useAll;
+    }
+
+    public void setUseAll(boolean useAll) {
+        // Debug.printStackTrace(this.useAll, useAll);
+        if (this.useAll == useAll) {
+            return;
+        }
+
+        this.useAll = useAll;
+        filterChanged();
+    }
+
     public double getMaxPixelFuzzyness() {
         return maxPixelFuzzyness;
     }
@@ -405,314 +364,107 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
         }
     }
 
-    public double getAltitudeFrom() {
-        return altitudeFrom;
+    public double getAltitudeValue() {
+        return altitudeValue;
     }
 
-    public void setAltitudeFrom(double altitudeFrom) {
-        if (this.altitudeFrom != altitudeFrom) {
-            this.altitudeFrom = altitudeFrom;
+    public void setAltitudeValue(double altitudeValue) {
+        if (this.altitudeValue != altitudeValue) {
+            this.altitudeValue = altitudeValue;
             filterChanged();
         }
     }
 
-    public double getAltitudeMin() {
-        return altitudeMin;
+    public double getRollValue() {
+        return rollValue;
     }
 
-    public double getAltitudeMax() {
-        return altitudeMax;
-    }
-
-    public double getRollFrom() {
-        return rollFrom;
-    }
-
-    public void setRollFrom(double rollFrom) {
-        if (this.rollFrom != rollFrom) {
-            this.rollFrom = rollFrom;
+    public void setRollValue(double rollValue) {
+        if (this.rollValue != rollValue) {
+            this.rollValue = rollValue;
             filterChanged();
         }
     }
 
-    public double getRollMin() {
-        return rollMin;
+    public double getPitchValue() {
+        return pitchValue;
     }
 
-    public double getRollMax() {
-        return rollMax;
-    }
-
-    public double getPitchFrom() {
-        return pitchFrom;
-    }
-
-    public void setPitchFrom(double pitchFrom) {
-        if (this.pitchFrom != pitchFrom) {
-            this.pitchFrom = pitchFrom;
+    public void setPitchValue(double pitchValue) {
+        if (this.pitchValue != pitchValue) {
+            this.pitchValue = pitchValue;
             filterChanged();
         }
     }
 
-    public double getPitchMin() {
-        return pitchMin;
+    public double getYawValue() {
+        return yawValue;
     }
 
-    public double getPitchMax() {
-        return pitchMax;
-    }
-
-    public double getYawFrom() {
-        return yawFrom;
-    }
-
-    public void setYawFrom(double yawFrom) {
-        if (this.yawFrom != yawFrom) {
-            this.yawFrom = yawFrom;
+    public void setYawValue(double yawValue) {
+        if (this.yawValue != yawValue) {
+            this.yawValue = yawValue;
             filterChanged();
         }
     }
 
-    public double getYawMin() {
-        return yawMin;
+    public double getAltitudeSpread() {
+        return altitudeSpread;
     }
 
-    public double getYawMax() {
-        return yawMax;
-    }
-
-    public double getAltitudeTo() {
-        return altitudeTo;
-    }
-
-    public void setAltitudeTo(double altitudeTo) {
-        if (this.altitudeTo != altitudeTo) {
-            this.altitudeTo = altitudeTo;
+    public void setAltitudeSpread(double altitudeSpread) {
+        if (this.altitudeSpread != altitudeSpread) {
+            this.altitudeSpread = altitudeSpread;
             filterChanged();
         }
     }
 
-    public void setAltitudeMin(double altitudeMin) {
-        if (this.altitudeMin != altitudeMin) {
-            this.altitudeMin = altitudeMin;
-            // filterChanged();
-        }
+    public double getRollSpread() {
+        return rollSpread;
     }
 
-    public void setAltitudeMax(double altitudeMax) {
-        if (this.altitudeMax != altitudeMax) {
-            this.altitudeMax = altitudeMax;
-            // filterChanged();
-        }
-    }
-
-    public double getRollTo() {
-        return rollTo;
-    }
-
-    public void setRollTo(double rollTo) {
-        if (this.rollTo != rollTo) {
-            this.rollTo = rollTo;
+    public void setRollSpread(double rollSpread) {
+        if (this.rollSpread != rollSpread) {
+            this.rollSpread = rollSpread;
             filterChanged();
         }
     }
 
-    public void setRollMin(double rollMin) {
-        if (this.rollMin != rollMin) {
-            this.rollMin = rollMin;
-            // filterChanged();
-        }
+    public double getPitchSpread() {
+        return pitchSpread;
     }
 
-    public void setRollMax(double rollMax) {
-        if (this.rollMax != rollMax) {
-            this.rollMax = rollMax;
-            // filterChanged();
-        }
-    }
-
-    public double getPitchTo() {
-        return pitchTo;
-    }
-
-    public void setPitchTo(double pitchTo) {
-        if (this.pitchTo != pitchTo) {
-            this.pitchTo = pitchTo;
+    public void setPitchSpread(double pitchSpread) {
+        if (this.pitchSpread != pitchSpread) {
+            this.pitchSpread = pitchSpread;
             filterChanged();
         }
     }
 
-    public void setPitchMin(double pitchMin) {
-        if (this.pitchMin != pitchMin) {
-            this.pitchMin = pitchMin;
-            // filterChanged();
-        }
+    public double getYawSpread() {
+        return yawSpread;
     }
 
-    public void setPitchMax(double pitchMax) {
-        if (this.pitchMax != pitchMax) {
-            this.pitchMax = pitchMax;
-            // filterChanged();
-        }
-    }
-
-    public double getYawTo() {
-        return yawTo;
-    }
-
-    public void setYawTo(double yawTo) {
-        if (this.yawTo != yawTo) {
-            this.yawTo = yawTo;
+    public void setYawSpread(double yawSpread) {
+        if (this.yawSpread != yawSpread) {
+            this.yawSpread = yawSpread;
             filterChanged();
         }
     }
 
-    public void setYawMin(double yawMin) {
-        if (this.yawMin != yawMin) {
-            this.yawMin = yawMin;
-            // filterChanged();
-        }
+    public boolean isOnlyInPicArea() {
+        return onlyInPicArea;
     }
 
-    public void setYawMax(double yawMax) {
-        if (this.yawMax != yawMax) {
-            this.yawMax = yawMax;
-            // filterChanged();
-        }
-    }
-
-    public boolean getIsoEnabled() {
-        return isoEnabled;
-    }
-
-    public void setIsoEnabled(boolean isoEnabled) {
-        if (this.isoEnabled != isoEnabled) {
-            this.isoEnabled = isoEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getExposureTimeEnabled() {
-        return exposureTimeEnabled;
-    }
-
-    public void setExposureTimeEnabled(boolean exposureTimeEnabled) {
-        if (this.exposureTimeEnabled != exposureTimeEnabled) {
-            this.exposureTimeEnabled = exposureTimeEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getExposureEnabled() {
-        return exposureEnabled;
-    }
-
-    public void setExposureEnabled(boolean exposureEnabled) {
-        if (this.exposureEnabled != exposureEnabled) {
-            this.exposureEnabled = exposureEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getImageTypeEnabled() {
-        return imageTypeEnabled;
-    }
-
-    public void setImageTypeEnabled(boolean imageTypeEnabled) {
-        if (this.imageTypeEnabled != imageTypeEnabled) {
-            this.imageTypeEnabled = imageTypeEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getAnnotationEnabled() {
-        return annotationEnabled;
-    }
-
-    public void setAnnotationEnabled(boolean annotationEnabled) {
-        if (this.annotationEnabled != annotationEnabled) {
-            this.annotationEnabled = annotationEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getAreaEnabled() {
-        return areaEnabled;
-    }
-
-    public void setAreaEnabled(boolean areaEnabled) {
-        if (this.areaEnabled != areaEnabled) {
-            this.areaEnabled = areaEnabled;
-            filterChanged();
-        }
-    }
-
-    public boolean getFlightplanEnabled() {
-        return flightplanEnabled;
-    }
-
-    public void setFlightplanEnabled(boolean flightplanEnabled) {
-        if (this.flightplanEnabled != flightplanEnabled) {
-            this.flightplanEnabled = flightplanEnabled;
-            filterChanged();
-        }
-    }
-
-    public String getFlightplanSelection() {
-        return flightplanSelection;
-    }
-
-    public void setFlightplanSelection(String flightplanSelection) {
-        if (this.flightplanSelection != flightplanSelection) {
-            this.flightplanSelection = flightplanSelection;
-            filterChanged();
-        }
-    }
-
-    public String getSelectedExportFilter() {
-        return this.selectedExportFilter;
-    }
-
-    public void setSelectedExportFilter(String selectedExportFilter) {
-        if (this.selectedExportFilter != selectedExportFilter) {
-            this.selectedExportFilter = selectedExportFilter;
-            filterChanged();
-        }
-    }
-
-    public String getSelectedExportFilterFlag() {
-        return this.selectedExportFilterFlag;
-    }
-
-    public void setSelectedExportFilterFlag(String selectedExportFilterFlag) {
-        if (this.selectedExportFilterFlag != selectedExportFilterFlag) {
-            this.selectedExportFilterFlag = selectedExportFilterFlag;
+    public void setOnlyInPicArea(boolean onlyInPicArea) {
+        if (this.onlyInPicArea != onlyInPicArea) {
+            this.onlyInPicArea = onlyInPicArea;
             filterChanged();
         }
     }
 
     public int getCountFiltered() {
         return countFiltered;
-    }
-
-    public int getAreaNotPassedFilter() {
-        return areaNotPassedFilter;
-    }
-
-    public int getRollNotPassedFilter() {
-        return rollNotPassedFilter;
-    }
-
-    public int getYawNotPassedFilter() {
-        return yawNotPassedFilter;
-    }
-
-    public int getPitchNotPassedFilter() {
-        return pitchNotPassedFilter;
-    }
-
-    public int getRangeNotPassedFilter() {
-        return rangeNotPassedFilter;
     }
 
     public long getTotalSizeFilteredBytes() {
@@ -733,11 +485,6 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
 
     public void guessGoodFilters() {
         MinMaxPair minMaxAlt = new MinMaxPair();
-
-        MinMaxPair minMaxRoll = new MinMaxPair();
-        MinMaxPair minMaxPitch = new MinMaxPair();
-        MinMaxPair minMaxYaw = new MinMaxPair();
-
         int cnt = 0;
         double xYaw = 0;
         double yYaw = 0;
@@ -759,10 +506,6 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
                         ? computeCornerData.getAltOverCenter()
                         : match.line.getAltInM();
                 minMaxAlt.update(alt);
-                minMaxRoll.update(match.line.cameraRoll); // TODO CLST check
-                minMaxPitch.update(match.line.cameraPitch);
-                minMaxYaw.update(match.line.cameraYaw);
-
                 cnt++;
                 xYaw += Math.sin(Math.toRadians(match.line.cameraYaw));
                 yYaw += Math.cos(Math.toRadians(match.line.cameraYaw));
@@ -827,90 +570,67 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
         }
 
         altitudeAGLEnabled = false;
-        double avg = histAlt.getCenter(histAlt.getPercentileBin(0.5));
-        double spread =
+        altitudeValue = histAlt.getCenter(histAlt.getPercentileBin(0.5));
+        altitudeSpread =
             degStep
                 + Math.max(
-                    avg - histAlt.getCenter(histAlt.getPercentileBin(cutPercentil)),
-                    histAlt.getCenter(histAlt.getPercentileBin(1 - cutPercentil)) - avg);
-        // altitudeFrom = avg - spread;
-        // altitudeTo = avg + spread;
-        altitudeMin = minMaxAlt.min;
-        altitudeMax = minMaxAlt.max;
-        altitudeFrom = Math.max(avg - spread, altitudeMin);
-        altitudeTo = Math.min(avg + spread, altitudeMax);
+                    altitudeValue - histAlt.getCenter(histAlt.getPercentileBin(cutPercentil)),
+                    histAlt.getCenter(histAlt.getPercentileBin(1 - cutPercentil)) - altitudeValue);
 
         rollEnabled = false;
-        avg = histRoll.getCenter(histRoll.getPercentileBin(0.5));
-        spread =
+        rollValue = histRoll.getCenter(histRoll.getPercentileBin(0.5));
+        rollSpread =
             degStep
                 + Math.max(
-                    avg - histRoll.getCenter(histRoll.getPercentileBin(cutPercentil)),
-                    histRoll.getCenter(histRoll.getPercentileBin(1 - cutPercentil)) - avg);
-        avg += rollAvg;
-        while (avg < -180) {
-            avg += 360;
+                    rollValue - histRoll.getCenter(histRoll.getPercentileBin(cutPercentil)),
+                    histRoll.getCenter(histRoll.getPercentileBin(1 - cutPercentil)) - rollValue);
+        rollValue += rollAvg;
+        while (rollValue < -180) {
+            rollValue += 360;
         }
 
-        while (avg >= 180) {
-            avg -= 360;
+        while (rollValue >= 180) {
+            rollValue -= 360;
         }
-
-        rollMin = minMaxRoll.min;
-        rollMax = minMaxRoll.max;
-        rollFrom = Math.max(avg - spread, rollMin);
-        rollTo = Math.min(avg + spread, rollMax);
-
-        yawEnabled = false;
-        avg = histYaw.getCenter(histYaw.getPercentileBin(0.5));
-        spread =
-            degStep
-                + Math.max(
-                    avg - histYaw.getCenter(histYaw.getPercentileBin(cutPercentil)),
-                    histYaw.getCenter(histYaw.getPercentileBin(1 - cutPercentil)) - avg);
-        avg += yawAvg;
-
-        while (avg < 0) {
-            avg += 360;
-        }
-
-        while (avg >= 360) {
-            avg -= 360;
-        }
-
-        yawMin = minMaxYaw.min;
-        yawMax = minMaxYaw.max;
-        yawFrom = Math.max(avg - spread, yawMin);
-        yawTo = Math.min(avg + spread, yawMax);
 
         pitchEnabled = false;
-        avg = histPitch.getCenter(histPitch.getPercentileBin(0.5));
-        spread =
+        pitchValue = histPitch.getCenter(histPitch.getPercentileBin(0.5));
+        pitchSpread =
             degStep
                 + Math.max(
-                    avg - histPitch.getCenter(histPitch.getPercentileBin(cutPercentil)),
-                    histPitch.getCenter(histPitch.getPercentileBin(1 - cutPercentil)) - avg);
-        avg += pitchAvg;
-        while (avg < -180) {
-            avg += 360;
+                    pitchValue - histPitch.getCenter(histPitch.getPercentileBin(cutPercentil)),
+                    histPitch.getCenter(histPitch.getPercentileBin(1 - cutPercentil)) - pitchValue);
+        pitchValue += pitchAvg;
+        while (pitchValue < -180) {
+            pitchValue += 360;
         }
 
-        while (avg >= 180) {
-            avg -= 360;
+        while (pitchValue >= 180) {
+            pitchValue -= 360;
         }
 
-        pitchMin = minMaxPitch.min;
-        pitchMax = minMaxPitch.max;
-        pitchFrom = Math.max(avg - spread, pitchMin);
-        pitchTo = Math.min(avg + spread, pitchMax);
+        yawEnabled = false;
+        yawValue = histYaw.getCenter(histYaw.getPercentileBin(0.5));
+        yawSpread =
+            degStep
+                + Math.max(
+                    yawValue - histYaw.getCenter(histYaw.getPercentileBin(cutPercentil)),
+                    histYaw.getCenter(histYaw.getPercentileBin(1 - cutPercentil)) - yawValue);
+        yawValue += yawAvg;
 
-        setProjectionType(Math.abs(avg) + spread > 50 ? ProjectionType.INSPECTIONS_3D : ProjectionType.SURVEYS_2D);
+        while (yawValue < 0) {
+            yawValue += 360;
+        }
 
-        // TODO IMC-3043 new filter values
+        while (yawValue >= 360) {
+            yawValue -= 360;
+        }
 
-        // TODO IMC-3043 is this still necessary?
+        setProjectionType(
+            Math.abs(pitchValue) + pitchSpread > 50 ? ProjectionType.INSPECTIONS_3D : ProjectionType.SURVEYS_2D);
+
         // disable filter, if no picarea is avaliable, to see at least something
-        // setOnlyInPicArea(getProjectionType() == ProjectionType.SURVEYS_2D && !getPicAreas().isEmpty());
+        setOnlyInPicArea(getProjectionType() == ProjectionType.SURVEYS_2D && !getPicAreas().isEmpty());
 
         filterChanged();
     }
@@ -940,6 +660,11 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
      * @return if filter value was changed
      */
     private boolean applyFilter(MapLayerMatch match) {
+        if (useAll) {
+            match.setPassFilter(true);
+            return true;
+        }
+
         AerialPinholeImage img = match.img;
 
         if (img == null) {
@@ -965,13 +690,6 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
                 : match.line.getAltInM();
         // System.out.println(match.getResourceFile() + " -> "+alt + " - " + match.line.alt/100f);
 
-        // TODO IMC-3043 show the number of images filtered out by each filter
-        match.setRangePassFilter(true);
-        match.setRollPassFilter(true);
-        match.setPitchPassFilter(true);
-        match.setYawPassFilter(true);
-        match.setAreaPassFilter(true);
-
         boolean isPass =
             // (GlobalSettings.userLevel != GuiLevels.DEBUG || match.getFuzzyness().inPixel <= maxPixelFuzzyness) &&
             // && (!onlyMainLines || match.line.isOnMainLine()) && (!onlySingleDirection || match.line.isForwardLine()
@@ -980,28 +698,17 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
                 && isRollPass(match)
                 && isPitchPass(match)
                 && isYawPass(match);
-        if (!isPass) {
-            if (!isAltAGLPass(alt)) match.setRangePassFilter(false);
-            if (!isRollPass(match)) match.setRollPassFilter(false);
-            if (!isPitchPass(match)) match.setPitchPassFilter(false);
-            if (!isYawPass(match)) match.setYawPassFilter(false);
-        }
-        // TODO IMC-3043 add new filters
-
-        if (areaEnabled && computeCornerData != null && !getVisiblePicAreas().isEmpty()) {
-            match.setAreaPassFilter(false);
+        if (isPass && onlyInPicArea && computeCornerData != null && !getVisiblePicAreas().isEmpty()) {
+            isPass = false;
             for (MapLayerPicArea picArea : getVisiblePicAreas()) {
                 if (picArea.intersectsWith(
                         computeCornerData.getGroundProjectedCorners(), computeCornerData.getSector())) {
-                    match.setAreaPassFilter(true);
+                    isPass = true;
                     break;
                 }
             }
         }
 
-        if (!match.getAreaPassFilter() && isPass) {
-            isPass = false;
-        }
         // System.out.println("apply Filter on " + match + " pass="+isPass);
         return match.setPassFilter(isPass);
     }
@@ -1465,9 +1172,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             return true;
         }
 
-        Double altitudeValue = (altitudeFrom + altitudeTo) / 2;
-        Double altitudeSpread = (altitudeTo - altitudeValue);
-        return Math.abs(altitudeValue - alt) <= altitudeSpread;
+        return Math.abs(this.altitudeValue - alt) <= this.altitudeSpread;
     }
 
     private boolean isRollPass(MapLayerMatch match) {
@@ -1475,9 +1180,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             return true;
         }
 
-        Double rollValue = (rollFrom + rollTo) / 2;
-        Double rollSpread = rollTo - rollValue;
-        double rollNormalized = rollValue - match.line.cameraRoll;
+        double rollNormalized = this.rollValue - match.line.cameraRoll;
         while (rollNormalized < -180) {
             rollNormalized += 360;
         }
@@ -1486,7 +1189,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             rollNormalized -= 360;
         }
 
-        return Math.abs(rollNormalized) <= rollSpread;
+        return Math.abs(rollNormalized) <= this.rollSpread;
     }
 
     private boolean isPitchPass(MapLayerMatch match) {
@@ -1494,10 +1197,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             return true;
         }
 
-        Double pitchValue = (pitchFrom + pitchTo) / 2;
-        Double pitchSpread = pitchTo - pitchValue;
-
-        return Math.abs(pitchValue - match.line.cameraPitch) <= pitchSpread;
+        return Math.abs(this.pitchValue - match.line.cameraPitch) <= this.pitchSpread;
     }
 
     private boolean isYawPass(MapLayerMatch match) {
@@ -1505,10 +1205,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             return true;
         }
 
-        Double yawValue = (yawFrom + yawTo) / 2;
-        Double yawSpread = yawTo - yawValue;
-
-        double yawNormalized = yawValue - match.line.cameraYaw;
+        double yawNormalized = this.yawValue - match.line.cameraYaw;
         while (yawNormalized < -180) {
             yawNormalized += 360;
         }
@@ -1517,7 +1214,7 @@ public abstract class AMapLayerMatching extends MapLayerSectorReferenced
             yawNormalized -= 360;
         }
 
-        return Math.abs(yawNormalized) <= yawSpread;
+        return Math.abs(yawNormalized) <= this.yawSpread;
     }
 
     public void setElevationOffset(double elevationOffset) {

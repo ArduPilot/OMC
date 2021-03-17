@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import org.asyncfx.beans.property.AsyncBooleanPropertyBase;
 import org.asyncfx.beans.property.PropertyHelper;
 import org.asyncfx.beans.property.PropertyMetadata;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WWAsyncBooleanProperty extends AsyncBooleanPropertyBase {
 
@@ -27,12 +27,16 @@ public class WWAsyncBooleanProperty extends AsyncBooleanPropertyBase {
     public WWAsyncBooleanProperty(
             Object bean,
             String name,
-            Dispatcher dispatcher,
+            SynchronizationRoot syncRoot,
             String worldWindPropertyName,
             AVList avList,
             Consumer<Boolean> setter,
             boolean initialValue) {
-        super(new PropertyMetadata.Builder<Boolean>().initialValue(initialValue).dispatcher(dispatcher).create());
+        super(
+            new PropertyMetadata.Builder<Boolean>()
+                .initialValue(initialValue)
+                .synchronizationContext(syncRoot)
+                .create());
         this.bean = bean;
         this.name = name;
         this.propertyName = worldWindPropertyName;

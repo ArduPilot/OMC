@@ -16,7 +16,6 @@ import com.intel.missioncontrol.helper.DriveInformation;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.ISelectionManager;
-import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
@@ -46,7 +45,6 @@ import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.validation.ValidationStatus;
 import eu.mavinci.core.licence.ILicenceManager;
-import eu.mavinci.core.licence.Licence;
 import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.helper.FileFilter;
 import eu.mavinci.desktop.helper.FileHelper;
@@ -55,7 +53,6 @@ import eu.mavinci.desktop.main.debug.Debug;
 import eu.mavinci.flightplan.Flightplan;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,6 +86,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.UIAsyncBooleanProperty;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.Strand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,13 +104,6 @@ public class DataImportViewModel extends ViewModelBase {
     public static final String NO_PHOTO_TITLE = "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noPhoto.title";
     public static final String NO_PHOTO_MESSAGE =
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noPhoto.message";
-    public static final String NO_PHOTO_FOLDER_MESSAGE =
-        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noPhotoFolder.message";
-    public static final String PHOTO_FOLDER_MESSAGE =
-        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountLabel";
-    public static final String PHOTO_FOLDER_JSON_MESSAGE =
-        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountJsonLabel";
-
     public static final String NO_LOGFILES_TITLE =
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noLogs.title";
     public static final String NO_LOGFILES_MESSAGE =
@@ -122,9 +113,6 @@ public class DataImportViewModel extends ViewModelBase {
     public static final String CANT_DETECT_HW_MESSAGE =
         "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.noHW.message";
     private static final Logger LOGGER = LoggerFactory.getLogger(DataImportViewModel.class);
-
-    // private static String LINKBOX = "\\\\192.168.200.254\\IMC";
-    private static String LINKBOX = "\\\\launchbox.internal\\imc";
 
     @InjectScope
     private MainScope mainScope;
@@ -146,10 +134,7 @@ public class DataImportViewModel extends ViewModelBase {
     private final IntegerProperty triggersCount = new SimpleIntegerProperty();
     private final IntegerProperty imagesCount = new SimpleIntegerProperty();
     private final StringProperty imageFolder = new SimpleStringProperty();
-    private final StringProperty imageFolderValid = new SimpleStringProperty();
-
     private final ObjectProperty<File> targetFolder = new SimpleObjectProperty<>();
-    private final UIAsyncBooleanProperty copyFiles = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty eraseLogs = new UIAsyncBooleanProperty(this);
     private final ObjectProperty<ValidationStatus> cameraImagesValidationStatus = new SimpleObjectProperty<>();
     private final ObjectProperty<ValidationStatus> dataSetSizeValidationStatus = new SimpleObjectProperty<>();
@@ -158,14 +143,14 @@ public class DataImportViewModel extends ViewModelBase {
     private final INavigationService navigationService;
     private final IDialogService dialogService;
     private final ILanguageHelper languageHelper;
-    private final IQuantityStyleProvider quantityStyleProvider;
     private final IBackgroundTaskManager backgroundTaskManager;
     private final IHardwareConfigurationManager hardwareConfigurationManager;
     private final IValidationService validationService;
-    // private final Strand strand = new Strand();//removed strand, does not work from intelliJ
+    private final Strand strand = new Strand();
     private final MenuModel addFlightLogsMenuModel;
     private final Command importCommand;
     private final Command browseImagesCommand;
+    private final Command openImageFolderCommand;
     private final Command showHelpCommand;
     private final Command renameMissionCommand;
     private final Command updateDriveListCommand;
@@ -200,8 +185,7 @@ public class DataImportViewModel extends ViewModelBase {
             ISelectionManager selectionManager,
             GeneralSettings generalSettings,
             DisplaySettings displaySettings,
-            ILicenceManager licenceManager,
-            IQuantityStyleProvider quantityStyleProvider) {
+            ILicenceManager licenceManager) {
         this.mapView = mapView;
         this.displaySettings = displaySettings;
         this.generalSettings = generalSettings;
@@ -209,7 +193,6 @@ public class DataImportViewModel extends ViewModelBase {
         this.navigationService = navigationService;
         this.dialogService = dialogService;
         this.languageHelper = languageHelper;
-        this.quantityStyleProvider = quantityStyleProvider;
         this.backgroundTaskManager = backgroundTaskManager;
         this.hardwareConfigurationManager = hardwareConfigurationManager;
         this.validationService = validationService;
@@ -274,20 +257,16 @@ public class DataImportViewModel extends ViewModelBase {
             (observable, oldValue, newValue) -> {
                 Matching matching = currentMatching.get();
                 if (matching != null) {
-                    Integer sum =
-                        flightLogs
-                            .stream()
-                            .filter(FlightLogEntry::isSelected)
-                            .filter(FlightLogEntry::isIsJson)
-                            .mapToInt(FlightLogEntry::getImageCount)
-                            .sum();
-                    matching.toImportImagesCountProperty().set(newValue.longValue() + sum);
+                    matching.toImportImagesCountProperty().set(newValue.longValue());
                 }
             });
 
         triggersCount.addListener(
             (observable, oldValue, newValue) -> {
-                updateMatching(newValue);
+                Matching matching = currentMatching.get();
+                if (matching != null) {
+                    matching.toImportTriggersCountProperty().set(newValue.longValue());
+                }
             });
 
         triggersCount.bind(
@@ -296,7 +275,7 @@ public class DataImportViewModel extends ViewModelBase {
                     flightLogs
                         .stream()
                         .filter(FlightLogEntry::isSelected)
-                        .mapToInt(FlightLogEntry::getTriggerCount)
+                        .mapToInt(FlightLogEntry::getImageCount)
                         .sum(),
                 flightLogs));
 
@@ -308,61 +287,11 @@ public class DataImportViewModel extends ViewModelBase {
                 }
             });
 
-        imageFolderValid.addListener(
+        imageFolder.addListener(
             (observable, oldValue, newValue) -> {
                 Matching matching = currentMatching.get();
                 if (matching != null) {
-                    if (newValue == null || newValue.equals(languageHelper.getString(NO_PHOTO_FOLDER_MESSAGE))) {
-                        matching.toImportImageSourceFolderProperty().set(null);
-                    } else {
-                        matching.toImportImageSourceFolderProperty().set(imageFolder.get());
-                    }
-                }
-            });
-        imageFolder.addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue == null || newValue.trim().isEmpty()) {
-                    this.images.clear();
-                    imageFolderValid.set(null);
-                    return;
-                }
-
-                if (!(this.images.size() > 0 && this.images.get(0).getParent().equals(newValue))) {
-                    try {
-                        Path[] files = {Paths.get(newValue)};
-                        if (files[0].toFile().exists()) {
-                            FileHelper.GetFotosResult images =
-                                FileHelper.fetchFotos(
-                                    List.of(files).stream().map(Path::toFile).collect(Collectors.toList()));
-                            this.images.clear();
-                            this.images.addAll(images.fotos);
-
-                            Integer sum =
-                                flightLogs
-                                    .stream()
-                                    .filter(FlightLogEntry::isSelected)
-                                    .filter(FlightLogEntry::isIsJson)
-                                    .mapToInt(FlightLogEntry::getImageCount)
-                                    .sum();
-
-                            imageFolderValid.set(
-                                languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                                    + this.images.getSize()
-                                    + (sum > 0 ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum : ""));
-                            Matching matching = currentMatching.get();
-                            if (matching != null) {
-                                matching.toImportImagesCountProperty().set(imagesCount.getValue() + sum);
-                            }
-
-                            return;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.info("Path not found/invalid");
-                    }
-
-                    this.images.clear();
-                    imageFolderValid.set(languageHelper.getString(NO_PHOTO_FOLDER_MESSAGE));
-                    return;
+                    matching.toImportImageSourceFolderProperty().set(newValue);
                 }
             });
 
@@ -382,17 +311,19 @@ public class DataImportViewModel extends ViewModelBase {
                 c -> {
                     updatePreview();
                     inputImageFolder();
-                    updateMatching();
                 });
 
         importCommand =
             new DelegateCommand(
                 this::transferData,
-                applicationContext
-                    .currentMissionIsNoDemo()
-                    .and(imagesCount.greaterThan(0).or(triggersCount.greaterThan(0))));
+                triggersCount
+                    .greaterThan(0)
+                    .and(imagesCount.greaterThan(0).or(logFolderContainsImages))
+                    .and(applicationContext.currentMissionIsNoDemo()));
 
         browseImagesCommand = new DelegateCommand(this::browseImages);
+
+        openImageFolderCommand = new DelegateCommand(this::openImageFolder, imageFolder.isNotEmpty());
 
         showHelpCommand = new DelegateCommand(() -> navigationService.navigateTo(SidePanePage.VIEW_DATASET_HELP));
 
@@ -406,38 +337,6 @@ public class DataImportViewModel extends ViewModelBase {
         isEveryLogSelected.addListener((observable, oldValue, newValue) -> updateSelectionCheckBox());
         selectionCheckBoxProperty.addListener(
             (observable, oldValue, newValue) -> updateLogList(selectionCheckBoxProperty.getValue()));
-    }
-
-    private void updateMatching(Number newValue) {
-        Matching matching = currentMatching.get();
-        if (matching != null) {
-            matching.toImportTriggersCountProperty().set(newValue.longValue());
-            matching.toImportFlightLogProperty()
-                .set(flightLogs.stream().filter(FlightLogEntry::isSelected).count() > 0);
-        }
-    }
-
-    private void updateMatching() {
-        Matching matching = currentMatching.get();
-        if (matching != null) {
-            matching.toImportFlightLogProperty()
-                .set(flightLogs.stream().filter(FlightLogEntry::isSelected).count() > 0);
-
-            Integer sum =
-                flightLogs
-                    .stream()
-                    .filter(FlightLogEntry::isSelected)
-                    .filter(FlightLogEntry::isIsJson)
-                    .mapToInt(FlightLogEntry::getImageCount)
-                    .sum();
-
-            imageFolderValid.set(
-                languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                    + this.images.getSize()
-                    + (sum > 0 ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum : ""));
-
-            matching.toImportImagesCountProperty().set(imagesCount.getValue() + sum);
-        }
     }
 
     private void updateSelectionCheckBox() {
@@ -466,28 +365,24 @@ public class DataImportViewModel extends ViewModelBase {
         return flightLogSelectionAvailable;
     }
 
-    public ReadOnlyBooleanProperty flightPlanSelectionAvailableProperty() {
-        return flightPlanSelectionAvailable;
+    public ReadOnlyBooleanProperty imageSelectionAvailableProperty() {
+        return imageSelectionAvailable;
     }
 
-    public Property<Boolean> copyFilesProperty() {
-        return copyFiles;
+    public ReadOnlyBooleanProperty flightPlanSelectionAvailableProperty() {
+        return flightPlanSelectionAvailable;
     }
 
     public Property<Boolean> eraseLogsProperty() {
         return eraseLogs;
     }
 
-    public Property<String> imageFolderProperty() {
+    public ReadOnlyStringProperty imageFolderProperty() {
         return imageFolder;
     }
 
     public ReadOnlyIntegerProperty triggersCountProperty() {
         return triggersCount;
-    }
-
-    public StringProperty imagesFolderValidTextProperty() {
-        return imageFolderValid;
     }
 
     public ReadOnlyIntegerProperty imagesCountProperty() {
@@ -524,6 +419,10 @@ public class DataImportViewModel extends ViewModelBase {
 
     public Command getBrowseImagesCommand() {
         return browseImagesCommand;
+    }
+
+    public Command getOpenImageFolderCommand() {
+        return openImageFolderCommand;
     }
 
     public Command getShowHelpCommand() {
@@ -603,7 +502,6 @@ public class DataImportViewModel extends ViewModelBase {
             folderForLogList = Optional.empty();
             refreshLogList(null);
             this.images.clear();
-            imageFolderValid.set(null);
             imageFolder.set(null);
             logFolderContainsImages.set(false);
 
@@ -645,87 +543,27 @@ public class DataImportViewModel extends ViewModelBase {
     }
 
     private void browseImages() {
+        File initialFolder = FileHelper.tryToFindInitialImagesSdCard();
+        if (initialFolder == null) {
+            initialFolder = applicationContext.getCurrentMission().getDirectory().toFile();
+        }
 
-        // LOGGER.info("start check for path");
-        Dispatcher.platform()
-            .runLater(
-                () -> {
-                    try {
-                        File initialFolder = null;
-                        Licence activeLicence = licenceManager.activeLicenceProperty().get();
-                        if (activeLicence != null
-                                && (activeLicence.getMaxOperationLevel() == OperationLevel.DEBUG
-                                    || activeLicence.isGrayHawkEdition())) {
-                            // LOGGER.info("Check for linkbox");
-                            File linkbox = new File(LINKBOX);
-                            if (linkbox.exists()) { // TODO waits for timeout => takes too long!
-                                File linkboxMission =
-                                    new File(LINKBOX, applicationContext.getCurrentMission().getName());
-                                if (linkboxMission.exists()) {
-                                    initialFolder = linkboxMission;
-                                } else {
-                                    initialFolder = linkbox;
-                                }
-                            }
-                            // TODO password automatically if not working without
-                            if (initialFolder == null) {
-                                LOGGER.info("Could not find linkbox");
-                            }
-                        }
+        Path[] files =
+            dialogService.requestMultiFileOpenDialog(
+                this,
+                languageHelper.getString("com.intel.missioncontrol.ui.analysis.AnalysisView.browseImages.title"),
+                initialFolder.toPath(),
+                FileFilter.JPEG,
+                FileFilter.XMP);
 
-                        if (initialFolder == null) {
-                            initialFolder = FileHelper.tryToFindInitialImagesSdCard();
-                        }
+        if (files.length == 0) {
+            return;
+        }
 
-                        if (initialFolder == null) {
-                            initialFolder = applicationContext.getCurrentMission().getDirectory().toFile();
-                        }
-
-                        File finalInitialFolder = initialFolder;
-                        Dispatcher.platform()
-                            .run(
-                                () -> {
-                                    Path[] files =
-                                        dialogService.requestMultiFileOpenDialog(
-                                            this,
-                                            languageHelper.getString(
-                                                "com.intel.missioncontrol.ui.analysis.AnalysisView.browseImages.title"),
-                                            finalInitialFolder.toPath(),
-                                            FileFilter.JPEG,
-                                            FileFilter.XMP,
-                                            FileFilter.RAW,
-                                            FileFilter.JPEG_RAW_XMP);
-
-                                    if (files.length == 0) {
-                                        return;
-                                    }
-
-                                    FileHelper.GetFotosResult images =
-                                        FileHelper.fetchFotos(
-                                            List.of(files).stream().map(Path::toFile).collect(Collectors.toList()));
-                                    this.images.clear();
-                                    this.images.addAll(images.fotos);
-                                    Integer sum =
-                                        flightLogs
-                                            .stream()
-                                            .filter(FlightLogEntry::isSelected)
-                                            .filter(FlightLogEntry::isIsJson)
-                                            .mapToInt(FlightLogEntry::getImageCount)
-                                            .sum();
-
-                                    imageFolderValid.set(
-                                        languageHelper.getString(PHOTO_FOLDER_MESSAGE)
-                                            + this.images.getSize()
-                                            + (sum > 0
-                                                ? languageHelper.getString(PHOTO_FOLDER_JSON_MESSAGE) + sum
-                                                : ""));
-
-                                    imageFolder.set(images.picFolder.getAbsolutePath());
-                                });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+        FileHelper.GetFotosResult images =
+            FileHelper.fetchFotos(List.of(files).stream().map(Path::toFile).collect(Collectors.toList()));
+        imageFolder.set(images.picFolder.getAbsolutePath());
+        this.images.setAll(images.fotos);
     }
 
     private void openImageFolder() {
@@ -741,66 +579,66 @@ public class DataImportViewModel extends ViewModelBase {
     private void transferData() {
         final Matching matching = currentMatching.get();
         final List<FlightLogEntry> selectedFlightLogs = getSelectedFlightLogs();
-        final File imageFolder =
-            this.imageFolder.get() == null
-                ? selectedFlightLogs.get(0).getImageFolder()
-                : new File(this.imageFolder.get());
+        final File picFolder =
+            imageFolder.get() == null ? selectedFlightLogs.get(0).getImageFolder() : new File(imageFolder.get());
         final List<Flightplan> flightPlans =
             selectedFlightPlans.stream().map(FlightPlan::getLegacyFlightplan).collect(Collectors.toList());
         final List<File> logFiles =
             selectedFlightLogs.stream().map(FlightLogEntry::getPath).collect(Collectors.toList());
-        final FileHelper.GetFotosResult photoResultHelper;
-
+        final FileHelper.GetFotosResult getPhotosRes;
         if (logFolderContainsImages.get()) {
-            photoResultHelper = new FileHelper.GetFotosResult();
-            photoResultHelper.fotos = new Vector<>();
-
-            final List<File> imgFolders =
+            getPhotosRes = new FileHelper.GetFotosResult();
+            getPhotosRes.fotos = new Vector<File>();
+            List<File> imgFolders =
                 selectedFlightLogs
                     .stream()
                     .filter(FlightLogEntry::hasImageFolder)
                     .map(FlightLogEntry::getImageFolder)
                     .collect(Collectors.toList());
-            final List<String> imgFolderPaths =
-                imgFolders.stream().map(File::getAbsolutePath).collect(Collectors.toList());
-            final String[] imgFolderPathStr = new String[imgFolderPaths.size()];
-
-            int index = 0;
-
-            for (final File imgFolder : imgFolders) {
-                photoResultHelper.fotos.addAll(
+            List<String> imgFolderPaths = imgFolders.stream().map(File::getAbsolutePath).collect(Collectors.toList());
+            String[] imgFolderPathStr = new String[imgFolderPaths.size()];
+            int i = 0;
+            for (File imgFolder : imgFolders) {
+                getPhotosRes.fotos.addAll(
                     FileHelper.getSDcardJPEGs(imgFolder, MFileFilter.jpegFilter.getWithoutFolders()));
-                imgFolderPathStr[index] = imgFolder.getAbsolutePath();
-                index = index + 1;
+                imgFolderPathStr[i] = imgFolder.getAbsolutePath();
+                i++;
             }
 
-            photoResultHelper.picFolder = new File(StringUtils.getCommonPrefix(imgFolderPathStr));
+            getPhotosRes.picFolder = new File(StringUtils.getCommonPrefix(imgFolderPathStr));
         } else {
-            photoResultHelper = new FileHelper.GetFotosResult();
-            photoResultHelper.picFolder = this.imageFolder.get() == null ? null : new File(this.imageFolder.get());
+            // getPhotosRes = FileHelper.fetchFotos(picFolder);
+            getPhotosRes = new FileHelper.GetFotosResult();
+            getPhotosRes.picFolder = this.imageFolder.get() == null ? null : new File(this.imageFolder.get());
+            getPhotosRes.fotos = new Vector<>(this.images);
         }
 
-        if (photoResultHelper.fotos == null) {
-            photoResultHelper.fotos = new Vector<>(this.images);
-        }
-
-        photoResultHelper.fotos.addAll(this.images);
-
-        if (generalSettings.getOperationLevel() == OperationLevel.USER && photoResultHelper.fotos.isEmpty()) {
+        if (generalSettings.getOperationLevel() == OperationLevel.USER
+                && (getPhotosRes == null || getPhotosRes.fotos.isEmpty())) {
             dialogService.showWarningMessage(
                 languageHelper.getString(NO_PHOTO_TITLE), languageHelper.getString(NO_PHOTO_MESSAGE));
             return;
         }
 
-        if (logFiles.isEmpty() && imagesCount.lessThan(1).get()) {
+        if (logFiles == null || logFiles.isEmpty()) {
             dialogService.showWarningMessage(
                 languageHelper.getString(NO_LOGFILES_TITLE), languageHelper.getString(NO_LOGFILES_MESSAGE));
             return;
         }
 
-        final IHardwareConfiguration hardwareConfig =
-            getHardwareConfig(selectedFlightLogs, flightPlans, photoResultHelper.fotos);
-        if (hardwareConfig == null) {
+        IHardwareConfiguration hardwareConfig;
+        try {
+            hardwareConfig =
+                Matching.guessHardwareConfiguration(
+                    hardwareConfigurationManager,
+                    getPhotosRes.fotos.isEmpty() ? null : getPhotosRes.fotos.firstElement(),
+                    selectedFlightLogs.get(0).isIsFalcon(),
+                    flightPlans,
+                    selectedFlightLogs.get(0).hasRtk());
+        } catch (Exception e) {
+            Debug.getLog().log(Level.WARNING, "couldnt extract exif information from sample image", e);
+            dialogService.showWarningMessage(
+                languageHelper.getString(CANT_DETECT_HW_TITLE), languageHelper.getString(CANT_DETECT_HW_MESSAGE));
             return;
         }
 
@@ -821,11 +659,11 @@ public class DataImportViewModel extends ViewModelBase {
         CreateDatasetTask task =
             new CreateDatasetTask(
                 mapView,
-                imageFolder,
+                picFolder,
                 applicationContext.currentMissionProperty().get().getDirectoryFile(),
                 flightPlans,
                 logFiles,
-                photoResultHelper,
+                getPhotosRes,
                 hardwareConfig,
                 languageHelper,
                 eraseLogs.get(),
@@ -834,33 +672,10 @@ public class DataImportViewModel extends ViewModelBase {
                 navigationService,
                 generalSettings,
                 selectionManager,
-                applicationContext.getCurrentMission(),
-                copyFiles.get(),
-                false,
-                false,
-                quantityStyleProvider);
+                applicationContext.getCurrentMission());
         matching.dataTransferBackgroundTaskProperty().set(task);
 
         backgroundTaskManager.submitTask(task);
-    }
-
-    private IHardwareConfiguration getHardwareConfig(
-            List<FlightLogEntry> selectedFlightLogs, List<Flightplan> flightPlans, Vector<File> photos) {
-        IHardwareConfiguration hardwareConfig = null;
-
-        try {
-            final File photography = photos.isEmpty() ? null : photos.firstElement();
-            final boolean isFalcon = (selectedFlightLogs.size() > 0) && selectedFlightLogs.get(0).isIsFalcon();
-
-            hardwareConfig =
-                Matching.guessHardwareConfiguration(hardwareConfigurationManager, photography, isFalcon, flightPlans);
-        } catch (final Exception exception) {
-            Debug.getLog().log(Level.WARNING, "Could not extract exif information from sample image", exception);
-            dialogService.showWarningMessage(
-                languageHelper.getString(CANT_DETECT_HW_TITLE), languageHelper.getString(CANT_DETECT_HW_MESSAGE));
-        }
-
-        return hardwareConfig;
     }
 
     private void showAddFlightLogsDialog() {
@@ -891,17 +706,16 @@ public class DataImportViewModel extends ViewModelBase {
     }
 
     private void showAddFlightLogsDialog(String originPath) {
-        Dispatcher.platform()
-            .runLater(
-                () -> {
-                    try {
-                        List<FlightLogEntry> flightLogsNew = LogFileHelper.getLogsInFolder(new File(originPath), true);
-                        boolean containsImageFolders = flightLogsNew.stream().anyMatch(FlightLogEntry::hasImageFolder);
-                        Dispatcher.platform().run(() -> showAddFlightLogsDialog(originPath, containsImageFolders));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+        strand.runLater(
+            () -> {
+                try {
+                    List<FlightLogEntry> flightLogsNew = LogFileHelper.getLogsInFolder(new File(originPath), true);
+                    boolean containsImageFolders = flightLogsNew.stream().anyMatch(FlightLogEntry::hasImageFolder);
+                    Dispatcher.platform().run(() -> showAddFlightLogsDialog(originPath, containsImageFolders));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
     }
 
     private void showAddFlightLogsDialog(String originPath, boolean containsImageFolders) {
@@ -910,7 +724,6 @@ public class DataImportViewModel extends ViewModelBase {
         if (containsImageFolders) {
             folderForLogList = Optional.of(new File(originPath));
             refreshLogList(null);
-            inputImageFolder();
         } else {
             folderForLogList = Optional.empty();
             refreshLogList(null);
@@ -937,49 +750,43 @@ public class DataImportViewModel extends ViewModelBase {
             targetFolder.setValue(mission.getDirectoryFile());
             final File missionFlightLogsFolder = MissionConstants.getFlightLogsFolder(mission.getDirectory());
 
-            Dispatcher.platform()
-                .runLater(
-                    () -> {
-                        List<FlightLogEntry> flightLogsNew =
-                            LogFileHelper.getLogsInFolder(missionFlightLogsFolder, true);
-                        // compatibility: for storing the log paths into the mission info file (if there are logs copied
-                        // into the mission folder)
-                        if (!flightLogsNew.isEmpty() && mission.flightLogsProperty().isEmpty()) {
-                            flightLogsNew.forEach(log -> mission.addFlightLog(log.getPath()));
-                        }
+            strand.runLater(
+                () -> {
+                    List<FlightLogEntry> flightLogsNew = LogFileHelper.getLogsInFolder(missionFlightLogsFolder, true);
+                    // compatibility: for storing the log paths into the mission info file (if there are logs copied
+                    // into the mission folder)
+                    if (!flightLogsNew.isEmpty() && mission.flightLogsProperty().isEmpty()) {
+                        flightLogsNew.forEach(log -> mission.addFlightLog(log.getPath()));
+                    }
 
-                        if (folderForLogList.isPresent()) {
-                            flightLogsNew.addAll(LogFileHelper.getLogsInFolder(folderForLogList.get(), true));
-                        }
+                    if (folderForLogList.isPresent()) {
+                        flightLogsNew.addAll(LogFileHelper.getLogsInFolder(folderForLogList.get(), true));
+                    }
 
-                        // restore old selection
-                        for (FlightLogEntry oldLog : flightLogs.get()) {
+                    // restore old selection
+                    for (FlightLogEntry oldLog : flightLogs.get()) {
+                        for (FlightLogEntry newLog : flightLogsNew) {
+                            if (oldLog.getPath().equals(newLog.getPath())) {
+                                newLog.setSelected(oldLog.isSelected());
+                                break;
+                            }
+                        }
+                    }
+
+                    // add just copied files to selection
+                    if (copiedFiles != null) {
+                        for (File target : copiedFiles) {
                             for (FlightLogEntry newLog : flightLogsNew) {
-                                if (oldLog.getPath().equals(newLog.getPath())) {
-                                    newLog.setSelected(oldLog.isSelected());
+                                if (target.equals(newLog.getPath())) {
+                                    newLog.setSelected(true);
                                     break;
                                 }
                             }
                         }
+                    }
 
-                        // add just copied files to selection
-                        if (copiedFiles != null) {
-                            for (File target : copiedFiles) {
-                                for (FlightLogEntry newLog : flightLogsNew) {
-                                    if (target.equals(newLog.getPath())) {
-                                        newLog.setSelected(true);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        Dispatcher.platform()
-                            .run(
-                                () -> {
-                                    flightLogs.setAll(flightLogsNew);
-                                });
-                    });
+                    Dispatcher.platform().run(() -> flightLogs.setAll(flightLogsNew));
+                });
         }
     }
 
@@ -993,10 +800,10 @@ public class DataImportViewModel extends ViewModelBase {
     }
 
     private void inputImageFolder() {
-        boolean hasImages = false;
+        boolean hasImages = true;
         for (FlightLogEntry flightLogEntry : getSelectedFlightLogs()) {
-            if (flightLogEntry.hasImageFolder()) {
-                hasImages = true;
+            if (!flightLogEntry.hasImageFolder()) {
+                hasImages = false;
             }
         }
 

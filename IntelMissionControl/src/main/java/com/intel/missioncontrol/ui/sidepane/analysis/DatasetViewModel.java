@@ -18,7 +18,7 @@ import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.ISelectionManager;
-import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
+import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.MatchingStatus;
@@ -29,7 +29,7 @@ import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.settings.PathSettings;
 import com.intel.missioncontrol.ui.MainScope;
-import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
+import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.dialogs.warnings.UnresolvedWarningsDialogViewModel;
 import com.intel.missioncontrol.ui.menu.MainMenuModel;
@@ -44,17 +44,26 @@ import com.intel.missioncontrol.ui.validation.IValidationService;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
+import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.licence.ILicenceManager;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerMatching;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.ExifInfos;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatch;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerMatching;
+import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoCube;
 import eu.mavinci.desktop.helper.FileFilter;
+import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.helper.gdal.MSpatialReference;
 import eu.mavinci.desktop.main.debug.Debug;
+import gov.nasa.worldwind.geom.LatLon;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -86,7 +95,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressLinter(value = "IllegalViewModelMethod", reviewer = "mstrauss", justification = "legacy file")
-public class DatasetViewModel extends DialogViewModel {
+public class DatasetViewModel extends ViewModelBase {
 
     private static Logger LOGGER = LoggerFactory.getLogger(DatasetViewModel.class);
     private final PropertyPathStore propertyPathStore = new PropertyPathStore();
@@ -99,7 +108,6 @@ public class DatasetViewModel extends DialogViewModel {
     private Command showOnMapCommand;
     private final Command renameMissionCommand;
     private final ILanguageHelper languageHelper;
-    private final IQuantityStyleProvider quantityStyleProvider;
     private final IDialogService dialogService;
     private final IMissionManager missionManager;
 
@@ -144,8 +152,7 @@ public class DatasetViewModel extends DialogViewModel {
             IExportService exportService,
             ISelectionManager selectionManager,
             IHardwareConfigurationManager hardwareConfigurationManager,
-            ILicenceManager licenceManager,
-            IQuantityStyleProvider quantityStyleProvider) {
+            ILicenceManager licenceManager) {
         this.mapView = mapView;
         this.taskManager = taskManager;
         this.exportService = exportService;
@@ -159,7 +166,6 @@ public class DatasetViewModel extends DialogViewModel {
 
         this.hardwareConfigurationManager = hardwareConfigurationManager;
         this.languageHelper = languageHelper;
-        this.quantityStyleProvider = quantityStyleProvider;
         this.dialogService = dialogService;
         this.missionManager = missionManager;
         this.applicationContext = applicationContext;
@@ -353,24 +359,6 @@ public class DatasetViewModel extends DialogViewModel {
         currentMatchingProperty().get().saveResourceFile();
     }
 
-    public void saveToCloud() {
-        // TODO IMC-3137 implement: save to cloud
-        // TODO saves the entire dataset to the cloud storage.
-        // ALL images within the dataset should be uploaded, so that the user could change the filtering criteria
-        // afterwards.
-        // The linked images (not within the project folder) should be copied to the project when this button is
-        // pressed.
-
-        // Saving to cloud should be done as a background task, and resume automatically if IMC is restarted.
-        // Upon starting this, a blue toast message should be shown with the following content:
-
-        // Uploading dataset to Intel Insight Platform...  Cancel
-        // Where pressing Cancel cancels the upload and removes the corresponding BG task.
-
-        // use from menu:UPLOAD_INSIGHT_PROCESSING
-        Debug.getLog().log(Level.WARNING, "not yet implemented");
-    }
-
     public void goToDefineAppPaths() {
         navigationService.navigateTo(SettingsPage.FILES_FOLDERS);
     }
@@ -541,13 +529,6 @@ public class DatasetViewModel extends DialogViewModel {
         Exporter exp = exporters.get(exportType);
         Expect.notNull(exp, "exp");
         return exp;
-    }
-
-    public void sparseDataset() {
-        // TODO IMC-3137 creates a subset of the current dataset containing only the exported images (as set in <9>) and
-        // all
-        // filters removed.
-        Debug.getLog().log(Level.WARNING, "not yet implemented");
     }
 
     interface ExportHandler {
@@ -799,9 +780,7 @@ public class DatasetViewModel extends DialogViewModel {
                 this,
                 languageHelper.getString("com.intel.missioncontrol.ui.analysis.AnalysisView.browseImages.title"),
                 null,
-                FileFilter.JPEG,
-                FileFilter.RAW,
-                FileFilter.JPEG_RAW_XMP);
+                FileFilter.JPEG);
         if (files == null || files.length == 0 || (files.length == 1 && files[0] == null)) {
             return;
         }
@@ -819,30 +798,30 @@ public class DatasetViewModel extends DialogViewModel {
                                 languageHelper.getString(
                                     "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferCompleteMessage"));
 
-                    // if mission was closed in the meantime, don't show the action
+                    // if mission was closed in the meantime, dont show the action
                     if (applicationContext.getCurrentMission() == mission) {
                         toastBuilder =
                             toastBuilder
                                 .setTimeout(Toast.LONG_TIMEOUT)
                                 .setAction(
-                                    languageHelper.getString(
-                                        "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferActionLinkMessage"),
-                                    false,
-                                    true,
-                                    () -> {
-                                        Ensure.notNull(matching, "matching");
-                                        selectionManager.setSelection(matching.getLegacyMatching());
-                                        if (!mission.getMatchings().contains(matching)) {
-                                            mission.getMatchings().add(matching);
-                                        }
+                                languageHelper.getString(
+                                    "com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferActionLinkMessage"),
+                                false,
+                                true,
+                                () -> {
+                                    Ensure.notNull(matching, "matching");
+                                    selectionManager.setSelection(matching.getLegacyMatching());
+                                    if (!mission.getMatchings().contains(matching)) {
+                                        mission.getMatchings().add(matching);
+                                    }
 
-                                        mission.setCurrentMatching(matching);
+                                    mission.setCurrentMatching(matching);
 
-                                        navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
-                                        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
-                                        mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());
-                                    },
-                                    Platform::runLater);
+                                    navigationService.navigateTo(WorkflowStep.DATA_PREVIEW);
+                                    navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+                                    mapView.goToSectorAsync(matching.getSector(), matching.getMaxElev());
+                                },
+                                Platform::runLater);
                     }
 
                     return toastBuilder.create();
@@ -852,12 +831,99 @@ public class DatasetViewModel extends DialogViewModel {
 
                 @Override
                 protected Void call() throws Exception {
+                    String matchingName = "import_" + System.currentTimeMillis();
                     mission = applicationContext.getCurrentMission();
+                    File matchingsFolder = MissionConstants.getMatchingsFolder(mission.getDirectory());
+                    File baseFolder = new File(matchingsFolder, matchingName);
+                    final File save = new File(baseFolder, AMapLayerMatching.DEFAULT_FILENAME);
 
-                    final Matching matching = new Matching(mission.getDirectory(), hardwareConfigurationManager);
-                    final MapLayerMatching legacyMatching = (MapLayerMatching)matching.getLegacyMatching();
+                    Matching matching = new Matching(save, hardwareConfigurationManager);
+                    MapLayerMatching legacyMatching = (MapLayerMatching)matching.getLegacyMatching();
+                    int i = 0;
+                    legacyMatching.getPicsLayer().setMute(true);
+                    String lastModel = null;
+                    String nextModel = null;
+                    boolean modelMismatch = false;
+                    double groundAltSum = 0;
+                    int imgCount = 0;
 
-                    DataImportHelper.importImages(files, languageHelper, legacyMatching, this, quantityStyleProvider);
+                    ArrayList<CPhotoLogLine> plgs = new ArrayList<>();
+                    ArrayList<PhotoCube> photos = new ArrayList<>();
+                    IElevationModel elevationModel =
+                        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+                    for (Path file : files) {
+                        updateMessage(
+                            languageHelper.getString(
+                                "com.intel.missioncontrol.ui.analysis.AnalysisViewModel.import.exif.progress",
+                                files.length,
+                                i / (double)(2 * files.length) * 100));
+                        updateProgress(i, 2 * files.length);
+                        i++;
+                        try {
+                            File fileTarget = new File(legacyMatching.getImagesFolder(), file.getFileName().toString());
+                            FileHelper.copyFile(file.toFile(), fileTarget);
+                            PhotoCube photoCube = new PhotoCube(fileTarget);
+                            ExifInfos exifInfos = photoCube.photoFiles[0].getExif();
+                            nextModel = exifInfos.model;
+                            if (lastModel == null) {
+                                lastModel = nextModel;
+                            } else if (!lastModel.equals(nextModel)) {
+                                modelMismatch = true;
+                            }
+
+                            CPhotoLogLine plg = new CPhotoLogLine(exifInfos);
+                            groundAltSum +=
+                                elevationModel.getElevationAsGoodAsPossible(LatLon.fromDegrees(plg.lat, plg.lon));
+                            imgCount++;
+                            plgs.add(plg);
+                            photos.add(photoCube);
+                        } catch (Exception e) {
+                            LOGGER.warn("cant import image: " + file, e);
+                        }
+                    }
+
+                    if (imgCount > 0) {
+                        groundAltSum /= imgCount;
+                    } else {
+                        throw new Exception("Can't import images, images maybe without positions information");
+                    }
+
+                    i = 0;
+                    int groundAltAvgCm = (int)Math.round(groundAltSum * 100);
+                    for (Path file : files) {
+                        updateMessage(
+                            languageHelper.getString(
+                                "com.intel.missioncontrol.ui.analysis.AnalysisViewModel.import.exif.progress",
+                                files.length,
+                                (i + files.length) / (double)(2 * files.length) * 100));
+                        updateProgress(i + files.length, 2 * files.length);
+                        try {
+                            CPhotoLogLine plg = plgs.get(i);
+                            PhotoCube photoCube = photos.get(i);
+
+                            if (plg.dji_altitude) {
+                                plg.gps_altitude_cm = plg.alt + groundAltAvgCm; // DJI gps wrong
+                                // plg.gps_altitude_cm = plg.alt;
+                                // plg.alt -= groundAltAvgCm;
+                            } else {
+                                plg.alt -= groundAltAvgCm;
+                            }
+
+                            i++;
+
+                            MapLayerMatch match = new MapLayerMatch(photoCube, plg, legacyMatching);
+                            photoCube.setMatch(match);
+                            legacyMatching.getPicsLayer().addMapLayer(match);
+                            match.generatePreview();
+                        } catch (Exception e) {
+                            LOGGER.warn("cant import image: " + file, e);
+                        }
+                    }
+
+                    if (modelMismatch) {
+                        throw new Exception(
+                            "Can't import data from different cameras at once: " + lastModel + " != " + nextModel);
+                    }
 
                     legacyMatching.getCoverage().updateCameraCorners();
                     legacyMatching.getPicsLayer().setMute(false);

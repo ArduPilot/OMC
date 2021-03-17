@@ -15,12 +15,12 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.SetChangeListener;
 import org.asyncfx.PublishSource;
-import org.asyncfx.beans.AsyncInvalidationListenerWrapper;
+import org.asyncfx.beans.InvalidationListenerWrapper;
 import org.asyncfx.beans.SubInvalidationListener;
-import org.asyncfx.beans.AsyncSubInvalidationListenerWrapper;
 import org.asyncfx.beans.property.AsyncSetPropertyBase;
-import org.asyncfx.beans.property.PropertyObject;
-import org.asyncfx.beans.property.PropertyObjectHelper;
+import org.asyncfx.beans.property.ObservableObject;
+import org.asyncfx.beans.property.ObservableObjectHelper;
+import org.asyncfx.beans.property.SubInvalidationListenerWrapper;
 import org.asyncfx.concurrent.ReentrantStampedLock;
 import org.jetbrains.annotations.NotNull;
 
@@ -289,11 +289,11 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
         try {
             stamp = lock.writeLock();
 
-            subInvalidationListener = AsyncInvalidationListenerWrapper.wrap(this::fireSubValueChangedEvent, executor);
+            subInvalidationListener = InvalidationListenerWrapper.wrap(this::fireSubValueChangedEvent, executor);
 
             for (E item : backingSet) {
-                if (item instanceof PropertyObject) {
-                    PropertyObjectHelper.addListener((PropertyObject)item, subInvalidationListener);
+                if (item instanceof ObservableObject) {
+                    ObservableObjectHelper.addListener((ObservableObject)item, subInvalidationListener);
                 }
             }
         } finally {
@@ -320,7 +320,7 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
     public void addListener(InvalidationListener listener, Executor executor) {
         listenerHelper =
             AsyncSetListenerHelper.addListener(
-                listenerHelper, this, AsyncInvalidationListenerWrapper.wrap(listener, executor));
+                listenerHelper, this, InvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -337,7 +337,7 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
     public void addListener(SubInvalidationListener listener, Executor executor) {
         listenerHelper =
             AsyncSetListenerHelper.addListener(
-                listenerHelper, this, AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+                listenerHelper, this, SubInvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -454,8 +454,8 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
     private boolean addCore(E o) {
         boolean ret = backingSet.add(o);
         if (ret) {
-            if (o instanceof PropertyObject) {
-                PropertyObjectHelper.addListener((PropertyObject)o, subInvalidationListener);
+            if (o instanceof ObservableObject) {
+                ObservableObjectHelper.addListener((ObservableObject)o, subInvalidationListener);
             }
 
             callObservers(new SimpleAddChange(o));
@@ -480,8 +480,8 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
     private boolean removeCore(Object o) {
         boolean ret = backingSet.remove(o);
         if (ret) {
-            if (o instanceof PropertyObject) {
-                PropertyObjectHelper.removeListener((PropertyObject)o, subInvalidationListener);
+            if (o instanceof ObservableObject) {
+                ObservableObjectHelper.removeListener((ObservableObject)o, subInvalidationListener);
             }
 
             callObservers(new SimpleRemoveChange((E)o));
@@ -541,8 +541,8 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
         for (E element : c) {
             boolean r = backingSet.add(element);
             if (r) {
-                if (element instanceof PropertyObject) {
-                    PropertyObjectHelper.addListener((PropertyObject)element, subInvalidationListener);
+                if (element instanceof ObservableObject) {
+                    ObservableObjectHelper.addListener((ObservableObject)element, subInvalidationListener);
                 }
 
                 callObservers(new SimpleAddChange(element));
@@ -599,8 +599,8 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
         for (Iterator<E> i = backingSet.iterator(); i.hasNext(); ) {
             E element = i.next();
             if (remove == c.contains(element)) {
-                if (element instanceof PropertyObject) {
-                    PropertyObjectHelper.removeListener((PropertyObject)element, subInvalidationListener);
+                if (element instanceof ObservableObject) {
+                    ObservableObjectHelper.removeListener((ObservableObject)element, subInvalidationListener);
                 }
 
                 removed = true;
@@ -628,8 +628,8 @@ public class AsyncObservableSetWrapper<E> implements AsyncSubObservableSet<E>, A
     private void clearCore() {
         for (Iterator<E> i = backingSet.iterator(); i.hasNext(); ) {
             E element = i.next();
-            if (element instanceof PropertyObject) {
-                PropertyObjectHelper.removeListener((PropertyObject)element, subInvalidationListener);
+            if (element instanceof ObservableObject) {
+                ObservableObjectHelper.removeListener((ObservableObject)element, subInvalidationListener);
             }
 
             i.remove();

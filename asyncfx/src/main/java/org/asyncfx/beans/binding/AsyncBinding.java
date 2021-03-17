@@ -11,8 +11,8 @@ import org.asyncfx.beans.value.AsyncObservableValue;
 import org.asyncfx.collections.AsyncObservableList;
 
 @PublishSource(
-    module = "openjfx",
-    licenses = {"openjfx", "intel-gpl-classpath-exception"}
+        module = "openjfx",
+        licenses = {"openjfx", "intel-gpl-classpath-exception"}
 )
 public interface AsyncBinding<T> extends AsyncObservableValue<T> {
 

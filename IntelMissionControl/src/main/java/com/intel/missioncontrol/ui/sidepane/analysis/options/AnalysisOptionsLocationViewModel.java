@@ -377,10 +377,4 @@ public class AnalysisOptionsLocationViewModel extends ViewModelBase {
             .requestDialogAndWait(this, SpatialReferenceChooserViewModel.class, () -> currentSrs)
             .getDialogResult();
     }
-
-    public void resetAssumedRtkPosition() {
-        antennaHeightAdapter.set(0.);
-        geoidOffsetAdapter.set(0.);
-        useAssumedRtkPosition();
-    }
 }

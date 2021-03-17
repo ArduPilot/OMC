@@ -16,7 +16,9 @@ import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 
 public class DistanceSensor implements IDistanceSensor {
 
-    /** * AlertLevels sorted by criticality */
+    /***
+     * AlertLevels sorted by criticality
+     */
     public enum AlertLevel {
         UNKNOWN,
         LEVEL3,
@@ -33,7 +35,8 @@ public class DistanceSensor implements IDistanceSensor {
     private final AsyncBooleanProperty telemetryOld =
         new SimpleAsyncBooleanProperty(this, new PropertyMetadata.Builder<Boolean>().initialValue(false).create());
 
-    DistanceSensor() {}
+    public DistanceSensor() {
+    }
 
     @Override
     public AsyncDoubleProperty closestDistanceMetersProperty() {

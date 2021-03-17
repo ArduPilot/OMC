@@ -25,7 +25,6 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import org.asyncfx.concurrent.Futures;
 
@@ -54,7 +53,7 @@ public class ToastViewModel implements ViewModel {
     private final Toast toast;
     private final BooleanProperty showIcon;
     private final BooleanProperty isCheckableAction;
-    private final StringProperty text = new SimpleStringProperty();
+    private final StringProperty text;
     private final StringProperty actionText;
     private final BooleanProperty isCloseable;
     private final BooleanProperty canExecute;
@@ -68,7 +67,7 @@ public class ToastViewModel implements ViewModel {
         this.toast = toast;
         this.showIcon = new ReadOnlyBooleanWrapper(toast.showIcon());
         this.isCheckableAction = new ReadOnlyBooleanWrapper(toast.isCheckableAction());
-        this.text.bind(toast.getTextProperty());
+        this.text = new ReadOnlyStringWrapper(toast.getText());
         this.actionText = new ReadOnlyStringWrapper(toast.getActionText());
         this.isCloseable = new ReadOnlyBooleanWrapper(toast.isCloseable());
         this.canExecute = new SimpleBooleanProperty(true);

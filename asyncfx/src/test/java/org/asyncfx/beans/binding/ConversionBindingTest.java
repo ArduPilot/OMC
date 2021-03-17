@@ -27,6 +27,7 @@ import org.asyncfx.beans.property.SimpleAsyncStringProperty;
 import org.asyncfx.beans.property.UIAsyncIntegerProperty;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.beans.property.UIPropertyMetadata;
+import org.asyncfx.concurrent.SynchronizationContext;
 import org.junit.jupiter.api.Test;
 
 class ConversionBindingTest extends TestBase {
@@ -139,8 +140,11 @@ class ConversionBindingTest extends TestBase {
 
     @Test
     void ConversionBinding_AsyncStringToInt() {
+        var syncCtx = SynchronizationContext.getCurrent();
         var sourceProp = new UIAsyncIntegerProperty(this);
-        var targetProp = new SimpleAsyncStringProperty(this);
+        var targetProp =
+            new SimpleAsyncStringProperty(
+                this, new PropertyMetadata.Builder<String>().synchronizationContext(syncCtx).create());
 
         var awaiter = new Awaiter();
 
@@ -167,13 +171,19 @@ class ConversionBindingTest extends TestBase {
 
     @Test
     void ConversionBinding_AsyncCompositeObjects() {
+        var syncCtx = SynchronizationContext.getCurrent();
+
         var sourceProp =
             new UIAsyncObjectProperty<>(
                 this, new UIPropertyMetadata.Builder<FooInt>().initialValue(new FooInt(0)).create());
 
         var targetProp =
             new SimpleAsyncObjectProperty<>(
-                this, new PropertyMetadata.Builder<FooStr>().initialValue(new FooStr("")).create());
+                this,
+                new PropertyMetadata.Builder<FooStr>()
+                    .initialValue(new FooStr(""))
+                    .synchronizationContext(syncCtx)
+                    .create());
 
         var awaiter = new Awaiter();
 

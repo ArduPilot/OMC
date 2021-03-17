@@ -6,7 +6,7 @@
 
 package com.intel.missioncontrol.map.elevation;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -121,7 +121,10 @@ public class ElevationModelShiftWrapper extends AElevationModelWrapper {
         }
 
         ElevationModel master =
-            StaticInjector.getInstance(IElevationModelsManager.class).baseLayerProperty().getElevationModel();
+            DependencyInjector.getInstance()
+                .getInstanceOf(IElevationModelsManager.class)
+                .baseLayerProperty()
+                .getElevationModel();
         Debug.getLog().log(Level.CONFIG, "reshiftElevationModel: " + getSlave().getName());
         final int sample_count = 20;
         if (getSector() != null) {

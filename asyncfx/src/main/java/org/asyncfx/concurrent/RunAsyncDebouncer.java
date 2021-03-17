@@ -9,16 +9,9 @@ package org.asyncfx.concurrent;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Debounces invocations of async operations such that only a single operation is running at any given time. If the
- * operation is invoked while another instance of the operation is already running, the call either returns the
- * currently running operation (if {@see mayReturnRunningFuture} is true}, or returns an operation that will be started
- * once the currently running operation has completed (if {@see mayReturnRunningFuture} is false).
- */
 public class RunAsyncDebouncer {
 
     private final Future.FutureRunnable futureRunnable;
-    private final Strand strand;
     private boolean mayReturnRunningFuture;
     private List<FutureCompletionSource<Void>> futureCompletionSources;
     private Future<Void> future;
@@ -28,22 +21,13 @@ public class RunAsyncDebouncer {
     }
 
     public RunAsyncDebouncer(Future.FutureRunnable futureRunnable, boolean mayReturnRunningFuture) {
-        this(futureRunnable, null, mayReturnRunningFuture);
-    }
-
-    public RunAsyncDebouncer(Future.FutureRunnable futureRunnable, Strand strand) {
-        this(futureRunnable, strand, true);
-    }
-
-    public RunAsyncDebouncer(Future.FutureRunnable futureRunnable, Strand strand, boolean mayReturnRunningFuture) {
         this.futureRunnable = futureRunnable;
         this.mayReturnRunningFuture = mayReturnRunningFuture;
-        this.strand = strand;
     }
 
     public synchronized Future<Void> runAsync() {
         if (future == null) {
-            future = strand != null ? strand.runLaterAsync(futureRunnable) : futureRunnable.run();
+            future = futureRunnable.run();
             Future<Void> future = this.future;
             future.whenDone(this::onCurrentFutureCompleted);
             return future;
@@ -88,12 +72,9 @@ public class RunAsyncDebouncer {
 
             if (!allContinuationsCancelled) {
                 final List<FutureCompletionSource<Void>> futureCompletionSources = this.futureCompletionSources;
-                this.future = strand != null ? strand.runLaterAsync(futureRunnable) : futureRunnable.run();
-                this.future.whenDone(
-                    f -> {
-                        onNextFutureCompleted(f, futureCompletionSources);
-                        onCurrentFutureCompleted(f);
-                    });
+                this.future = futureRunnable.run();
+                this.future.whenDone(f -> onNextFutureCompleted(f, futureCompletionSources));
+                this.future.whenDone(this::onCurrentFutureCompleted);
             }
 
             this.futureCompletionSources = null;

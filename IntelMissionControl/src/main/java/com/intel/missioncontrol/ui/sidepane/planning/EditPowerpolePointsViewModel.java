@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.SuppressLinter;
-import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.geometry.AreaOfInterest;
 import com.intel.missioncontrol.geometry.AreaOfInterestCorner;
 import com.intel.missioncontrol.helper.ILanguageHelper;
@@ -24,8 +23,6 @@ import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
-import com.intel.missioncontrol.ui.sidepane.flight.FlightScope;
-import de.saxsys.mvvmfx.InjectScope;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.commands.ParameterizedCommand;
@@ -34,8 +31,6 @@ import eu.mavinci.core.flightplan.FlightplanContainerFullException;
 import eu.mavinci.core.flightplan.FlightplanContainerWrongAddingException;
 import eu.mavinci.flightplan.Point;
 import eu.mavinci.flightplan.PointWithAltitudes;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -52,10 +47,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import org.asyncfx.beans.property.AsyncObjectProperty;
-import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.Dispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +89,6 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
     private final BooleanProperty canShowBulkEditDialog = new SimpleBooleanProperty(true);
 
     private Command addCornerCommand;
-    private Command addFromUavCommand;
 
     private ListProperty<AreaOfInterestCorner> areaOfInterestCorners;
     private AreaOfInterest areaOfInterest;
@@ -123,11 +114,6 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
     private final Command invertSelectionCommand;
 
     private final BooleanProperty optimizeWayPoints = new SimpleBooleanProperty(false);
-
-    @InjectScope
-    private FlightScope flightScope;
-
-    private final AsyncObjectProperty<Position> dronePosition = new SimpleAsyncObjectProperty<>(this);
 
     public ParameterizedCommand<EditPowerpolePointsViewModel.SelectionFilter> getSelectCommand() {
         return selectCommand;
@@ -165,7 +151,7 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
             new ParameterizedDelegateCommand<>(this::deleteSelectedAreaOfInterestCorners);
         selectionManager
             .currentSelectionProperty()
-            .addListener((observable, oldValue, newValue) -> selectionChange(newValue), Dispatcher.platform()::run);
+            .addListener((observable, oldValue, newValue) -> selectionChange(newValue), Dispatcher.platform());
 
         this.duplicateSelectedCommand = new ParameterizedDelegateCommand<>(this::duplicateSelected);
         this.MoveDownCommand = new ParameterizedDelegateCommand<>(this::moveDown);
@@ -244,23 +230,8 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
         corner.deleteMe();
     }
 
-    private void addCorner() {
+    void addCorner() {
         Point p = new Point(areaOfInterest.getPicArea().getCorners());
-        try {
-            areaOfInterest.getPicArea().getCorners().addToFlightplanContainer(p);
-            selectionManager.setSelection(areaOfInterestCorners.get(areaOfInterestCorners.size() - 1));
-        } catch (Exception e) {
-            LOGGER.error("cant add point", e);
-        }
-    }
-
-    private void addFromUav() {
-        LatLon latLonNew = dronePosition.getValueUncritical();
-        if (latLonNew == null) {
-            return;
-        }
-
-        Point p = new Point(latLonNew.latitude.degrees, latLonNew.longitude.degrees);
         try {
             areaOfInterest.getPicArea().getCorners().addToFlightplanContainer(p);
             selectionManager.setSelection(areaOfInterestCorners.get(areaOfInterestCorners.size() - 1));
@@ -330,10 +301,6 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
     protected void initializeViewModel(AreaOfInterest areaOfInterest) {
         super.initializeViewModel(areaOfInterest);
 
-        dronePosition.bind(
-            PropertyPath.from(flightScope.currentDroneProperty()).selectReadOnlyAsyncObject(IDrone::positionProperty));
-
-        addFromUavCommand = new DelegateCommand(this::addFromUav, dronePosition.isNotNull());
         addCornerCommand = new DelegateCommand(this::addCorner);
         this.areaOfInterest = areaOfInterest;
 
@@ -446,10 +413,6 @@ public class EditPowerpolePointsViewModel extends DialogViewModel<Void, AreaOfIn
 
     public ParameterizedCommand<AreaOfInterestCorner> getDuplicateSelectedCommand() {
         return duplicateSelectedCommand;
-    }
-
-    public Command getAddFromUavCommand() {
-        return addFromUavCommand;
     }
 
     public void setDuplicateSelectedCommand(ParameterizedCommand<AreaOfInterestCorner> duplicateSelectedCommand) {

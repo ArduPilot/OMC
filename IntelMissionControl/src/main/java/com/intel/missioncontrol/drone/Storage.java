@@ -18,8 +18,6 @@ public class Storage implements IStorage {
             this, new PropertyMetadata.Builder<Status>().initialValue(Status.UNKNOWN).create());
     private final AsyncDoubleProperty availableSpaceMiB =
         new SimpleAsyncDoubleProperty(this, new PropertyMetadata.Builder<Number>().initialValue(0.0).create());
-    private final AsyncDoubleProperty totalSpaceMiB =
-        new SimpleAsyncDoubleProperty(this, new PropertyMetadata.Builder<Number>().initialValue(0.0).create());
 
     public enum Status {
         UNKNOWN,
@@ -38,10 +36,5 @@ public class Storage implements IStorage {
     @Override
     public AsyncDoubleProperty availableSpaceMiBProperty() {
         return availableSpaceMiB;
-    }
-
-    @Override
-    public AsyncDoubleProperty totalSpaceMiBProperty() {
-        return totalSpaceMiB;
     }
 }

@@ -6,8 +6,8 @@
 
 package eu.mavinci.core.update;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
 import eu.mavinci.core.licence.Reseller;
@@ -34,7 +34,7 @@ public class UpdateURL {
     public static final String ENTERPRISE_EMAIL = "imc-support@intel.com";
 
     public static String getSupportEmail() {
-        Licence licence = StaticInjector.getInstance(ILicenceManager.class).getActiveLicence();
+        Licence licence = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence();
         return Reseller.getSupportEMailByKey(licence == null ? "null" : licence.getResellerID());
     }
 
@@ -54,7 +54,7 @@ public class UpdateURL {
         // adding /index.php, to make the URL correct handable by proxy's
         String str = "https://u.mavinci.de/index.php?time=" + System.currentTimeMillis();
 
-        Licence licence = StaticInjector.getInstance(ILicenceManager.class).getActiveLicence();
+        Licence licence = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence();
         String myID = licence == null ? null : licence.getLicenceId();
         if (myID != null) {
             str += "&myID=" + URLEncoder.encode(myID, "UTF-8");
@@ -74,7 +74,7 @@ public class UpdateURL {
                 + "&type="
                 + updateTarget.ordinal()
                 + "&osType="
-                + StaticInjector.getInstance(IVersionProvider.class).getSystem();
+                + DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem();
         // System.out.println("updateBaseString="+str);
         return str;
     }
@@ -326,7 +326,7 @@ public class UpdateURL {
                 fromAddress = customerAddress[0];
             }
 
-            Licence licence = StaticInjector.getInstance(ILicenceManager.class).getActiveLicence();
+            Licence licence = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence();
             String myID = licence == null ? null : licence.getLicenceId();
 
             String url =

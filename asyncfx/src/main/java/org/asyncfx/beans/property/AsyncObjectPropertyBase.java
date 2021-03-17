@@ -6,6 +6,11 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 import javafx.beans.InvalidationListener;
@@ -13,11 +18,10 @@ import javafx.beans.Observable;
 import javafx.beans.WeakListener;
 import javafx.beans.value.ObservableValue;
 import org.asyncfx.PublishSource;
-import org.asyncfx.beans.AsyncInvalidationListenerWrapper;
+import org.asyncfx.beans.InvalidationListenerWrapper;
 import org.asyncfx.beans.binding.AsyncExpressionHelper;
 import org.asyncfx.beans.binding.LifecycleValueConverter;
 import org.asyncfx.beans.binding.ValueConverter;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -25,17 +29,16 @@ import org.asyncfx.concurrent.Dispatcher;
 )
 public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBaseImpl<T> {
 
-    private final InvalidationListener invalidationListener = this::fireSubValueChangedEvent;
-    private final Executor effectiveExecutor = runnable -> getExecutor().execute(runnable);
+    private final InvalidationListener fireSubValueChangedEventMethod = this::fireSubValueChangedEvent;
     private boolean subtreeValid = true;
     private InvalidationListener listener;
-    private ValueConverter<Object, T> converter;
+    private LifecycleValueConverter converter;
 
     public AsyncObjectPropertyBase(PropertyMetadata<T> metadata) {
         super(metadata);
     }
 
-    AsyncObjectPropertyBase(PropertyObject bean, PropertyMetadata<T> metadata) {
+    AsyncObjectPropertyBase(ObservableObject bean, PropertyMetadata<T> metadata) {
         super(bean, metadata);
     }
 
@@ -45,21 +48,21 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
         boolean read = true;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
                 boolean subtreeValid = this.subtreeValid;
                 T value = this.value;
                 PropertyMetadata<T> metadata = this.metadata;
-                if (accessController.validate(true, stamp)) {
+                if (accessController.validate(VALUE, GROUP, stamp)) {
                     if (critical) {
-                        PropertyHelper.verifyConsistency(metadata);
+                        metadata.verifyConsistency();
                     }
 
                     if (valid) {
-                        if (!subtreeValid && value instanceof PropertyObject) {
-                            stamp = accessController.writeLock(true);
-                            if (!this.subtreeValid && this.value instanceof PropertyObject) {
-                                ((PropertyObject)this.value).validate();
+                        if (!subtreeValid && value instanceof ObservableObject) {
+                            stamp = accessController.writeLock(VALUE, GROUP);
+                            if (!this.subtreeValid && this.value instanceof ObservableObject) {
+                                ((ObservableObject)this.value).validate();
                                 this.subtreeValid = true;
                             }
                         }
@@ -72,31 +75,31 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
             }
 
             if (read) {
-                stamp = accessController.readLock(true);
-                if (valid && (subtreeValid || !(value instanceof PropertyObject))) {
+                stamp = accessController.readLock(VALUE, GROUP);
+                if (valid && (subtreeValid || !(value instanceof ObservableObject))) {
                     if (critical) {
-                        PropertyHelper.verifyConsistency(metadata);
+                        metadata.verifyConsistency();
                     }
 
                     return value;
                 }
             }
 
-            long newStamp = accessController.tryConvertToWriteLock(true, stamp);
+            long newStamp = accessController.tryConvertToWriteLock(VALUE, GROUP, stamp);
             if (newStamp == 0) {
-                accessController.unlockRead(stamp);
-                stamp = accessController.writeLock(true);
+                accessController.unlockRead(VALUE, stamp);
+                stamp = accessController.writeLock(VALUE, GROUP);
             } else {
                 stamp = newStamp;
             }
 
             if (critical) {
-                PropertyHelper.verifyConsistency(metadata);
+                metadata.verifyConsistency();
             }
 
             return getCore();
         } finally {
-            accessController.unlock(stamp);
+            accessController.unlock(VALUE, stamp);
         }
     }
 
@@ -104,8 +107,8 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
     @SuppressWarnings("unchecked")
     T getCore() {
         if (valid) {
-            if (!subtreeValid && value instanceof PropertyObject) {
-                ((PropertyObject)value).validate();
+            if (!subtreeValid && value instanceof ObservableObject) {
+                ((ObservableObject)value).validate();
                 subtreeValid = true;
             }
 
@@ -113,41 +116,42 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
         }
 
         if (observable != null) {
-            Object newValue =
-                (observable instanceof ReadOnlyAsyncObjectProperty)
-                    ? ((ReadOnlyAsyncObjectProperty<T>)observable).getValueUncritical()
-                    : observable.getValue();
-
             if (converter != null) {
                 if (value != null) {
-                    if (newValue != null) {
-                        if (converter instanceof LifecycleValueConverter) {
-                            ((LifecycleValueConverter<Object, T>)converter).update(newValue, value);
-                        } else {
-                            value = converter.convert(newValue);
-                        }
-                    } else {
-                        if (converter instanceof LifecycleValueConverter) {
-                            ((LifecycleValueConverter<Object, T>)converter).remove(value);
-                        }
-
-                        value = null;
-                    }
-                } else if (newValue != null) {
-                    value = converter.convert(newValue);
+                    converter.remove(value);
                 }
-            } else {
-                value = (T)newValue;
-            }
 
-            if (newValue instanceof PropertyObject) {
-                PropertyObject obj = (PropertyObject)newValue;
-                obj.addListener(AsyncInvalidationListenerWrapper.wrap(invalidationListener, effectiveExecutor));
-                obj.validate();
+                Object newValue =
+                    (observable instanceof ReadOnlyAsyncObjectProperty)
+                        ? ((ReadOnlyAsyncObjectProperty<T>)observable).getValueUncritical()
+                        : observable.getValue();
+
+                if (newValue instanceof ObservableObject) {
+                    ObservableObject obj = (ObservableObject)newValue;
+                    obj.addListener(
+                        InvalidationListenerWrapper.wrap(fireSubValueChangedEventMethod, metadata.getExecutor()));
+                    obj.validate();
+                }
+
+                value = (T)converter.convert(newValue);
+            } else {
+                T newValue =
+                    (observable instanceof ReadOnlyAsyncObjectProperty)
+                        ? ((ReadOnlyAsyncObjectProperty<T>)observable).getValueUncritical()
+                        : ((ObservableValue<? extends T>)observable).getValue();
+
+                if (newValue instanceof ObservableObject) {
+                    ObservableObject obj = (ObservableObject)newValue;
+                    obj.addListener(
+                        InvalidationListenerWrapper.wrap(fireSubValueChangedEventMethod, metadata.getExecutor()));
+                    obj.validate();
+                }
+
+                value = newValue;
             }
-        } else if (value instanceof PropertyObject) {
-            PropertyObject obj = (PropertyObject)value;
-            obj.addListener(AsyncInvalidationListenerWrapper.wrap(invalidationListener, effectiveExecutor));
+        } else if (value instanceof ObservableObject) {
+            ObservableObject obj = (ObservableObject)value;
+            obj.addListener(InvalidationListenerWrapper.wrap(fireSubValueChangedEventMethod, metadata.getExecutor()));
             obj.validate();
         }
 
@@ -157,14 +161,15 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void set(T newValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate, fireEvent = false;
-        AsyncExpressionHelper<T> helper;
 
         try {
-            stamp = accessController.writeLock(true);
-            PropertyHelper.verifyAccess(this, metadata);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
+            metadata.verifyAccess();
 
             if (observable != null) {
                 throw new RuntimeException("A bound value cannot be set.");
@@ -174,28 +179,30 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
                 return;
             }
 
-            if (converter instanceof LifecycleValueConverter) {
-                if (value != null) {
-                    ((LifecycleValueConverter<Object, T>)converter).remove(value);
-                }
+            if (value != null && converter != null) {
+                converter.remove(value);
             }
 
-            converter = null;
-
-            if (value instanceof PropertyObject) {
-                PropertyObject obj = (PropertyObject)value;
-                obj.removeListener(invalidationListener);
+            if (value instanceof ObservableObject) {
+                ObservableObject obj = (ObservableObject)value;
+                obj.removeListener(fireSubValueChangedEventMethod);
             }
 
             value = newValue;
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, GROUP);
+                resolveDeferredListeners();
 
                 if (AsyncExpressionHelper.validatesValue(helper)) {
-                    newValue = getCore();
+                    try {
+                        newValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
 
                 if (!(fireEvent = !accessController.isLocked())) {
@@ -203,24 +210,41 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
 
                     accessController.defer(
                         () -> {
-                            invalidated();
-                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            long stamp = 0;
+                            try {
+                                stamp = accessController.writeLock(EVENT, GROUP);
+                                invalidated();
+                                AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            } finally {
+                                accessController.unlockWrite(EVENT, stamp);
+                            }
                         });
+
+                    accessController.unlockWrite(EVENT, eventStamp);
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (fireEvent) {
-            invalidated();
-            AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            try {
+                invalidated();
+                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, T> converter) {
+    public <U> void bind(final ObservableValue<? extends U> source, LifecycleValueConverter<U, ? extends T> converter) {
+        bindCore(source, new ValueConverterAdapter<>(converter));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    <U> void bindCore(final ObservableValue<? extends U> source, ValueConverter<U, ? extends T> converter) {
         if (source == null) {
             throw new NullPointerException("Cannot bind to null.");
         }
@@ -230,18 +254,17 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         T newValue = null;
         PropertyMetadata<T> metadata;
-        AsyncExpressionHelper<T> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
-            if (metadata.getConsistencyGroup() != null) {
+            if (PropertyMetadata.Accessor.getConsistencyGroup(metadata).isPresent()) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
             }
 
@@ -249,129 +272,161 @@ public abstract class AsyncObjectPropertyBase<T> extends AsyncObjectPropertyBase
                 unbindCore();
                 observable = source;
 
-                if (this.converter instanceof LifecycleValueConverter && value != null) {
-                    ((LifecycleValueConverter)this.converter).remove(value);
+                if (converter != null) {
+                    this.converter =
+                        converter instanceof LifecycleValueConverter
+                            ? (LifecycleValueConverter)converter
+                            : new ValueConverterAdapter<>(converter);
                 }
-
-                this.converter = (ValueConverter<Object, T>)converter;
 
                 if (listener == null) {
-                    listener = new Listener(this);
+                    listener = new Listener(this, metadata.getExecutor());
                 }
 
-                PropertyHelper.addListener(observable, listener, accessController);
+                observable.addListener(listener);
 
-                if (this.converter == null) {
+                if (this.converter != null) {
+                    if (value != null) {
+                        this.converter.remove(value);
+                    }
+
                     if (source instanceof ReadOnlyAsyncObjectProperty) {
-                        newValue =
-                            (T)PropertyHelper.getValueUncritical((ReadOnlyAsyncObjectProperty)source, accessController);
+                        newValue = (T)this.converter.convert(((ReadOnlyAsyncObjectProperty)source).getUncritical());
                     } else {
-                        newValue = (T)source.getValue();
+                        newValue = (T)this.converter.convert(source.getValue());
                     }
+                } else {
+                    if (observable instanceof ReadOnlyAsyncObjectProperty) {
+                        newValue = ((ReadOnlyAsyncObjectProperty<? extends T>)observable).getUncritical();
+                    } else {
+                        newValue = ((ObservableValue<? extends T>)observable).getValue();
+                    }
+                }
 
-                    if (this.value == newValue) {
-                        return;
-                    }
+                if (value == newValue) {
+                    return;
                 }
 
                 invalidate = valid;
-
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getCore();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
-                Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-            }
+            final T newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
 
-            if (dispatcher != null) {
-                final T newValueCopy = newValue;
-
-                dispatcher.run(
+            metadata.getExecutor()
+                .execute(
                     () -> {
-                        invalidated();
-                        AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
-            } else {
-                invalidated();
-                AsyncExpressionHelper.fireValueChangedEvent(helper, newValue, false);
-            }
         }
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     void unbindCore() {
         if (observable != null) {
+            if (converter != null) {
+                if (observable instanceof ReadOnlyAsyncObjectProperty) {
+                    value = (T)converter.convert(((ReadOnlyAsyncObjectProperty)observable).getUncritical());
+                } else {
+                    value = (T)converter.convert(observable.getValue());
+                }
+            } else {
+                if (observable instanceof ReadOnlyAsyncObjectProperty) {
+                    value = ((ReadOnlyAsyncObjectProperty<? extends T>)observable).getUncritical();
+                } else {
+                    value = ((ObservableValue<? extends T>)observable).getValue();
+                }
+            }
+
             observable.removeListener(listener);
             observable = null;
+            converter = null;
         }
     }
 
     private void fireSubValueChangedEvent(@SuppressWarnings("unused") Observable observable) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate = false;
         T currentValue = null;
-        AsyncExpressionHelper<T> helper = null;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((valueStamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 invalidate = this.subtreeValid;
-                if (!accessController.validate(true, stamp)) {
-                    stamp = accessController.readLock(true);
+                if (!accessController.validate(VALUE, GROUP, valueStamp)) {
+                    valueStamp = accessController.readLock(VALUE, GROUP);
                     invalidate = this.subtreeValid;
                 }
             }
 
             if (invalidate) {
                 subtreeValid = false;
-                helper = this.helper;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncExpressionHelper.validatesValue(helper)) {
-                    currentValue = getCore();
+                    try {
+                        currentValue = getCore();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            AsyncExpressionHelper.fireValueChangedEvent(helper, currentValue, true);
+            try {
+                AsyncExpressionHelper.fireValueChangedEvent(helper, currentValue, true);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
-    private static class Listener implements InvalidationListener, WeakListener, Runnable {
+    private static class Listener implements InvalidationListener, WeakListener {
         private final WeakReference<AsyncObjectPropertyBase<?>> wref;
+        private final Executor executor;
 
-        Listener(AsyncObjectPropertyBase<?> ref) {
+        Listener(AsyncObjectPropertyBase<?> ref, Executor executor) {
             this.wref = new WeakReference<>(ref);
+            this.executor = executor;
         }
 
         @Override
         public void invalidated(Observable observable) {
-            AsyncObjectPropertyBase<?> ref = wref.get();
+            AsyncObjectPropertyBase ref = wref.get();
             if (ref == null) {
                 observable.removeListener(this);
             } else {
-                ref.getExecutor().execute(this);
-            }
-        }
-
-        @Override
-        public void run() {
-            AsyncObjectPropertyBase<?> ref = wref.get();
-            if (ref != null) {
-                ref.markInvalid();
+                executor.execute(ref::markInvalid);
             }
         }
 

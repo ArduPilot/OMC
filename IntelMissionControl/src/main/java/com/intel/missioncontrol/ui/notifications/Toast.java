@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.ui.notifications;
 
-import com.google.common.util.concurrent.MoreExecutors;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import de.saxsys.mvvmfx.utils.commands.Command;
@@ -17,8 +16,6 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.util.Duration;
 import org.asyncfx.concurrent.Dispatcher;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -117,38 +114,10 @@ public class Toast {
          *
          * @param actionText The action text that appears on the toast.
          * @param action The action to be executed.
-         */
-        public ToastBuilder setAction(String actionText, Runnable action) {
-            return setAction(actionText, false, false, action);
-        }
-
-        /**
-         * Configures the toast to include a clickable action.
-         *
-         * @param actionText The action text that appears on the toast.
-         * @param action The action to be executed.
          * @param executor The executor that will be used to execute the action.
          */
         public ToastBuilder setAction(String actionText, Runnable action, Executor executor) {
             return setAction(actionText, false, false, action, executor);
-        }
-
-        /**
-         * Configures the toast to include a clickable action.
-         *
-         * @param actionText The action text that appears on the toast.
-         * @param actionCheckable If true, the action will appear as a check box. If false, it will appear as a link.
-         * @param autoClose If true, the toast will auto-close after the action has been invoked.
-         * @param action The action to be executed.
-         */
-        public ToastBuilder setAction(
-                String actionText, boolean actionCheckable, boolean autoClose, Runnable action) {
-            this.actionText = actionText;
-            this.checkableAction = actionCheckable;
-            this.autoClose = autoClose;
-            this.action = action;
-            this.actionExecutor = MoreExecutors.directExecutor();
-            return this;
         }
 
         /**
@@ -260,7 +229,7 @@ public class Toast {
     }
 
     private final ToastType type;
-    private final StringProperty text = new SimpleStringProperty();
+    private final String text;
     private final boolean showIcon;
     private final boolean checkableAction;
     private final boolean autoClose;
@@ -302,14 +271,14 @@ public class Toast {
         this.showIcon = showIcon;
         this.checkableAction = checkableAction;
         this.autoClose = autoClose;
-        this.text.set(text);
+        this.text = text;
         this.actionText = actionText;
         this.action = action;
         this.actionExecutor = actionExecutor;
         this.command = command;
         this.commandParameter = commandParameter;
         this.closeable = closeable;
-        this.remainingTimeMillis = timeout != null ? (int)timeout.toMillis() : (int)SHORT_TIMEOUT.toMillis();
+        this.remainingTimeMillis = timeout != null ? (int)timeout.toMillis() : (int) SHORT_TIMEOUT.toMillis();
 
         if (dismissHandler != null) {
             this.dismissHandlers.add(dismissHandler);
@@ -337,10 +306,6 @@ public class Toast {
     }
 
     public String getText() {
-        return text.get();
-    }
-
-    public StringProperty getTextProperty() {
         return text;
     }
 
@@ -390,11 +355,7 @@ public class Toast {
 
     @Override
     public String toString() {
-        return type == null ? text.get() : (type.toString() + ": " + text.get());
-    }
-
-    public void setText(String text) {
-        this.text.set(text);
+        return type == null ? text : (type.toString() + ": " + text);
     }
 
     void executeAction() {

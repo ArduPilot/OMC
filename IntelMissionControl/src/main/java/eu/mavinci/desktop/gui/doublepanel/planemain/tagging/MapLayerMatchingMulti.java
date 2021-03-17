@@ -112,7 +112,7 @@ public class MapLayerMatchingMulti extends AMapLayerMatching {
             numberOfImagesPerPosition = -1;
         }
 
-        if (areaEnabled) {
+        if (onlyInPicArea) {
             // System.out.println("filte changed!");
             filterChanged(); // includes an cover.recomputeCoverage();
         } else {
@@ -314,8 +314,7 @@ public class MapLayerMatchingMulti extends AMapLayerMatching {
     }
 
     public void cloneMyValuesTo(MapLayerMatching other) throws Exception {
-        //TODO add other values?
-        other.areaEnabled= areaEnabled;
+        other.onlyInPicArea = onlyInPicArea;
         other.cover.resolution = cover.resolution;
         other.bandNames = getBandNames();
         other.currentBandNo = currentBandNo;

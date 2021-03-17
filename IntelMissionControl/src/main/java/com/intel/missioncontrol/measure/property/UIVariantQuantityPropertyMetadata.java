@@ -8,34 +8,28 @@ package com.intel.missioncontrol.measure.property;
 
 import com.intel.missioncontrol.measure.UnitInfo;
 import com.intel.missioncontrol.measure.VariantQuantity;
+import org.asyncfx.Optional;
 import org.asyncfx.beans.property.AsyncProperty;
 import org.asyncfx.beans.property.ConsistencyGroup;
 import org.asyncfx.beans.property.PropertyMetadata;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.beans.property.UIDispatcher;
 
 public class UIVariantQuantityPropertyMetadata extends VariantQuantityPropertyMetadata {
 
     public static class Builder {
-        private String name;
-        private boolean hasName;
-        private boolean customBean;
-        private boolean hasCustomBean;
-        private VariantQuantity initialValue;
-        private boolean hasInitialValue;
-        private ConsistencyGroup consistencyGroup;
-        private boolean hasConsistencyGroup;
-        private IQuantityStyleProvider quantityStyleProvider;
-        private boolean hasQuantityStyleProvider;
-        private UnitInfo<?>[] unitInfo;
-        private boolean hasUnitInfo;
+        private Optional<String> name = Optional.empty();
+        private Optional<Boolean> customBean = Optional.empty();
+        private Optional<VariantQuantity> initialValue = Optional.empty();
+        private Optional<ConsistencyGroup> consistencyGroup = Optional.empty();
+        private Optional<IQuantityStyleProvider> quantityStyleProvider = Optional.empty();
+        private Optional<UnitInfo<?>[]> unitInfo = Optional.empty();
 
         /**
          * The name of the property. If this value is not specified, the name of the property field will be
          * automatically detected at runtime. Generally, you should not manually specify the name.
          */
         public Builder name(String name) {
-            this.name = name;
-            this.hasName = true;
+            this.name = Optional.of(name);
             return this;
         }
 
@@ -44,19 +38,7 @@ public class UIVariantQuantityPropertyMetadata extends VariantQuantityPropertyMe
          * {@link AsyncProperty#reset()}.
          */
         public Builder initialValue(VariantQuantity value) {
-            this.initialValue = value;
-            this.hasInitialValue = true;
-            return this;
-        }
-
-        /**
-         * For regular async properties, the bean value must be a reference to the object instance that contains the
-         * property field. Setting this option allows the bean value to be any object reference. If this option is set,
-         * automatic name detection will be disabled.
-         */
-        public Builder customBean(boolean value) {
-            this.customBean = value;
-            this.hasCustomBean = true;
+            this.initialValue = Optional.of(value);
             return this;
         }
 
@@ -66,68 +48,52 @@ public class UIVariantQuantityPropertyMetadata extends VariantQuantityPropertyMe
          * appear as atomic operations to observers.
          */
         public Builder consistencyGroup(ConsistencyGroup value) {
-            this.consistencyGroup = value;
-            this.hasConsistencyGroup = true;
+            this.consistencyGroup = Optional.of(value);
+            return this;
+        }
+
+        /**
+         * For regular async properties, the bean value must be a reference to the object instance that contains the
+         * property field. Setting this option allows the bean value to be any object reference. If this option is set,
+         * automatic name detection will be disabled.
+         */
+        public Builder customBean(boolean value) {
+            this.customBean = Optional.of(value);
             return this;
         }
 
         public Builder quantityStyleProvider(IQuantityStyleProvider quantityStyleProvider) {
-            this.quantityStyleProvider = quantityStyleProvider;
-            this.hasQuantityStyleProvider = true;
+            this.quantityStyleProvider = Optional.of(quantityStyleProvider);
             return this;
         }
 
-        public Builder unitInfo(UnitInfo<?>[] unitInfo) {
-            this.unitInfo = unitInfo;
-            this.hasUnitInfo = true;
+        public Builder unitInfo(UnitInfo<?>... unitInfo) {
+            this.unitInfo = Optional.of(unitInfo);
             return this;
         }
 
         public UIVariantQuantityPropertyMetadata create() {
             return new UIVariantQuantityPropertyMetadata(
-                name,
-                hasName,
-                customBean,
-                hasCustomBean,
-                initialValue,
-                hasInitialValue,
-                consistencyGroup,
-                hasConsistencyGroup,
-                quantityStyleProvider,
-                hasQuantityStyleProvider,
-                unitInfo,
-                hasUnitInfo);
+                name, customBean, initialValue, consistencyGroup, quantityStyleProvider, unitInfo);
         }
     }
 
     UIVariantQuantityPropertyMetadata(
-            String name,
-            boolean hasName,
-            Boolean customBean,
-            boolean hasCustomBean,
-            VariantQuantity initialValue,
-            boolean hasInitialValue,
-            ConsistencyGroup consistencyGroup,
-            boolean hasConsistencyGroup,
-            IQuantityStyleProvider quantityStyleProvider,
-            boolean hasQuantityStyleProvider,
-            UnitInfo<?>[] unitInfo,
-            boolean hasUnitInfo) {
+            Optional<String> name,
+            Optional<Boolean> customBean,
+            Optional<VariantQuantity> initialValue,
+            Optional<ConsistencyGroup> consistencyGroup,
+            Optional<IQuantityStyleProvider> quantityStyleProvider,
+            Optional<UnitInfo<?>[]> unitInfo) {
         super(
             name,
-            hasName,
             customBean,
-            hasCustomBean,
             initialValue,
-            hasInitialValue,
             consistencyGroup,
-            hasConsistencyGroup,
-            Dispatcher.platform(),
-            true,
+            Optional.of(UIDispatcher::run),
+            UIDispatcher::isDispatcherThread,
             quantityStyleProvider,
-            hasQuantityStyleProvider,
-            unitInfo,
-            hasUnitInfo);
+            unitInfo);
     }
 
     @Override
@@ -135,18 +101,12 @@ public class UIVariantQuantityPropertyMetadata extends VariantQuantityPropertyMe
         VariantQuantityPropertyMetadata baseMetadata = (VariantQuantityPropertyMetadata)super.merge(metadata);
 
         return new UIVariantQuantityPropertyMetadata(
-            PropertyMetadata.Accessor.getName(baseMetadata),
-            PropertyMetadata.Accessor.hasName(baseMetadata),
-            PropertyMetadata.Accessor.getCustomBean(baseMetadata),
-            PropertyMetadata.Accessor.hasCustomBean(baseMetadata),
-            PropertyMetadata.Accessor.getInitialValue(baseMetadata),
-            PropertyMetadata.Accessor.hasInitialValue(baseMetadata),
-            PropertyMetadata.Accessor.getConsistencyGroup(baseMetadata),
-            PropertyMetadata.Accessor.hasConsistencyGroup(baseMetadata),
+            Accessor.getName(baseMetadata),
+            Accessor.getCustomBean(baseMetadata),
+            Accessor.getInitialValue(baseMetadata),
+            Accessor.getConsistencyGroup(baseMetadata),
             baseMetadata.quantityStyleProvider,
-            baseMetadata.hasQuantityStyleProvider,
-            baseMetadata.unitInfo,
-            baseMetadata.hasUnitInfo);
+            baseMetadata.unitInfo);
     }
 
 }

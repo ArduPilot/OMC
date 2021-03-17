@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.navbar.layers;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.ILayer;
@@ -43,6 +42,7 @@ import com.intel.missioncontrol.ui.navigation.NavBarDialog;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import de.saxsys.mvvmfx.ViewModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.core.licence.ILicenceManager;
@@ -95,7 +95,6 @@ public class MapLayersViewModel extends DialogViewModel {
     private final GeneralLayerVisibility generalLayerVisibility;
     private final AirspacesProvidersSettings airspacesProvidersSettings;
     private final IPathProvider pathProvider;
-    private final IApplicationContext applicationContext;
     private final BooleanProperty clearMenuItemsVisible = new SimpleBooleanProperty();
     private final IMapClearingCenter mapClearingCenter;
     private final IMapModel mapModel;
@@ -116,7 +115,6 @@ public class MapLayersViewModel extends DialogViewModel {
             GeneralLayerVisibility generalLayerVisibility,
             AirspacesProvidersSettings airspacesProvidersSettings,
             IPathProvider pathProvider,
-            IApplicationContext applicationContext,
             IMapClearingCenter mapClearingCenter,
             ILicenceManager licenceManager) {
         this.navigationService = navigationService;
@@ -132,7 +130,6 @@ public class MapLayersViewModel extends DialogViewModel {
         this.generalLayerVisibility = generalLayerVisibility;
         this.airspacesProvidersSettings = airspacesProvidersSettings;
         this.pathProvider = pathProvider;
-        this.applicationContext = applicationContext;
         this.mapClearingCenter = mapClearingCenter;
         this.generalSettings = generalSettings;
         this.licenceManager = licenceManager;
@@ -262,7 +259,8 @@ public class MapLayersViewModel extends DialogViewModel {
 
         if (!wmsManager.containsWmsServer(wmsUrl)) {
             wmsManager.addWmsServer(wmsUrl);
-            StaticInjector.getInstance(IApplicationContext.class)
+            DependencyInjector.getInstance()
+                .getInstanceOf(IApplicationContext.class)
                 .addToast(
                     Toast.of(ToastType.INFO)
                         .setText(
@@ -270,7 +268,8 @@ public class MapLayersViewModel extends DialogViewModel {
                                 "com.intel.missioncontrol.ui.layers.MapLayersViewModel.selectWms.done", wmsUrl))
                         .create());
         } else {
-            StaticInjector.getInstance(IApplicationContext.class)
+            DependencyInjector.getInstance()
+                .getInstanceOf(IApplicationContext.class)
                 .addToast(
                     Toast.of(ToastType.INFO)
                         .setText(
@@ -309,7 +308,8 @@ public class MapLayersViewModel extends DialogViewModel {
 
             if (!kmlsSettings.kmlsProperty().get().contains(kml)) {
                 kmlsSettings.kmlsProperty().add(kml);
-                StaticInjector.getInstance(IApplicationContext.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.INFO)
                             .setText(
@@ -318,7 +318,8 @@ public class MapLayersViewModel extends DialogViewModel {
                                     file.getFileName()))
                             .create());
             } else {
-                StaticInjector.getInstance(IApplicationContext.class)
+                DependencyInjector.getInstance()
+                    .getInstanceOf(IApplicationContext.class)
                     .addToast(
                         Toast.of(ToastType.INFO)
                             .setText(

@@ -22,7 +22,7 @@ import com.intel.missioncontrol.ui.validation.SimpleResolveAction;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import gov.nasa.worldwind.geom.Sector;
 
-/** check A-**: check if mission safety altitude is reasonable compare to terrain */
+/** check A-**: check if flight plan safety altitude is reasonable compare to terrain */
 @SuppressWarnings("FieldCanBeLocal")
 public class SafetyAltValidator extends OnFlightplanChangedValidator {
 
@@ -54,20 +54,20 @@ public class SafetyAltValidator extends OnFlightplanChangedValidator {
             return true;
         }
 
-        Sector picAreaSector = flightplan.getLegacyFlightplan().getPicAreaSector();
-        if (picAreaSector == null) {
+        Sector sector = flightplan.getSector();
+        if (sector == null) {
             return true;
         }
 
         double minActualSafeAltitude =
-            elevationModel.getMaxElevation(picAreaSector).max
+            elevationModel.getMaxElevation(sector).max
                 + hardwareConfiguration
                     .getPlatformDescription()
                     .getMinGroundDistance()
                     .convertTo(Unit.METER)
                     .getValue()
                     .doubleValue()
-                - elevationModel.getMaxElevation(picAreaSector).min;
+                - flightplan.getLegacyFlightplan().getRefPointAltWgs84WithElevation();
         double currentSafetyAltitude = flightplan.safetyAltitudeProperty().get();
 
         if (currentSafetyAltitude < minActualSafeAltitude) {

@@ -30,7 +30,7 @@ public class TaskView extends VBox implements JavaView<TaskViewModel> {
     private ILanguageHelper languageHelper;
 
     public void initialize() {
-        getStyleClass().add("list-item");
+        setStyle("-fx-spacing: 0.5em");
 
         Label nameLabel = new Label();
         nameLabel.setMaxWidth(Double.POSITIVE_INFINITY);

@@ -6,9 +6,9 @@
 
 package eu.mavinci.helper;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.TestPathProvider;
 import com.intel.missioncontrol.settings.GeneralSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.FlightplanContainerFullException;
 import eu.mavinci.core.flightplan.FlightplanContainerWrongAddingException;
 import eu.mavinci.core.flightplan.FlightplanFactory;
@@ -49,7 +49,8 @@ public class MavinciEnvInitializer {
 
         prepareNewAppBase();
 
-        StaticInjector.getInstance(GeneralSettings.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(GeneralSettings.class)
             .getDefaultCameraFilenameProperty()
             .setValue("LumixGF1-Pancake.camera");
 
@@ -106,7 +107,7 @@ public class MavinciEnvInitializer {
         try {
             flightplan.open(new File(fileName));
         } catch (InvalidFlightPlanFileException e) {
-            Debug.getLog().severe("Cannot load a mission from a file " + fileName + " : " + e.getCause());
+            Debug.getLog().severe("Cannot load a flight plan from a file " + fileName + " : " + e.getCause());
         }
 
         return flightplan;

@@ -6,12 +6,12 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.ReentryPointID;
 import eu.mavinci.desktop.gui.doublepanel.calculator.AltitudeGsdCalculator;
@@ -45,8 +45,10 @@ public class ComputeCornerData {
     private Vec4 cameraDirectionNormal;
     private double gsdToDistanceMultiplier;
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public static interface IAerialPinholeImageContext {
         Double getStartingElevationOverWgs84();

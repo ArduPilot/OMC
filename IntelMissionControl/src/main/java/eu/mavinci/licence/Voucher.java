@@ -6,9 +6,9 @@
 
 package eu.mavinci.licence;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.AllowedUser;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.core.licence.Licence;
@@ -31,7 +31,8 @@ public class Voucher {
     public static String KEY = "eu.mavinci.licence.voucher";
     static String VoucherSerialNumber;
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public Voucher() {}
 
@@ -72,15 +73,15 @@ public class Voucher {
             return false;
         }
 
-        boolean defEclipse = StaticInjector.getInstance(IVersionProvider.class).isEclipseLaunched();
-        Licence licence = StaticInjector.getInstance(ILicenceManager.class).getActiveLicence();
-        AllowedUser user = StaticInjector.getInstance(ILicenceManager.class).getAllowedUser();
+        boolean defEclipse = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).isEclipseLaunched();
+        Licence licence = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getActiveLicence();
+        AllowedUser user = DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getAllowedUser();
 
         String defSource =
             "OldInstallation: SN:"
                 + (licence == null ? null : licence.getLicenceId())
                 + " Version:"
-                + StaticInjector.getInstance(IVersionProvider.class).getHumanReadableVersion();
+                + DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getHumanReadableVersion();
         String defCompany = licence != null ? licence.getCompany() : "null";
         String defEMail = user != null ? user.getEmail() : "null";
         String defName = user != null ? user.getName() : "null";
@@ -110,7 +111,7 @@ public class Voucher {
 
             if (FileHelper.sendEMail(
                     toEmails,
-                    "Open Mission Control Licence Voucher - " + defName.trim() + ", " + defCompany.trim(),
+                    "Intel Mission Control Licence Voucher - " + defName.trim() + ", " + defCompany.trim(),
                     url)) {
             } else {
                 JOptionPane.showMessageDialog(

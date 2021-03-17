@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.drone.connection;
 
-import com.intel.missioncontrol.drone.connection.mavlink.CameraProtocolReceiver;
 import com.intel.missioncontrol.drone.connection.mavlink.CameraProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.CommandProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.MavlinkEndpoint;
@@ -18,7 +17,6 @@ import org.asyncfx.concurrent.CancellationSource;
 public class MavlinkCameraConnection {
     private final CommandProtocolSender commandProtocolSender;
     private final CameraProtocolSender cameraProtocolSender;
-    private final CameraProtocolReceiver cameraProtocolReceiver;
     private final ParameterProtocolSender parameterProtocolSender;
     private final MavlinkCameraConnectionItem cameraConnectionItem;
 
@@ -37,7 +35,6 @@ public class MavlinkCameraConnection {
 
         commandProtocolSender = new CommandProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
         cameraProtocolSender = new CameraProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
-        cameraProtocolReceiver = new CameraProtocolReceiver(targetEndpoint, mavlinkHandler, cancellationSource);
         parameterProtocolSender = new ParameterProtocolSender(targetEndpoint, mavlinkHandler, cancellationSource);
     }
 
@@ -55,9 +52,5 @@ public class MavlinkCameraConnection {
 
     public CameraProtocolSender getCameraProtocolSender() {
         return cameraProtocolSender;
-    }
-
-    public CameraProtocolReceiver getCameraProtocolReceiver() {
-        return cameraProtocolReceiver;
     }
 }

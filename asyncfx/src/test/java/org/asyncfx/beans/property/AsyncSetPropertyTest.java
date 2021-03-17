@@ -25,6 +25,7 @@ import org.asyncfx.collections.AsyncObservableSet;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedSet;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationContext;
 import org.junit.jupiter.api.Test;
 
 class AsyncSetPropertyTest extends TestBase {
@@ -88,7 +89,7 @@ class AsyncSetPropertyTest extends TestBase {
                     awaiter.assertTrue(Platform.isFxApplicationThread());
                     awaiter.signal();
                 },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         try (var view = simpleListProp.lock()) {
             view.add(1);
@@ -122,7 +123,7 @@ class AsyncSetPropertyTest extends TestBase {
                     awaiter.assertTrue(Platform.isFxApplicationThread());
                     awaiter.signal();
                 },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         targetListProp.bind(sourceListProp);
 
@@ -172,6 +173,7 @@ class AsyncSetPropertyTest extends TestBase {
     @Test
     void BidirectionalBinding_Is_Evaluated_On_Another_Thread() {
         var awaiter = new Awaiter();
+        var syncCtx = SynchronizationContext.getCurrent();
 
         var sourceListProp1 =
             new SimpleAsyncSetProperty<>(
@@ -179,6 +181,7 @@ class AsyncSetPropertyTest extends TestBase {
                 new PropertyMetadata.Builder<AsyncObservableSet<Integer>>()
                     .customBean(true)
                     .name("source")
+                    .synchronizationContext(syncCtx)
                     .initialValue(FXAsyncCollections.observableSet(new HashSet<>()))
                     .create());
 
@@ -188,6 +191,7 @@ class AsyncSetPropertyTest extends TestBase {
                 new PropertyMetadata.Builder<AsyncObservableSet<Integer>>()
                     .customBean(true)
                     .name("target")
+                    .synchronizationContext(syncCtx)
                     .initialValue(null)
                     .create());
 
@@ -214,12 +218,14 @@ class AsyncSetPropertyTest extends TestBase {
     @Test
     void BidirectionalBinding_Is_Evaluated_On_FxApplicationThread() {
         var awaiter = new Awaiter();
+        var syncCtx = SynchronizationContext.getCurrent();
 
         var sourceListProp2 =
             new SimpleAsyncSetProperty<>(
                 null,
                 new PropertyMetadata.Builder<AsyncObservableSet<Integer>>()
                     .customBean(true)
+                    .synchronizationContext(syncCtx)
                     .initialValue(FXAsyncCollections.observableSet(new HashSet<>()))
                     .create());
 
@@ -565,11 +571,11 @@ class AsyncSetPropertyTest extends TestBase {
         awaiter.await(1);
     }
 
-    static class A extends PropertyObject {
+    static class A extends ObservableObject {
         final AsyncObjectProperty<B> b = new SimpleAsyncObjectProperty<>(this);
     }
 
-    static class B extends PropertyObject {
+    static class B extends ObservableObject {
         final AsyncSetProperty<C> c =
             new SimpleAsyncSetProperty<>(
                 this,
@@ -578,7 +584,7 @@ class AsyncSetPropertyTest extends TestBase {
                     .create());
     }
 
-    static class C extends PropertyObject {
+    static class C extends ObservableObject {
         final AsyncBooleanProperty d = new SimpleAsyncBooleanProperty(this);
     }
 

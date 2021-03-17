@@ -18,8 +18,6 @@ import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
-import com.intel.missioncontrol.ui.validation.SimpleResolveAction;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.globes.Globe;
@@ -35,10 +33,8 @@ import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Dispatcher;
 
-/** Check if current drone position is close to takeoff position specified in mission */
+/** Check if current drone position is close to takeoff position specified in flight plan */
 public class TakeoffPositionValidator implements IFlightValidator {
-
-    private final SimpleResolveAction fixTakeoff;
 
     public interface Factory {
         TakeoffPositionValidator create(CancellationSource cancellationSource);
@@ -57,8 +53,6 @@ public class TakeoffPositionValidator implements IFlightValidator {
 
     private final AsyncObjectProperty<Position> position = new SimpleAsyncObjectProperty<>(this);
 
-    private AsyncObjectProperty<IResolveAction> firstResolveAction = new SimpleAsyncObjectProperty<>(this);
-
     @Inject
     TakeoffPositionValidator(
             IFlightValidationService flightValidationService,
@@ -74,16 +68,6 @@ public class TakeoffPositionValidator implements IFlightValidator {
                 .from(flightValidationService.flightPlanProperty())
                 .selectReadOnlyObject(FlightPlan::takeoffPositionProperty);
 
-        fixTakeoff =
-            new SimpleResolveAction(
-                languageHelper.getString(TakeoffPositionValidator.class, "fixTakeoff"),
-                () -> {
-                    Position pos = new Position(position.get().getLatitude(), position.get().getLongitude(), 0);
-
-                    FlightPlan fp = flightValidationService.flightPlanProperty().get();
-                    fp.takeoffAutoProperty().set(false);
-                    fp.takeoffPositionProperty().setValue(pos);
-                });
         // update position periodically:
         Dispatcher dispatcher = Dispatcher.background();
         dispatcher.runLaterAsync(
@@ -153,23 +137,13 @@ public class TakeoffPositionValidator implements IFlightValidator {
                 position,
                 telemetryOld,
                 flightSegment));
-
-        firstResolveAction.bind(
-            validationStatus,
-            value -> {
-                if (value.getAlertType().equals(AlertType.WARNING)) {
-                    return fixTakeoff;
-                }
-
-                return null;
-            });
     }
 
     private double getDistance(Position pos, Position fpTakeoffPos) {
         Vec4 vPos = globe.computePointFromPosition(pos);
         Vec4 vToff = globe.computePointFromPosition(fpTakeoffPos);
 
-        return vPos.distanceTo2(vToff);
+        return vPos.distanceTo3(vToff);
     }
 
     public ReadOnlyAsyncObjectProperty<FlightValidationStatus> validationStatusProperty() {
@@ -181,13 +155,4 @@ public class TakeoffPositionValidator implements IFlightValidator {
         return FlightValidatorType.TAKEOFF_POSITION;
     }
 
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return firstResolveAction;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
-    }
 }

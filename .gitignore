@@ -7,8 +7,8 @@
 #/WorldWindJava
 
 # User-specific stuff:
-.idea/*
-target
+.idea/
+target/
 
 # Sensitive or high-churn files:
 .idea/**/dataSources/
@@ -20,8 +20,8 @@ target
 .idea/**/uiDesigner.xml
 
 # Gradle:
-.idea/**/gradle.xml
-.idea/**/libraries
+.gradle/
+build/
 
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml

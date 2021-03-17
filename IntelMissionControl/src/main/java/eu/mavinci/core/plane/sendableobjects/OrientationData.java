@@ -59,7 +59,7 @@ public class OrientationData extends MObject {
     public double setpointYaw = 0.0;
 
     // ! altitude in cm
-    public double altitude;
+    public int altitude;
 
     @Deprecated
     public int vario; // ! vario in cm

@@ -281,9 +281,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubInvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -296,9 +297,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 ChangeListener<? super AsyncObservableSet<E>> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -311,9 +313,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubChangeListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -326,9 +329,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SetChangeListener<? super E> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -404,9 +408,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 InvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -437,9 +442,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 ChangeListener<? super AsyncObservableSet<E>> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -452,9 +458,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubChangeListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -467,9 +474,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SetChangeListener<? super E> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -549,9 +557,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 InvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -564,9 +573,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubInvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -597,9 +607,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubChangeListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -612,9 +623,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SetChangeListener<? super E> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -700,9 +712,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 InvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -715,9 +728,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubInvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -730,9 +744,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 ChangeListener<? super AsyncObservableSet<E>> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -763,9 +778,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SetChangeListener<? super E> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -846,9 +862,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 InvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -861,9 +878,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubInvalidationListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -876,9 +894,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 ChangeListener<? super AsyncObservableSet<E>> listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -891,9 +910,10 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubChangeListener listener, AsyncObservableSet<E> currentValue) {
             removePeerListener();
-            return new Generic<>(observable, peer, currentValue)
-                .addListener(this.listener, currentValue)
-                .addListener(listener, currentValue);
+            ProxyAsyncSetExpressionHelper<E> helper = new Generic<>(observable, peer, currentValue);
+            helper.addListener(this.listener, currentValue);
+            helper.addListener(listener, currentValue);
+            return helper;
         }
 
         @Override
@@ -1085,61 +1105,30 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
             ensurePeerSetChangeListener();
         }
 
-        private Generic(
-                AsyncObservableSetValue<E> observable,
-                AsyncObservableSetValue<E> peer,
-                AsyncObservableSet<E> currentValue,
-                Generic<E> source) {
-            super(observable, peer);
-            this.currentValue = currentValue;
-
-            if (source.invalidationListeners != null) {
-                invalidationListeners = source.invalidationListeners;
-                invalidationSize = source.invalidationSize;
-                ensurePeerInvalidationListener();
-            }
-
-            if (source.subInvalidationListeners != null) {
-                subInvalidationListeners = source.subInvalidationListeners;
-                subInvalidationSize = source.subInvalidationSize;
-                ensurePeerSubInvalidationListener();
-            }
-
-            if (source.changeListeners != null) {
-                changeListeners = source.changeListeners;
-                changeSize = source.changeSize;
-                ensurePeerChangeListener();
-            }
-
-            if (source.subChangeListeners != null) {
-                subChangeListeners = source.subChangeListeners;
-                subChangeSize = source.subChangeSize;
-                ensurePeerSubChangeListener();
-            }
-
-            if (source.setChangeListeners != null) {
-                setChangeListeners = source.setChangeListeners;
-                setChangeSize = source.setChangeSize;
-                ensurePeerSetChangeListener();
-            }
-        }
-
         @Override
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 InvalidationListener listener, AsyncObservableSet<E> currentValue) {
-            Generic<E> helper = new Generic<>(observable, peer, currentValue, this);
-
-            if (helper.invalidationListeners == null) {
-                helper.invalidationListeners = new InvalidationListener[] {listener};
-                helper.invalidationSize = 1;
+            if (invalidationListeners == null) {
+                invalidationListeners = new InvalidationListener[] {listener};
+                invalidationSize = 1;
             } else {
-                helper.invalidationListeners = Arrays.copyOf(helper.invalidationListeners, helper.invalidationSize + 1);
-                helper.invalidationSize = trim(helper.invalidationSize, helper.invalidationListeners);
-                helper.invalidationListeners[helper.invalidationSize++] = listener;
+                final int oldCapacity = invalidationListeners.length;
+                if (locked) {
+                    final int newCapacity = (invalidationSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    invalidationListeners = Arrays.copyOf(invalidationListeners, newCapacity);
+                } else if (invalidationSize == oldCapacity) {
+                    invalidationSize = trim(invalidationSize, invalidationListeners);
+                    if (invalidationSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        invalidationListeners = Arrays.copyOf(invalidationListeners, newCapacity);
+                    }
+                }
+
+                invalidationListeners[invalidationSize++] = listener;
             }
 
             ensurePeerInvalidationListener();
-            return helper;
+            return this;
         }
 
         @Override
@@ -1153,24 +1142,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
                             return helper;
                         }
 
-                        Generic<E> generic = new Generic<>(observable, peer, currentValue, this);
-
                         if (invalidationSize == 1) {
-                            generic.invalidationListeners = null;
-                            generic.invalidationSize = 0;
+                            invalidationListeners = null;
+                            invalidationSize = 0;
                         } else {
                             final int numMoved = invalidationSize - index - 1;
-                            generic.invalidationSize = invalidationSize - 1;
-                            generic.invalidationListeners = new InvalidationListener[invalidationSize - 1];
-                            System.arraycopy(invalidationListeners, 0, generic.invalidationListeners, 0, index);
+                            final InvalidationListener[] oldListeners = invalidationListeners;
+                            if (locked) {
+                                invalidationListeners = new InvalidationListener[invalidationListeners.length];
+                                System.arraycopy(oldListeners, 0, invalidationListeners, 0, index + 1);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    invalidationListeners, index + 1, generic.invalidationListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, invalidationListeners, index, numMoved);
+                            }
+
+                            invalidationSize--;
+                            if (!locked) {
+                                invalidationListeners[invalidationSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -1181,20 +1174,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         @Override
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubInvalidationListener listener, AsyncObservableSet<E> currentValue) {
-            Generic<E> helper = new Generic<>(observable, peer, currentValue, this);
-
-            if (helper.subInvalidationListeners == null) {
-                helper.subInvalidationListeners = new SubInvalidationListener[] {listener};
-                helper.subInvalidationSize = 1;
+            if (subInvalidationListeners == null) {
+                subInvalidationListeners = new SubInvalidationListener[] {listener};
+                subInvalidationSize = 1;
             } else {
-                helper.subInvalidationListeners =
-                    Arrays.copyOf(helper.subInvalidationListeners, helper.subInvalidationSize + 1);
-                helper.subInvalidationSize = trim(helper.subInvalidationSize, helper.subInvalidationListeners);
-                helper.subInvalidationListeners[helper.subInvalidationSize++] = listener;
+                final int oldCapacity = subInvalidationListeners.length;
+                if (locked) {
+                    final int newCapacity =
+                        (subInvalidationSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    subInvalidationListeners = Arrays.copyOf(subInvalidationListeners, newCapacity);
+                } else if (subInvalidationSize == oldCapacity) {
+                    subInvalidationSize = trim(subInvalidationSize, subInvalidationListeners);
+                    if (subInvalidationSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        subInvalidationListeners = Arrays.copyOf(subInvalidationListeners, newCapacity);
+                    }
+                }
+
+                subInvalidationListeners[subInvalidationSize++] = listener;
             }
 
             ensurePeerSubInvalidationListener();
-            return helper;
+            return this;
         }
 
         @Override
@@ -1208,28 +1209,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
                             return helper;
                         }
 
-                        Generic<E> generic = new Generic<>(observable, peer, currentValue, this);
-
                         if (subInvalidationSize == 1) {
-                            generic.subInvalidationListeners = null;
-                            generic.subInvalidationSize = 0;
+                            subInvalidationListeners = null;
+                            subInvalidationSize = 0;
                         } else {
                             final int numMoved = subInvalidationSize - index - 1;
-                            generic.subInvalidationSize = subInvalidationSize - 1;
-                            generic.subInvalidationListeners = new SubInvalidationListener[subInvalidationSize - 1];
-                            System.arraycopy(subInvalidationListeners, 0, generic.subInvalidationListeners, 0, index);
+                            final SubInvalidationListener[] oldListeners = subInvalidationListeners;
+                            if (locked) {
+                                subInvalidationListeners = new SubInvalidationListener[subInvalidationListeners.length];
+                                System.arraycopy(oldListeners, 0, subInvalidationListeners, 0, index + 1);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    subInvalidationListeners,
-                                    index + 1,
-                                    generic.subInvalidationListeners,
-                                    index,
-                                    numMoved);
+                                System.arraycopy(oldListeners, index + 1, subInvalidationListeners, index, numMoved);
+                            }
+
+                            subInvalidationSize--;
+                            if (!locked) {
+                                subInvalidationListeners[subInvalidationSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -1241,23 +1242,31 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         @SuppressWarnings("unchecked")
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 ChangeListener<? super AsyncObservableSet<E>> listener, AsyncObservableSet<E> currentValue) {
-            Generic<E> helper = new Generic<>(observable, peer, currentValue, this);
-
-            if (helper.changeListeners == null) {
-                helper.changeListeners = new ChangeListener[] {listener};
-                helper.changeSize = 1;
+            if (changeListeners == null) {
+                changeListeners = new ChangeListener[] {listener};
+                changeSize = 1;
             } else {
-                helper.changeListeners = Arrays.copyOf(helper.changeListeners, helper.changeSize + 1);
-                helper.changeSize = trim(helper.changeSize, helper.changeListeners);
-                helper.changeListeners[helper.changeSize++] = listener;
+                final int oldCapacity = changeListeners.length;
+                if (locked) {
+                    final int newCapacity = (changeSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    changeListeners = Arrays.copyOf(changeListeners, newCapacity);
+                } else if (changeSize == oldCapacity) {
+                    changeSize = trim(changeSize, changeListeners);
+                    if (changeSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        changeListeners = Arrays.copyOf(changeListeners, newCapacity);
+                    }
+                }
+
+                changeListeners[changeSize++] = listener;
             }
 
-            if (helper.changeSize == 1) {
-                helper.currentValue = currentValue;
+            if (changeSize == 1) {
+                this.currentValue = currentValue;
             }
 
             ensurePeerChangeListener();
-            return helper;
+            return this;
         }
 
         @Override
@@ -1272,23 +1281,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
                             return helper;
                         }
 
-                        Generic<E> generic = new Generic<>(observable, peer, currentValue, this);
-
                         if (changeSize == 1) {
-                            generic.changeListeners = null;
-                            generic.changeSize = 0;
+                            changeListeners = null;
+                            changeSize = 0;
                         } else {
                             final int numMoved = changeSize - index - 1;
-                            generic.changeSize = changeSize - 1;
-                            generic.changeListeners = new ChangeListener[changeSize - 1];
-                            System.arraycopy(changeListeners, 0, generic.changeListeners, 0, index);
+                            final ChangeListener<? super AsyncObservableSet<E>>[] oldListeners = changeListeners;
+                            if (locked) {
+                                changeListeners = new ChangeListener[changeListeners.length];
+                                System.arraycopy(oldListeners, 0, changeListeners, 0, index + 1);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(changeListeners, index + 1, generic.changeListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, changeListeners, index, numMoved);
+                            }
+
+                            changeSize--;
+                            if (!locked) {
+                                changeListeners[changeSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -1299,23 +1313,31 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         @Override
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SubChangeListener listener, AsyncObservableSet<E> currentValue) {
-            Generic<E> helper = new Generic<>(observable, peer, currentValue, this);
-
-            if (helper.subChangeListeners == null) {
-                helper.subChangeListeners = new SubChangeListener[] {listener};
-                helper.subChangeSize = 1;
+            if (subChangeListeners == null) {
+                subChangeListeners = new SubChangeListener[] {listener};
+                subChangeSize = 1;
             } else {
-                helper.subChangeListeners = Arrays.copyOf(helper.subChangeListeners, helper.subChangeSize + 1);
-                helper.subChangeSize = trim(helper.subChangeSize, helper.subChangeListeners);
-                helper.subChangeListeners[helper.subChangeSize++] = listener;
+                final int oldCapacity = subChangeListeners.length;
+                if (locked) {
+                    final int newCapacity = (subChangeSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    subChangeListeners = Arrays.copyOf(subChangeListeners, newCapacity);
+                } else if (subChangeSize == oldCapacity) {
+                    subChangeSize = trim(subChangeSize, subChangeListeners);
+                    if (subChangeSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        subChangeListeners = Arrays.copyOf(subChangeListeners, newCapacity);
+                    }
+                }
+
+                subChangeListeners[subChangeSize++] = listener;
             }
 
-            if (helper.subChangeSize == 1) {
-                helper.currentValue = currentValue;
+            if (subChangeSize == 1) {
+                this.currentValue = currentValue;
             }
 
             ensurePeerSubChangeListener();
-            return helper;
+            return this;
         }
 
         @Override
@@ -1329,24 +1351,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
                             return helper;
                         }
 
-                        Generic<E> generic = new Generic<>(observable, peer, currentValue, this);
-
                         if (subChangeSize == 1) {
-                            generic.subChangeListeners = null;
-                            generic.subChangeSize = 0;
+                            subChangeListeners = null;
+                            subChangeSize = 0;
                         } else {
                             final int numMoved = subChangeSize - index - 1;
-                            generic.subChangeSize = subChangeSize - 1;
-                            generic.subChangeListeners = new SubChangeListener[subChangeSize - 1];
-                            System.arraycopy(subChangeListeners, 0, generic.subChangeListeners, 0, index);
+                            final SubChangeListener[] oldListeners = subChangeListeners;
+                            if (locked) {
+                                subChangeListeners = new SubChangeListener[subChangeListeners.length];
+                                System.arraycopy(oldListeners, 0, subChangeListeners, 0, index + 1);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    subChangeListeners, index + 1, generic.subChangeListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, subChangeListeners, index, numMoved);
+                            }
+
+                            subChangeSize--;
+                            if (!locked) {
+                                subChangeListeners[subChangeSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -1358,23 +1384,31 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         @SuppressWarnings("unchecked")
         protected ProxyAsyncSetExpressionHelper<E> addListener(
                 SetChangeListener<? super E> listener, AsyncObservableSet<E> currentValue) {
-            Generic<E> helper = new Generic<>(observable, peer, currentValue, this);
-
-            if (helper.setChangeListeners == null) {
-                helper.setChangeListeners = new SetChangeListener[] {listener};
-                helper.setChangeSize = 1;
+            if (setChangeListeners == null) {
+                setChangeListeners = new SetChangeListener[] {listener};
+                setChangeSize = 1;
             } else {
-                helper.setChangeListeners = Arrays.copyOf(helper.setChangeListeners, helper.setChangeSize + 1);
-                helper.setChangeSize = trim(helper.setChangeSize, helper.setChangeListeners);
-                helper.setChangeListeners[helper.setChangeSize++] = listener;
+                final int oldCapacity = setChangeListeners.length;
+                if (locked) {
+                    final int newCapacity = (setChangeSize < oldCapacity) ? oldCapacity : (oldCapacity * 3) / 2 + 1;
+                    setChangeListeners = Arrays.copyOf(setChangeListeners, newCapacity);
+                } else if (setChangeSize == oldCapacity) {
+                    setChangeSize = trim(setChangeSize, setChangeListeners);
+                    if (setChangeSize == oldCapacity) {
+                        final int newCapacity = (oldCapacity * 3) / 2 + 1;
+                        setChangeListeners = Arrays.copyOf(setChangeListeners, newCapacity);
+                    }
+                }
+
+                setChangeListeners[setChangeSize++] = listener;
             }
 
-            if (helper.setChangeSize == 1) {
-                helper.currentValue = currentValue;
+            if (setChangeSize == 1) {
+                this.currentValue = currentValue;
             }
 
             ensurePeerSetChangeListener();
-            return helper;
+            return this;
         }
 
         @Override
@@ -1389,24 +1423,28 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
                             return helper;
                         }
 
-                        Generic<E> generic = new Generic<>(observable, peer, currentValue, this);
-
                         if (setChangeSize == 1) {
-                            generic.setChangeListeners = null;
-                            generic.setChangeSize = 0;
+                            setChangeListeners = null;
+                            setChangeSize = 0;
                         } else {
                             final int numMoved = setChangeSize - index - 1;
-                            generic.setChangeSize = setChangeSize - 1;
-                            generic.setChangeListeners = new SetChangeListener[setChangeSize - 1];
-                            System.arraycopy(setChangeListeners, 0, generic.setChangeListeners, 0, index);
+                            final SetChangeListener<? super E>[] oldListeners = setChangeListeners;
+                            if (locked) {
+                                setChangeListeners = new SetChangeListener[setChangeListeners.length];
+                                System.arraycopy(oldListeners, 0, setChangeListeners, 0, index + 1);
+                            }
 
                             if (numMoved > 0) {
-                                System.arraycopy(
-                                    setChangeListeners, index + 1, generic.setChangeListeners, index, numMoved);
+                                System.arraycopy(oldListeners, index + 1, setChangeListeners, index, numMoved);
+                            }
+
+                            setChangeSize--;
+                            if (!locked) {
+                                setChangeListeners[setChangeSize] = null; // Let gc do its work
                             }
                         }
 
-                        return generic;
+                        break;
                     }
                 }
             }
@@ -1452,57 +1490,68 @@ public abstract class ProxyAsyncSetExpressionHelper<E> extends ExpressionHelperB
         }
 
         private void notifyListeners(AsyncObservableSet<E> oldValue, SimpleChange<E> change) {
-            for (int i = 0; i < invalidationSize; i++) {
-                invalidationListeners[i].invalidated(observable);
-            }
-
-            if ((currentValue != oldValue) || (change != null)) {
-                for (int i = 0; i < changeSize; i++) {
-                    changeListeners[i].changed(observable, oldValue, currentValue);
+            final InvalidationListener[] curInvalidationList = invalidationListeners;
+            final int curInvalidationSize = invalidationSize;
+            final ChangeListener<? super AsyncObservableSet<E>>[] curChangeList = changeListeners;
+            final int curChangeSize = changeSize;
+            final SetChangeListener<? super E>[] curListChangeList = setChangeListeners;
+            final int curListChangeSize = setChangeSize;
+            try {
+                locked = true;
+                for (int i = 0; i < curInvalidationSize; i++) {
+                    curInvalidationList[i].invalidated(observable);
                 }
 
-                if (setChangeSize > 0) {
-                    if (change != null) {
-                        for (int i = 0; i < setChangeSize; i++) {
-                            setChangeListeners[i].onChanged(change);
-                        }
-                    } else {
-                        change = new SimpleChange<>(observable);
-                        if (currentValue == null) {
-                            for (final E element : oldValue) {
-                                change.setRemoved(element);
-                                for (int i = 0; i < setChangeSize; i++) {
-                                    setChangeListeners[i].onChanged(change);
-                                }
-                            }
-                        } else if (oldValue == null) {
-                            for (final E element : currentValue) {
-                                change.setAdded(element);
-                                for (int i = 0; i < setChangeSize; i++) {
-                                    setChangeListeners[i].onChanged(change);
-                                }
+                if ((currentValue != oldValue) || (change != null)) {
+                    for (int i = 0; i < curChangeSize; i++) {
+                        curChangeList[i].changed(observable, oldValue, currentValue);
+                    }
+
+                    if (curListChangeSize > 0) {
+                        if (change != null) {
+                            for (int i = 0; i < curListChangeSize; i++) {
+                                curListChangeList[i].onChanged(change);
                             }
                         } else {
-                            for (final E element : oldValue) {
-                                if (!currentValue.contains(element)) {
+                            change = new SimpleChange<>(observable);
+                            if (currentValue == null) {
+                                for (final E element : oldValue) {
                                     change.setRemoved(element);
-                                    for (int i = 0; i < setChangeSize; i++) {
-                                        setChangeListeners[i].onChanged(change);
+                                    for (int i = 0; i < curListChangeSize; i++) {
+                                        curListChangeList[i].onChanged(change);
                                     }
                                 }
-                            }
-
-                            for (final E element : currentValue) {
-                                if (!oldValue.contains(element)) {
+                            } else if (oldValue == null) {
+                                for (final E element : currentValue) {
                                     change.setAdded(element);
-                                    for (int i = 0; i < setChangeSize; i++) {
-                                        setChangeListeners[i].onChanged(change);
+                                    for (int i = 0; i < curListChangeSize; i++) {
+                                        curListChangeList[i].onChanged(change);
+                                    }
+                                }
+                            } else {
+                                for (final E element : oldValue) {
+                                    if (!currentValue.contains(element)) {
+                                        change.setRemoved(element);
+                                        for (int i = 0; i < curListChangeSize; i++) {
+                                            curListChangeList[i].onChanged(change);
+                                        }
+                                    }
+                                }
+
+                                for (final E element : currentValue) {
+                                    if (!oldValue.contains(element)) {
+                                        change.setAdded(element);
+                                        for (int i = 0; i < curListChangeSize; i++) {
+                                            curListChangeList[i].onChanged(change);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            } finally {
+                locked = false;
             }
         }
 

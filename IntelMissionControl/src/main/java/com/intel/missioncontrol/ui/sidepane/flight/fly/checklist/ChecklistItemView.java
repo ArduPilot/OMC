@@ -23,6 +23,5 @@ public class ChecklistItemView extends CheckBox implements JavaView<ChecklistIte
         this.setPadding(new Insets(ScaleHelper.emsToPixels(0.2)));
         textProperty().bind(viewModel.textProperty());
         selectedProperty().bindBidirectional(viewModel.checkedProperty());
-        disableProperty().bind(viewModel.disableProperty());
     }
 }

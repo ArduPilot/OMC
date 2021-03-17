@@ -16,7 +16,6 @@ import com.intel.missioncontrol.drone.connection.mavlink.MissionProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.ParameterProtocolSender;
 import com.intel.missioncontrol.drone.connection.mavlink.ReceivedPayload;
 import com.intel.missioncontrol.drone.connection.mavlink.TelemetryReceiver;
-import io.dronefleet.mavlink.common.MavType;
 import java.util.function.Consumer;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.concurrent.CancellationSource;
@@ -44,10 +43,6 @@ public interface IMavlinkDroneConnection {
     MavlinkDroneConnectionItem getConnectionItem();
 
     ReadOnlyAsyncListProperty<MavlinkCamera> connectedCamerasProperty();
-
-    CancellationSource getCancellationSource();
-
-    MavType getMavType();
 
     <TPayload> Future<Void> registerTelemetryWithAutoTimeoutAsync(
             Class<TPayload> payloadType, Consumer<ReceivedPayload<TPayload>> payloadReceivedFnc, Runnable onTimeout);

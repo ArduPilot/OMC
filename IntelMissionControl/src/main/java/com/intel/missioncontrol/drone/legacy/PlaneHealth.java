@@ -7,10 +7,10 @@
 package com.intel.missioncontrol.drone.legacy;
 
 import com.google.common.collect.Maps;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.drone.AlertLevel;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.GPSFixType;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.core.plane.PlaneConstants;
@@ -288,7 +288,7 @@ public class PlaneHealth {
         }
 
         public String getFlagStatus() {
-            return StaticInjector.getInstance(ILanguageHelper.class).getString(getFlagStatusKey());
+            return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(getFlagStatusKey());
         }
 
         private String getFlagStatusKey() {

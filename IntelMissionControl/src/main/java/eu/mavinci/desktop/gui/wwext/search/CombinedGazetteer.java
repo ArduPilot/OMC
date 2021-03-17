@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.wwext.search;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.settings.ExpertSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -60,7 +60,7 @@ public class CombinedGazetteer implements Gazetteer, IKeepAll {
     public static CombinedGazetteer createAllGazeteer() {
         CombinedGazetteer gz = new CombinedGazetteer();
 
-        String config = StaticInjector.getInstance(ExpertSettings.class).getGeocoderProvider();
+        String config = DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class).getGeocoderProvider();
 
         if (config.equalsIgnoreCase(GEOCODER_PROVIDER_GOOGLE)) {
             gz.addSlaveWithCoordinatesGazetter(new GoogleGazetteer());

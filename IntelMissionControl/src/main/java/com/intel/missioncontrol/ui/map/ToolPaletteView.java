@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.map;
 
 import com.intel.missioncontrol.map.ViewMode;
 import com.intel.missioncontrol.ui.ViewBase;
-import com.intel.missioncontrol.ui.controls.ToggleButton;
 import de.saxsys.mvvmfx.InjectViewModel;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
@@ -33,10 +32,7 @@ public class ToolPaletteView extends ViewBase<ToolPaletteViewModel> {
     private RadioButton viewCockpitButton;
 
     @FXML
-    private ToggleButton rulerToggleButton;
-
-    @FXML
-    private ToggleButton videoToggleButton;
+    private RadioButton viewCameraButton;
 
     @Override
     protected Parent getRootNode() {
@@ -56,9 +52,9 @@ public class ToolPaletteView extends ViewBase<ToolPaletteViewModel> {
 
         viewStayButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.DEFAULT));
         viewFollowButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.FOLLOW));
+        viewCameraButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.PAYLOAD));
         viewCockpitButton.setOnAction(event -> viewModel.viewModeProperty().setValue(ViewMode.COCKPIT));
-        rulerToggleButton.selectedProperty().bindBidirectional(viewModel.rulerModeEnabledProperty());
-        videoToggleButton.selectedProperty().bindBidirectional(viewModel.liveVideoEnabledProperty());
+
         updateViewButton(viewModel.viewModeProperty().getValue());
     }
 
@@ -70,6 +66,13 @@ public class ToolPaletteView extends ViewBase<ToolPaletteViewModel> {
         case FOLLOW:
             viewFollowButton.setSelected(true);
             break;
+        case PAYLOAD:
+            viewCameraButton.setSelected(true);
+            break;
+        case COCKPIT:
+            viewCockpitButton.setSelected(true);
+            break;
         }
     }
+
 }

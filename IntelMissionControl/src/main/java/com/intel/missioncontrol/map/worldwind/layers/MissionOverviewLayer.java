@@ -14,21 +14,21 @@ import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.modules.MapModule;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class MissionOverviewLayer extends WWLayerWrapper {
 
     @Inject
     MissionOverviewLayer(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IWWGlobes globes,
             IMissionManager missionManager,
             ISelectionManager selectionManager) {
         super(
             new eu.mavinci.desktop.gui.doublepanel.planemain.wwd.MissionOverviewLayer(
-                missionManager, globes.getDefaultGlobe(), dispatcher, selectionManager),
-            dispatcher);
+                missionManager, globes.getDefaultGlobe(), syncRoot, selectionManager),
+            syncRoot);
     }
 
 }

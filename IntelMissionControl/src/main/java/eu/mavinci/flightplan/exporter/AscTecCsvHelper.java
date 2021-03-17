@@ -6,8 +6,8 @@
 
 package eu.mavinci.flightplan.exporter;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.core.flightplan.PlanType;
@@ -20,7 +20,8 @@ import eu.mavinci.flightplan.PicArea;
  */
 public class AscTecCsvHelper {
 
-    private static final IDialogService dialogService = StaticInjector.getInstance(IDialogService.class);
+    private static final IDialogService dialogService =
+        DependencyInjector.getInstance().getInstanceOf(IDialogService.class);
 
     private AscTecCsvHelper() {}
 

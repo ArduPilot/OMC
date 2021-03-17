@@ -163,12 +163,7 @@ public class WayPoint {
                             wp.getAltInMAboveFPRefPoint()
                                 + legacyFlightplan.getRefPointAltWgs84WithElevation()
                                 - legacyFlightplan.getTakeofftAltWgs84WithElevation(),
-                            Unit.METER),
-                    (wp, value) ->
-                        wp.setAltInMAboveFPRefPoint(
-                            value.convertTo(Unit.METER).getValue().doubleValue()
-                                - legacyFlightplan.getRefPointAltWgs84WithElevation()
-                                + legacyFlightplan.getTakeofftAltWgs84WithElevation()));
+                            Unit.METER));
 
             beanAdapter.bind(assertAltitude).to(Waypoint::getAssertAltitudeMode, Waypoint::setAssertAltitude);
             beanAdapter

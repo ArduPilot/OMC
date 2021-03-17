@@ -43,16 +43,10 @@ public class FlightplanSummaryView extends ViewBase<FlightplanSummaryViewModel> 
     private Label flightTimeLabel;
 
     @FXML
-    public Label waypointsCountLabel;
+    private Label distanceLabel;
 
     @FXML
     private Label imageCountLabel;
-
-    @FXML
-    private Label altitudeAGLLabel;
-
-    @FXML
-    private Label savedOnLabel;
 
     @FXML
     private Button openDialog;
@@ -119,8 +113,8 @@ public class FlightplanSummaryView extends ViewBase<FlightplanSummaryViewModel> 
             "viewModel",
             flightTimeLabel,
             "flightTimeLabel",
-            waypointsCountLabel,
-            "waypointsCountLabel",
+            distanceLabel,
+            "distanceLabel",
             imageCountLabel,
             "imageCountLabel",
             notes,
@@ -132,11 +126,6 @@ public class FlightplanSummaryView extends ViewBase<FlightplanSummaryViewModel> 
         openDialog.setOnAction((actionEvent) -> viewModel.getShowEditWayointsDialogCommand().execute());
 
         imageCountLabel.textProperty().bind(viewModel.imageCountProperty().asString());
-        waypointsCountLabel.textProperty().bind(viewModel.waypointsCountProperty().asString());
-
-        altitudeAGLLabel.textProperty().bind(viewModel.altitudeAGLProperty());
-        savedOnLabel.textProperty().bind(viewModel.savedOnProperty());
-
         trueOrthoProgressBar.progressProperty().bind(viewModel.trueOrthoCoverageRatioProperty());
         pseudoOrthoProgressBar.progressProperty().bind(viewModel.pseudoOrthoCoverageRatioProperty());
 
@@ -171,6 +160,10 @@ public class FlightplanSummaryView extends ViewBase<FlightplanSummaryViewModel> 
         flightTimeLabel
             .textProperty()
             .bind(QuantityBindings.createStringBinding(viewModel.flightTimeProperty(), quantityFormat));
+
+        distanceLabel
+            .textProperty()
+            .bind(QuantityBindings.createStringBinding(viewModel.distanceProperty(), quantityFormat));
 
         trueOrthoAreaLabel
             .textProperty()

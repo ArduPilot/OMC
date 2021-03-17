@@ -94,6 +94,26 @@ public class LogFileHelper {
             }
         }
 
+        int countWithLogs = 0;
+        for (FlightLogEntry logEntry : flightLogsNew) {
+            if (logEntry.getImageFolder() != null) {
+                countWithLogs++;
+            }
+        }
+
+        List<FlightLogEntry> flightLogsNew2 = new ArrayList<>();
+        if (countWithLogs > 0 && countWithLogs < flightLogsNew.size()) {
+            // we cant deal with mixed datasets with included images and without at the same time?
+            // drop the once without
+            for (FlightLogEntry logEntry : flightLogsNew) {
+                if (logEntry.getImageFolder() != null) {
+                    flightLogsNew2.add(logEntry);
+                }
+            }
+
+            flightLogsNew = flightLogsNew2;
+        }
+
         if (flightLogsNew.isEmpty()) {
             LOGGER.info("No photo logs found in folder {}.", folder);
         } else {

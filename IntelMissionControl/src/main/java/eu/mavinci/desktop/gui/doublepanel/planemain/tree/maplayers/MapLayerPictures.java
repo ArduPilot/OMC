@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenter;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenterListener;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.AirplaneCacheEmptyException;
 import eu.mavinci.core.plane.PlaneConstants;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerPhoto;
@@ -62,7 +62,7 @@ public class MapLayerPictures extends MapLayerSectorReferenced
         // plane.getPlatformDescription().addListener(this);
         // colToSave = ColorHelper.removeAlpha(wwdLayer.getColor());
 
-        StaticInjector.getInstance(IMapClearingCenter.class).addWeakListener(listener);
+        DependencyInjector.getInstance().getInstanceOf(IMapClearingCenter.class).addWeakListener(listener);
     }
 
     public MapLayerPictures(IAirplane plane) {
@@ -168,7 +168,7 @@ public class MapLayerPictures extends MapLayerSectorReferenced
     private synchronized void clearTrackCacheOld() {
         long expire =
             System.currentTimeMillis()
-                - StaticInjector.getInstance(GeneralSettings.class).getAutoClearingIntervallInMS();
+                - DependencyInjector.getInstance().getInstanceOf(GeneralSettings.class).getAutoClearingIntervallInMS();
         // what is 1 minute older than
         // required
         // System.out.println("dropping everythign what expires somewhere here: " + expire);

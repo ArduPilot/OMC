@@ -10,13 +10,13 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WmsBaseLayer extends WWLayerWrapper {
 
     @Inject
-    WmsBaseLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new gov.nasa.worldwind.layers.Earth.BMNGWMSLayer(), dispatcher);
+    WmsBaseLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new gov.nasa.worldwind.layers.Earth.BMNGWMSLayer(), syncRoot);
     }
 
 }

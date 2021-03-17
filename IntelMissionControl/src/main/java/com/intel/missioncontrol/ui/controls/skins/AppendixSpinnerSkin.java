@@ -417,8 +417,8 @@ public class AppendixSpinnerSkin<T> extends SkinBase<Spinner<T>> {
         boolean visible = width < textField.getWidth();
         appendixLabel.setManaged(visible);
         appendixLabel.setVisible(visible);
-        appendixLabel.setTranslateX(width + 5);
-        appendixLabel.setTranslateY(0.4);
+        appendixLabel.setTranslateX(width + 2);
+        appendixLabel.setTranslateY(0.5);
     }
 
     private void updateStyleClass() {

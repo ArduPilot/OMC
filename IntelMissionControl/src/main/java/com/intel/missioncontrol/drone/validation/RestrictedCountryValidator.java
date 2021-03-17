@@ -11,12 +11,9 @@ import com.google.inject.assistedinject.Assisted;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import eu.mavinci.geo.ICountryDetector;
 import gov.nasa.worldwind.geom.Position;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import javafx.beans.binding.Bindings;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
@@ -90,16 +87,6 @@ public class RestrictedCountryValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.RESTRICTED_COUNTRY;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 
 }

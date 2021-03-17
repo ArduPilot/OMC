@@ -9,7 +9,6 @@ package com.intel.missioncontrol.drone.connection.mavlink;
 import com.intel.missioncontrol.drone.SpecialDuration;
 import io.dronefleet.mavlink.annotations.MavlinkMessageInfo;
 import io.dronefleet.mavlink.common.AutopilotVersion;
-import io.dronefleet.mavlink.common.CameraInformation;
 import io.dronefleet.mavlink.common.CommandAck;
 import io.dronefleet.mavlink.common.CommandLong;
 import io.dronefleet.mavlink.common.FlightInformation;
@@ -44,7 +43,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param6(Float.NaN)
                 .param7(altitude)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -54,7 +53,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_COMPONENT_ARM_DISARM)
                 .param1(arm ? 1 : 0)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -71,7 +70,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param6(Float.NaN)
                 .param7(Float.NaN)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build();
 
         Function<ReceivedPayload<?>, FlightInformation> receiverFnc =
@@ -100,7 +99,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param6(Float.NaN)
                 .param7(Float.NaN)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build();
 
         Function<ReceivedPayload<?>, StorageInformation> receiverFnc =
@@ -122,7 +121,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_VIDEO_START_STREAMING)
                 .param1(streamId)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -132,7 +131,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_VIDEO_STOP_STREAMING)
                 .param1(streamId)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -142,7 +141,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_REQUEST_VIDEO_STREAM_INFORMATION)
                 .param1(0) // 0: all streams
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -154,7 +153,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_GET_MESSAGE_INTERVAL)
                 .param1(messageId)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build();
 
         Function<ReceivedPayload<?>, MessageInterval> receiverFnc =
@@ -165,9 +164,7 @@ public class CommandProtocolSender extends PayloadSender {
                 commandLong.targetSystem(),
                 commandLong.targetComponent());
 
-        int repetitions= 1;
-        return sendCommandAndExpectResponseAsync(commandLong, receiverFnc, repetitions,
-                PayloadSender.defaultResponseTimeoutPerRepetition)
+        return sendCommandAndExpectResponseAsync(commandLong, receiverFnc)
             .thenApply(
                 messageInterval -> {
                     int intervalUs = messageInterval.intervalUs();
@@ -197,7 +194,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param1(messageId)
                 .param2(interval)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -209,7 +206,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param2((float)customMainMode)
                 .param3((float)customSubMode)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -229,7 +226,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param3(-1.0f) // no throttle change
                 .param4(0) // absolute
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -242,7 +239,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .param3(-1.0f)
                 .param4(-1.0f)
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build());
     }
 
@@ -252,7 +249,7 @@ public class CommandProtocolSender extends PayloadSender {
                 .command(MavCmd.MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES)
                 .param1(1) // request autopilot version
                 .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
+                .targetComponent(1)
                 .build();
 
         Function<ReceivedPayload<?>, AutopilotVersion> receiverFnc =
@@ -260,35 +257,6 @@ public class CommandProtocolSender extends PayloadSender {
                 AutopilotVersion.class, apVersion -> true, commandLong.targetSystem(), commandLong.targetComponent());
 
         return sendCommandAndExpectResponseAsync(commandLong, receiverFnc);
-    }
-
-    /** Request CameraInformation and asynchronously return it. No retries in case of errors / timeout. */
-    public Future<CameraInformation> requestCameraInformationAsync() {
-        CommandLong commandLong =
-            new CommandLong.Builder()
-                .command(MavCmd.MAV_CMD_REQUEST_CAMERA_INFORMATION)
-                .param1(1)
-                .param2(Float.NaN)
-                .param3(Float.NaN)
-                .param4(Float.NaN)
-                .param5(Float.NaN)
-                .param6(Float.NaN)
-                .param7(Float.NaN)
-                .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
-                .build();
-
-        Function<ReceivedPayload<?>, CameraInformation> receiverFnc =
-            PayloadReceiver.createPayloadTypeReceiverFnc(
-                CameraInformation.class,
-                receivedCameraInformation -> true,
-                commandLong.targetSystem(),
-                commandLong.targetComponent());
-
-        int repetitions = 1;
-
-        return sendCommandAndExpectResponseAsync(
-            commandLong, receiverFnc, repetitions, PayloadSender.defaultResponseTimeoutPerRepetition);
     }
 
     /**
@@ -303,12 +271,7 @@ public class CommandProtocolSender extends PayloadSender {
             .runWithRetriesAsync(
                 repetition -> sendCommandAndExpectAckAsync(commandLong),
                 mavResult -> (mavResult == MavResult.MAV_RESULT_TEMPORARILY_REJECTED))
-            .thenAccept(
-                mavResult -> {
-                    if (!mavResult.equals(MavResult.MAV_RESULT_ACCEPTED)) {
-                        throw new MavResultException(commandLong, mavResult);
-                    }
-                });
+            .thenGet(() -> null);
     }
 
     /**

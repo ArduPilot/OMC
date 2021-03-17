@@ -8,7 +8,6 @@ package com.intel.missioncontrol.mission;
 
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -20,11 +19,13 @@ import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.mission.bindings.BeanAdapter;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
+import com.intel.missioncontrol.ui.navigation.WorkflowStep;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import com.intel.missioncontrol.ui.sidepane.analysis.FlightLogEntry;
 import com.intel.missioncontrol.ui.sidepane.analysis.ImageChannel;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.CPicArea;
 import eu.mavinci.core.flightplan.GPSFixType;
@@ -41,7 +42,6 @@ import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.ProjectionType;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerListener;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.MapLayer;
-import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.helper.IRecomputeListener;
 import eu.mavinci.desktop.helper.MFileFilter;
 import eu.mavinci.desktop.helper.Recomputer;
@@ -53,13 +53,10 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.UUID;
@@ -99,13 +96,6 @@ public class Matching implements ISaveable {
     private final ObjectProperty<IBackgroundTaskManager.BackgroundTask> dataTransferBackgroundTask =
         new SimpleObjectProperty<>();
     private final IntegerProperty filteredItemsCount = new SimpleIntegerProperty();
-
-    private final IntegerProperty areaNotPassedFilter = new SimpleIntegerProperty();
-    private final IntegerProperty rollNotPassedFilter = new SimpleIntegerProperty();
-    private final IntegerProperty yawNotPassedFilter = new SimpleIntegerProperty();
-    private final IntegerProperty pitchNotPassedFilter = new SimpleIntegerProperty();
-    private final IntegerProperty rangeNotPassedFilter = new SimpleIntegerProperty();
-
     private final IntegerProperty picturesCount = new SimpleIntegerProperty();
     private final LongProperty filteredPicturesSizeBytes = new SimpleLongProperty();
     private final StringProperty filteredPictureType = new SimpleStringProperty("");
@@ -116,41 +106,21 @@ public class Matching implements ISaveable {
     private final StringProperty exifDataMsg = new SimpleStringProperty("");
     private final BooleanProperty matchingLayerChanged = new SimpleBooleanProperty();
     private final BooleanProperty rtkAvailable = new SimpleBooleanProperty();
+    private final BooleanProperty filtersEnabled = new SimpleBooleanProperty();
     private final BooleanProperty altitudeEnabled = new SimpleBooleanProperty();
-    private final DoubleProperty altitudeFrom = new SimpleDoubleProperty();
-    private final DoubleProperty altitudeTo = new SimpleDoubleProperty();
-    private final DoubleProperty altitudeMin = new SimpleDoubleProperty();
-    private final DoubleProperty altitudeMax = new SimpleDoubleProperty();
-
+    private final DoubleProperty altitudeValue = new SimpleDoubleProperty();
+    private final DoubleProperty altitudeSpread = new SimpleDoubleProperty();
     private final BooleanProperty rollEnabled = new SimpleBooleanProperty();
-    private final DoubleProperty rollFrom = new SimpleDoubleProperty();
-    private final DoubleProperty rollTo = new SimpleDoubleProperty();
-    private final DoubleProperty rollMin = new SimpleDoubleProperty();
-    private final DoubleProperty rollMax = new SimpleDoubleProperty();
-
+    private final DoubleProperty rollValue = new SimpleDoubleProperty();
+    private final DoubleProperty rollSpread = new SimpleDoubleProperty();
     private final BooleanProperty pitchEnabled = new SimpleBooleanProperty();
-    private final DoubleProperty pitchFrom = new SimpleDoubleProperty();
-    private final DoubleProperty pitchTo = new SimpleDoubleProperty();
-    private final DoubleProperty pitchMin = new SimpleDoubleProperty();
-    private final DoubleProperty pitchMax = new SimpleDoubleProperty();
-
+    private final DoubleProperty pitchValue = new SimpleDoubleProperty();
+    private final DoubleProperty pitchSpread = new SimpleDoubleProperty();
     private final BooleanProperty yawEnabled = new SimpleBooleanProperty();
-    private final DoubleProperty yawFrom = new SimpleDoubleProperty();
-    private final DoubleProperty yawTo = new SimpleDoubleProperty();
-    private final DoubleProperty yawMin = new SimpleDoubleProperty();
-    private final DoubleProperty yawMax = new SimpleDoubleProperty();
-
-    private final BooleanProperty isoEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty exposureTimeEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty exposureEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty imageTypeEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty annotationEnabled = new SimpleBooleanProperty();
-
-    private final BooleanProperty areaEnabled = new SimpleBooleanProperty();
-    private final BooleanProperty flightplanEnabled = new SimpleBooleanProperty();
-    private final StringProperty selectedFlightplan = new SimpleStringProperty();
-
+    private final DoubleProperty yawValue = new SimpleDoubleProperty();
+    private final DoubleProperty yawSpread = new SimpleDoubleProperty();
     private final DoubleProperty rtkAvgTime = new SimpleDoubleProperty();
+    private final BooleanProperty onlyAoiEnabled = new SimpleBooleanProperty();
     private final ObjectProperty<IHardwareConfiguration> hardwareConfiguration = new SimpleObjectProperty<>();
     private final ObjectProperty<LocationType> rtkBaseLocationType = new SimpleObjectProperty<>(LocationType.ASSUMED);
     private final BooleanProperty rtkLocationConfirmed = new SimpleBooleanProperty();
@@ -163,13 +133,10 @@ public class Matching implements ISaveable {
     private final DoubleProperty trueOrthoArea = new SimpleDoubleProperty();
     private final DoubleProperty pseudoOrthoArea = new SimpleDoubleProperty();
     private final ListProperty<AreaFilter> areaFilters = new SimpleListProperty<>(FXCollections.observableArrayList());
-    private final StringProperty selectedExportFilter = new SimpleStringProperty();
-    private final StringProperty selectedExportFilterFlag = new SimpleStringProperty();
 
     private boolean hasDefaultName = false;
     private final LongProperty toImportTriggersCount = new SimpleLongProperty();
     private final LongProperty toImportImagesCount = new SimpleLongProperty();
-    private final BooleanProperty toImportFlightLog = new SimpleBooleanProperty();
     private final ListProperty<File> toImportImages = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ObjectProperty<File> toImportTargetFolder = new SimpleObjectProperty<>();
     private final StringProperty toImportImageSourceFolder = new SimpleStringProperty();
@@ -180,10 +147,6 @@ public class Matching implements ISaveable {
 
     public LongProperty toImportTriggersCountProperty() {
         return toImportTriggersCount;
-    }
-
-    public BooleanProperty toImportFlightLogProperty() {
-        return toImportFlightLog;
     }
 
     public ListProperty<File> toImportImagesProperty() {
@@ -206,7 +169,8 @@ public class Matching implements ISaveable {
     private BeanAdapter<AMapLayerMatching> beanAdapter;
     private UUID instanceId = UUID.randomUUID();
 
-    private final INavigationService navigationService = StaticInjector.getInstance(INavigationService.class);
+    private final INavigationService navigationService =
+        DependencyInjector.getInstance().getInstanceOf(INavigationService.class);
     private final INotificationObject.ChangeListener hardwareDescriptionListener =
         event -> {
             mapImageChannels(
@@ -260,48 +224,6 @@ public class Matching implements ISaveable {
 
     private final IHardwareConfigurationManager hardwareConfigurationManager;
 
-    public Matching(Path missionDirectory, IHardwareConfigurationManager hardwareConfigurationManager) {
-        this.hardwareConfigurationManager = hardwareConfigurationManager;
-        String name = verifyForDuplicates(missionDirectory);
-        this.name.set(name);
-
-        hasDefaultName = true;
-
-        File path = getMatchingPath(missionDirectory, this.name.getValue());
-        legacyMatching = new MapLayerMatching(hardwareConfigurationManager.getImmutableDefault().deepCopy());
-        if (legacyMatching.getMatchingFolder() == null) {
-            try {
-                legacyMatching.setFile(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        statusProperty().set(MatchingStatus.NEW);
-        legacyMatching.setChanged(false);
-        initialize();
-    }
-
-    private String verifyForDuplicates(Path missionDirectory) {
-        int copyN = 1;
-
-        Date today = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm");
-        String matchingName = "Dataset_" + dateFormat.format(today) + "";
-
-        final File matchingFolder = MissionConstants.getMatchingsFolder(missionDirectory);
-        File baseFolder = new File(matchingFolder, matchingName);
-
-        baseFolder = FileHelper.getNextFreeFilename(baseFolder);
-        return baseFolder.getName();
-    }
-
-    private File getMatchingPath(Path missionDirectory, String matchingName) {
-        final File matchingFolder = MissionConstants.getMatchingsFolder(missionDirectory);
-        File baseFolder = new File(matchingFolder, matchingName);
-        return baseFolder;
-    }
-
     public Matching(String name, IHardwareConfigurationManager hardwareConfigurationManager) {
         this.hardwareConfigurationManager = hardwareConfigurationManager;
         this.name.set(name);
@@ -327,7 +249,7 @@ public class Matching implements ISaveable {
 
     public void startTransferring(File toSaveTo, IHardwareConfiguration bestHw) throws IOException {
         MapLayerMatching layer = (MapLayerMatching)getLegacyMatching();
-        //  layer.getPicsLayer().removeAllLayers(true);
+        layer.getPicsLayer().removeAllLayers(true);
 
         hasDefaultName = true;
         legacyMatching.setFile(toSaveTo);
@@ -335,24 +257,24 @@ public class Matching implements ISaveable {
         Dispatcher dispatcher = Dispatcher.platform();
         dispatcher.run(
             () -> {
-                if (bestHw != null) {
-                    hardwareConfiguration.get().setConfigurationFrom(bestHw);
-                }
-
+                hardwareConfiguration.get().setConfigurationFrom(bestHw);
                 this.name.set(toSaveTo.getName());
                 statusProperty().set(MatchingStatus.TRANSFERRING);
             });
     }
 
     private void checkExif() {
-        String dataMessage = null;
-
         if (legacyMatching instanceof MapLayerMatching) {
             MapLayerMatching matching = (MapLayerMatching)legacyMatching;
-            dataMessage = matching.checkExif();
-        }
+            String msg = matching.checkExif();
+            if (exifDataMsg.get() == msg) {
+                exifDataMsg.set("");
+            }
 
-        exifDataMsg.set(dataMessage);
+            exifDataMsg.set(msg);
+        } else {
+            exifDataMsg.set(null);
+        }
     }
 
     private void initialize() {
@@ -376,18 +298,14 @@ public class Matching implements ISaveable {
         }
 
         // Bindings to AMapLayerMatching
+        //
+        beanAdapter
+            .bind(filtersEnabled)
+            .to(matching -> !matching.isUsingAll(), (matching, value) -> matching.setUseAll(!value));
         beanAdapter.bind(filteredItemsCount).to(AMapLayerMatching::getCountFiltered);
         beanAdapter.bind(picturesCount).to(AMapLayerMatching::getPicturesCount);
         beanAdapter.bind(filteredPicturesSizeBytes).to(AMapLayerMatching::getTotalSizeFilteredBytes);
         beanAdapter.bind(filteredPictureType).to(AMapLayerMatching::getFilteredFileType);
-
-        beanAdapter.bind(areaNotPassedFilter).to(AMapLayerMatching::getAreaNotPassedFilter);
-        beanAdapter.bind(rollNotPassedFilter).to(AMapLayerMatching::getRollNotPassedFilter);
-        beanAdapter.bind(yawNotPassedFilter).to(AMapLayerMatching::getYawNotPassedFilter);
-        beanAdapter.bind(pitchNotPassedFilter).to(AMapLayerMatching::getPitchNotPassedFilter);
-        beanAdapter.bind(rangeNotPassedFilter).to(AMapLayerMatching::getRangeNotPassedFilter);
-        // TODO IMC-3043 add counts for new filters
-
         beanAdapter.bind(rtkFixCount).to(matching -> matching.getGpsFixTypeCount(GPSFixType.rtkFixedBL));
         beanAdapter.bind(rtkFloatCount).to(matching -> matching.getGpsFixTypeCount(GPSFixType.rtkFloatingBL));
         beanAdapter.bind(diffGpsFixCount).to(matching -> matching.getGpsFixTypeCount(GPSFixType.dgps));
@@ -395,67 +313,19 @@ public class Matching implements ISaveable {
         beanAdapter
             .bind(altitudeEnabled)
             .to(AMapLayerMatching::getAltitudeAGLEnabled, AMapLayerMatching::setAltitudeAGLEnabled);
-        beanAdapter.bind(altitudeFrom).to(AMapLayerMatching::getAltitudeFrom, AMapLayerMatching::setAltitudeFrom);
-        beanAdapter.bind(altitudeTo).to(AMapLayerMatching::getAltitudeTo, AMapLayerMatching::setAltitudeTo);
-        beanAdapter.bind(altitudeMin).to(AMapLayerMatching::getAltitudeMin, AMapLayerMatching::setAltitudeMin);
-        beanAdapter.bind(altitudeMax).to(AMapLayerMatching::getAltitudeMax, AMapLayerMatching::setAltitudeMax);
-
+        beanAdapter.bind(altitudeValue).to(AMapLayerMatching::getAltitudeValue, AMapLayerMatching::setAltitudeValue);
+        beanAdapter.bind(altitudeSpread).to(AMapLayerMatching::getAltitudeSpread, AMapLayerMatching::setAltitudeSpread);
         beanAdapter.bind(rollEnabled).to(AMapLayerMatching::getRollEnabled, AMapLayerMatching::setRollEnabled);
-        beanAdapter.bind(rollFrom).to(AMapLayerMatching::getRollFrom, AMapLayerMatching::setRollFrom);
-        beanAdapter.bind(rollTo).to(AMapLayerMatching::getRollTo, AMapLayerMatching::setRollTo);
-        beanAdapter.bind(rollMin).to(AMapLayerMatching::getRollMin, AMapLayerMatching::setRollMin);
-        beanAdapter.bind(rollMax).to(AMapLayerMatching::getRollMax, AMapLayerMatching::setRollMax);
-
+        beanAdapter.bind(rollValue).to(AMapLayerMatching::getRollValue, AMapLayerMatching::setRollValue);
+        beanAdapter.bind(rollSpread).to(AMapLayerMatching::getRollSpread, AMapLayerMatching::setRollSpread);
         beanAdapter.bind(pitchEnabled).to(AMapLayerMatching::getPitchEnabled, AMapLayerMatching::setPitchEnabled);
-
-        // beanAdapter.bind(pitchFrom).to(m -> m.getPitchFrom() , (m, v) -> m.setPitchFrom(v ));
-        // beanAdapter.bind(pitchTo).to(m -> m.getPitchTo(), (m, v) -> m.setPitchTo(v ));
-        // beanAdapter.bind(pitchMin).to(m -> m.getPitchMin() , (m, v) -> m.setPitchMin(v ));
-        // beanAdapter.bind(pitchMax).to(m -> m.getPitchMax(), (m, v) -> m.setPitchMax(v ));
-
-        beanAdapter.bind(pitchFrom).to(m -> m.getPitchFrom() - 90, (m, v) -> m.setPitchFrom(v + 90));
-        beanAdapter.bind(pitchTo).to(m -> m.getPitchTo() - 90, (m, v) -> m.setPitchTo(v + 90));
-        beanAdapter.bind(pitchMin).to(m -> m.getPitchMin() - 90, (m, v) -> m.setPitchMin(v + 90));
-        beanAdapter.bind(pitchMax).to(m -> m.getPitchMax() - 90, (m, v) -> m.setPitchMax(v + 90));
-
+        beanAdapter.bind(pitchValue).to(m -> m.getPitchValue() - 90, (m, v) -> m.setPitchValue(v + 90));
+        beanAdapter.bind(pitchSpread).to(AMapLayerMatching::getPitchSpread, AMapLayerMatching::setPitchSpread);
         beanAdapter.bind(yawEnabled).to(AMapLayerMatching::getYawEnabled, AMapLayerMatching::setYawEnabled);
-        beanAdapter.bind(yawFrom).to(AMapLayerMatching::getYawFrom, AMapLayerMatching::setYawFrom);
-        beanAdapter.bind(yawTo).to(AMapLayerMatching::getYawTo, AMapLayerMatching::setYawTo);
-        beanAdapter.bind(yawMin).to(AMapLayerMatching::getYawMin, AMapLayerMatching::setYawMin);
-        beanAdapter.bind(yawMax).to(AMapLayerMatching::getYawMax, AMapLayerMatching::setYawMax);
-
+        beanAdapter.bind(yawValue).to(AMapLayerMatching::getYawValue, AMapLayerMatching::setYawValue);
+        beanAdapter.bind(yawSpread).to(AMapLayerMatching::getYawSpread, AMapLayerMatching::setYawSpread);
+        beanAdapter.bind(onlyAoiEnabled).to(AMapLayerMatching::isOnlyInPicArea, AMapLayerMatching::setOnlyInPicArea);
         beanAdapter.bind(matchingLayerChanged).to(AMapLayerMatching::isChanged);
-
-        beanAdapter.bind(isoEnabled).to(AMapLayerMatching::getIsoEnabled, AMapLayerMatching::setIsoEnabled);
-        beanAdapter
-            .bind(exposureTimeEnabled)
-            .to(AMapLayerMatching::getExposureTimeEnabled, AMapLayerMatching::setExposureTimeEnabled);
-        beanAdapter
-            .bind(exposureEnabled)
-            .to(AMapLayerMatching::getExposureEnabled, AMapLayerMatching::setExposureEnabled);
-        beanAdapter
-            .bind(imageTypeEnabled)
-            .to(AMapLayerMatching::getImageTypeEnabled, AMapLayerMatching::setImageTypeEnabled);
-        beanAdapter
-            .bind(annotationEnabled)
-            .to(AMapLayerMatching::getAnnotationEnabled, AMapLayerMatching::setAnnotationEnabled);
-        beanAdapter.bind(areaEnabled).to(AMapLayerMatching::getAreaEnabled, AMapLayerMatching::setAreaEnabled);
-        beanAdapter
-            .bind(flightplanEnabled)
-            .to(AMapLayerMatching::getFlightplanEnabled, AMapLayerMatching::setFlightplanEnabled);
-        beanAdapter
-            .bind(selectedFlightplan)
-            .to(AMapLayerMatching::getFlightplanSelection, AMapLayerMatching::setFlightplanSelection);
-
-        beanAdapter
-            .bind(selectedExportFilter)
-            .to(AMapLayerMatching::getSelectedExportFilter, AMapLayerMatching::setSelectedExportFilter);
-        beanAdapter
-            .bind(selectedExportFilterFlag)
-            .to(AMapLayerMatching::getSelectedExportFilterFlag, AMapLayerMatching::setSelectedExportFilterFlag);
-
-        // TODO IMC-3043 add new fields
-        // TODO CLST selected inside or outside
 
         // Bindings to MapLayerMatching
         //
@@ -485,15 +355,6 @@ public class Matching implements ISaveable {
         beanAdapter.subtype(MapLayerMatching.class).bind(positionAssumed).to(MapLayerMatching::getRTKPosition);
         beanAdapter.subtype(MapLayerMatching.class).bind(rtkAvgTime).to(MapLayerMatching::getRtkAvgTime);
         beanAdapter.subtype(MapLayerMatching.class).bind(rtkAvailable).to(MapLayerMatching::isRTKposAvaiable);
-
-        positionReal.addListener(
-            (observableValue, position, t1) -> {
-                legacyMatching.mapLayerValuesChanged(legacyMatching);
-            });
-        positionAssumed.addListener(
-            (observableValue, position, t1) -> {
-                legacyMatching.mapLayerValuesChanged(legacyMatching);
-            });
 
         // Bindings for AMapLayerMatching view options
         //
@@ -637,26 +498,6 @@ public class Matching implements ISaveable {
         return filteredItemsCount;
     }
 
-    public ReadOnlyIntegerProperty areaNotPassedFilterProperty() {
-        return areaNotPassedFilter;
-    }
-
-    public ReadOnlyIntegerProperty rollNotPassedFilterProperty() {
-        return rollNotPassedFilter;
-    }
-
-    public ReadOnlyIntegerProperty yawNotPassedFilterProperty() {
-        return yawNotPassedFilter;
-    }
-
-    public ReadOnlyIntegerProperty pitchNotPassedFilterProperty() {
-        return pitchNotPassedFilter;
-    }
-
-    public ReadOnlyIntegerProperty rangeNotPassedFilterProperty() {
-        return rangeNotPassedFilter;
-    }
-
     public ReadOnlyIntegerProperty picturesCountProperty() {
         return picturesCount;
     }
@@ -786,11 +627,13 @@ public class Matching implements ISaveable {
             ((MapLayerMatching)legacyMatching).saveResourceFile();
         }
 
-        StaticInjector.getInstance(IApplicationContext.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(IApplicationContext.class)
             .addToast(
                 Toast.of(ToastType.INFO)
                     .setText(
-                        StaticInjector.getInstance(ILanguageHelper.class)
+                        DependencyInjector.getInstance()
+                            .getInstanceOf(ILanguageHelper.class)
                             .getString("eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MatchingDataWriter.saved"))
                     .create());
     }
@@ -820,84 +663,60 @@ public class Matching implements ISaveable {
         return index;
     }
 
+    public BooleanProperty filtersEnabledProperty() {
+        return filtersEnabled;
+    }
+
     public BooleanProperty altitudeEnabledProperty() {
         return altitudeEnabled;
     }
 
-    public DoubleProperty altitudeFromProperty() {
-        return altitudeFrom;
+    public BooleanProperty onlyAoiEnabledProperty() {
+        return onlyAoiEnabled;
     }
 
-    public DoubleProperty altitudeToProperty() {
-        return altitudeTo;
+    public DoubleProperty altitudeValueProperty() {
+        return altitudeValue;
     }
 
-    public DoubleProperty altitudeMinProperty() {
-        return altitudeMin;
-    }
-
-    public DoubleProperty altitudeMaxProperty() {
-        return altitudeMax;
+    public DoubleProperty altitudeSpreadProperty() {
+        return altitudeSpread;
     }
 
     public BooleanProperty rollEnabledProperty() {
         return rollEnabled;
     }
 
-    public DoubleProperty rollFromProperty() {
-        return rollFrom;
+    public DoubleProperty rollValueProperty() {
+        return rollValue;
     }
 
-    public DoubleProperty rollToProperty() {
-        return rollTo;
-    }
-
-    public DoubleProperty rollMinProperty() {
-        return rollMin;
-    }
-
-    public DoubleProperty rollMaxProperty() {
-        return rollMax;
+    public DoubleProperty rollSpreadProperty() {
+        return rollSpread;
     }
 
     public BooleanProperty pitchEnabledProperty() {
         return pitchEnabled;
     }
 
-    public DoubleProperty pitchFromProperty() {
-        return pitchFrom;
+    public DoubleProperty pitchValueProperty() {
+        return pitchValue;
     }
 
-    public DoubleProperty pitchToProperty() {
-        return pitchTo;
-    }
-
-    public DoubleProperty pitchMinProperty() {
-        return pitchMin;
-    }
-
-    public DoubleProperty pitchMaxProperty() {
-        return pitchMax;
+    public DoubleProperty pitchSpreadProperty() {
+        return pitchSpread;
     }
 
     public BooleanProperty yawEnabledProperty() {
         return yawEnabled;
     }
 
-    public DoubleProperty yawFromProperty() {
-        return yawFrom;
+    public DoubleProperty yawValueProperty() {
+        return yawValue;
     }
 
-    public DoubleProperty yawToProperty() {
-        return yawTo;
-    }
-
-    public DoubleProperty yawMinProperty() {
-        return yawMin;
-    }
-
-    public DoubleProperty yawMaxProperty() {
-        return yawMax;
+    public DoubleProperty yawSpreadProperty() {
+        return yawSpread;
     }
 
     public DoubleProperty trueOrthoRatioProperty() {
@@ -914,38 +733,6 @@ public class Matching implements ISaveable {
 
     public DoubleProperty pseudoOrthoAreaProperty() {
         return pseudoOrthoArea;
-    }
-
-    public BooleanProperty isoEnabledProperty() {
-        return isoEnabled;
-    }
-
-    public BooleanProperty exposureTimeEnabledProperty() {
-        return exposureTimeEnabled;
-    }
-
-    public BooleanProperty exposureEnabledProperty() {
-        return exposureEnabled;
-    }
-
-    public BooleanProperty imageTypeEnabledProperty() {
-        return imageTypeEnabled;
-    }
-
-    public BooleanProperty annotationEnabledProperty() {
-        return annotationEnabled;
-    }
-
-    public BooleanProperty areaEnabledProperty() {
-        return areaEnabled;
-    }
-
-    public BooleanProperty flightplanEnabledProperty() {
-        return flightplanEnabled;
-    }
-
-    public StringProperty selectedFlightplanProperty() {
-        return selectedFlightplan;
     }
 
     public File getResourceFile() {
@@ -1069,7 +856,7 @@ public class Matching implements ISaveable {
     }
 
     public void previewLogfiles(List<FlightLogEntry> flightLogsSelected, IMapView mapView) {
-        if (getStatus() != MatchingStatus.NEW) {
+        if (getStatus() != MatchingStatus.NEW || navigationService.getWorkflowStep() != WorkflowStep.DATA_PREVIEW) {
             return;
         }
 
@@ -1082,6 +869,7 @@ public class Matching implements ISaveable {
         getViewOptions().showTrackProperty().set(true);
         getViewOptions().showAnnotationProperty().set(false);
         getViewOptions().imageProjectionProperty().set(ProjectionType.SURVEYS_2D);
+        filtersEnabled.set(false);
 
         layer.getPicsLayer().removeAllLayers(true);
         layer.getPicsLayer().setMute(true);
@@ -1130,7 +918,8 @@ public class Matching implements ISaveable {
                     hardwareConfigurationManager,
                     match.getCurPhotoFile().getFile(),
                     copiedAsctecLogs != null && copiedAsctecLogs.length > 0,
-                    null);
+                    null,
+                    rtkAvailable.get());
             if (bestHw == null) {
                 throw new Exception("no fitting Hardware found");
             }
@@ -1159,7 +948,8 @@ public class Matching implements ISaveable {
             IHardwareConfigurationManager hardwareConfigurationManager,
             File photo,
             boolean isFalcon,
-            List<Flightplan> flightPlans)
+            List<Flightplan> flightPlans,
+            boolean hasRtk)
             throws Exception {
         PhotoFile f = new PhotoFile(photo);
         ExifInfos exif = f.getExif();
@@ -1173,6 +963,8 @@ public class Matching implements ISaveable {
         }
 
         IGenericCameraConfiguration camConf = hardwareConfigBest.getPrimaryPayload(IGenericCameraConfiguration.class);
+        IGenericCameraDescription camBest = camConf.getDescription();
+        ILensDescription lensBest = camConf.getLens().getDescription();
         IPlatformDescription platBest = hardwareConfigBest.getPlatformDescription();
 
         for (IPlatformDescription plat : hardwareConfigurationManager.getPlatforms()) {
@@ -1188,13 +980,19 @@ public class Matching implements ISaveable {
 
                     int matchQuality = 0;
 
+                    /*if ((plat.getGpsType() == GPStype.DGPS_RTK) == hasRtk) {
+                        matchQuality++;
+                    }*/
+
                     if (plat.isInCopterMode() == isFalcon) {
                         matchQuality++;
                     }
 
                     if (cam.getExifModels().contains(exif.model)) {
-                        matchQuality += 5;
+                        matchQuality += 3;
                     }
+
+                    // System.out.println("candidate: " + plat.getId() + " cam:"+cam.getId() + " lens:"+lens.getId());
 
                     if (cam.getCcdResX() == exif.imageWidth && cam.getCcdResY() == exif.imageHeight) {
                         matchQuality++;
@@ -1232,6 +1030,7 @@ public class Matching implements ISaveable {
                         matchQuality++; // to get it balanced
                     }
 
+                    // System.out.println("quality:" + matchQualityLens);
                     if (matchQuality > matchQualityBest
                             || (matchQualityBest == matchQuality
                                 && plat.getAirplaneType().isBetterThan(platBest.getAirplaneType()))) {
@@ -1240,9 +1039,12 @@ public class Matching implements ISaveable {
                         IHardwareConfiguration hardwareConfig =
                             hardwareConfigurationManager.getHardwareConfiguration(plat.getId()).deepCopy();
                         hardwareConfig.setPrimaryPayload(cameraConfig);
+                        camBest = cam;
                         platBest = plat;
+                        lensBest = lens;
                         matchQualityBest = matchQuality;
                         hardwareConfigBest = hardwareConfig;
+                        // System.out.println("-->better: "+plat.getId()+ " "+ cam.getId() + " "+lens.getId() );
                     }
                 }
             }
@@ -1263,11 +1065,4 @@ public class Matching implements ISaveable {
         legacyMatching.rename(newName);
     }
 
-    public StringProperty selectedExportFilterProperty() {
-        return selectedExportFilter;
-    }
-
-    public StringProperty selectedExportFilterFlagProperty() {
-        return selectedExportFilterFlag;
-    }
 }

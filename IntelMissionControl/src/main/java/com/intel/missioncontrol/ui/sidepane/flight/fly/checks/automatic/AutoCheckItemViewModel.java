@@ -7,6 +7,9 @@
 package com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic;
 
 import com.intel.missioncontrol.SuppressLinter;
+import org.asyncfx.beans.property.UIAsyncIntegerProperty;
+import org.asyncfx.beans.property.UIAsyncObjectProperty;
+import org.asyncfx.beans.property.UIAsyncStringProperty;
 import com.intel.missioncontrol.drone.validation.IFlightValidator;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
 import com.intel.missioncontrol.ui.validation.IResolveAction;
@@ -17,15 +20,13 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import org.asyncfx.beans.property.UIAsyncIntegerProperty;
-import org.asyncfx.beans.property.UIAsyncObjectProperty;
-import org.asyncfx.beans.property.UIAsyncStringProperty;
 
 public class AutoCheckItemViewModel implements ViewModel {
 
     private final UIAsyncStringProperty messageString = new UIAsyncStringProperty(this);
     private final UIAsyncStringProperty firstResolveActionText = new UIAsyncStringProperty(this);
     private final UIAsyncStringProperty secondResolveActionText = new UIAsyncStringProperty(this);
+    private final UIAsyncIntegerProperty numberOfResolveActions = new UIAsyncIntegerProperty(this);
     private final UIAsyncObjectProperty<AlertType> alertImageType = new UIAsyncObjectProperty<>(this);
 
     private final ObjectProperty<IResolveAction> firstResolveAction = new SimpleObjectProperty<>();
@@ -54,14 +55,9 @@ public class AutoCheckItemViewModel implements ViewModel {
                 flightValidator.validationStatusProperty()));
 
         // TODO
-
-        if (flightValidator.getFirstResolveAction() != null) {
-            this.firstResolveAction.bind(flightValidator.getFirstResolveAction());
-        }
-
-        if (flightValidator.getSecondResolveAction() != null) {
-            this.secondResolveAction.bind(flightValidator.getSecondResolveAction());
-        }
+        this.firstResolveAction.bind(Bindings.createObjectBinding(() -> null));
+        this.secondResolveAction.bind(Bindings.createObjectBinding(() -> null));
+        this.numberOfResolveActions.bind(Bindings.createIntegerBinding(() -> 0));
 
         firstResolveActionCommand =
             new DelegateCommand(
@@ -100,8 +96,12 @@ public class AutoCheckItemViewModel implements ViewModel {
         return firstResolveActionText;
     }
 
-    ReadOnlyProperty<String> secondResolveActionTextProperty() {
+    public ReadOnlyProperty<String> secondResolveActionTextProperty() {
         return secondResolveActionText;
+    }
+
+    ReadOnlyProperty<Number> numberOfResolveActionsProperty() {
+        return numberOfResolveActions;
     }
 
     Command getFirstResolveActionCommand() {

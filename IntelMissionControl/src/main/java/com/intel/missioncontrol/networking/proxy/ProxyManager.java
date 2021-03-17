@@ -18,13 +18,14 @@ import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.InvalidationListener;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
 import org.asyncfx.concurrent.Strand;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * {@link ProxySelector#select(URI) select()} to a delegate ProxySelector. The delegate can then be swapped at runtime.
  */
 public class ProxyManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyManager.class);
+    private static final Logger LOG = Logger.getLogger(ProxyManager.class.getSimpleName());
 
     private final InternetConnectivitySettings settings;
     private final INetworkInformation networkInformation;
@@ -79,7 +80,8 @@ public class ProxyManager {
             .addListener(
                 (object, oldVal, newVal) -> {
                     if (newVal) {
-                        LOGGER.info("Reinitializing proxy after the network status has changed");
+                        LoggerFactory.getLogger(ProxyManager.class)
+                            .info("Reinitializing proxy after the network status has changed", new Exception());
                         initializationProcedure();
                     }
                 });
@@ -198,7 +200,7 @@ public class ProxyManager {
                     if (address instanceof InetSocketAddress) {
                         String host = ((InetSocketAddress)address).getHostName();
                         if (host != null && host.contains(".intel.com")) {
-                            LOGGER.warn("SETTING INTEL INTRANET SPECIFIC SETTINGS because hostname=" + host);
+                            LOG.warning("SETTING INTEL INTRANET SPECIFIC SETTINGS because hostname=" + host);
                             // we are injecting this manual proxy in order to be able to supply socks auto detected
                             // settings at least in intel network
                             settings.httpHostProperty().setValue("proxy-chain.intel.com");
@@ -239,7 +241,7 @@ public class ProxyManager {
     }
 
     private void updateProxySelector(ProxySelector selector) {
-        LOGGER.info("Updating ProxySelector: " + selector);
+        LOG.info("Updating ProxySelector: " + selector);
         ProxySelectorDelegator.setDefault(selector);
         networkInformation.invalidate();
     }
@@ -257,14 +259,14 @@ public class ProxyManager {
         try {
             selector = proxySearch.getProxySelector();
         } catch (Throwable t) {
-            LOGGER.error("Error while proxySearch.getProxySelector", t);
+            LOG.severe("Error while proxySearch.getProxySelector," + t);
         }
 
         if (selector == null) {
             try {
                 selector = new WpadProxySearchStrategy().getProxySelector();
             } catch (ProxyException e) {
-                LOGGER.warn("problems searching a proxy", e);
+                LOG.log(Level.WARNING, "problems searching a proxy", e);
             }
         }
 

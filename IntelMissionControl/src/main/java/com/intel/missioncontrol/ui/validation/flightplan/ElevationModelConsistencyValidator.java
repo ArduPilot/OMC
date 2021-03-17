@@ -8,13 +8,13 @@ package com.intel.missioncontrol.ui.validation.flightplan;
 
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.flightplan.computation.FPsim;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.terrain.CompoundElevationModel;
@@ -62,7 +62,7 @@ public class ElevationModelConsistencyValidator extends OnFlightplanRecomputedVa
             new CompoundElevationModel.ElevationModelRerence();
         Position takeOffPosition = flightplan.takeoffPositionProperty().get();
         Position refPointPosition = flightplan.refPointPositionProperty().get();
-        IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+        IElevationModel elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
         try {
             elevationModel.getElevation(
                 takeOffPosition, true, IElevationModel.MIN_RESOLUTION_REQUEST_METER, takeOffElevationModelReference);

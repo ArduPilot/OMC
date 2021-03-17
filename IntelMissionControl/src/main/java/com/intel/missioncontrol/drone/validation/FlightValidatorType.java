@@ -20,7 +20,5 @@ public enum FlightValidatorType {
     STORAGE,
     GNSS_FIX,
     CAMERA,
-    ANNOYING_TEST,
-    VIDEO_STREAM,
-    OBSTACLE_AVOIDANCE
+    ANNOYING_TEST
 }

@@ -27,6 +27,30 @@ public class NavigationRules {
         dataTransferPopupEnabled =
             settingsManager.getSection(AnalysisSettings.class).dataTransferPopupEnabledProperty();
 
+        // When navigating to the data preview workflow step, choose the sidepane tab depending on the status of the
+        // current matching.
+        navigationService.addRule(
+            WorkflowStep.DATA_PREVIEW,
+            () -> {
+                Mission mission = applicationContext.getCurrentMission();
+                if (mission == null) {
+                    return null;
+                }
+
+                Matching currentMatching = mission.getCurrentMatching();
+                if (currentMatching != null) {
+                    if (currentMatching.getStatus() == MatchingStatus.NEW) {
+                        return getImportPage();
+                    } else if (currentMatching.getStatus() == MatchingStatus.IMPORTED) {
+                        return SidePanePage.VIEW_DATASET;
+                    } else if (currentMatching.getStatus() == MatchingStatus.TRANSFERRING) {
+                        return SidePanePage.TRANSFERRING_DATA;
+                    }
+                }
+
+                return null;
+            });
+
         // If we switch to another dataset, we potentially trigger a navigation request on the data preview tab.
         propertyPathStore
             .from(applicationContext.currentMissionProperty())
@@ -45,6 +69,9 @@ public class NavigationRules {
                     switchCurrentDataset(navigationService, newValue, applicationContext));
     }
 
+    private SidePanePage getImportPage() {
+        return dataTransferPopupEnabled.get() ? SidePanePage.VIEW_DATASET_HELP : SidePanePage.DATA_IMPORT;
+    }
 
     private void switchCurrentDataset(
             INavigationService navigationService,
@@ -54,7 +81,14 @@ public class NavigationRules {
                 || navigationService.workflowStepProperty().get() != WorkflowStep.DATA_PREVIEW) {
             return;
         }
-        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+
+        if (matchingStatus == MatchingStatus.NEW) {
+            navigationService.navigateTo(getImportPage());
+        } else if (matchingStatus == MatchingStatus.IMPORTED) {
+            navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+        } else if (matchingStatus == MatchingStatus.TRANSFERRING) {
+            navigationService.navigateTo(SidePanePage.TRANSFERRING_DATA);
+        }
     }
 
 }

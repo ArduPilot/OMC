@@ -107,7 +107,6 @@ public class SupportManager implements ISupportManager {
 
     private int curIdx = 0;
     private MProperties prop = new MProperties();
-    private Vector<File> screenshots;
 
     @Inject
     public SupportManager(
@@ -159,23 +158,12 @@ public class SupportManager implements ISupportManager {
 
     @Override
     public void scanReportFolder() {
-        scanReportFolder(false);
-    }
-
-    @Override
-    public void scanReportFolder(boolean showToast) {
         checkErrorReports();
         if (hasOldSupportRequests.getValue()) {
             for (File file : getErrorReports()) {
                 dialogService.requestDialogAndWait(
                     WindowHelper.getPrimaryViewModel(), SendSupportRetryViewModel.class, () -> file);
             }
-        } else if (showToast) {
-            applicationContext.addToast(
-                Toast.of(ToastType.INFO)
-                    .setText(languageHelper.getString("supportSettingsView.noSupportRequest"))
-                    .setTimeout(Toast.MEDIUM_TIMEOUT)
-                    .create());
         }
     }
 
@@ -300,7 +288,7 @@ public class SupportManager implements ISupportManager {
         }
         // check if Screenshots of the application are allowed
         if (options.get(SupportConstants.OPTION_SCREENSHOTS)) {
-            // use available screenshots
+            Vector<File> screenshots = getScreenshots();
             for (File f : screenshots) {
                 try {
                     File to = new File(folder, f.getName());
@@ -535,7 +523,7 @@ public class SupportManager implements ISupportManager {
 
         // check if Screenshots of the application are allowed
         if (options.get(SupportConstants.OPTION_SCREENSHOTS)) {
-            screenshots = getScreenshots(); // generate new screenshots
+            Vector<File> screenshots = getScreenshots();
             files.addAll(screenshots);
         }
 
@@ -722,7 +710,7 @@ public class SupportManager implements ISupportManager {
         Vector<File> screenshots = new Vector<>();
 
         Dispatcher dispatcher = Dispatcher.platform();
-        dispatcher.run(
+        dispatcher.runLater(
             () -> {
                 for (javafx.stage.Window w : javafx.stage.Window.getWindows()) {
                     int width = (int)w.sceneProperty().get().getWidth();

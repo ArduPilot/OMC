@@ -18,7 +18,7 @@ public class SimpleAsyncSetProperty<E> extends AsyncSetPropertyBase<E> {
         this(bean, new PropertyMetadata.Builder<AsyncObservableSet<E>>().create());
     }
 
-    public SimpleAsyncSetProperty(PropertyObject bean) {
+    public SimpleAsyncSetProperty(ObservableObject bean) {
         this(bean, new PropertyMetadata.Builder<AsyncObservableSet<E>>().create());
     }
 
@@ -26,12 +26,12 @@ public class SimpleAsyncSetProperty<E> extends AsyncSetPropertyBase<E> {
         super(metadata);
         this.bean = bean;
 
-        if (bean instanceof PropertyObject) {
-            ((PropertyObject)bean).registerProperty(this);
+        if (bean instanceof ObservableObject) {
+            ((ObservableObject)bean).registerProperty(this);
         }
     }
 
-    public SimpleAsyncSetProperty(PropertyObject bean, PropertyMetadata<AsyncObservableSet<E>> metadata) {
+    public SimpleAsyncSetProperty(ObservableObject bean, PropertyMetadata<AsyncObservableSet<E>> metadata) {
         super(bean, metadata);
         this.bean = bean;
 

@@ -7,9 +7,6 @@
 package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
-import java.util.ArrayList;
-import java.util.List;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
@@ -70,15 +67,5 @@ public class SensorCalibrationValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.SENSOR_CALIBRATION;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

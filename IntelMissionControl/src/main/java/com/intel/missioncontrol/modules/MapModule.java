@@ -33,7 +33,6 @@ import com.intel.missioncontrol.map.wms.WmsManager;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.IWWMapModel;
 import com.intel.missioncontrol.map.worldwind.IWWMapView;
-import com.intel.missioncontrol.map.worldwind.WWDispatcher;
 import com.intel.missioncontrol.map.worldwind.WWElevationModel;
 import com.intel.missioncontrol.map.worldwind.WWGlobes;
 import com.intel.missioncontrol.map.worldwind.WWLayerFactory;
@@ -48,11 +47,11 @@ import com.intel.missioncontrol.ui.navbar.layers.MapClearingCenter;
 import eu.mavinci.desktop.gui.wwext.search.SearchManager;
 import eu.mavinci.geo.CountryDetector;
 import eu.mavinci.geo.ICountryDetector;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public final class MapModule extends AbstractModule {
 
-    public static final String DISPATCHER = "MapModuleDispatcher";
+    public static final String SYNC_ROOT = "MapModuleSyncRoot";
 
     @Override
     protected void configure() {
@@ -71,7 +70,9 @@ public final class MapModule extends AbstractModule {
         // Local scope
         Scope scope = LocalScope.getInstance();
 
-        bind(Dispatcher.class).annotatedWith(Names.named(DISPATCHER)).toInstance(new WWDispatcher());
+        SynchronizationRoot synchronizationRoot = new SynchronizationRoot();
+        bind(SynchronizationRoot.class).annotatedWith(Names.named(SYNC_ROOT)).toInstance(synchronizationRoot);
+        bind(SynchronizationRoot.class).toInstance(synchronizationRoot);
 
         // TODO for proper multi window support roll back to this and make sure we only inject with NAMED annotation
         // bind(SynchronizationRoot.class)

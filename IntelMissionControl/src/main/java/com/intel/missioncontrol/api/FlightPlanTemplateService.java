@@ -244,7 +244,7 @@ public class FlightPlanTemplateService implements IFlightPlanTemplateService {
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
                 .severe(
-                    "Cannot create a mission from a file "
+                    "Cannot create a flightplan from a file "
                         + file
                         + ", template will not be updated : "
                         + e.getCause());
@@ -277,7 +277,7 @@ public class FlightPlanTemplateService implements IFlightPlanTemplateService {
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
                 .severe(
-                    "Cannot create a mission from a file "
+                    "Cannot create a flightplan from a file "
                         + file
                         + ", template will not be updated : "
                         + e.getCause());
@@ -478,7 +478,7 @@ public class FlightPlanTemplateService implements IFlightPlanTemplateService {
         if (systemFlightPlanTemplatePaths == null) {
             URL resource = FlightPlanTemplate.class.getClassLoader().getResource(PREDEFINED_FLIGHT_TEMPLATES_LOCATION);
             if (resource == null) {
-                throw new IllegalStateException("Unable to locate predefined mission templates");
+                throw new IllegalStateException("Unable to locate predefined flight plan templates");
             }
 
             Stream<Path> templatePaths;
@@ -511,7 +511,7 @@ public class FlightPlanTemplateService implements IFlightPlanTemplateService {
         try {
             importTemplateFile(templatePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to extract mission template file", e);
+            throw new IllegalStateException("Unable to extract flight plan template file", e);
         }
     }
 
@@ -519,7 +519,7 @@ public class FlightPlanTemplateService implements IFlightPlanTemplateService {
         try {
             getSystemFlightPlanTemplatePaths().forEach(this::restoreSystemTemplateFile);
         } catch (URISyntaxException | IOException e) {
-            throw new IllegalStateException("Unable to get mission template files", e);
+            throw new IllegalStateException("Unable to get flight plan template files", e);
         }
     }
 

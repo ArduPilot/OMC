@@ -6,27 +6,22 @@
 
 package org.asyncfx.beans.property;
 
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.Optional;
 
 public class UIPropertyMetadata<T> extends PropertyMetadata<T> {
 
     public static class Builder<V> {
-        private String name;
-        private boolean hasName;
-        private boolean customBean;
-        private boolean hasCustomBean;
-        private V initialValue;
-        private boolean hasInitialValue;
-        private ConsistencyGroup consistencyGroup;
-        private boolean hasConsistencyGroup;
+        private Optional<String> name = Optional.empty();
+        private Optional<Boolean> customBean = Optional.empty();
+        private Optional<V> initialValue = Optional.empty();
+        private Optional<ConsistencyGroup> consistencyGroup = Optional.empty();
 
         /**
          * The name of the property. If this value is not specified, the name of the property field will be
          * automatically detected at runtime. Generally, you should not manually specify the name.
          */
         public Builder<V> name(String name) {
-            this.name = name;
-            this.hasName = true;
+            this.name = Optional.of(name);
             return this;
         }
 
@@ -35,8 +30,7 @@ public class UIPropertyMetadata<T> extends PropertyMetadata<T> {
          * {@link AsyncProperty#reset()}.
          */
         public Builder<V> initialValue(V value) {
-            this.initialValue = value;
-            this.hasInitialValue = true;
+            this.initialValue = Optional.of(value);
             return this;
         }
 
@@ -46,8 +40,7 @@ public class UIPropertyMetadata<T> extends PropertyMetadata<T> {
          * appear as atomic operations to observers.
          */
         public Builder<V> consistencyGroup(ConsistencyGroup value) {
-            this.consistencyGroup = value;
-            this.hasConsistencyGroup = true;
+            this.consistencyGroup = Optional.of(value);
             return this;
         }
 
@@ -57,58 +50,40 @@ public class UIPropertyMetadata<T> extends PropertyMetadata<T> {
          * automatic name detection will be disabled.
          */
         public Builder<V> customBean(boolean value) {
-            this.customBean = value;
-            this.hasCustomBean = true;
+            this.customBean = Optional.of(value);
             return this;
         }
 
         public UIPropertyMetadata<V> create() {
-            return new UIPropertyMetadata<>(
-                name,
-                hasName,
-                customBean,
-                hasCustomBean,
-                initialValue,
-                hasInitialValue,
-                consistencyGroup,
-                hasConsistencyGroup);
+            return new UIPropertyMetadata<>(name, customBean, initialValue, consistencyGroup);
         }
     }
 
     UIPropertyMetadata(
-            String name,
-            boolean hasName,
-            boolean customBean,
-            boolean hasCustomBean,
-            T initialValue,
-            boolean hasInitialValue,
-            ConsistencyGroup consistencyGroup,
-            boolean hasConsistencyGroup) {
+            Optional<String> name,
+            Optional<Boolean> customBean,
+            Optional<T> initialValue,
+            Optional<ConsistencyGroup> consistencyGroup) {
         super(
             name,
-            hasName,
             customBean,
-            hasCustomBean,
             initialValue,
-            hasInitialValue,
             consistencyGroup,
-            hasConsistencyGroup,
-            Dispatcher.platform(),
-            true);
+            Optional.of(UIDispatcher::run),
+            UIDispatcher::isDispatcherThread);
     }
 
     @Override
     protected PropertyMetadata<T> merge(PropertyMetadata<T> metadata) {
         return new UIPropertyMetadata<>(
-            Accessor.hasName(metadata) ? Accessor.getName(metadata) : Accessor.getName(this),
-            Accessor.hasName(metadata) || Accessor.hasName(this),
-            Accessor.hasCustomBean(metadata) ? Accessor.getCustomBean(metadata) : Accessor.getCustomBean(this),
-            Accessor.hasCustomBean(metadata) || Accessor.hasCustomBean(this),
-            Accessor.hasInitialValue(metadata) ? Accessor.getInitialValue(metadata) : Accessor.getInitialValue(this),
-            Accessor.hasInitialValue(metadata) || Accessor.hasInitialValue(this),
-            Accessor.hasConsistencyGroup(metadata)
-                ? Accessor.getConsistencyGroup(metadata)
-                : Accessor.getConsistencyGroup(this),
-            Accessor.hasConsistencyGroup(metadata) || Accessor.hasConsistencyGroup(this));
+            orElse(Accessor.getName(metadata), Accessor.getName(this)),
+            orElse(Accessor.getCustomBean(metadata), Accessor.getCustomBean(this)),
+            orElse(Accessor.getInitialValue(metadata), Accessor.getInitialValue(this)),
+            orElse(Accessor.getConsistencyGroup(metadata), Accessor.getConsistencyGroup(this)));
     }
+
+    private static <T> Optional<T> orElse(Optional<T> first, Optional<T> second) {
+        return first.isPresent() ? first : second;
+    }
+
 }

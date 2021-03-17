@@ -206,8 +206,6 @@ public class EditPowerpolePointsView extends DialogView<EditPowerpolePointsViewM
         optimizeWayPointsSwitch.selectedProperty().bindBidirectional(viewModel.optimizeWayPointsProperty());
 
         bulkEditBtn.disableProperty().bind(viewModel.getOpenBulkEditingDialogCommand().executableProperty().not());
-        getFromUAVMenuItem.disableProperty().bind(viewModel.getAddFromUavCommand().executableProperty().not());
-
         dialogContextProvider.setContext(viewModel, context);
         viewModel.subscribe(IDialogService.GET_WINDOW_REQUEST, new WeakNotificationObserver(getWindowObserver));
 
@@ -728,9 +726,7 @@ public class EditPowerpolePointsView extends DialogView<EditPowerpolePointsViewM
         viewModel.getDuplicateSelectedCommand().execute();
     }
 
-    public void getFromUAV(ActionEvent actionEvent) {
-        viewModel.getAddFromUavCommand().execute();
-    }
+    public void getFromUAV(ActionEvent actionEvent) {}
 
     public void importAction(ActionEvent actionEvent) {
         viewModel.importCSV();

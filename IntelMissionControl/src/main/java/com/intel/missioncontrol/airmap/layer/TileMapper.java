@@ -50,40 +50,53 @@ public class TileMapper {
     }
 
     private void computeTilesForSector(Level level, Sector sector, Collection<Tile> tiles) {
-        Angle sectorMinLat = sector.getMinLatitude();
-        Angle sectorMinLon = sector.getMinLongitude();
+        double minLatitude = sector.getMinLatitude().degrees,
+            minLongitude = sector.getMinLongitude().degrees,
+            dLatitude = sector.getDeltaLatDegrees(),
+            dLongitude = sector.getDeltaLonDegrees();
+
+        // Compute the tile's SW lat/lon based on its row/col in the level's data set.
+        Angle dLat = level.getTileDelta().getLatitude().divide(2);
+        Angle dLon = level.getTileDelta().getLongitude().divide(2);
+
+        if (dLat.degrees <= 0 || dLon.degrees <= 0) {
+            return;
+        }
+
+        Angle latOrigin = tileOrigin.getLatitude();
+        Angle lonOrigin = tileOrigin.getLongitude();
 
         /*
-                 x──x──x───x
-                 │╔═╪══╪══╗│
-                 x╫─x──x──x│
-                 │╚═╪══╪══╝│
-                 m──x──x───x
+                 x──x──x──x
+                 │╔═╪══╪══╗
+                 x╫─x──x──x
+                 │╚═╪══╪══╝
+                 m──x──x──x
         */
 
-        Angle tileDeltaLat = level.getTileDelta().getLatitude();
-        Angle tileDeltaLon = level.getTileDelta().getLongitude();
+        double lat = Angle.normalizedDegreesLatitude(minLatitude);
+        int row = Tile.computeRow(dLat, Angle.fromDegreesLatitude(lat), latOrigin);
+        Angle rowLat = Tile.computeRowLatitude(row, dLat, latOrigin);
+        lat = rowLat.degrees;
 
-        Angle originLat = tileOrigin.getLatitude();
-        Angle originLon = tileOrigin.getLongitude();
+        int numLat = (int)Math.ceil(dLatitude / dLat.degrees);
+        int numLon = (int)Math.ceil(dLongitude / dLon.degrees);
 
-        int rowLowest = Tile.computeRow(tileDeltaLat, sectorMinLat, originLat);
-        Angle lowerLat = Tile.computeRowLatitude(rowLowest, tileDeltaLat, originLat);
-        int colLowest = Tile.computeColumn(tileDeltaLon, sectorMinLon, originLon);
-        Angle lowerLon = Tile.computeColumnLongitude(colLowest, tileDeltaLon, originLon);
-        int numRows = (int) Math.ceil(sector.getMaxLatitude().subtract(lowerLat).divide(tileDeltaLat));
-        int numCols = (int) Math.ceil(sector.getMaxLongitude().subtract(lowerLon).divide(tileDeltaLon));
-
-        for (int y = 0; y < numRows; y++) {
-            for (int x = 0; x < numCols; x++) {
-                Sector tileSector = Sector.fromDegrees(
-                        lowerLat.degrees + y*tileDeltaLat.degrees,
-                        lowerLat.degrees + (y+1)*tileDeltaLat.degrees,
-                        lowerLon.degrees + x*tileDeltaLon.degrees,
-                        lowerLon.degrees + (x+1)*tileDeltaLon.degrees
-                );
-                tiles.add(new Tile(tileSector, level, rowLowest + y, colLowest + x));
+        for (int i = 0; i != numLat; i++) {
+            double lon = Angle.normalizedDegreesLongitude(minLongitude);
+            int col = Tile.computeColumn(dLon, Angle.fromDegreesLongitude(lon), lonOrigin);
+            Angle rowLon = Tile.computeColumnLongitude(col, dLon, lonOrigin);
+            lon = rowLon.degrees;
+            for (int n = 0; n != numLon; n++) {
+                Sector tileSector = Sector.fromDegrees(lat, lat + dLat.degrees, lon, lon + dLon.degrees);
+                tiles.add(new Tile(tileSector, level, row, col));
+                col++;
+                lon = lon + dLon.degrees;
             }
+
+            row++;
+            lat = lat + dLat.degrees;
         }
     }
+
 }

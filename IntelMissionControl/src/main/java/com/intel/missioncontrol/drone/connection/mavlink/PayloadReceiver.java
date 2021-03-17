@@ -12,11 +12,6 @@ import java.util.function.Function;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Future;
 
-/**
- * A MAVLink message receiver, allowing to listen for and reply to messages from a target endpoint. Usually used for
- * listening and responding to communication initiated by the target, as part of a MAVLink microservice protocol
- * implementation.
- */
 class PayloadReceiver {
 
     protected final MavlinkEndpoint targetEndpoint;

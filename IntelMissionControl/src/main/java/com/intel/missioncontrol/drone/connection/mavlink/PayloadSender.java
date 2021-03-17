@@ -26,10 +26,6 @@ import org.asyncfx.concurrent.Future;
 import org.asyncfx.concurrent.FutureCompletionSource;
 import org.asyncfx.concurrent.Futures;
 
-/**
- * A cancellable MAVLink message sender with a target endpoint, usually used for initiating communication as part of a
- * MAVLink microservice protocol implementation.
- */
 class PayloadSender {
     static final int defaultRepetitions = 30;
     static final Duration defaultResponseTimeoutPerRepetition = Duration.ofSeconds(1);

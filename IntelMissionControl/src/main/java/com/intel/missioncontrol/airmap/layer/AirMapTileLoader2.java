@@ -55,10 +55,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -78,9 +74,6 @@ import org.slf4j.LoggerFactory;
 public class AirMapTileLoader2 implements TiledRenderableLayer.TileRenderableManager {
     private static final Logger LOG = LoggerFactory.getLogger(AirMapTileLoader2.class);
     private static boolean tryReload = false;
-    // this scheduler is used to spare warnings logging
-    private final ScheduledExecutorService logWarnScheduler = Executors.newScheduledThreadPool(1);
-    private ScheduledFuture logWarnFuture;
 
     public enum Status {
         /** no AirSpaceObjects or visibleRenderableMap available, due to e.g. unloaded stuff */
@@ -243,27 +236,17 @@ public class AirMapTileLoader2 implements TiledRenderableLayer.TileRenderableMan
             AirMap.searchAirspace(toCoordinates(tileData.tile.getSector()), AIRMAP_SEARCH_TYPES, null, true, null)
                 .exceptionally(
                     throwable -> {
-                        if (logWarnFuture != null) {
-                            logWarnFuture.cancel(true);
-                        }
-
-                        logWarnFuture =
-                            logWarnScheduler.schedule(
-                                () -> LOG.warn("AirMap tile fetch failed, WW status: " + WorldWind.getNetworkStatus()),
-                                200l,
-                                TimeUnit.SECONDS);
-
+                        LOG.warn("AirMap tile fetch failed", throwable);
                         tileData.setStatus(Status.LoadError);
 
                         try {
                             WorldWind.getNetworkStatus().logUnavailableHost(new URL(AirMap.AIRMAP_SEARCH_URL));
                             tryReload = true;
                         } catch (MalformedURLException e) {
-                            logWarnFuture =
-                                logWarnScheduler.schedule(
-                                    () -> LOG.warn("AirMap tile fetch failed", e), 200l, TimeUnit.SECONDS);
+                            LOG.warn("AirMap tile fetch failed", e);
                         }
 
+                        LOG.info("AirMap tile fetch failed" + WorldWind.getNetworkStatus());
                         return null;
                     })
                 .thenAccept(
@@ -348,11 +331,7 @@ public class AirMapTileLoader2 implements TiledRenderableLayer.TileRenderableMan
                 try {
                     pair.renderables = renderableFactory.createRenderableForAirspace(pair.airspace);
                 } catch (Exception e) {
-                    logWarnScheduler.scheduleAtFixedRate(
-                        () -> LOG.warn("error creating renderable for airspace: " + pair.airspace, e),
-                        100l,
-                        0l,
-                        TimeUnit.SECONDS);
+                    LOG.warn("error creating renderable for airspace: " + Objects.toString(pair.airspace), e);
                 }
 
                 if (pair.renderables != null && !pair.renderables.isEmpty()) {

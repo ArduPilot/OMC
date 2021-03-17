@@ -8,8 +8,6 @@ package org.asyncfx.beans.property;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -20,7 +18,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import org.asyncfx.Awaiter;
 import org.asyncfx.TestBase;
-import org.asyncfx.beans.binding.LifecycleValueConverter;
 import org.asyncfx.concurrent.Dispatcher;
 import org.junit.jupiter.api.Test;
 
@@ -126,17 +123,17 @@ class AsyncObjectPropertyTest extends TestBase {
         awaiter.await(1);
     }
 
-    static class A extends PropertyObject {
+    static class A extends ObservableObject {
         final AsyncObjectProperty<B> b = new SimpleAsyncObjectProperty<>(this);
     }
 
-    static class B extends PropertyObject {
+    static class B extends ObservableObject {
         final AsyncObjectProperty<C> c0 = new SimpleAsyncObjectProperty<>(this);
         final AsyncObjectProperty<C> c1 = new SimpleAsyncObjectProperty<>(this);
         final AsyncObjectProperty<C> c2 = new SimpleAsyncObjectProperty<>(this);
     }
 
-    static class C extends PropertyObject {
+    static class C extends ObservableObject {
         final AsyncBooleanProperty d = new SimpleAsyncBooleanProperty(this);
     }
 
@@ -364,64 +361,6 @@ class AsyncObjectPropertyTest extends TestBase {
         assertEquals(5, count0[0]);
         assertEquals(1, count1[0]);
         assertEquals(3, count2[0]);
-    }
-
-    static class NumberHolder {
-        NumberHolder(Number value) {
-            this.value = value;
-        }
-
-        Number value;
-        boolean updated;
-        boolean removed;
-    }
-
-    @Test
-    void LifecycleValueConverter_Updates_And_Removes_TargetValue() {
-        var source =
-            new SimpleAsyncIntegerProperty(null, new PropertyMetadata.Builder<Number>().customBean(true).create());
-        var target =
-            new SimpleAsyncObjectProperty<>(
-                null, new PropertyMetadata.Builder<NumberHolder>().customBean(true).create());
-
-        target.bind(
-            source,
-            new LifecycleValueConverter<>() {
-                @Override
-                public NumberHolder convert(Number value) {
-                    return new NumberHolder(value);
-                }
-
-                @Override
-                public void update(Number sourceValue, NumberHolder targetValue) {
-                    targetValue.value = sourceValue;
-                    targetValue.updated = true;
-                }
-
-                @Override
-                public void remove(NumberHolder value) {
-                    value.removed = true;
-                }
-            });
-
-        NumberHolder t = target.get();
-        assertEquals(0, t.value);
-        assertFalse(t.updated);
-        assertFalse(t.removed);
-
-        source.set(1);
-        assertSame(target.get(), t);
-        assertTrue(t.updated);
-        assertFalse(t.removed);
-
-        target.unbind();
-        assertSame(target.get(), t);
-        assertTrue(t.updated);
-        assertFalse(t.removed);
-
-        target.set(new NumberHolder(1));
-        assertNotSame(target.get(), t);
-        assertTrue(t.removed);
     }
 
 }

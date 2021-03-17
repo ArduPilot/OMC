@@ -6,16 +6,18 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.function.Predicate;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlySetProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.SetChangeListener;
 import javafx.collections.WeakSetChangeListener;
+import org.asyncfx.AsyncFX;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.AccessControllerImpl;
 import org.asyncfx.collections.AsyncObservableSet;
@@ -33,7 +35,7 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
         this(bean, new UIPropertyMetadata.Builder<AsyncObservableSet<E>>().create());
     }
 
-    public UIAsyncSetProperty(PropertyObject bean) {
+    public UIAsyncSetProperty(ObservableObject bean) {
         this(bean, new UIPropertyMetadata.Builder<AsyncObservableSet<E>>().create());
     }
 
@@ -41,7 +43,7 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
         super(bean, metadata);
     }
 
-    public UIAsyncSetProperty(PropertyObject bean, UIPropertyMetadata<AsyncObservableSet<E>> metadata) {
+    public UIAsyncSetProperty(ObservableObject bean, UIPropertyMetadata<AsyncObservableSet<E>> metadata) {
         super(bean, metadata);
     }
 
@@ -114,11 +116,18 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
                 }
 
             } finally {
-                accessController.unlockWrite(stamp);
+                accessController.unlockWrite(VALUE, stamp);
             }
         }
 
         return readOnlyProperty;
+    }
+
+    private void verifyAccess() {
+        if ((AsyncFX.isVerifyPropertyAccess() || AsyncFX.isRunningTests()) && !UIDispatcher.isDispatcherThread()) {
+            throw new IllegalStateException(
+                "Illegal cross-thread access: list can only be modified on the JavaFX application thread.");
+        }
     }
 
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
@@ -137,11 +146,11 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
             }
 
             synchronized void addElement(E e) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     ReadOnlySetPropertyImpl.this.add(e);
                 } else {
                     addLast(e);
-                    Platform.runLater(this);
+                    UIDispatcher.run(this);
                 }
             }
         }
@@ -159,11 +168,11 @@ public class UIAsyncSetProperty<E> extends SimpleAsyncSetProperty<E> {
             }
 
             synchronized void removeElement(E e) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     ReadOnlySetPropertyImpl.this.remove(e);
                 } else {
                     addLast(e);
-                    Platform.runLater(this);
+                    UIDispatcher.run(this);
                 }
             }
         }

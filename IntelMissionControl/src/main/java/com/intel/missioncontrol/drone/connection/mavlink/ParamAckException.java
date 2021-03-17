@@ -13,7 +13,6 @@ public class ParamAckException extends RuntimeException {
     private final ParamAck paramAck;
 
     ParamAckException(IMavlinkParameter parameter, ParamAck paramAck) {
-        super("Invalid MAVLink parameter acknowledgement: " + parameter.toString() + ", ack: " + paramAck.toString());
         this.parameter = parameter;
         this.paramAck = paramAck;
     }

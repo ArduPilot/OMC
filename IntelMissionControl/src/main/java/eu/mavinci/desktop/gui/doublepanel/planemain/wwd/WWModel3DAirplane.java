@@ -128,6 +128,7 @@ public class WWModel3DAirplane extends M_WWModel3D
                         setPitchModel(0);
                         setRollModel(90);
                     }
+
                 } else {
                     if (flightmode == AirplaneFlightmode.ManualControl) {
                         setModel(model_manual);

@@ -9,8 +9,6 @@ package org.asyncfx.concurrent;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -62,6 +60,7 @@ class DefaultFutureFactory implements Executor {
     public <V> Future<V> fromListenableFuture(ListenableFuture<V> future) {
         FutureCompletionSource<V> futureCompletionSource =
             new FutureCompletionSource<>() {
+
                 protected void cancellationRequested(boolean mayInterruptIfRunning) {
                     future.cancel(mayInterruptIfRunning);
                 }
@@ -128,30 +127,7 @@ class DefaultFutureFactory implements Executor {
 
                 void signalComplete() {
                     if (completedCount.incrementAndGet() == futures.length) {
-                        List<AggregateException> exceptions = new ArrayList<>();
-                        boolean cancelled = false;
-                        boolean failed = false;
-
-                        for (Future<?> future : futures) {
-                            if (future.isFailed()) {
-                                failed = true;
-                                exceptions.add(future.getException());
-                            } else if (future.isCancelled()) {
-                                cancelled = true;
-                                AggregateException ex = future.getException();
-                                if (ex != null) {
-                                    exceptions.add(ex);
-                                }
-                            }
-                        }
-
-                        if (failed) {
-                            completeWithException(new AggregateException(exceptions.toArray(new Throwable[0])));
-                        } else if (cancelled) {
-                            completeWithCancellation(new AggregateException(exceptions.toArray(new Throwable[0])));
-                        } else {
-                            completeWithResult(futures);
-                        }
+                        completeWithResult(futures);
                     }
                 }
 

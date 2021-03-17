@@ -6,7 +6,7 @@
 
 package eu.mavinci.desktop.gui.wwext.kml;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.Exportable;
@@ -216,7 +216,9 @@ public class KMLWriter {
                 writer.writeEndElement();
             } else {
                 Debug.getLog()
-                    .log(Debug.WARNING, "Could not store unsupported KML Style Element " + s + "  " + s.getClass());
+                    .log(
+                        Debug.WARNING,
+                        "Could not store unsupported KML Style Element " + s + "  " + s.getClass());
             }
         }
     }
@@ -229,7 +231,8 @@ public class KMLWriter {
     protected void startDocument() throws XMLStreamException {
         writer.writeStartDocument();
         writer.writeCharacters("\r\n");
-        writer.writeComment(StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+        writer.writeComment(
+            DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
         writer.writeStartElement("kml");
         writer.writeDefaultNamespace(KMLConstants.KML_NAMESPACE);
         writer.setPrefix("gx", GXConstants.GX_NAMESPACE);
@@ -327,7 +330,9 @@ public class KMLWriter {
             if (curObj instanceof KMLDocument) {
                 KMLDocument doc = (KMLDocument)curObj;
                 MKMLHelper.setExtendedDataByName(
-                    doc, writtenByTag, StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+                    doc,
+                    writtenByTag,
+                    DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
                 writer.writeStartElement("Document");
             } else if (curObj instanceof KMLFolder) {
                 // KMLFolder folder = (KMLFolder) curObj;
@@ -335,7 +340,9 @@ public class KMLWriter {
             } else {
                 // unsupported!
                 Debug.getLog()
-                    .log(Debug.WARNING, "Could not store unsupported KML Element " + curObj + "  " + curObj.getClass());
+                    .log(
+                        Debug.WARNING,
+                        "Could not store unsupported KML Element " + curObj + "  " + curObj.getClass());
                 return;
             }
 
@@ -391,7 +398,9 @@ public class KMLWriter {
         } else {
             // unsupported type
             Debug.getLog()
-                .log(Debug.WARNING, "Could not store unsupported KML Element " + curObj + "  " + curObj.getClass());
+                .log(
+                    Debug.WARNING,
+                    "Could not store unsupported KML Element " + curObj + "  " + curObj.getClass());
             return;
         }
     }

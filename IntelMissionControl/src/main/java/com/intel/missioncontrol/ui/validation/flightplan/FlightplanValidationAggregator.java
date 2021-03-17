@@ -35,7 +35,6 @@ public class FlightplanValidationAggregator extends ValidationAggregator<FlightP
             ElevationModelConsistencyValidator.Factory elevationModelConsistencyValidatorFactory,
             GimbalPitchValidator.Factory gimbalPitchValidatorFactory,
             WaypointSeparationValidator.Factory waypointSeparationValidatorFactory,
-            NumberOfWaypointsValidator.Factory numberOfWaypointsValidatorFactory,
             @Assisted FlightPlan flightPlan) {
         super(
             airspaceDistanceValidatorFactory.create(flightPlan),
@@ -53,8 +52,7 @@ public class FlightplanValidationAggregator extends ValidationAggregator<FlightP
             recomputeActivatedValidatorFactory.create(flightPlan),
             elevationModelConsistencyValidatorFactory.create(flightPlan),
             gimbalPitchValidatorFactory.create(flightPlan),
-            waypointSeparationValidatorFactory.create(flightPlan),
-            numberOfWaypointsValidatorFactory.create(flightPlan));
+            waypointSeparationValidatorFactory.create(flightPlan));
     }
 
 }

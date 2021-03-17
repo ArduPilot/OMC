@@ -21,7 +21,7 @@ public interface IAirplaneListenerBackendConnectionLost extends IAirplaneListene
         public static final ConnectionLostReasons DISCONNECTED_BY_USER =
             new ConnectionLostReasons("disconnect by user");
         public static final ConnectionLostReasons WRONG_AP_RELEASE =
-            new ConnectionLostReasons("Open Mission Control and Autopilot have different release numbers");
+            new ConnectionLostReasons("Intel Mission Control and Autopilot have different release numbers");
         public static final ConnectionLostReasons TCP_CONNECTION_LOST =
             new ConnectionLostReasons("tcp connectionDialog lost", true);
         public static final ConnectionLostReasons CONNECTOR_REQUEST_TIMEOUT =

@@ -16,7 +16,6 @@ public class ChecklistItemViewModel implements ViewModel {
 
     private final StringProperty text = new SimpleStringProperty();
     private final BooleanProperty checked = new SimpleBooleanProperty();
-    private final BooleanProperty disable = new SimpleBooleanProperty();
 
     public ChecklistItemViewModel(String text) {
         this.text.set(text);
@@ -36,13 +35,5 @@ public class ChecklistItemViewModel implements ViewModel {
 
     public BooleanProperty checkedProperty() {
         return checked;
-    }
-
-    public boolean isDisabled() {
-        return disable.get();
-    }
-
-    public BooleanProperty disableProperty() {
-        return disable;
     }
 }

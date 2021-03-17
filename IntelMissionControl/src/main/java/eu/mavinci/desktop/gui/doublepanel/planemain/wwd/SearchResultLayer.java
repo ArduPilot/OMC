@@ -19,21 +19,22 @@ import org.asyncfx.beans.property.AsyncIntegerProperty;
 import org.asyncfx.beans.property.PropertyHelper;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.SimpleAsyncIntegerProperty;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class SearchResultLayer extends IconLayerCentered implements ISearchManagerListener {
 
     private final SearchManager searchManager;
     private SearchResult selectedResult;
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
 
     private final AsyncIntegerProperty resultCount = new SimpleAsyncIntegerProperty(this);
 
     @Inject
-    public SearchResultLayer(SearchManager searchManager, Dispatcher dispatcher, ISelectionManager selectionManager) {
+    public SearchResultLayer(
+            SearchManager searchManager, SynchronizationRoot syncRoot, ISelectionManager selectionManager) {
         this.searchManager = searchManager;
         searchManager.addListener(this);
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         setName("SearchResults");
         searchResultChanged();
         setAlwaysUseAbsoluteElevation(false);
@@ -50,7 +51,7 @@ public class SearchResultLayer extends IconLayerCentered implements ISearchManag
                         setSelectedResult(null);
                     }
                 },
-                dispatcher::run);
+                syncRoot);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class SearchResultLayer extends IconLayerCentered implements ISearchManag
         }
 
         PropertyHelper.setValueSafe(resultCount, i);
-        dispatcher.run(() -> firePropertyChange(AVKey.LAYER, null, SearchResultLayer.this));
+        syncRoot.runAsync(() -> firePropertyChange(AVKey.LAYER, null, SearchResultLayer.this));
     }
 
     public void setSelectedResult(SearchResult selectedResult) {

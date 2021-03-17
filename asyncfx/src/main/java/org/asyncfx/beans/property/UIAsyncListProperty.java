@@ -6,6 +6,8 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,12 +16,12 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.WeakListChangeListener;
+import org.asyncfx.AsyncFX;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.AccessControllerImpl;
 import org.asyncfx.collections.AsyncListChangeListener;
@@ -40,7 +42,7 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
         this(bean, new UIPropertyMetadata.Builder<AsyncObservableList<E>>().create());
     }
 
-    public UIAsyncListProperty(PropertyObject bean) {
+    public UIAsyncListProperty(ObservableObject bean) {
         this(bean, new UIPropertyMetadata.Builder<AsyncObservableList<E>>().create());
     }
 
@@ -48,7 +50,7 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
         super(bean, metadata);
     }
 
-    public UIAsyncListProperty(PropertyObject bean, UIPropertyMetadata<AsyncObservableList<E>> metadata) {
+    public UIAsyncListProperty(ObservableObject bean, UIPropertyMetadata<AsyncObservableList<E>> metadata) {
         super(bean, metadata);
     }
 
@@ -81,7 +83,7 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
                 }
 
             } finally {
-                accessController.unlockWrite(stamp);
+                accessController.unlockWrite(VALUE, stamp);
             }
         }
 
@@ -304,6 +306,13 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
         super.replaceAll(operator);
     }
 
+    private void verifyAccess() {
+        if ((AsyncFX.isVerifyPropertyAccess() || AsyncFX.isRunningTests()) && !UIDispatcher.isDispatcherThread()) {
+            throw new IllegalStateException(
+                "Illegal cross-thread access: list can only be modified on the JavaFX application thread.");
+        }
+    }
+
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static class ReadOnlyListPropertyImpl<E> extends SimpleListProperty<E> {
 
@@ -330,11 +339,11 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
             }
 
             synchronized void permuteElements(int[] indexMap) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     permuteImpl(indexMap);
                 } else {
                     addLast(indexMap);
-                    Platform.runLater(this);
+                    UIDispatcher.run(this);
                 }
             }
 
@@ -364,11 +373,11 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
             }
 
             synchronized void updateElements(int from, int to) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     fireChange(from, to);
                 } else {
                     addLast(new int[] {from, to});
-                    Platform.runLater(this);
+                    UIDispatcher.runLater(this);
                 }
             }
 
@@ -432,11 +441,11 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
             }
 
             synchronized void addElements(int from, List<? extends E> list) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     ReadOnlyListPropertyImpl.this.addAll(from, list);
                 } else {
                     addLast(new FromWithElements<>(from, new ArrayList<>(list)));
-                    Platform.runLater(this);
+                    UIDispatcher.runLater(this);
                 }
             }
         }
@@ -455,11 +464,11 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
             }
 
             synchronized void removeElements(int from, int to) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     ReadOnlyListPropertyImpl.this.remove(from, to);
                 } else {
                     addLast(new int[] {from, to});
-                    Platform.runLater(this);
+                    UIDispatcher.runLater(this);
                 }
             }
         }
@@ -478,11 +487,11 @@ public class UIAsyncListProperty<E> extends SimpleAsyncListProperty<E> {
             }
 
             synchronized void replaceElements(int from, List<? extends E> addedList) {
-                if (Platform.isFxApplicationThread()) {
+                if (UIDispatcher.isDispatcherThread()) {
                     replaceImpl(from, addedList);
                 } else {
                     addLast(new FromWithElements<>(from, new ArrayList<>(addedList)));
-                    Platform.runLater(this);
+                    UIDispatcher.runLater(this);
                 }
             }
 

@@ -20,7 +20,7 @@ public interface AsyncProperty<T> extends ReadOnlyAsyncProperty<T>, WritableValu
 
     void bind(ObservableValue<? extends T> observable);
 
-    <U> void bind(ObservableValue<? extends U> observable, ValueConverter<U, T> converter);
+    <U> void bind(ObservableValue<? extends U> observable, ValueConverter<U, ? extends T> converter);
 
     void unbind();
 

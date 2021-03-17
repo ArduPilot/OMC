@@ -4,7 +4,7 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
 <?import com.intel.missioncontrol.ui.controls.ItemsView?>
 <?import javafx.scene.control.Button?>
@@ -14,11 +14,12 @@
 <VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutomaticChecksDialogView"
-      styleClass="dialog" style="-fx-pref-width: 36em; -fx-pref-height: 40em;">
+      style="-fx-min-height:37em;-fx-max-height:37em; -fx-min-width:40em;-fx-max-width:40em;"
+      styleClass="dialog">
     <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER"
-                style="-fx-background-color: theme-dialog-background-color;" id="AutoChecks">
-        <ItemsView fx:id="itemsView" VBox.vgrow="NEVER">
-            <VBox />
+                style="-fx-background-color: theme-dialog-background-color">
+        <ItemsView fx:id="itemsView">
+            <VBox styleClass="content, normal-spacing" />
         </ItemsView>
     </ScrollPane>
 

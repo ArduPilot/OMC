@@ -8,23 +8,17 @@ package com.intel.missioncontrol.mission;
 
 import com.intel.missioncontrol.IApplicationContext;
 import com.intel.missioncontrol.api.IFlightPlanService;
-import com.intel.missioncontrol.drone.connection.ConnectionState;
-import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.WindowHelper;
+import com.intel.missioncontrol.map.worldwind.impl.IScreenshotManager;
 import com.intel.missioncontrol.ui.common.components.RenameDialog;
 import com.intel.missioncontrol.ui.dialogs.IDialogService;
 import com.intel.missioncontrol.ui.dialogs.savechanges.ChangedItemViewModel;
 import com.intel.missioncontrol.ui.dialogs.savechanges.SaveChangesDialogViewModel;
-import com.intel.missioncontrol.ui.menu.MainMenuModel;
-import com.intel.missioncontrol.ui.menu.MenuModel;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneMenuModel;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogResult;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.disconnect.DisconnectDialogViewModel;
 import de.saxsys.mvvmfx.utils.commands.Command;
-import de.saxsys.mvvmfx.utils.commands.FutureCommand;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
@@ -32,6 +26,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javax.inject.Provider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.asyncfx.concurrent.Dispatcher;
@@ -52,7 +47,7 @@ public class LoadedMissionManager {
     private final IDialogService dialogService;
     private final Strand strand = new Strand();
     private final IFlightPlanService flightPlanService;
-    private final IDroneConnectionService droneConnectionService;
+    private final Provider<IScreenshotManager> screenshotManager;
 
     public LoadedMissionManager(
             IApplicationContext applicationContext,
@@ -60,25 +55,25 @@ public class LoadedMissionManager {
             ILanguageHelper languageHelper,
             IDialogService dialogService,
             IFlightPlanService flightPlanService,
-            IDroneConnectionService droneConnectionService) {
+            Provider<IScreenshotManager> screenshotManager) {
         this.applicationContext = applicationContext;
         this.missionManager = missionManager;
         this.languageHelper = languageHelper;
         this.dialogService = dialogService;
         this.flightPlanService = flightPlanService;
-        this.droneConnectionService = droneConnectionService;
+        this.screenshotManager = screenshotManager;
 
         applicationContext.addCloseRequestListener(
             () -> {
                 if (saveCurrentMission()) {
-                    if (checkDroneConnectedAndClose(true)) {
+                    if (checkDroneConnected(true)) {
                         return false;
                     }
 
                     return true;
                 }
 
-                if (checkDroneConnectedAndClose(true)) {
+                if (checkDroneConnected(true)) {
                     return false;
                 }
 
@@ -234,62 +229,6 @@ public class LoadedMissionManager {
     private void loadMissionInternal(Mission mission) {
         mission.load();
         Dispatcher.platform().run(() -> this.mission.set(mission));
-    }
-
-    public boolean checkDroneConnectedAndClose(boolean execute) {
-        if (droneConnectionService.connectionStateProperty().get().equals(ConnectionState.CONNECTED)) {
-            if (execute) {
-                Command disconnectDroneCommand =
-                    new FutureCommand(
-                        () ->
-                            dialogService
-                                .requestDialogAsync(
-                                    missionManager.getMainViewModel(), DisconnectDialogViewModel.class, true)
-                                .whenDone(
-                                    (v) -> {
-                                        DisconnectDialogViewModel viewModel = v.getUnchecked();
-                                        DisconnectDialogResult dialogResult = viewModel.getDialogResult();
-                                        if (dialogResult != null) {
-                                            if (dialogResult.getConfirmed()) {
-                                                Dispatcher.platform()
-                                                    .run(
-                                                        () -> {
-                                                            droneConnectionService
-                                                                .disconnectAsync(
-                                                                    missionManager
-                                                                        .getMainViewModel()
-                                                                        .getFlightScope()
-                                                                        .currentDroneProperty()
-                                                                        .get())
-                                                                .whenSucceeded(
-                                                                    f -> {
-                                                                        MenuModel menuModel =
-                                                                            missionManager
-                                                                                .getMainViewModel()
-                                                                                .getMainScope()
-                                                                                .mainMenuModelProperty()
-                                                                                .get();
-                                                                        menuModel
-                                                                            .find(MainMenuModel.Project.EXIT)
-                                                                            .getCommand()
-                                                                            .execute();
-                                                                    })
-                                                                .whenFailed(
-                                                                    e ->
-                                                                        logger.warn(
-                                                                            "Disconnect failed: " + e.getMessage()));
-                                                        });
-                                            }
-                                        }
-                                    }));
-                disconnectDroneCommand.execute();
-                return true;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     public boolean checkDroneConnected(boolean execute) {

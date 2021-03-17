@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import org.asyncfx.beans.property.AsyncDoublePropertyBase;
 import org.asyncfx.beans.property.PropertyHelper;
 import org.asyncfx.beans.property.PropertyMetadata;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WWAsyncDoubleProperty extends AsyncDoublePropertyBase {
 
@@ -27,12 +27,16 @@ public class WWAsyncDoubleProperty extends AsyncDoublePropertyBase {
     public WWAsyncDoubleProperty(
             Object bean,
             String name,
-            Dispatcher dispatcher,
+            SynchronizationRoot syncRoot,
             String worldWindPropertyName,
             AVList avList,
             Consumer<Double> setter,
             double initialValue) {
-        super(new PropertyMetadata.Builder<Number>().initialValue(initialValue).dispatcher(dispatcher).create());
+        super(
+            new PropertyMetadata.Builder<Number>()
+                .initialValue(initialValue)
+                .synchronizationContext(syncRoot)
+                .create());
         this.bean = bean;
         this.name = name;
         this.propertyName = worldWindPropertyName;

@@ -21,7 +21,6 @@ import com.intel.missioncontrol.ui.validation.flightplan.GsdVariationToleranceVa
 import com.intel.missioncontrol.ui.validation.flightplan.LineOfSightValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.MaxHeightValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.MinGroundDistanceValidator;
-import com.intel.missioncontrol.ui.validation.flightplan.NumberOfWaypointsValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.RecomputeActivatedValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.RestrictedCountryValidator;
 import com.intel.missioncontrol.ui.validation.flightplan.SafetyAltValidator;
@@ -50,7 +49,6 @@ public class FlightplanValidationModule extends AbstractModule {
         install(new FactoryModuleBuilder().build(GimbalPitchValidator.Factory.class));
         install(new FactoryModuleBuilder().build(WaypointSeparationValidator.Factory.class));
         install(new FactoryModuleBuilder().build(CameraValidator.Factory.class));
-        install(new FactoryModuleBuilder().build(NumberOfWaypointsValidator.Factory.class));
     }
 
 }

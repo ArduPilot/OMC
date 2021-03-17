@@ -78,7 +78,7 @@ public abstract class AsyncListProperty<E> extends ReadOnlyAsyncListProperty<E>
         contentBound = true;
     }
 
-    public void unbindContent(ObservableList<? extends E> content) {
+    public void unbindContent(ObservableList<E> content) {
         AsyncContentBinding.unbindContent(this, content);
         contentBound = false;
     }

@@ -7,6 +7,7 @@
 package com.intel.missioncontrol.ui.sidepane.analysis.tasks;
 
 import com.intel.missioncontrol.IApplicationContext;
+import org.asyncfx.beans.property.AsyncBooleanProperty;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.mission.MissionConstants;
@@ -19,14 +20,12 @@ import com.intel.missioncontrol.ui.sidepane.analysis.FlightLogEntry;
 import com.intel.missioncontrol.ui.sidepane.analysis.LogFileHelper;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import eu.mavinci.desktop.helper.FileHelper;
-import eu.mavinci.desktop.helper.MFileFilter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.concurrent.WorkerStateEvent;
-import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,9 +88,6 @@ public class CopyLogsTask extends IBackgroundTaskManager.BackgroundTask {
 
     @Override
     protected Void call() throws Exception {
-        // TODO to import only the json will not work!!
-        // we need to use json with link to original path where the images are.
-
         File ftpFolder =
             MissionConstants.getFlightLogsFolder(applicationContext.getCurrentMission().getDirectoryFile());
         int i = 0;
@@ -105,32 +101,16 @@ public class CopyLogsTask extends IBackgroundTaskManager.BackgroundTask {
             File file = flightLogEntry.getPath();
             updateProgress(i, selectedLogs.size());
             try {
-                File target = null;
-                if (MFileFilter.photoJsonFilter.accept(file.getName())) {
-                    // TODO add a warning, that the images will always be copied, but not relevant for GH
-                    target = new File(ftpFolder, file.getParentFile().getName());
-                    target = FileHelper.getNextFreeFilename(target); // path here!
-                    FileHelper.copyDirectorySynchron(file.getParentFile(), target);
-                    copyTargets.add(target);
-                    mission.addFlightLog(target);
+                File target = new File(ftpFolder, file.getName());
+                target = FileHelper.getNextFreeFilename(target);
+                FileHelper.copyDirectorySynchron(file, target);
+                copyTargets.add(target);
+                mission.addFlightLog(target);
 
-                    LogFileHelper.setLogsIdentical(file, target);
-                    if (eraseLogs && !target.equals(file)) {
-                        FileHelper.deleteDir(languageHelper, file, true);
-                    }
-                } else {
-                    target = new File(ftpFolder, file.getName());
-                    target = FileHelper.getNextFreeFilename(target);
-                    FileHelper.copyDirectorySynchron(file, target);
-                    copyTargets.add(target);
-                    mission.addFlightLog(target);
-
-                    LogFileHelper.setLogsIdentical(file, target);
-                    if (eraseLogs && !target.equals(file)) {
-                        FileHelper.deleteDir(languageHelper, file, true);
-                    }
+                LogFileHelper.setLogsIdentical(file, target);
+                if (eraseLogs && !target.equals(file)) {
+                    FileHelper.deleteDir(languageHelper, file, true);
                 }
-
             } catch (IOException e) {
                 dialogService.showErrorMessage(
                     languageHelper.getString(

@@ -9,7 +9,7 @@ package org.asyncfx.beans.binding;
 import org.asyncfx.PublishSource;
 
 @PublishSource(module = "openjfx", licenses = "intel-gpl-classpath-exception")
-public interface LifecycleValueConverter<S, T> extends ValueConverter<S, T> {
+public interface LifecycleValueConverter<S, T> {
 
     T convert(S value);
 

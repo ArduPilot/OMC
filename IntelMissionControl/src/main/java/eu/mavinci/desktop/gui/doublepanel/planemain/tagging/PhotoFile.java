@@ -6,20 +6,19 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.ILensDescription;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.settings.ExpertSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.core.plane.sendableobjects.OrientationData;
 import eu.mavinci.desktop.gui.doublepanel.camerasettings.CameraHelper;
 import eu.mavinci.desktop.gui.doublepanel.mapmanager.IResourceFileReferenced;
 import eu.mavinci.desktop.gui.doublepanel.planemain.wwd.BufferedImageCache;
-import eu.mavinci.desktop.helper.FileFilter;
 import eu.mavinci.desktop.helper.FileHelper;
 import eu.mavinci.desktop.helper.ImageHelper;
 import eu.mavinci.desktop.helper.MFileFilter;
@@ -27,8 +26,6 @@ import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
-import ij.ImagePlus;
-import ij.plugin.ContrastEnhancer;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -39,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
@@ -51,29 +47,17 @@ import thebuzzmedia.exiftool.ExifTool.Tag;
 
 public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced {
 
-    public static final String KEY = "eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoFile";
-    /** Very small changes in gps lat/lon wont be takes as wrong meta data */
-    public static final double TINY = 0.00001;
-
-    public static final String PREFIX_PREVIEW_IMG = "prev_";
-    public static final String FOLDER_PREVIEW_IMG = "Thumbnails";
-    public static final String PREFIX_FOLDER_PREVIEW_IMG = FOLDER_PREVIEW_IMG + File.separator + PREFIX_PREVIEW_IMG;
-    public static int PREVIEW_WIDTH = -1;
-    static DecimalFormat f = new DecimalFormat("#0.0000");
-
     static {
         // disable warning that native libs are not found
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
     }
 
-    public int noInFolder;
     File file;
     ExifInfos exif;
     CPhotoLogLine log;
     double wavelength = -1;
     MapLayerMatch match;
-    Object thumpLock = new Object();
-    File thumpFile;
+    public int noInFolder;
 
     public PhotoFile(File file, ExifInfos exif) {
         this.file = file;
@@ -103,22 +87,384 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
         this.wavelength = wavelength;
     }
 
-    public File createThumpFileName(File file) {
-        // String extension = (file.getName().toLowerCase().endsWith("jpg") ? "":".jpg");
-        if (match == null || match.getMatching() == null) {
-            Debug.getLog().log(Level.WARNING, "Create thumbfile, no correct matching defined, use default path");
-            return new File(
-                file.getParentFile().getParent(),
-                PREFIX_FOLDER_PREVIEW_IMG + MFileFilter.jpegFilter.removeExtension(file.getName()) + ".jpg");
+    public ExifInfos getExif() {
+        return exif;
+    }
+
+    public static final String KEY = "eu.mavinci.desktop.gui.doublepanel.planemain.tagging.PhotoFile";
+
+    public void setPhotoLogLine(CPhotoLogLine line) {
+        this.log = line;
+    }
+
+    public CPhotoLogLine getPhotoLogLine() {
+        if (match != null) {
+            return match.line;
         }
 
+        return log;
+    }
+
+    public boolean isTimestampValid() {
+        return getExif().timestamp > 0;
+    }
+
+    public String isCameraMatchingThis(
+            IGenericCameraConfiguration cameraConfiguration, boolean checkCameraTrueImageFalse) {
+        return getExif().isCameraMatchingThis(cameraConfiguration, checkCameraTrueImageFalse);
+    }
+
+    public MapLayerMatch getMatch() {
+        return match;
+    }
+
+    public File makeTimePreviewFilename(File folder) {
+        return new File(folder, ExifInfos.TIME_PREFIX + getExif().datetime.getTime() + "_" + file.getName());
+    }
+
+    @Override
+    public int compareTo(PhotoFile o) {
+        // workaround for a broken clock, fallback to filename order!
+        if (!isTimestampValid() || !o.isTimestampValid()) {
+            // System.out.println("compare broken PhotFiles");
+            return file.getName().compareTo(o.file.getName());
+        }
+
+        int t = getExif().datetime.compareTo(o.getExif().datetime);
+        if (t != 0) {
+            return t;
+        }
+
+        t = Double.compare(wavelength, o.wavelength);
+        if (t != 0) {
+            return t;
+        }
+
+        t = file.compareTo(o.file);
+        // if (t==0 && o !=this) System.out.println("files equal? " + o + " " + this);
+        return t;
+        // return date.compareTo(o.date); //wont work if timestamps are equal!!
+    }
+
+    static DecimalFormat f = new DecimalFormat("#0.0000");
+
+    @Override
+    public String toString() {
+        return file
+            + "@"
+            + f.format(getExif().timestamp)
+            + "<->"
+            + log
+            + " focalLength="
+            + getExif().focalLengthMM
+            + " exposureTime="
+            + getExif().exposureSec
+            + " aperture="
+            + getExif().aperture;
+    }
+
+    public void writeMetadata(IHardwareConfiguration hardwareConfiguration) throws Exception {
+        writeMetadata(
+            hardwareConfiguration,
+            match.getMatching().getEstimatedStartingElevationInMoverWGS84(true),
+            match.getRtkOffset());
+    }
+
+    /** Very small changes in gps lat/lon wont be takes as wrong meta data */
+    public static final double TINY = 0.00001;
+
+    private void writeMetadata(IHardwareConfiguration hardwareConfiguration, double groundElevation, Vec4 rtkOffset)
+            throws Exception {
+        Ensure.notNull(hardwareConfiguration, "hardwareConfiguration");
+
+        CPhotoLogLine line = getPhotoLogLine();
+        double lon;
+        double lat;
+        double ele;
+
+        double pitch;
+        double roll;
+        double yaw;
+
+        if (Double.isNaN(groundElevation)) {
+            // System.out.println("evevation was nan");
+            groundElevation = (line.gps_altitude_cm + line.gps_ellipsoid_cm - line.alt) / 100.;
+        }
+
+        Position p = CameraHelper.shiftPosition(line, groundElevation, rtkOffset, hardwareConfiguration);
+        lat = p.getLatitude().getDegrees();
+        lon = p.getLongitude().getDegrees();
+        ele = p.elevation;
+
+        Map<Tag, String> map = new TreeMap<Tag, String>();
+        map.put(Tag.GPS_ALTITUDE, Math.abs(ele) + "");
+        map.put(Tag.GPS_ALTITUDE_REF, ele >= 0 ? "0" : "1");
+        map.put(Tag.GPS_LATITUDE, Math.abs(lat) + "");
+        map.put(Tag.GPS_LATITUDE_REF, lat >= 0 ? "N" : "S");
+        map.put(Tag.GPS_LONGITUDE, Math.abs(lon) + "");
+        map.put(Tag.GPS_LONGITUDE_REF, lon >= 0 ? "E" : "W");
+        if (line.rawString != null) {
+            map.put(Tag.USER_COMMENT, line.rawString);
+        }
+
+        map.put(Tag.ORIENTATION, "1"); // here orientation fixing is for free ;-)
+        // according to Agisoft:
+
+        final ExpertSettings expertSettings = DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class);
+        boolean useExifLevelArmProcessing = expertSettings.getUseExifLevelArmProcessing();
+        if (useExifLevelArmProcessing) {
+            // 90deg offset is stored inside the levelArm Offset / TODO check for Pix4D how to handle
+            // double time = cam.computePLGdataDelayMS(line)/1000;
+            double time = CameraHelper.computePlgDataDelay(line, hardwareConfiguration) / 1000;
+
+            pitch = line.cameraPitch + line.cameraPitchRate * time;
+            roll = -(line.cameraRoll + line.cameraRollRate * time);
+            yaw = line.cameraYaw + line.cameraYawRate * time;
+        } else {
+            boolean useExif90Deg = expertSettings.getUseExif90Deg();
+
+            if (useExif90Deg) {
+                OrientationData o = CameraHelper.getCorrectedOrientation(line, 90, hardwareConfiguration);
+
+                pitch = o.pitch;
+                roll = o.roll;
+                yaw = o.yaw;
+            } else {
+                double[] camOrientation =
+                    MathHelper.transformationToRollPitchYaw(
+                        CameraHelper.getCameraJustageTransform(90, hardwareConfiguration));
+                while (camOrientation[2] < 0) camOrientation[2] += 360;
+                while (camOrientation[2] >= 360) camOrientation[2] -= 360;
+
+                pitch = camOrientation[0];
+                roll = camOrientation[1];
+                yaw = camOrientation[2];
+                //					System.out.println("opitch:"+pitch+" roll:"+roll+" yaw:"+yaw);
+                pitch = line.cameraPitch - pitch;
+                roll = -line.cameraRoll + roll;
+                yaw = line.cameraYaw - yaw;
+            }
+        }
+
+        //			System.out.println("cpitch:"+line.cameraPitch+" roll:"+line.cameraRoll+" yaw:"+line.cameraYaw);
+        //			System.out.println(" pitch:"+pitch+" roll:"+roll+" yaw:"+yaw);
+        //			OrientationData o = cam.getCorrectedOrientation(line, yaw); // ohne 90 pitch/-roll/yaw  / -> 15/3/180  /
+        // Test_Falcon_gym_camNull_1101_t1_klein6
+        //			OrientationData o = cam.getCorrectedOrientation(line); // looks to the left instead on wall
+        //			pitch = o.pitch;
+        //			roll = -o.roll;
+        //			yaw = o.yaw;
+
+        // TODO for TEST, can also get modified via camera orientation
+        int paraYawNeg = expertSettings.getExifMatchingYawNeg();
+        int paraPitchNeg = expertSettings.getExifMatchingPitchNeg();
+        int paraRollNeg = expertSettings.getExifMatchingRollNeg();
+        int paraYawAdd = expertSettings.getExifMatchingYawAdd();
+        int paraPitchAdd = expertSettings.getExifMatchingPitchAdd();
+
+        pitch = (pitch * paraPitchNeg) + paraPitchAdd;
+        roll = roll * paraRollNeg;
+        yaw = (yaw * paraYawNeg) + paraYawAdd;
+        // if (yaw < 0 || yaw >= 360) System.out.println("yaw"+yaw + " "+file);
+        // if (pitch < -180 || pitch >= 180) System.out.println("pitch"+pitch + " "+file);
+        // if (roll < -180 || roll >= 180) System.out.println("roll"+roll + " "+file);
+
+        boolean useExifRollPitchYaw = expertSettings.getUseExifRollPitchYaw();
+        if (useExifRollPitchYaw) {
+            map.put(Tag.PITCH, pitch + "");
+            map.put(Tag.ROLL, roll + "");
+            map.put(Tag.YAW, yaw + "");
+        } else {
+            map.put(Tag.PITCH, "");
+            map.put(Tag.ROLL, "");
+            map.put(Tag.YAW, "");
+        }
+
+        boolean useExifNavigator = expertSettings.getUseExifNavigator();
+        if (useExifNavigator) {
+            while (yaw < 0) yaw += 360;
+            while (yaw >= 360) yaw -= 360;
+            map.put(Tag.GPS_MAP_DATUM, "WGS-84");
+            map.put(Tag.GPS_PITCH_ANGLE, pitch + ""); // -180 +180
+            map.put(Tag.GPS_ROLL_ANGLE, roll + ""); // -90 +90
+            map.put(Tag.GPS_IMG_DIRECTION, yaw + "");
+            map.put(Tag.GPS_IMG_DIRECTION_REF, "T");
+        } else {
+            map.put(Tag.GPS_MAP_DATUM, "");
+            map.put(Tag.GPS_PITCH_ANGLE, "");
+            map.put(Tag.GPS_ROLL_ANGLE, "");
+            map.put(Tag.GPS_IMG_DIRECTION, "");
+            map.put(Tag.GPS_IMG_DIRECTION_REF, "");
+        }
+
+        // System.out.println("p pitch:"+pitch+"?-180+180 roll:"+roll+"?-90+90 yaw:"+yaw+"?0<360");
+        ILensDescription lensDescription =
+            hardwareConfiguration.getPrimaryPayload(IGenericCameraConfiguration.class).getLens().getDescription();
+        if (lensDescription.isLensManual()) {
+            map.put(
+                Tag.FOCAL_LENGTH,
+                "" + lensDescription.getFocalLength().convertTo(Unit.MILLIMETER).getValue().doubleValue());
+            map.put(Tag.FOCAL_LENGTH_35MM, "" + CameraHelper.getFocalLength35mm(hardwareConfiguration));
+        }
+
+        Map<Tag, String> valueMap;
+        valueMap =
+            ExifTool.instance.getImageMeta(
+                file,
+                Tag.CREATION_DATE,
+                Tag.DATE_TIME_ORIGINAL,
+                Tag.CREATION_DATE_BACKUP,
+                Tag.DATE_TIME_ORIGINAL_BACKUP,
+                Tag.DATE_TIME_CREATED);
+
+        String creationDateBackup = valueMap.get(Tag.CREATION_DATE_BACKUP);
+        String dateTimeOriginalBackup = valueMap.get(Tag.DATE_TIME_ORIGINAL_BACKUP);
+        if (creationDateBackup == null || creationDateBackup.isEmpty()) {
+            String creationDate = valueMap.get(Tag.CREATION_DATE); // evtl without 00 => Tag.DATE_TIME_CREATED
+            if (creationDate != null && !creationDate.isEmpty()) {
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                    Date datetime = formatter.parse(creationDate);
+                } catch (Exception e1) {
+                    creationDate = valueMap.get(Tag.DATE_TIME_CREATED);
+                }
+            }
+
+            if (creationDate != null && !creationDate.isEmpty()) {
+                map.put(Tag.CREATION_DATE_BACKUP, creationDate);
+            } else {
+                map.put(Tag.CREATION_DATE_BACKUP, "null");
+            }
+        }
+
+        if (dateTimeOriginalBackup == null || dateTimeOriginalBackup.isEmpty()) {
+            String dateTimeOriginal = valueMap.get(Tag.DATE_TIME_ORIGINAL); // evtl without 00 => Tag.DATE_TIME_CREATED
+            if (dateTimeOriginal != null && !dateTimeOriginal.isEmpty()) {
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+                    Date datetime = formatter.parse(dateTimeOriginal);
+                } catch (Exception e1) {
+                    dateTimeOriginal = valueMap.get(Tag.DATE_TIME_CREATED);
+                }
+            }
+
+            if (dateTimeOriginal != null && !dateTimeOriginal.isEmpty()) {
+                map.put(Tag.DATE_TIME_ORIGINAL_BACKUP, dateTimeOriginal);
+            } else {
+                map.put(Tag.DATE_TIME_ORIGINAL_BACKUP, "null");
+            }
+        }
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+        String date = format.format(new Date((long)(line.getTimestamp() * 1000)));
+
+        map.put(Tag.DATE_TIME_ORIGINAL, date);
+        map.put(Tag.CREATION_DATE, date);
+
+        // System.out.println("exif data:" + map);
+
+        ExifTool.instance.setImageMeta(file, map);
+    }
+
+    void maybeFixOrientation() {
+        String d = null;
+        try {
+            Map<Tag, String> valueMap;
+
+            try {
+                valueMap = ExifTool.instance.getImageMeta(file, Tag.ORIENTATION);
+            } catch (Exception e) {
+                if (ExifInfos.enableAllWarning) {
+                    Debug.getLog().log(Level.SEVERE, "Unable to run ExifTool from image at " + file, e);
+                }
+
+                return;
+            }
+            // System.out.println("valueMap:" + valueMap);
+            d = valueMap.get(Tag.ORIENTATION);
+            double orientation = Double.parseDouble(d);
+            if (orientation != 1) {
+                Map<Tag, String> map = new TreeMap<Tag, String>();
+                map.put(Tag.ORIENTATION, "1");
+                ExifTool.instance.setImageMeta(file, map);
+
+                valueMap = ExifTool.instance.getImageMeta(file, Tag.ORIENTATION);
+                d = valueMap.get(Tag.ORIENTATION);
+                orientation = Double.parseDouble(d);
+                // System.out.println("final orientation "+orientation);
+                if (orientation != 1) {
+                    if (ExifInfos.enableAllWarning) {
+                        Debug.getLog().log(Level.WARNING, "orientation was not resetted even I tries at file " + file);
+                    }
+                }
+                // } else {
+                // System.out.println("orientation was ok " + file);
+            }
+
+        } catch (Exception e1) {
+            if (ExifInfos.enableAllWarning) {
+                Debug.getLog().log(Level.WARNING, "Unable to reset orientation " + d + " at file " + file, e1);
+            }
+        }
+    }
+
+    public static final String PREFIX_PREVIEW_IMG = "prev_";
+    public static final String FOLDER_PREVIEW_IMG = "Thumbnails";
+    public static final String PREFIX_FOLDER_PREVIEW_IMG = FOLDER_PREVIEW_IMG + File.separator + PREFIX_PREVIEW_IMG;
+
+    public static File createThumpFileName(File file) {
+        // String extension = (file.getName().toLowerCase().endsWith("jpg") ? "":".jpg");
         return new File(
-            match.getMatching().getMatchingFolder(),
+            file.getParentFile().getParent(),
             PREFIX_FOLDER_PREVIEW_IMG + MFileFilter.jpegFilter.removeExtension(file.getName()) + ".jpg");
     }
 
+    public File getFile() {
+        return file;
+    }
+
+    @Override
+    public File getResourceFile() {
+        return getFile();
+    }
+
+    Object thumpLock = new Object();
+
+    File thumpFile;
+
+    public File getThumpFile() {
+        if (thumpFile == null) {
+            thumpFile = createThumpFileName(getFile());
+        }
+
+        return thumpFile;
+    }
+
+    public boolean thumpFileExists() {
+        File thumpFile = getThumpFile();
+        return thumpFile != null && thumpFile.exists() && thumpFile.length() > 0;
+    }
+
+    public void generateThumpFile() throws Exception {
+        // since this takes REALLY long, dont synchronize the whole object on this!!
+        synchronized (thumpLock) {
+            if (thumpFileExists()) {
+                return;
+            }
+
+            extractThumbnail(file, getThumpFile());
+        }
+    }
+
+    public synchronized void extractThumbnail(File target) throws Exception {
+        extractThumbnail(file, target);
+    }
+
+    public static int PREVIEW_WIDTH = -1;
+    // public static final int PREVIEW_HEIGHT = 120; //auto scaled..
+
     // @SuppressWarnings("deprecation")
-    public void extractThumbnail(File source, File target) throws Exception {
+    public static void extractThumbnail(File source, File target) throws Exception {
         // Debug.printStackTrace("make thump " + target);
         if (target.exists() && target.length() > 0 || source.getName().toUpperCase().endsWith("XMP")) {
             return;
@@ -130,7 +476,8 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
 
         try {
             if (PREVIEW_WIDTH < 1) {
-                PREVIEW_WIDTH = StaticInjector.getInstance(ExpertSettings.class).getExifPreviewWidth();
+                PREVIEW_WIDTH =
+                    DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class).getExifPreviewWidth();
             }
             // System.out.println("PREVIEW WIDTH =" + PREVIEW_WIDTH);
             // System.out.println("soruce: " + source);
@@ -299,13 +646,6 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
         }
     }
 
-    public static BufferedImage normalizeImageHistogram(BufferedImage source) {
-        var img = new ImagePlus(source.toString(), source);
-        var e = new ContrastEnhancer();
-        e.equalize(img);
-        return img.getBufferedImage();
-    }
-
     public static void scaleImageJava(File source, File destination) throws IOException {
         // System.out.println("scale java"+source + " -> " + destination);
         BufferedImage img = ImageHelper.loadImage(source);
@@ -316,13 +656,6 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
             // System.out.println("dont scale java");
             FileHelper.copyFile(source, destination);
         } else {
-            // TEST:
-            // TODO: only do this for TIFF / Flir, assumed hardware should be checked evtl. param from camera json
-            if (Arrays.asList(FileFilter.RAW.getExtensions())
-                    .contains("*" + source.getName().substring(source.getName().lastIndexOf(".")))) {
-                img = normalizeImageHistogram(img);
-            }
-
             img = convertFloatBuffImgIfNeeded(img);
             int heigh = (int)Math.round(((double)PREVIEW_WIDTH) / img.getWidth() * img.getHeight());
             BufferedImage bufImg =
@@ -419,359 +752,7 @@ public class PhotoFile implements Comparable<PhotoFile>, IResourceFileReferenced
         return imgOut;
     }
 
-    public ExifInfos getExif() {
-        return exif;
-    }
-
-    public CPhotoLogLine getPhotoLogLine() {
-        if (match != null) {
-            return match.line;
-        }
-
-        return log;
-    }
-
-    public void setPhotoLogLine(CPhotoLogLine line) {
-        this.log = line;
-    }
-
-    public boolean isTimestampValid() {
-        return getExif().timestamp > 0;
-    }
-
-    public String isCameraMatchingThis(
-            IGenericCameraConfiguration cameraConfiguration, boolean checkCameraTrueImageFalse) {
-        return getExif().isCameraMatchingThis(cameraConfiguration, checkCameraTrueImageFalse);
-    }
-
-    public MapLayerMatch getMatch() {
-        return match;
-    }
-
     public void setMatch(MapLayerMatch match) {
         this.match = match;
-    }
-
-    public File makeTimePreviewFilename(File folder) {
-        return new File(folder, ExifInfos.TIME_PREFIX + getExif().datetime.getTime() + "_" + file.getName());
-    }
-
-    @Override
-    public int compareTo(PhotoFile o) {
-        // workaround for a broken clock, fallback to filename order!
-        if (!isTimestampValid() || !o.isTimestampValid()) {
-            // System.out.println("compare broken PhotFiles");
-            return file.getName().compareTo(o.file.getName());
-        }
-
-        int t = getExif().datetime.compareTo(o.getExif().datetime);
-        if (t != 0) {
-            return t;
-        }
-
-        t = Double.compare(wavelength, o.wavelength);
-        if (t != 0) {
-            return t;
-        }
-
-        t = file.compareTo(o.file);
-        // if (t==0 && o !=this) System.out.println("files equal? " + o + " " + this);
-        return t;
-        // return date.compareTo(o.date); //wont work if timestamps are equal!!
-    }
-
-    @Override
-    public String toString() {
-        return file
-            + "@"
-            + f.format(getExif().timestamp)
-            + "<->"
-            + log
-            + " focalLength="
-            + getExif().focalLengthMM
-            + " exposureTime="
-            + getExif().exposureSec
-            + " aperture="
-            + getExif().aperture;
-    }
-
-    public void writeMetadata(IHardwareConfiguration hardwareConfiguration) throws Exception {
-        writeMetadata(
-            hardwareConfiguration,
-            match.getMatching().getEstimatedStartingElevationInMoverWGS84(true),
-            match.getRtkOffset());
-    }
-
-    private void writeMetadata(IHardwareConfiguration hardwareConfiguration, double groundElevation, Vec4 rtkOffset)
-            throws Exception {
-        Ensure.notNull(hardwareConfiguration, "hardwareConfiguration");
-
-        CPhotoLogLine line = getPhotoLogLine();
-        double lon;
-        double lat;
-        double ele;
-
-        double pitch;
-        double roll;
-        double yaw;
-
-        if (Double.isNaN(groundElevation)) {
-            // System.out.println("evevation was nan");
-            groundElevation = (line.gps_altitude_cm + line.gps_ellipsoid_cm - line.alt) / 100.;
-        }
-
-        Position p = CameraHelper.shiftPosition(line, groundElevation, rtkOffset, hardwareConfiguration);
-        lat = p.getLatitude().getDegrees();
-        lon = p.getLongitude().getDegrees();
-        ele = p.elevation;
-
-        Map<Tag, String> map = new TreeMap<Tag, String>();
-        map.put(Tag.GPS_ALTITUDE, Math.abs(ele) + "");
-        map.put(Tag.GPS_ALTITUDE_REF, ele >= 0 ? "0" : "1");
-        map.put(Tag.GPS_LATITUDE, Math.abs(lat) + "");
-        map.put(Tag.GPS_LATITUDE_REF, lat >= 0 ? "N" : "S");
-        map.put(Tag.GPS_LONGITUDE, Math.abs(lon) + "");
-        map.put(Tag.GPS_LONGITUDE_REF, lon >= 0 ? "E" : "W");
-        if (line.rawString != null) {
-            map.put(Tag.USER_COMMENT, line.rawString);
-        }
-
-        map.put(Tag.ORIENTATION, "1"); // here orientation fixing is for free ;-)
-        // according to Agisoft:
-
-        final ExpertSettings expertSettings = StaticInjector.getInstance(ExpertSettings.class);
-        boolean useExifLevelArmProcessing = expertSettings.getUseExifLevelArmProcessing();
-        if (useExifLevelArmProcessing) {
-            // 90deg offset is stored inside the levelArm Offset / TODO check for Pix4D how to handle
-            // double time = cam.computePLGdataDelayMS(line)/1000;
-            double time = CameraHelper.computePlgDataDelay(line, hardwareConfiguration) / 1000;
-
-            pitch = line.cameraPitch + line.cameraPitchRate * time;
-            roll = -(line.cameraRoll + line.cameraRollRate * time);
-            yaw = line.cameraYaw + line.cameraYawRate * time;
-        } else {
-            boolean useExif90Deg = expertSettings.getUseExif90Deg();
-
-            if (useExif90Deg) {
-                OrientationData o = CameraHelper.getCorrectedOrientation(line, 90, hardwareConfiguration);
-
-                pitch = o.pitch;
-                roll = o.roll;
-                yaw = o.yaw;
-            } else {
-                double[] camOrientation =
-                    MathHelper.transformationToRollPitchYaw(
-                        CameraHelper.getCameraJustageTransform(90, hardwareConfiguration));
-                while (camOrientation[2] < 0) camOrientation[2] += 360;
-                while (camOrientation[2] >= 360) camOrientation[2] -= 360;
-
-                pitch = camOrientation[0];
-                roll = camOrientation[1];
-                yaw = camOrientation[2];
-                //					System.out.println("opitch:"+pitch+" roll:"+roll+" yaw:"+yaw);
-                pitch = line.cameraPitch - pitch;
-                roll = -line.cameraRoll + roll;
-                yaw = line.cameraYaw - yaw;
-            }
-        }
-
-        //			System.out.println("cpitch:"+line.cameraPitch+" roll:"+line.cameraRoll+" yaw:"+line.cameraYaw);
-        //			System.out.println(" pitch:"+pitch+" roll:"+roll+" yaw:"+yaw);
-        //			OrientationData o = cam.getCorrectedOrientation(line, yaw); // ohne 90 pitch/-roll/yaw  / -> 15/3/180  /
-        // Test_Falcon_gym_camNull_1101_t1_klein6
-        //			OrientationData o = cam.getCorrectedOrientation(line); // looks to the left instead on wall
-        //			pitch = o.pitch;
-        //			roll = -o.roll;
-        //			yaw = o.yaw;
-
-        // TODO for TEST, can also get modified via camera orientation
-        int paraYawNeg = expertSettings.getExifMatchingYawNeg();
-        int paraPitchNeg = expertSettings.getExifMatchingPitchNeg();
-        int paraRollNeg = expertSettings.getExifMatchingRollNeg();
-        int paraYawAdd = expertSettings.getExifMatchingYawAdd();
-        int paraPitchAdd = expertSettings.getExifMatchingPitchAdd();
-
-        pitch = (pitch * paraPitchNeg) + paraPitchAdd;
-        roll = roll * paraRollNeg;
-        yaw = (yaw * paraYawNeg) + paraYawAdd;
-        // if (yaw < 0 || yaw >= 360) System.out.println("yaw"+yaw + " "+file);
-        // if (pitch < -180 || pitch >= 180) System.out.println("pitch"+pitch + " "+file);
-        // if (roll < -180 || roll >= 180) System.out.println("roll"+roll + " "+file);
-
-        boolean useExifRollPitchYaw = expertSettings.getUseExifRollPitchYaw();
-        if (useExifRollPitchYaw) {
-            map.put(Tag.PITCH, pitch + "");
-            map.put(Tag.ROLL, roll + "");
-            map.put(Tag.YAW, yaw + "");
-        } else {
-            map.put(Tag.PITCH, "");
-            map.put(Tag.ROLL, "");
-            map.put(Tag.YAW, "");
-        }
-
-        boolean useExifNavigator = expertSettings.getUseExifNavigator();
-        if (useExifNavigator) {
-            while (yaw < 0) yaw += 360;
-            while (yaw >= 360) yaw -= 360;
-            map.put(Tag.GPS_MAP_DATUM, "WGS-84");
-            map.put(Tag.GPS_PITCH_ANGLE, pitch + ""); // -180 +180
-            map.put(Tag.GPS_ROLL_ANGLE, roll + ""); // -90 +90
-            map.put(Tag.GPS_IMG_DIRECTION, yaw + "");
-            map.put(Tag.GPS_IMG_DIRECTION_REF, "T");
-        } else {
-            map.put(Tag.GPS_MAP_DATUM, "");
-            map.put(Tag.GPS_PITCH_ANGLE, "");
-            map.put(Tag.GPS_ROLL_ANGLE, "");
-            map.put(Tag.GPS_IMG_DIRECTION, "");
-            map.put(Tag.GPS_IMG_DIRECTION_REF, "");
-        }
-
-        // System.out.println("p pitch:"+pitch+"?-180+180 roll:"+roll+"?-90+90 yaw:"+yaw+"?0<360");
-        ILensDescription lensDescription =
-            hardwareConfiguration.getPrimaryPayload(IGenericCameraConfiguration.class).getLens().getDescription();
-        if (lensDescription.isLensManual()) {
-            map.put(
-                Tag.FOCAL_LENGTH,
-                "" + lensDescription.getFocalLength().convertTo(Unit.MILLIMETER).getValue().doubleValue());
-            map.put(Tag.FOCAL_LENGTH_35MM, "" + CameraHelper.getFocalLength35mm(hardwareConfiguration));
-        }
-
-        Map<Tag, String> valueMap;
-        valueMap =
-            ExifTool.instance.getImageMeta(
-                file,
-                Tag.CREATION_DATE,
-                Tag.DATE_TIME_ORIGINAL,
-                Tag.CREATION_DATE_BACKUP,
-                Tag.DATE_TIME_ORIGINAL_BACKUP,
-                Tag.DATE_TIME_CREATED);
-
-        String creationDateBackup = valueMap.get(Tag.CREATION_DATE_BACKUP);
-        String dateTimeOriginalBackup = valueMap.get(Tag.DATE_TIME_ORIGINAL_BACKUP);
-        if (creationDateBackup == null || creationDateBackup.isEmpty()) {
-            String creationDate = valueMap.get(Tag.CREATION_DATE); // evtl without 00 => Tag.DATE_TIME_CREATED
-            if (creationDate != null && !creationDate.isEmpty()) {
-                try {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                    Date datetime = formatter.parse(creationDate);
-                } catch (Exception e1) {
-                    creationDate = valueMap.get(Tag.DATE_TIME_CREATED);
-                }
-            }
-
-            if (creationDate != null && !creationDate.isEmpty()) {
-                map.put(Tag.CREATION_DATE_BACKUP, creationDate);
-            } else {
-                map.put(Tag.CREATION_DATE_BACKUP, "null");
-            }
-        }
-
-        if (dateTimeOriginalBackup == null || dateTimeOriginalBackup.isEmpty()) {
-            String dateTimeOriginal = valueMap.get(Tag.DATE_TIME_ORIGINAL); // evtl without 00 => Tag.DATE_TIME_CREATED
-            if (dateTimeOriginal != null && !dateTimeOriginal.isEmpty()) {
-                try {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-                    Date datetime = formatter.parse(dateTimeOriginal);
-                } catch (Exception e1) {
-                    dateTimeOriginal = valueMap.get(Tag.DATE_TIME_CREATED);
-                }
-            }
-
-            if (dateTimeOriginal != null && !dateTimeOriginal.isEmpty()) {
-                map.put(Tag.DATE_TIME_ORIGINAL_BACKUP, dateTimeOriginal);
-            } else {
-                map.put(Tag.DATE_TIME_ORIGINAL_BACKUP, "null");
-            }
-        }
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-        String date = format.format(new Date((long)(line.getTimestamp() * 1000)));
-
-        map.put(Tag.DATE_TIME_ORIGINAL, date);
-        map.put(Tag.CREATION_DATE, date);
-
-        // System.out.println("exif data:" + map);
-
-        ExifTool.instance.setImageMeta(file, map);
-    }
-    // public static final int PREVIEW_HEIGHT = 120; //auto scaled..
-
-    void maybeFixOrientation() {
-        String d = null;
-        try {
-            Map<Tag, String> valueMap;
-
-            try {
-                valueMap = ExifTool.instance.getImageMeta(file, Tag.ORIENTATION);
-            } catch (Exception e) {
-                if (ExifInfos.enableAllWarning) {
-                    Debug.getLog().log(Level.SEVERE, "Unable to run ExifTool from image at " + file, e);
-                }
-
-                return;
-            }
-            // System.out.println("valueMap:" + valueMap);
-            d = valueMap.get(Tag.ORIENTATION);
-            double orientation = Double.parseDouble(d);
-            if (orientation != 1) {
-                Map<Tag, String> map = new TreeMap<Tag, String>();
-                map.put(Tag.ORIENTATION, "1");
-                ExifTool.instance.setImageMeta(file, map);
-
-                valueMap = ExifTool.instance.getImageMeta(file, Tag.ORIENTATION);
-                d = valueMap.get(Tag.ORIENTATION);
-                orientation = Double.parseDouble(d);
-                // System.out.println("final orientation "+orientation);
-                if (orientation != 1) {
-                    if (ExifInfos.enableAllWarning) {
-                        Debug.getLog().log(Level.WARNING, "orientation was not resetted even I tries at file " + file);
-                    }
-                }
-                // } else {
-                // System.out.println("orientation was ok " + file);
-            }
-
-        } catch (Exception e1) {
-            if (ExifInfos.enableAllWarning) {
-                Debug.getLog().log(Level.WARNING, "Unable to reset orientation " + d + " at file " + file, e1);
-            }
-        }
-    }
-
-    public File getFile() {
-        return file;
-    }
-
-    @Override
-    public File getResourceFile() {
-        return getFile();
-    }
-
-    public File getThumpFile() {
-        if (thumpFile == null) {
-            thumpFile = createThumpFileName(getFile());
-        }
-
-        return thumpFile;
-    }
-
-    public boolean thumpFileExists() {
-        File thumpFile = getThumpFile();
-        return thumpFile != null && thumpFile.exists() && thumpFile.length() > 0;
-    }
-
-    public void generateThumpFile() throws Exception {
-        // since this takes REALLY long, dont synchronize the whole object on this!!
-        synchronized (thumpLock) {
-            if (thumpFileExists()) {
-                return;
-            }
-
-            extractThumbnail(file, getThumpFile());
-        }
-    }
-
-    public synchronized void extractThumbnail(File target) throws Exception {
-        extractThumbnail(file, target);
     }
 }

@@ -8,7 +8,6 @@ package com.intel.missioncontrol.ui.update;
 
 import com.intel.missioncontrol.ui.MainViewModel;
 import eu.mavinci.core.update.EnumUpdateTargets;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Map;
 import javafx.beans.property.SimpleObjectProperty;
@@ -53,6 +52,4 @@ public interface IUpdateManager {
     void setMainViewModel(MainViewModel mainViewModel);
 
     String getCurrentGitBranch();
-
-    boolean updateAndCloseApp() throws IOException;
 }

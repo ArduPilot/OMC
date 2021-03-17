@@ -262,7 +262,7 @@ class AsyncBooleanPropertyTest extends TestBase {
                                     assertEquals(obj.b.get(), obj.c.get());
                                 });
                         }
-                    }, "Consistency_Is_Preserved_When_Reading_From_Multiple_Threads-"+i);
+                    });
             threads[i].setDaemon(true);
             threads[i].start();
         }

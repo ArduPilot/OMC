@@ -11,13 +11,11 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.SetChangeListener;
 import org.asyncfx.beans.AccessController;
-import org.asyncfx.beans.AsyncInvalidationListenerWrapper;
+import org.asyncfx.beans.value.ChangeListenerWrapper;
+import org.asyncfx.beans.InvalidationListenerWrapper;
 import org.asyncfx.beans.SubInvalidationListener;
-import org.asyncfx.beans.AsyncSubInvalidationListenerWrapper;
 import org.asyncfx.beans.binding.ProxyAsyncSetExpressionHelper;
-import org.asyncfx.beans.value.AsyncChangeListenerWrapper;
 import org.asyncfx.beans.value.SubChangeListener;
-import org.asyncfx.beans.value.AsyncSubChangeListenerWrapper;
 import org.asyncfx.collections.AsyncObservableSet;
 import org.asyncfx.collections.LockedSet;
 import org.asyncfx.collections.SetChangeListenerWrapper;
@@ -178,7 +176,7 @@ class ReadOnlyAsyncSetPropertyProxy<E> extends ReadOnlyAsyncSetProperty<E> {
     public void addListener(ChangeListener<? super AsyncObservableSet<E>> listener, Executor executor) {
         helper =
             ProxyAsyncSetExpressionHelper.addListener(
-                helper, this, peer, get(), AsyncChangeListenerWrapper.wrap(listener, executor));
+                helper, this, peer, get(), ChangeListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -195,7 +193,7 @@ class ReadOnlyAsyncSetPropertyProxy<E> extends ReadOnlyAsyncSetProperty<E> {
     public void addListener(InvalidationListener listener, Executor executor) {
         helper =
             ProxyAsyncSetExpressionHelper.addListener(
-                helper, this, peer, get(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+                helper, this, peer, get(), InvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -212,7 +210,7 @@ class ReadOnlyAsyncSetPropertyProxy<E> extends ReadOnlyAsyncSetProperty<E> {
     public synchronized void addListener(SubInvalidationListener listener, Executor executor) {
         helper =
             ProxyAsyncSetExpressionHelper.addListener(
-                helper, this, peer, get(), AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+                helper, this, peer, get(), SubInvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -229,7 +227,7 @@ class ReadOnlyAsyncSetPropertyProxy<E> extends ReadOnlyAsyncSetProperty<E> {
     public synchronized void addListener(SubChangeListener listener, Executor executor) {
         helper =
             ProxyAsyncSetExpressionHelper.addListener(
-                helper, this, peer, get(), AsyncSubChangeListenerWrapper.wrap(listener, executor));
+                helper, this, peer, get(), SubChangeListenerWrapper.wrap(listener, executor));
     }
 
     @Override

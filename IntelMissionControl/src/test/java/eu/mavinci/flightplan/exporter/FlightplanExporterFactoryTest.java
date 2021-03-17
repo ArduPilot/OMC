@@ -97,7 +97,7 @@ public class FlightplanExporterFactoryTest {
             flightplan.open(flightplanFile);
         } catch (InvalidFlightPlanFileException e) {
             Debug.getLog()
-                .severe("Cannot load an example mission from a file " + flightplanFile + " : " + e.getCause());
+                .severe("Cannot load an example flight plan from a file " + flightplanFile + " : " + e.getCause());
         }
 
         return flightplan;

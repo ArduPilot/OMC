@@ -35,13 +35,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class GlobeSelector implements Globe {
 
     private Globe globe;
 
-    public GlobeSelector(Dispatcher dispatcher, IWWMapView mapView, Globe defaultGlobe, Globe flatGlobe) {
+    public GlobeSelector(SynchronizationRoot syncRoot, IWWMapView mapView, Globe defaultGlobe, Globe flatGlobe) {
         this.globe = defaultGlobe;
 
         mapView.flatEarthProperty()
@@ -51,7 +51,7 @@ public class GlobeSelector implements Globe {
                     // trigger redraw:
                     mapView.firePropertyChange(AVKey.VIEW, null, this);
                 },
-                dispatcher::run);
+                syncRoot);
     }
 
     public void setGlobe(Globe globe) {

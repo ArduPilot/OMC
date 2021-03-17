@@ -27,7 +27,7 @@ public class CameraProtocolSender extends PayloadSender {
     }
 
     /** Receiver for video stream information */
-    private static class VideoStreamInformationReceiver extends PayloadReceiver {
+    private class VideoStreamInformationReceiver extends PayloadReceiver {
         private final Duration videoStreamInformationRequestTimeout = Duration.ofMillis(500);
 
         VideoStreamInformationReceiver(MavlinkEndpoint targetEndpoint, MavlinkHandler handler) {
@@ -47,7 +47,7 @@ public class CameraProtocolSender extends PayloadSender {
         }
     }
 
-    /** Request video stream information of all streams and asynchronously return a list. */
+    /** Request video stream information of all streams and asynchronously return a list. timeout. */
     public Future<List<VideoStreamInformation>> requestVideoStreamInformationAsync() {
         FutureCompletionSource<List<VideoStreamInformation>> futureCompletionSource = new FutureCompletionSource<>();
 
@@ -55,7 +55,7 @@ public class CameraProtocolSender extends PayloadSender {
 
         // Prepare receiver for VideoStreamInformation requests.
         VideoStreamInformationReceiver videoStreamInformationReceiver =
-                new VideoStreamInformationReceiver(targetEndpoint, handler);
+            new VideoStreamInformationReceiver(targetEndpoint, handler);
 
         CancellationSource videoStreamInformationCts = new CancellationSource();
         futureCompletionSource.getFuture().whenDone((Runnable)videoStreamInformationCts::cancel);

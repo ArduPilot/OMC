@@ -7,7 +7,6 @@
 package eu.mavinci.desktop.helper;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.SystemInformation;
@@ -22,6 +21,7 @@ import com.sun.jna.platform.win32.Ole32;
 import com.sun.jna.platform.win32.Shell32;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.PointerByReference;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CDump;
 import eu.mavinci.core.helper.CFileHelper;
 import eu.mavinci.core.helper.Pair;
@@ -148,8 +148,8 @@ public class FileHelper extends CFileHelper {
     }
 
     /**
-     * Extracting one folder in JAR to one disk folder, but keep local changes as long as their is no remote change, by
-     * monitoring last extracting in one subfolder
+     * Extracting one folder in JAR to one disk folder, but keep local changes, by monitoring last extracting in one
+     * subfolder
      *
      * <p>list if null, just ignore it. otherwise extract only filenames contained here!
      */
@@ -240,8 +240,6 @@ public class FileHelper extends CFileHelper {
                     FileHelper.move(jarDefaultFile, currentDefaultFile);
                 } else {
                     if (FileHelper.equalContent(jarDefaultFile, currentDefaultFile)) {
-                        // only overwrite content on disk if defaults in installer have changed, otherwise keep the disk
-                        // modifications
                         continue;
                     }
 
@@ -412,7 +410,8 @@ public class FileHelper extends CFileHelper {
 
                 @Override
                 public void run() {
-                    final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+                    final ILanguageHelper languageHelper =
+                        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
                     MProgressMonitor mon =
                         new MProgressMonitor(
                             null,
@@ -436,7 +435,8 @@ public class FileHelper extends CFileHelper {
                         if (size >= targetLocation.getFreeSpace()) {
                             ret = false;
 
-                            StaticInjector.getInstance(IApplicationContext.class)
+                            DependencyInjector.getInstance()
+                                .getInstanceOf(IApplicationContext.class)
                                 .addToast(
                                     Toast.of(ToastType.ALERT)
                                         .setText(
@@ -488,7 +488,7 @@ public class FileHelper extends CFileHelper {
             return false;
         }
 
-        ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+        ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
         mon.setProgressNote(
             languageHelper.getString(
                 KEY + ".copy.note",
@@ -841,7 +841,7 @@ public class FileHelper extends CFileHelper {
             return;
         }
 
-        File[] list = baseFolder.listFiles(f);
+        File[] list = baseFolder.listFiles();
         if (list == null) {
             return;
         }
@@ -970,7 +970,7 @@ public class FileHelper extends CFileHelper {
 
     public static Vector<String> scanFilesJar(FileFilterUniversal f, String fromDir, File jarApplicationFile)
             throws Exception {
-        IVersionProvider versionProvider = StaticInjector.getInstance(IVersionProvider.class);
+        IVersionProvider versionProvider = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class);
 
         File jarF = (jarApplicationFile != null) ? jarApplicationFile : versionProvider.getCodeSourceFile();
         Ensure.notNull(jarF, "jarF");
@@ -1201,7 +1201,7 @@ public class FileHelper extends CFileHelper {
             return true;
         }
 
-        ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+        ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
         return JOptionPane.showConfirmDialog(
                 parent,
                 UserNotificationHubSwing.wrapText(
@@ -1216,7 +1216,7 @@ public class FileHelper extends CFileHelper {
             return true;
         }
 
-        ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+        ILanguageHelper languageHelper = DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
         boolean del =
             JOptionPane.showConfirmDialog(
                     parent,
@@ -1436,20 +1436,9 @@ public class FileHelper extends CFileHelper {
         }
 
         Pair<String, String> prefixSuffix = splitExtension(f);
-        Pair<String, String> prefixSuffix2 = splitExtension(prefixSuffix.first, "_");
-        int i = 1;
-        String prefix = prefixSuffix2.first;
-        if (!prefixSuffix2.second.equals("")) {
-            try {
-                i = Integer.valueOf(prefixSuffix2.second.substring(1));
-            } catch (NumberFormatException e) {
-                prefix += prefixSuffix2.second;
-            }
-        }
-
-        File fNew = null;
+        int i = 0;
         while (true) {
-            fNew = new File(prefix + "_" + i + prefixSuffix.second);
+            File fNew = new File(prefixSuffix.first + "_" + i + prefixSuffix.second);
             if (!fNew.exists()) {
                 return fNew;
             }
@@ -1459,12 +1448,8 @@ public class FileHelper extends CFileHelper {
     }
 
     public static Pair<String, String> splitExtension(File f) {
-        return splitExtension(f.getAbsolutePath(), ".");
-    }
-
-    public static Pair<String, String> splitExtension(String f, String splitter) {
-        String prefix = f;
-        int pos = prefix.lastIndexOf(splitter);
+        String prefix = f.getAbsolutePath();
+        int pos = prefix.lastIndexOf(".");
         if (pos < 0) {
             return new Pair<String, String>(prefix, "");
         }
@@ -1473,6 +1458,7 @@ public class FileHelper extends CFileHelper {
         prefix = prefix.substring(0, pos);
         return new Pair<String, String>(prefix, suffix);
     }
+
     /*
      * inject a string into a filename before the extension
      */
@@ -1732,7 +1718,7 @@ public class FileHelper extends CFileHelper {
                     new FileFilterUniversal() {
                         @Override
                         public boolean accept(File f) {
-                            return MFileFilter.jpegFilter.getWithoutFolders().accept(f.getName());
+                            return f.getName().endsWith(extension);
                         }
 
                         @Override

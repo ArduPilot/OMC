@@ -138,12 +138,12 @@ public class DialogService implements IDialogService, IKeepClassname {
                     });
             textField.setText(defaultInput);
 
-            var okButton = new Button(languageHelper.getString(getClass().getName() + ".OK"));
+            var okButton = new Button(languageHelper.getString(getClass().getName() + ".ok"));
             okButton.getStyleClass().add("primary-button");
             okButton.disableProperty().bind(invalid);
             okButton.setOnAction(event -> closeHandler.run());
 
-            var cancelButton = new Button(languageHelper.getString(getClass().getName() + ".CANCEL"));
+            var cancelButton = new Button(languageHelper.getString(getClass().getName() + ".cancel"));
             cancelButton.getStyleClass().add("secondary-button");
             cancelButton.setOnAction(
                 event -> {
@@ -546,16 +546,9 @@ public class DialogService implements IDialogService, IKeepClassname {
         return Futures.fromListenableFuture(future);
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
     public <ViewModelType extends ViewModelBase> Future<ViewModelType> requestPopoverDialogAsync(
             ViewModel ownerViewModel, Class<ViewModelType> popoverDialogViewModelClass, Point2D location) {
-        return requestPopoverDialogAsync(ownerViewModel, popoverDialogViewModelClass, null, location);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <ViewModelType extends ViewModelBase, PayloadType> Future<ViewModelType> requestPopoverDialogAsync(
-            ViewModel ownerViewModel, Class<ViewModelType> popoverDialogViewModelClass,
-            @Nullable Supplier<PayloadType> payloadSupplier,Point2D location) {
         if (!Platform.isFxApplicationThread()) {
             return Dispatcher.platform()
                 .getLaterAsync(() -> requestPopoverDialogAsync(ownerViewModel, popoverDialogViewModelClass, location))
@@ -594,9 +587,8 @@ public class DialogService implements IDialogService, IKeepClassname {
                             + IDialogContextProvider.class.getSimpleName()
                             + "?");
                 }
-                var initializerScope =
-                        ViewModelBase.Accessor.newInitializerScope(payloadSupplier != null ? payloadSupplier.get() : null);
-                viewTuple = FluentViewLoader.fxmlView(viewClass).context(context).providedScopes(initializerScope).load();
+
+                viewTuple = FluentViewLoader.fxmlView(viewClass).context(context).load();
                 ownerWindow = getWindowFromViewModel(ownerViewModel);
             } else {
                 viewTuple = FluentViewLoader.fxmlView(viewClass).load();
@@ -763,8 +755,7 @@ public class DialogService implements IDialogService, IKeepClassname {
     @Override
     public Path requestFileOpenDialog(
             @Nullable ViewModel ownerViewModel, String title, Path initialFolder, FileFilter... fileFilters) {
-        Path[] path = requestFileChooserImpl(ownerViewModel, false, false, title, null, initialFolder, fileFilters);
-        return path.length>0?path[0]:null;
+        return requestFileChooserImpl(ownerViewModel, false, false, title, null, initialFolder, fileFilters)[0];
     }
 
     @Override

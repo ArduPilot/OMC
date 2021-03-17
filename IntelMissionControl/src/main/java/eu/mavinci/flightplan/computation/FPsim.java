@@ -7,7 +7,6 @@
 package eu.mavinci.flightplan.computation;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
@@ -17,6 +16,7 @@ import com.intel.missioncontrol.settings.AirspacesProvidersSettings;
 import com.intel.missioncontrol.settings.ExpertSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import de.saxsys.mvvmfx.MvvmFX;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.notifications.NotificationObserver;
 import de.saxsys.mvvmfx.utils.notifications.WeakNotificationObserver;
 import eu.mavinci.airspace.AirspaceComperatorFloor;
@@ -77,12 +77,14 @@ import org.asyncfx.collections.ArraySet;
 public class FPsim extends Recomputer
         implements IFlightplanChangeListener, IRecomputerListenerManager, INotificationObject.ChangeListener {
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
 
     private static final double TAKEOFF_RADIUS = 10;
 
-    static boolean computePreviewSim = StaticInjector.getInstance(ExpertSettings.class).getComputePreviewSim();
+    static boolean computePreviewSim =
+        DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class).getComputePreviewSim();
 
     final AirplaneSim sim;
     final Flightplan fp;
@@ -305,6 +307,11 @@ public class FPsim extends Recomputer
                 tmpSimResult.firstFPobj = sim.fpCurObj;
             }
 
+            if (!tmpSimResult.startCircleDone
+                    && (tmpSimResult.firstFPobj != sim.fpCurObj || !tooCloseToTheTakeoff(sim.pos))) {
+                tmpSimResult.startCircleDone = true;
+            }
+
             Position posLocalHeights = sim.pos;
             double startElevOverWGS84 = sim.getStartElevOverWGS84();
 
@@ -330,44 +337,42 @@ public class FPsim extends Recomputer
 
             SimDistance simDistances = null;
 
-            // adding "simDistances" for validation only for the airborne
+            if (tmpSimResult.startCircleDone) {
+                // tmpSimResult.posListAfterStartCircle.add(pos);
 
-            simDistances = new SimDistance();
-            simDistances.flightPhase = sim.getFlightPhase();
-            simDistances.fpRelObjectHeading = sim.fpCurObj;
-            simDistances.elevationSource = new WeakReference<>(elevationModelRerence.elevationModel);
-            if (posLastLocalHeights != null) {
-                // find PicArea collisions on the segment posLast to pos
-                simDistances.aoiCollisions.addAll(
-                    fp.firstCollisionLineWithAOI(posLastLocalHeights, posLocalHeights, allPicAreas).picAreas);
-                /*System.out.println(
-                "simDistances.firstCollistion:"
-                    + (simDistances.firstCollistion != null)
-                    + " "
-                    + posLast
-                    + "  "
-                    + pos
-                    + "  "
-                    + simDistances.firstCollistion);*/
-                if (tmpSimResult.firstFPobj != sim.fpCurObj) {
-                    tmpSimResult.aoiCollisions.addAll(simDistances.aoiCollisions);
-                } else {
-                    tmpSimResult.aoiCollisionsTakeoff.addAll(simDistances.aoiCollisions);
+                simDistances = new SimDistance();
+                simDistances.fpRelObjectHeading = sim.fpCurObj;
+                simDistances.elevationSource = new WeakReference<>(elevationModelRerence.elevationModel);
+                if (posLastLocalHeights != null) {
+                    // find PicArea collisions on the segment posLast to pos
+                    simDistances.aoiCollisions.addAll(
+                        fp.firstCollisionLineWithAOI(posLastLocalHeights, posLocalHeights, allPicAreas).picAreas);
+                    /*System.out.println(
+                    "simDistances.firstCollistion:"
+                        + (simDistances.firstCollistion != null)
+                        + " "
+                        + posLast
+                        + "  "
+                        + pos
+                        + "  "
+                        + simDistances.firstCollistion);*/
+                    if (tmpSimResult.firstFPobj != sim.fpCurObj) {
+                        tmpSimResult.aoiCollisions.addAll(simDistances.aoiCollisions);
+                    } else {
+                        tmpSimResult.aoiCollisionsTakeoff.addAll(simDistances.aoiCollisions);
+                    }
                 }
-            }
 
-            simDistances.position = pos;
+                simDistances.position = pos;
 
-            tmpSimResult.minMaxHeightOverTakeoff.update(altMax - startElevOverWGS84);
-            tmpSimResult.minMaxHeightOverTakeoff.update(altMin - startElevOverWGS84);
-            tmpSimResult.minMaxDistanceToTakeoff.update(sim.vec.distanceTo3(sim.vecStart));
+                tmpSimResult.minMaxHeightOverTakeoff.update(altMax - startElevOverWGS84);
+                tmpSimResult.minMaxHeightOverTakeoff.update(altMin - startElevOverWGS84);
+                tmpSimResult.minMaxDistanceToTakeoff.update(sim.vec.distanceTo3(sim.vecStart));
 
-            double startElevEGMoffset = sim.getStartElevEgmOffset();
-            tmpSimResult.minMaxDistanceToMSL.update(altMin - startElevEGMoffset);
-            tmpSimResult.minMaxDistanceToMSL.update(altMax - startElevEGMoffset);
+                double startElevEGMoffset = sim.getStartElevEgmOffset();
+                tmpSimResult.minMaxDistanceToMSL.update(altMin - startElevEGMoffset);
+                tmpSimResult.minMaxDistanceToMSL.update(altMax - startElevEGMoffset);
 
-            // only updating the min ground height warning for the airborne part of the path
-            if (sim.getFlightPhase() == AirplaneFlightphase.airborne) {
                 if (tmpSimResult.minMaxDistanceToGround.updateMinChanged(altMin - groundElevationWGS84)) {
                     tmpSimResult.worstPostGroundDistance = pos;
                 }
@@ -375,15 +380,18 @@ public class FPsim extends Recomputer
                 if (tmpSimResult.minMaxDistanceToGround.updateMinChanged(altMax - groundElevationWGS84)) {
                     tmpSimResult.worstPostGroundDistance = pos;
                 }
-            }
 
-            simDistances.groundDistanceMeter = Math.min(altMin - groundElevationWGS84, altMax - groundElevationWGS84);
-            if (simDistances.groundDistanceMeter < IElevationModel.MIN_LEVEL_OVER_GROUND) {
-                simDistances.positionOverGround =
-                    new Position(simDistances.position, groundElevationWGS84 + IElevationModel.MIN_LEVEL_OVER_GROUND);
-            } else {
-                simDistances.positionOverGround = simDistances.position;
+                simDistances.groundDistanceMeter =
+                    Math.min(altMin - groundElevationWGS84, altMax - groundElevationWGS84);
+                if (simDistances.groundDistanceMeter < IElevationModel.MIN_LEVEL_OVER_GROUND) {
+                    simDistances.positionOverGround =
+                        new Position(
+                            simDistances.position, groundElevationWGS84 + IElevationModel.MIN_LEVEL_OVER_GROUND);
+                } else {
+                    simDistances.positionOverGround = simDistances.position;
+                }
             }
+            // tmpSimResult.posList.add(pos);
 
             double egmOffset = egmModel.getEGM96Offset(pos);
             double elevationEGM = groundElevationWGS84 - egmOffset;
@@ -476,14 +484,16 @@ public class FPsim extends Recomputer
         fp.addFPChangeListener(this);
         fp.getHardwareConfiguration().addListener(new INotificationObject.WeakChangeListener(this));
 
-        StaticInjector.getInstance(INetworkInformation.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(INetworkInformation.class)
             .networkAvailableProperty()
             .addListener(new WeakChangeListener<>(networkBecomesAvailableListener));
         golfChangedNotifcationObserver = (s, objects) -> tryStartRecomp();
         MvvmFX.getNotificationCenter()
             .subscribe(
                 EAirspaceManager.GOLF_CHANGED_EVENT, new WeakNotificationObserver(golfChangedNotifcationObserver));
-        StaticInjector.getInstance(ISettingsManager.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(ISettingsManager.class)
             .getSection(AirspacesProvidersSettings.class)
             .useAirspaceDataForPlanningProperty()
             .addListener(new WeakChangeListener<>(airspaceUseChangeListener));
@@ -512,7 +522,7 @@ public class FPsim extends Recomputer
             lastSimResult = tmpSimResult; // publish data with this atomic expression
 
             if (!tmpSimResult.elevationDataAvaliable && !WorldWind.getNetworkStatus().isNetworkUnavailable()) {
-                Debug.getLog().config("recomputeCoverage mission sim " + this + " due to missing elevation model data");
+                Debug.getLog().config("recomputeCoverage FPsim " + this + " due to missing elevation model data");
                 maybeStartAgainIfNotDoneYet(5000);
             }
         }
@@ -530,7 +540,7 @@ public class FPsim extends Recomputer
 
             Sector s = fp.getSector();
             if (s == null) {
-                return; // there is nothing defined in this mission what can be flewn
+                return; // there is nothing defined in this flight plan what can be flewn
             }
 
             tmpSimResult.airspaceList = EAirspaceManager.instance().getAirspaces(s);
@@ -545,7 +555,7 @@ public class FPsim extends Recomputer
             updateTimestamp = System.currentTimeMillis();
             Debug.getLog()
                 .info(
-                    "Mission simulation recalc Done. "
+                    "flightplan simulation recalc Done. "
                         + FPsim.this
                         + ".  It took "
                         + (System.currentTimeMillis() - start) / 1000.
@@ -555,11 +565,12 @@ public class FPsim extends Recomputer
 
     private void simSingleFP(Flightplan fp) {
         // Debug.printStackTrace("sim single FP" , fp);
+        tmpSimResult.startCircleDone = false;
         tmpSimResult.firstFPobj = null;
         sim.setNativeHardwareConfiguration(fp.getHardwareConfiguration());
         sim.reset();
 
-        // this ensures to have thread save access to a snapshot of the mission, otherwise it might change in the
+        // this ensures to have thread save access to a snapshot of the flight plan, otherwise it might change in the
         // meantime while we are simulating it
         fp = fp.getCopy();
 
@@ -582,7 +593,7 @@ public class FPsim extends Recomputer
         sim.setStartEgmOffset(fp.getRefPoint().getGeoidSeparation());
 
         sim.setFlightPlan(fp, 0);
-        sim.setFlightPhase(AirplaneFlightphase.takeoff);
+        sim.setFlightPhase(AirplaneFlightphase.airborne);
         sim.run();
         sim.setFlightPhase(AirplaneFlightphase.ground);
         tmpSimResult.flightTime += sim.simTime - sim.simStartTime;
@@ -715,11 +726,6 @@ public class FPsim extends Recomputer
         public double groundDistanceMeter;
         public double airspaceDistanceMeter = Double.POSITIVE_INFINITY;
         public Set<PicArea> aoiCollisions = new ArraySet<>();
-        public AirplaneFlightphase flightPhase;
-
-        public AirplaneFlightphase getFlightPhase() {
-            return flightPhase;
-        }
     }
 
     public static class SimResultData {
@@ -740,6 +746,7 @@ public class FPsim extends Recomputer
         public TreeMap<Integer, IFlightplanPositionReferenced> posMap =
             new TreeMap<Integer, IFlightplanPositionReferenced>();
 
+        public boolean startCircleDone = false;
         public IFlightplanRelatedObject firstFPobj = null;
         public MinMaxPair minMaxDistanceToGround = new MinMaxPair();
         public MinMaxPair minMaxDistanceToMSL = new MinMaxPair();

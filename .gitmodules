@@ -7,6 +7,3 @@
 [submodule "toolchain/javafx-sdk-12-mirror"]
 	path = toolchain/javafx-sdk-12-mirror
 	url = https://git.drones.intel.com/scm/imc/javafx-sdk-12-mirror.git
-[submodule "toolchain/javafx-sdk-13.0.2-mirror"]
-	path = toolchain/javafx-sdk-13.0.2-mirror
-	url = https://git.drones.intel.com/scm/imc/javafx-sdk-13.0.2-mirror.git

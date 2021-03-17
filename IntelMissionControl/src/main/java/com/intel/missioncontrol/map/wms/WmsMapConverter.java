@@ -22,7 +22,7 @@ import gov.nasa.worldwind.ogc.wms.WMSCapabilities;
 import gov.nasa.worldwind.ogc.wms.WMSLayerCapabilities;
 import java.util.Set;
 import org.asyncfx.beans.binding.LifecycleValueConverter;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
 public class WmsMapConverter implements LifecycleValueConverter<WmsMap, ILayer> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WmsMapConverter.class);
 
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final String url;
 
-    public WmsMapConverter(Dispatcher dispatcher, String url) {
-        this.dispatcher = dispatcher;
+    public WmsMapConverter(SynchronizationRoot syncRoot, String url) {
+        this.syncRoot = syncRoot;
         this.url = url;
     }
 
@@ -99,13 +99,10 @@ public class WmsMapConverter implements LifecycleValueConverter<WmsMap, ILayer> 
                     layer.setName(layer.getName().substring(0, layer.getName().length() - " : Default".length()));
                 }
 
-                ILayer imageLayer = new WWLayerWrapper(layer, dispatcher);
+                ILayer imageLayer = new WWLayerWrapper(layer, syncRoot);
                 String name = layer.getName();
                 imageLayer.setName(new LayerName(name));
-                imageLayer
-                    .enabledProperty()
-                    .getExecutor()
-                    .execute(() -> imageLayer.enabledProperty().bindBidirectional(wmsMap.enabledProperty()));
+                imageLayer.enabledProperty().bindBidirectional(wmsMap.enabledProperty());
 
                 return imageLayer;
             } else if (component instanceof ElevationModel) {

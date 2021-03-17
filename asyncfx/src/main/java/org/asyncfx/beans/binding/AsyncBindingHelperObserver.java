@@ -13,8 +13,8 @@ import javafx.beans.WeakListener;
 import org.asyncfx.PublishSource;
 
 @PublishSource(
-    module = "openjfx",
-    licenses = {"openjfx", "intel-gpl-classpath-exception"}
+        module = "openjfx",
+        licenses = {"openjfx", "intel-gpl-classpath-exception"}
 )
 public class AsyncBindingHelperObserver implements InvalidationListener, WeakListener {
 

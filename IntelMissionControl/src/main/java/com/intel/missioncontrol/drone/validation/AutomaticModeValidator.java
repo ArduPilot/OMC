@@ -7,16 +7,16 @@
 package com.intel.missioncontrol.drone.validation;
 
 import com.google.inject.Inject;
-import com.intel.missioncontrol.drone.AutopilotState;
-import com.intel.missioncontrol.drone.IDrone;
-import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
-import javafx.beans.binding.Bindings;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
+import com.intel.missioncontrol.drone.AutopilotState;
+import com.intel.missioncontrol.drone.IDrone;
+import com.intel.missioncontrol.helper.ILanguageHelper;
+import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
+import javafx.beans.binding.Bindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +26,15 @@ public class AutomaticModeValidator implements IFlightValidator {
         AutomaticModeValidator create();
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutomaticModeValidator.class);
+
+    private final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+
     private final AsyncObjectProperty<FlightValidationStatus> validationStatus = new SimpleAsyncObjectProperty<>(this);
-    private final ILanguageHelper languageHelper;
 
     @Inject
-    AutomaticModeValidator(IFlightValidationService flightValidationService, ILanguageHelper languageHelper) {
-        this.languageHelper = languageHelper;
-
+    AutomaticModeValidator(IFlightValidationService flightValidationService) {
         ReadOnlyAsyncObjectProperty<AutopilotState> autopilotState =
             PropertyPath.from(flightValidationService.droneProperty())
                 .selectReadOnlyAsyncObject(IDrone::autopilotStateProperty);
@@ -70,15 +72,5 @@ public class AutomaticModeValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.AUTOMATIC_MODE;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

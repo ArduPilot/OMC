@@ -205,11 +205,4 @@ public class NetworkInformation implements INetworkInformation {
         }
     }
 
-    @Override
-    public String toString() {
-        return "NetworkInformation{" +
-                "networkAvailable=" + networkAvailable.get() +
-                ", internetAvailable=" + internetAvailable.get() +
-                '}';
-    }
 }

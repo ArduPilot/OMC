@@ -21,7 +21,6 @@ import com.intel.insight.datastructures.PhotoUpload;
 import com.intel.insight.datastructures.ProcessSettings;
 import com.intel.insight.datastructures.Survey;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
@@ -43,6 +42,7 @@ import com.intel.missioncontrol.ui.sidepane.analysis.AnalysisSettings;
 import com.intel.missioncontrol.ui.sidepane.analysis.ExportTypes;
 import com.intel.missioncontrol.utils.IBackgroundTaskManager;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.core.flightplan.camera.GPStype;
@@ -235,7 +235,7 @@ public class ExportService implements IExportService {
             }
 
             out.print(
-                (match.isExportPassFilter() ? "1 " : "0 ")
+                (match.isPassFilter() ? "1 " : "0 ")
                     + (i + 1)
                     + " "
                     + imgFile.getName()
@@ -518,9 +518,7 @@ public class ExportService implements IExportService {
 
                     attr = new String[] {"path", "type", "enabled"};
                     vals =
-                        new String[] {
-                            path, cameraDesc.getBandNamesSplit()[0].toLowerCase(), match.isExportPassFilter() + ""
-                        };
+                        new String[] {path, cameraDesc.getBandNamesSplit()[0].toLowerCase(), match.isPassFilter() + ""};
 
                     xml.start("image", attr, vals);
 
@@ -726,7 +724,7 @@ public class ExportService implements IExportService {
         int i = -1;
         for (MapLayerMatch match : matches) {
             i++;
-            if (match.isExportPassFilter()) {
+            if (match.isPassFilter()) {
                 CPhotoLogLine line = match.getPhotoLogLine();
                 Position p = ps.get(i);
                 SRStransformCacheEntry v = vs.get(i);
@@ -831,8 +829,7 @@ public class ExportService implements IExportService {
     public void openIntelInsightAccount(Matching matching) {
         try {
             // FileHelper.openFileOrURL("https://insightplatform.intel.com");
-            var context = new InsightContext();
-            FileHelper.openFileOrURL(context.getTargetHost());
+            FileHelper.openFileOrURL("$targetHost"); // TODO get from Kotlin
         } catch (IOException e) {
             LOG.error("cant open insight URL in browser", e);
         }
@@ -1049,10 +1046,6 @@ public class ExportService implements IExportService {
         final IGenericCameraDescription cameraDesc = cameraConfig.getDescription();
         final ILensDescription lensDesc = cameraConfig.getLens().getDescription();
 
-        if (platformDesc.isJpgMetadataLocationInCameraFrame()) {
-            usePhotoScanLevelArmProcessing = false;
-        }
-
         File fCal = new File(cameraDesc.getAgisoftCalibFile());
 
         boolean useMasks = lensDesc.getLensType() == LensTypes.FISH_EYE;
@@ -1083,7 +1076,7 @@ public class ExportService implements IExportService {
             int gpsAccuracyCnt = 0;
             ArrayList<Position> ps = new ArrayList<>();
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1549,17 +1542,14 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
                 File img = match.getResourceFile();
 
                 args = new String[] {"id", "label", "sensor_id", "enabled"};
-                vals =
-                    new String[] {
-                        Integer.toString(i), img.getName(), "0", match.isExportPassFilter() ? "true" : "false"
-                    };
+                vals = new String[] {Integer.toString(i), img.getName(), "0", match.isPassFilter() ? "true" : "false"};
                 xml.start("camera", args, vals);
 
                 xml.contentTag("orientation", "1");
@@ -1664,7 +1654,7 @@ public class ExportService implements IExportService {
             xml.start("cameras");
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1813,7 +1803,7 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -1860,7 +1850,7 @@ public class ExportService implements IExportService {
 
                 i = 0;
                 for (MapLayerMatch match : matches) {
-                    if (!match.isExportPassFilter()) {
+                    if (!match.isPassFilter()) {
                         continue;
                     }
 
@@ -1979,17 +1969,14 @@ public class ExportService implements IExportService {
 
             i = 0;
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
                 File img = match.getResourceFile();
 
                 args = new String[] {"id", "label", "sensor_id", "enabled"};
-                vals =
-                    new String[] {
-                        Integer.toString(i), img.getName(), "0", match.isExportPassFilter() ? "true" : "false"
-                    };
+                vals = new String[] {Integer.toString(i), img.getName(), "0", match.isPassFilter() ? "true" : "false"};
                 xml.start("camera", args, vals);
 
                 args = new String[] {"width", "height"};
@@ -2053,7 +2040,7 @@ public class ExportService implements IExportService {
             int gpsAccuracyCnt = 0;
             ArrayList<Position> ps = new ArrayList<>();
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -2064,7 +2051,7 @@ public class ExportService implements IExportService {
             List<SRStransformCacheEntry> vs = srsWithoutVertical.fromWgs84(ps);
 
             for (MapLayerMatch match : matches) {
-                if (!match.isExportPassFilter()) {
+                if (!match.isPassFilter()) {
                     continue;
                 }
 
@@ -2078,7 +2065,7 @@ public class ExportService implements IExportService {
                 vals =
                     new String[] {
                         Integer.toString(i),
-                        String.valueOf(match.isExportPassFilter()),
+                        String.valueOf(match.isPassFilter()),
                         Double.toString(v.x),
                         Double.toString(v.y),
                         Double.toString(v.z),
@@ -2242,9 +2229,7 @@ public class ExportService implements IExportService {
                     return;
                 }
 
-                if (pf.getMatch().isExportPassFilter()) {
-                    pf.writeMetadata(hardwareConfiguration);
-                }
+                pf.writeMetadata(hardwareConfiguration);
             }
 
             firer.setCurrentStage(counter.getAndAdd(1));
@@ -2577,7 +2562,7 @@ public class ExportService implements IExportService {
 
         ArrayList<Position> ps = new ArrayList<>();
         for (MapLayerMatch match : matches) {
-            if (!match.isExportPassFilter()) {
+            if (!match.isPassFilter()) {
                 continue;
             }
 
@@ -2658,7 +2643,7 @@ public class ExportService implements IExportService {
         int i = 0;
 
         for (MapLayerMatch match : matches) {
-            if (!match.isExportPassFilter()) {
+            if (!match.isPassFilter()) {
                 continue;
             }
 
@@ -2758,9 +2743,8 @@ public class ExportService implements IExportService {
             });
     }
 
-    private static AtomicInteger gobblerThreadCounter = new AtomicInteger(0);
     private void runBentley(File target) throws Exception {
-        int threadCount = gobblerThreadCounter.incrementAndGet();
+
         /*
          * Class for redirecting the stdout of the called batch and python files to Java's stdout
          */
@@ -2770,7 +2754,6 @@ public class ExportService implements IExportService {
             private final String gobblerType;
 
             private StreamGobbler(InputStream inputStream, String gobblerType) {
-                super("StreamGobbler-" + threadCount + "-" + target.getName() + "-" + gobblerType);
                 this.inputStream = inputStream;
                 this.gobblerType = gobblerType;
             }
@@ -2904,11 +2887,13 @@ public class ExportService implements IExportService {
 
                 File input = match.getResourceFile();
                 if (MFileFilter.rawFilterNonTiff.accept(input)) {
-                    StaticInjector.getInstance(IApplicationContext.class)
+                    DependencyInjector.getInstance()
+                        .getInstanceOf(IApplicationContext.class)
                         .addToast(
                             Toast.of(ToastType.ALERT)
                                 .setText(
-                                    StaticInjector.getInstance(ILanguageHelper.class)
+                                    DependencyInjector.getInstance()
+                                        .getInstanceOf(ILanguageHelper.class)
                                         .getString(
                                             "eu.mavinci.desktop.gui.doublepanel.planemain.ActionManager"
                                                 + ".matchingContainsRaw",

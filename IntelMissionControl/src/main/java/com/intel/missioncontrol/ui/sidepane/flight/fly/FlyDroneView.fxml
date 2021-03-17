@@ -4,7 +4,7 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
 <?import com.intel.missioncontrol.ui.controls.ActivityButton?>
 <?import com.intel.missioncontrol.ui.controls.MenuButton?>
@@ -68,28 +68,32 @@
         <Pane>
             <HBox styleClass="footer" maxWidth="Infinity">
                 <Label fx:id="flightDisallowedReasonLabel"
-                       visible="false" styleClass="label-bold"/>
-                <ActivityButton fx:id="takeoffButton" styleClass="primary-button, landfill"
+                       visible="false" styleClass="label-bold, iconized, icon-warning" HBox.hgrow="ALWAYS"/>
+                <ActivityButton fx:id="takeoffButton" styleClass="primary-button"
                                 onAction="#onTakeoffClicked"
                                 text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.takeoff"/>
                 <ActivityButton fx:id="runPlanButton" styleClass="primary-button"
                                 onAction="#onRunFlightPlanClicked"
-                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.resumePlan" HBox.hgrow="ALWAYS"/>
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.runPlan"/>
                 <ActivityButton fx:id="pausePlanButton" styleClass="secondary-button"
-                                onAction="#onPauseClicked"  HBox.hgrow="ALWAYS"
+                                onAction="#onPauseClicked"
                                 text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.pause"/>
                 <ActivityButton fx:id="returnHomeButton" styleClass="secondary-button"
-                                onAction="#onReturnHomeClicked"  HBox.hgrow="ALWAYS"
-                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.returnHome"/>
-                <ActivityButton fx:id="abortTakeoffButton" styleClass="cautionary-button, landfill"
+                                onAction="#onReturnHomeClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.returnHome"
+                                HBox.hgrow="NEVER"/>
+                <Region fx:id="landfill" HBox.hgrow="ALWAYS"/>
+                <ActivityButton fx:id="abortTakeoffButton" styleClass="cautionary-button"
                                 onAction="#onAbortTakeoffClicked"
                                 text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.abortTakeoff"/>
-                <ActivityButton fx:id="landButton" styleClass="cautionary-button, landfill"
+                <ActivityButton fx:id="landButton" styleClass="cautionary-button"
                                 onAction="#onLandClicked"
-                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.land"/>
-                <ActivityButton fx:id="abortLandingButton" styleClass="cautionary-button, landfill"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.land"
+                                HBox.hgrow="NEVER"/>
+                <ActivityButton fx:id="abortLandingButton" styleClass="cautionary-button"
                                 onAction="#onAbortLandingClicked"
-                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.abortLanding"/>
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.abortLanding"
+                                HBox.hgrow="NEVER"/>
 
             </HBox>
         </Pane>

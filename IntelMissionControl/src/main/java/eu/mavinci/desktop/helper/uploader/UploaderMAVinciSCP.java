@@ -31,6 +31,6 @@ public class UploaderMAVinciSCP extends UploaderSCP {
 
     @Override
     public String getFolderPath() {
-        return "todo path" + rootDir + lastRemoteDir;
+        return "TODO path" + rootDir + lastRemoteDir;
     }
 }

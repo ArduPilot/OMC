@@ -135,8 +135,7 @@ public class DatasetMenuModel extends MenuModel {
 
     private void createNewDataset() {
         Matching matching =
-            new Matching(
-                applicationContext.getCurrentMission().getDirectoryFile().toPath(), hardwareConfigurationManager);
+            new Matching(languageHelper.toFriendlyName(MenuIds.NEW_DATASET), hardwareConfigurationManager);
         applicationContext.getCurrentMission().matchingsProperty().add(matching);
         currentMatching.set(matching);
     }

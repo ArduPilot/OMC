@@ -8,7 +8,6 @@ package com.intel.missioncontrol.drone;
 
 import io.dronefleet.mavlink.common.VideoStreamInformation;
 import io.dronefleet.mavlink.common.VideoStreamStatusFlags;
-import java.util.UUID;
 import java.util.function.Function;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
 import org.asyncfx.beans.property.AsyncStringProperty;
@@ -32,9 +31,6 @@ class MavlinkVideoStream implements IVideoStream {
     private final Function<Integer, Future<Void>> stopStreamingFnc;
 
     private int streamId;
-
-    private UUID streamUUID;
-    private boolean defaultStream = false;
 
     MavlinkVideoStream(
             VideoStreamInformation videoStreamInformation,
@@ -114,27 +110,5 @@ class MavlinkVideoStream implements IVideoStream {
 
     int getStreamId() {
         return streamId;
-    }
-
-    @Override
-    public boolean isDefaultStream() {
-        return defaultStream;
-    }
-
-    @Override
-    public boolean isSameVideoStream(IVideoStream other) {
-        if (!(other instanceof MavlinkVideoStream)) return false;
-
-        MavlinkVideoStream o = (MavlinkVideoStream) other;
-
-        return o.streamUUID.equals(this.streamUUID);
-    }
-
-    void setStreamUUID(UUID streamUUID) {
-        this.streamUUID = streamUUID;
-    }
-
-    void setDefaultStream() {
-        this.defaultStream = true;
     }
 }

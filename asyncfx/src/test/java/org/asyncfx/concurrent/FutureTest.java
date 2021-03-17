@@ -642,7 +642,7 @@ class FutureTest extends TestBase {
             sleep(50);
             future1.cancel(false);
 
-            awaiter.await(3);
+            awaiter.await(3, Duration.ofSeconds(1000));
         }
 
         @Test
@@ -1147,7 +1147,7 @@ class FutureTest extends TestBase {
         double[] lastProgress = new double[1];
         lastProgress[0] = -1;
 
-        future.addProgressListener(
+        future.addListener(
             progress -> {
                 awaiter.assertTrue(progress > lastProgress[0]);
                 lastProgress[0] = progress;

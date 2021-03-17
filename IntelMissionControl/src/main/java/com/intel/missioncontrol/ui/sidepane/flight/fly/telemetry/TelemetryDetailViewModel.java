@@ -8,50 +8,28 @@ package com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry;
 
 import com.google.inject.Inject;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
+import org.asyncfx.beans.property.PropertyPathStore;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.ui.MainScope;
 import com.intel.missioncontrol.ui.dialogs.DialogViewModel;
-import com.intel.missioncontrol.ui.dialogs.IDialogService;
+import com.intel.missioncontrol.ui.scope.planning.PlanningScope;
 import de.saxsys.mvvmfx.InjectScope;
-import de.saxsys.mvvmfx.utils.commands.Command;
-import de.saxsys.mvvmfx.utils.commands.FutureCommand;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.WeakChangeListener;
-import org.asyncfx.beans.property.PropertyPathStore;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 public class TelemetryDetailViewModel extends DialogViewModel {
-
-    private final PropertyPathStore propertyPathStore = new PropertyPathStore();
-    private final ChangeListener<Object> missionPropertyListener =
-        (observableValue, oldValue, newValue) -> getCloseCommand().execute();
-    private final BooleanProperty linkBoxConnected = new SimpleBooleanProperty(false);
-    private final FutureCommand showRTKConfigurationDialogCommand;
-    private final IApplicationContext applicationContext;
 
     @InjectScope
     private MainScope mainScope;
 
-    @Inject
-    TelemetryDetailViewModel(
-            IApplicationContext applicationContext,
-            ILinkBoxConnectionService linkBoxConnectionService,
-            IDialogService dialogService) {
-        this.applicationContext = applicationContext;
-        linkBoxConnected.bind(
-            Bindings.createBooleanBinding(
-                () ->
-                    linkBoxConnectionService.linkBoxStatusProperty().get()
-                        != ILinkBoxConnectionService.LinkBoxStatus.OFFLINE,
-                linkBoxConnectionService.linkBoxStatusProperty()));
+    @InjectScope
+    private PlanningScope planningScope;
 
-        showRTKConfigurationDialogCommand =
-            new FutureCommand(() -> dialogService.requestDialogAsync(this, RTKConfigurationViewModel.class, false));
-    }
+    @Inject
+    private IApplicationContext applicationContext;
+
+    private final PropertyPathStore propertyPathStore = new PropertyPathStore();
 
     @Override
     protected void initializeViewModel() {
@@ -59,19 +37,42 @@ public class TelemetryDetailViewModel extends DialogViewModel {
         propertyPathStore
             .from(applicationContext.currentMissionProperty())
             .selectReadOnlyObject(Mission::currentFlightPlanProperty)
-            .addListener(observable -> getCloseCommand().execute());
-        applicationContext.currentMissionProperty().addListener(new WeakChangeListener<>(missionPropertyListener));
+            .addListener(
+                new InvalidationListener() {
+                    @Override
+                    public void invalidated(Observable observable) {
+                        getCloseCommand().execute();
+                    }
+                });
+        applicationContext
+            .currentMissionProperty()
+            .addListener(
+                new InvalidationListener() {
+                    @Override
+                    public void invalidated(Observable observable) {
+                        getCloseCommand().execute();
+                    }
+                });
     }
 
     public MainScope getMainScope() {
         return mainScope;
     }
 
-    ReadOnlyBooleanProperty linkBoxOnlineProperty() {
-        return linkBoxConnected;
+    private IPlatformDescription getPlatformDescription() {
+        return planningScope.getSelectedHardwareConfiguration().getPlatformDescription();
     }
 
-    Command getShowRTKConfigurationDialogCommand() {
-        return showRTKConfigurationDialogCommand;
-    }
+    /*public Drone getUav() {
+        if (mainScope == null) {
+            return null;
+        }
+
+        Mission currentMission = applicationContext.getCurrentMission();
+        if (currentMission == null) {
+            return null;
+        }
+
+        return currentMission.droneProperty().get();
+    }*/
 }

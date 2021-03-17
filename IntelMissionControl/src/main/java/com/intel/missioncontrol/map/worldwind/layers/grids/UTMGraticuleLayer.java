@@ -12,14 +12,14 @@ import com.intel.missioncontrol.map.LayerDefaults;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
 import eu.mavinci.core.obfuscation.IKeepAll;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(name = "%com.intel.missioncontrol.map.worldwind.layers.grids.UTMGraticuleLayer", enabled = false)
 public class UTMGraticuleLayer extends WWLayerWrapper implements IKeepAll {
 
     @Inject
-    UTMGraticuleLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new gov.nasa.worldwind.layers.Earth.UTMGraticuleLayer(), dispatcher);
+    UTMGraticuleLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new gov.nasa.worldwind.layers.Earth.UTMGraticuleLayer(), syncRoot);
     }
 
 }

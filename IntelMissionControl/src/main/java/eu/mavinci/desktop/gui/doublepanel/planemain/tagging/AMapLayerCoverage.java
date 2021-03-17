@@ -6,17 +6,16 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.VisibilityTracker;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.map.worldwind.WWElevationModel;
-import com.intel.missioncontrol.modules.MapModule;
 import com.intel.missioncontrol.networking.INetworkInformation;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.core.obfuscation.IKeepAll;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerWW;
@@ -59,16 +58,20 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public abstract class AMapLayerCoverage extends MapLayer
         implements ISectorReferenced, IMapLayerWW, IWWPickableAdvancedTooltip, IRecomputerListenerManager, IKeepAll {
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
-    private static final Dispatcher dispatcher =
-        StaticInjector.getNamedInstance(Dispatcher.class, MapModule.DISPATCHER);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
+    private static final SynchronizationRoot syncRoot =
+        DependencyInjector.getInstance().getInstanceOf(SynchronizationRoot.class);
     private static final double THRESHOLD = 5;
     private static final double PADDING = 0.2;
     public static final int MIN_RELATION = 10;
@@ -473,11 +476,11 @@ public abstract class AMapLayerCoverage extends MapLayer
 
     public static int defaultAlpha = 90;
     public static final Color col_really_bad =
-        ColorHelper.setAlpha(new Color(0xFF, 0x66, 0x66).brighter(), defaultAlpha);
-    public static final Color col_bad = ColorHelper.setAlpha(new Color(0xFF, 0x66, 0x66), defaultAlpha);
-    public static final Color col_medium = ColorHelper.setAlpha(new Color(0xff, 0xbb, 0x33), defaultAlpha);
-    public static final Color col_ok = ColorHelper.setAlpha(new Color(0, 0x66, 0), defaultAlpha);
-    public static final Color col_okMax = ColorHelper.setAlpha(new Color(0, 0x66, 0).darker(), defaultAlpha);
+        ColorHelper.setAlpha(new Color(0xFF, 0x5f, 0x5f).brighter(), defaultAlpha);
+    public static final Color col_bad = ColorHelper.setAlpha(new Color(0xFF, 0x5f, 0x5f), defaultAlpha);
+    public static final Color col_medium = ColorHelper.setAlpha(new Color(0xf3, 0xd5, 0x4e), defaultAlpha);
+    public static final Color col_ok = ColorHelper.setAlpha(new Color(0, 0x69, 0), defaultAlpha);
+    public static final Color col_okMax = ColorHelper.setAlpha(new Color(0, 0x69, 0).darker(), defaultAlpha);
 
     public static int count = 0;
 
@@ -519,7 +522,7 @@ public abstract class AMapLayerCoverage extends MapLayer
             @Override
             public void runLaterOnUIThread() {
                 mapLayerValuesChanged(AMapLayerCoverage.this);
-                dispatcher.run(
+                syncRoot.runAsync(
                     () -> {
                         analyticSurfaceLayer.firePropertyChange(AVKey.LAYER, null, analyticSurfaceLayer);
                     });
@@ -604,11 +607,11 @@ public abstract class AMapLayerCoverage extends MapLayer
 
     private ArrayList<GridPointSummary> m_values;
 
-    VisibilityTracker visibilityTracker = StaticInjector.getInstance(VisibilityTracker.class);
+    VisibilityTracker visibilityTracker = DependencyInjector.getInstance().getInstanceOf(VisibilityTracker.class);
 
     public AMapLayerCoverage(boolean isDefVis) {
         super(isDefVis);
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 analyticSurfaceLayer.setPickEnabled(true);
                 analyticSurfaceLayer.setName("Coverage Surfaces");
@@ -628,26 +631,33 @@ public abstract class AMapLayerCoverage extends MapLayer
                 // analyticSurfaceLayer.firePropertyChange(AVKey.LAYER, null, analyticSurfaceLayer);
                 recomputeCoverage();
             };
-        StaticInjector.getInstance(ISettingsManager.class)
+        de.saxsys.mvvmfx.internal.viewloader.DependencyInjector.getInstance()
+            .getInstanceOf(ISettingsManager.class)
             .getSection(GeneralSettings.class)
             .operationLevelProperty()
             .addListener(new WeakChangeListener(operationLevelChangeListener));
 
         updateCameraCornersListener = observable -> updateCameraCorners();
-        StaticInjector.getInstance(WWElevationModel.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(WWElevationModel.class)
             .wwjElevationModelProperty()
             .addListener(new WeakInvalidationListener(updateCameraCornersListener));
 
-        StaticInjector.getInstance(INetworkInformation.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(INetworkInformation.class)
             .networkAvailableProperty()
             .addListener(new WeakChangeListener<>(networkBecomesAvailableChangeListener));
 
-        StaticInjector.getInstance(INetworkInformation.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(INetworkInformation.class)
             .internetAvailableProperty()
             .addListener(new WeakChangeListener<>(networkBecomesAvailableChangeListener));
 
         isDebug =
-            StaticInjector.getInstance(ISettingsManager.class).getSection(GeneralSettings.class).getOperationLevel()
+            de.saxsys.mvvmfx.internal.viewloader.DependencyInjector.getInstance()
+                    .getInstanceOf(ISettingsManager.class)
+                    .getSection(GeneralSettings.class)
+                    .getOperationLevel()
                 == OperationLevel.DEBUG;
     }
 
@@ -687,7 +697,7 @@ public abstract class AMapLayerCoverage extends MapLayer
             }
         }
 
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 synchronized (AMapLayerCoverage.this) {
                     analyticSurfaceLayer.setEnabled(false);
@@ -824,7 +834,7 @@ public abstract class AMapLayerCoverage extends MapLayer
             tooltip += " (gp.n=" + gp.n + " gp.eigenAbsRatio=" + gp.eigenAbsRatio + ")";
         }
 
-        return null;
+        return tooltip;
     }
 
     @Override
@@ -1413,13 +1423,13 @@ public abstract class AMapLayerCoverage extends MapLayer
             this.updateTimestamp = System.currentTimeMillis();
 
             // System.out.println("width="+width + " height="+height + " vDim=" +v.size());
-            dispatcher.run(
+            syncRoot.runAsync(
                 () -> {
                     analyticSurfaceLayer.setEnabled(true);
                 });
         }
 
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 analyticSurfaceLayer.firePropertyChange(AVKey.LAYER, null, analyticSurfaceLayer);
             });

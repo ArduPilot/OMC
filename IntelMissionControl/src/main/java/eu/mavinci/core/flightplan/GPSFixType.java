@@ -96,41 +96,6 @@ public enum GPSFixType implements IKeepAll {
             return rtkFixedBL;
         }
 
-        // fix_dict = {0:'no gps', 1:'no fix', 2:'2D fix', 3:'3D fix',
-        // 4:'DGPS', 5:'RTK float', 6:'RTK fixed', 7:'static', 8:'ppp'}
-        //        GPS_FIX_TYPE
-        //        Value	Field Name	Description
-        //        0	GPS_FIX_TYPE_NO_GPS	No GPS connected
-        //        1	GPS_FIX_TYPE_NO_FIX	No position information, GPS is connected
-        //        2	GPS_FIX_TYPE_2D_FIX	2D position
-        if ("no gps".equals(metaParsing) || "no fix".equals(metaParsing) || "2D fix".equals(metaParsing)) {
-            return noFix;
-        }
-        //        3	GPS_FIX_TYPE_3D_FIX	3D position
-        if ("3D fix".equals(metaParsing)) {
-            return gpsFix;
-        }
-        //        4	GPS_FIX_TYPE_DGPS	DGPS/SBAS aided 3D position
-        if ("DGPS".equals(metaParsing)) {
-            return dgps;
-        }
-        //        5	GPS_FIX_TYPE_RTK_FLOAT	RTK float, 3D position
-        if ("RTK float".equals(metaParsing)) {
-            return rtkFloatingBL;
-        }
-        //        6	GPS_FIX_TYPE_RTK_FIXED	RTK Fixed, 3D position
-        if ("RTK fixed".equals(metaParsing)) {
-            return rtkFixedBL;
-        }
-        //        7	GPS_FIX_TYPE_STATIC	Static fixed, typically used for base stations
-        if ("static".equals(metaParsing)) {
-            return staticFixed;
-        }
-        //        8	GPS_FIX_TYPE_PPP	PPP, 3D position.
-        if ("ppp".equals(metaParsing)) {
-            return PPP;
-        }
-
         return fallback;
     }
 

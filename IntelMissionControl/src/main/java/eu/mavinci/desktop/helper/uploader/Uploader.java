@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.helper.uploader;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.desktop.gui.widgets.MProgressMonitor;
@@ -43,7 +43,8 @@ public abstract class Uploader {
     int port;
 
     public IScanDirFilter scanDirFilter = null;
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     boolean instantZipUploads = false;
 

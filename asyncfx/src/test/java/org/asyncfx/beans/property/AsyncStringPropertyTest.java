@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import javafx.application.Platform;
 import org.asyncfx.Awaiter;
 import org.asyncfx.TestBase;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationContext;
 import org.junit.jupiter.api.Test;
 
 class AsyncStringPropertyTest extends TestBase {
@@ -19,6 +19,7 @@ class AsyncStringPropertyTest extends TestBase {
     @Test
     void ThreeWayBinding_Is_Evaluated_On_Correct_Threads() {
         var awaiter = new Awaiter();
+        var syncCtx = SynchronizationContext.getCurrent();
 
         AsyncStringProperty prop1 =
             new SimpleAsyncStringProperty(
@@ -44,8 +45,8 @@ class AsyncStringPropertyTest extends TestBase {
                 new PropertyMetadata.Builder<String>()
                     .name("prop3")
                     .customBean(true)
+                    .synchronizationContext(syncCtx)
                     .initialValue("prop3-init")
-                    .dispatcher(Dispatcher.background())
                     .create());
 
         prop2.bindBidirectional(prop1);
@@ -74,17 +75,6 @@ class AsyncStringPropertyTest extends TestBase {
         awaiter.await(3);
 
         assertTrue(prop1.get().equals("test") && prop2.get().equals("test") && prop3.get().equals("test"));
-    }
-
-    static class A extends PropertyObject {
-        final AsyncObjectProperty<String> string1 = new SimpleAsyncObjectProperty<>(this);
-        final AsyncObjectProperty<String> string2 = new SimpleAsyncObjectProperty<>(this);
-    }
-
-    @Test
-    void Properties_With_Shared_AccessController_Can_Be_Bound() {
-        A a = new A();
-        a.string1.bind(a.string2);
     }
 
 }

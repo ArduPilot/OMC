@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * ACPTaskModel is an abstraction for the AscTec mission. It contains ACPTasks (analogy of way points). It can be
+ * ACPTaskModel is an abstraction for the AscTec flight plan. It contains ACPTasks (analogy of way points). It can be
  * transformed to a list of ATOS_WAYPOINT to be send via the ACI or it can be exported to the xml in AscTec project
  * format
  *

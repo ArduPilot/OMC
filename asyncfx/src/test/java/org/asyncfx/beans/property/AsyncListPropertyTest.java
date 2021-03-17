@@ -27,6 +27,7 @@ import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -140,7 +141,7 @@ class AsyncListPropertyTest extends TestBase {
                         awaiter.assertTrue(Platform.isFxApplicationThread());
                         awaiter.signal();
                     },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
 
             try (var view = simpleListProp.lock()) {
                 view.add(1);
@@ -502,41 +503,6 @@ class AsyncListPropertyTest extends TestBase {
             prop.set(new TestObject());
             assertEquals(3, listByPropertyPath.size());
         }
-
-        @Test
-        void ContentBinding_To_Non_Order_Preserving_Dispatcher_Fails() {
-            var sourceProp =
-                new SimpleAsyncListProperty<>(
-                    null,
-                    new PropertyMetadata.Builder<AsyncObservableList<Integer>>()
-                        .customBean(true)
-                        .initialValue(FXAsyncCollections.observableArrayList())
-                        .create());
-
-            var targetProp =
-                new SimpleAsyncListProperty<>(
-                    null,
-                    new PropertyMetadata.Builder<AsyncObservableList<Integer>>()
-                        .customBean(true)
-                        .initialValue(FXAsyncCollections.observableArrayList())
-                        .dispatcher(Dispatcher.background())
-                        .create());
-
-            try {
-                targetProp.bindContent(
-                    sourceProp,
-                    value -> {
-                        if (value == 1) {
-                            sleep(100);
-                        }
-
-                        return value;
-                    });
-                fail();
-            } catch (RuntimeException ex) {
-                assertTrue(ex.getMessage().startsWith("Cannot post an order-sensitive operation"));
-            }
-        }
     }
 
     @Nested
@@ -544,6 +510,7 @@ class AsyncListPropertyTest extends TestBase {
         @Test
         void BidirectionalBinding_Is_Evaluated_On_Another_Thread() {
             var awaiter = new Awaiter();
+            var syncCtx = SynchronizationContext.getCurrent();
 
             var sourceListProp1 =
                 new SimpleAsyncListProperty<>(
@@ -551,6 +518,7 @@ class AsyncListPropertyTest extends TestBase {
                     new PropertyMetadata.Builder<AsyncObservableList<Integer>>()
                         .customBean(true)
                         .name("source")
+                        .synchronizationContext(syncCtx)
                         .initialValue(FXAsyncCollections.observableArrayList())
                         .create());
 
@@ -560,6 +528,7 @@ class AsyncListPropertyTest extends TestBase {
                     new PropertyMetadata.Builder<AsyncObservableList<Integer>>()
                         .customBean(true)
                         .name("target")
+                        .synchronizationContext(syncCtx)
                         .initialValue(null)
                         .create());
 
@@ -586,12 +555,14 @@ class AsyncListPropertyTest extends TestBase {
         @Test
         void BidirectionalBinding_Is_Evaluated_On_FxApplicationThread() {
             var awaiter = new Awaiter();
+            var syncCtx = SynchronizationContext.getCurrent();
 
             var sourceListProp2 =
                 new SimpleAsyncListProperty<>(
                     null,
                     new PropertyMetadata.Builder<AsyncObservableList<Integer>>()
                         .customBean(true)
+                        .synchronizationContext(syncCtx)
                         .initialValue(FXAsyncCollections.observableArrayList())
                         .create());
 
@@ -870,11 +841,11 @@ class AsyncListPropertyTest extends TestBase {
 
     @Nested
     class SubChanges {
-        private class A extends PropertyObject {
+        private class A extends ObservableObject {
             final AsyncObjectProperty<B> b = new SimpleAsyncObjectProperty<>(this);
         }
 
-        private class B extends PropertyObject {
+        private class B extends ObservableObject {
             final AsyncListProperty<C> c =
                 new SimpleAsyncListProperty<>(
                     this,
@@ -883,7 +854,7 @@ class AsyncListPropertyTest extends TestBase {
                         .create());
         }
 
-        private class C extends PropertyObject {
+        private class C extends ObservableObject {
             final AsyncBooleanProperty d = new SimpleAsyncBooleanProperty(this);
         }
 
@@ -911,7 +882,6 @@ class AsyncListPropertyTest extends TestBase {
 
             int[] count = new int[1];
             prop.addListener((observable, subInvalidation) -> count[0]++);
-            prop.addListener(observable -> {}); // test AsyncListExpressionHelper.Generic with more than one listener
 
             b.c.get(0).d.set(true);
             assertEquals(1, count[0]);
@@ -957,10 +927,6 @@ class AsyncListPropertyTest extends TestBase {
             b.c.get(2).d.set(true);
             assertEquals(3, count[0]);
         }
-
-        @Test
-        void test() {}
-
     }
 
 }

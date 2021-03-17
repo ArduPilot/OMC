@@ -26,7 +26,7 @@ import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ListChangeListener;
 
 /**
- * Contains the menu model for the mission drop-down menu located in the sidepane header on the planning tab. This
+ * Contains the menu model for the flight plan drop-down menu located in the sidepane header on the planning tab. This
  * class also contains business logic for the menu commands.
  */
 public class FlightPlanMenuModel extends MenuModel {
@@ -124,7 +124,7 @@ public class FlightPlanMenuModel extends MenuModel {
             property);
     }
 
-    // TODO: Why does setting the selected mission to null create a new mission?
+    // TODO: Why does setting the selected flight plan to null create a new flight plan?
     private void createNewFlightPlan() {
         applicationContext.getCurrentMission().setCurrentFlightPlan(null);
     }

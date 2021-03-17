@@ -6,11 +6,10 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
-import com.intel.missioncontrol.map.worldwind.IWWMapView;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenter;
 import com.intel.missioncontrol.ui.navbar.layers.IMapClearingCenterListener;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.AirplaneCacheEmptyException;
 import eu.mavinci.core.plane.AirplaneFlightmode;
 import eu.mavinci.core.plane.AirplaneFlightphase;
@@ -25,10 +24,10 @@ import java.awt.Color;
 
 public class TrackLayer extends AColoredTrajectoryLayer implements IAirplaneListenerPosition {
 
-    public static final Color COLOR_DYNAMIC_MANUALCONTROL = new Color(0x0066cc); // manual flight
-    public static final Color COLOR_DYNAMIC_ASSISTED = new Color(0x0066cc); // assisted
+    public static final Color COLOR_DYNAMIC_MANUALCONTROL = new Color(0x0071c5); // manual flight
+    public static final Color COLOR_DYNAMIC_ASSISTED = new Color(0x0071c5); // assisted
     public static final Color COLOR_GPS_LOSS = new Color(0xFF5F5F); // GPS-LOSS
-    public static final Color COLOR_DYNAMIC_ELSE = new Color(0x0066cc); // AUTO
+    public static final Color COLOR_DYNAMIC_ELSE = new Color(0x0071c5); // AUTO
 
     IAirplane plane;
 
@@ -48,14 +47,15 @@ public class TrackLayer extends AColoredTrajectoryLayer implements IAirplaneList
             }
         };
 
-    private final GeneralSettings generalSettings = StaticInjector.getInstance(GeneralSettings.class);
+    private final GeneralSettings generalSettings =
+        DependencyInjector.getInstance().getInstanceOf(GeneralSettings.class);
 
-    public TrackLayer(IAirplane plane, IWWMapView mapView) {
-        super(plane, "TrackLayerName", false, false, mapView);
+    public TrackLayer(IAirplane plane) {
+        super(plane, "TrackLayerName", false, false);
         this.plane = plane;
 
         plane.addListener(this);
-        StaticInjector.getInstance(IMapClearingCenter.class).addWeakListener(listener);
+        DependencyInjector.getInstance().getInstanceOf(IMapClearingCenter.class).addWeakListener(listener);
     }
 
     @Override
@@ -86,10 +86,6 @@ public class TrackLayer extends AColoredTrajectoryLayer implements IAirplaneList
             // autopilote green!
         }
         // System.out.println("NEW cOLO" + c);
-
-        if (p.lostPositionUpdates) {
-            c = new Color(COLOR_GPS_LOSS.getRed(), COLOR_GPS_LOSS.getGreen(), COLOR_GPS_LOSS.getBlue(), 0x44);
-        }
 
         double elevationStartPoint;
         try {

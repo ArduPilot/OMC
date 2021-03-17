@@ -32,6 +32,7 @@ import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class GeoTiffManager implements IGeoTiffManager {
 
@@ -75,7 +76,7 @@ public class GeoTiffManager implements IGeoTiffManager {
             ILanguageHelper languageHelper,
             IBackgroundTaskManager backgroundTaskManager,
             IApplicationContext applicationContext,
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IMapView mapView,
             IElevationModelsManager elevationModelsManager) {
         geoTiffsSettings = settingsManager.getSection(GeoTiffsSettings.class);
@@ -91,7 +92,7 @@ public class GeoTiffManager implements IGeoTiffManager {
                     applicationContext,
                     languageHelper,
                     backgroundTaskManager,
-                    dispatcher,
+                    syncRoot,
                     mapView));
 
         // elevationLayers.bindContent();

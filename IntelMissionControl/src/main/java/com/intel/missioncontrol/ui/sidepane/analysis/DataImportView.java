@@ -24,7 +24,6 @@ import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -32,7 +31,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.util.StringConverter;
 import org.controlsfx.control.CheckComboBox;
-import org.controlsfx.control.ToggleSwitch;
 
 public class DataImportView extends FancyTabView<DataImportViewModel> {
 
@@ -73,16 +71,16 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
     private MenuButton addFlightLogsButton;
 
     @FXML
+    private TitledPane imagesPane;
+
+    @FXML
     private TitledPane flightPlansPane;
 
     @FXML
-    private TitledPane optionsPane;
+    private Button importButton;
 
     @FXML
     private Label imagesCountLabel;
-
-    @FXML
-    private Button importButton;
 
     @FXML
     private Button browseImagesButton;
@@ -94,16 +92,16 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
     private Label notEnoughSpaceLabel;
 
     @FXML
+    private CheckBox eraseFilesCheckBox;
+
+    @FXML
+    private Button previewImagesButton;
+
+    @FXML
     private TextField imageFolderTextField;
 
     @FXML
     private CheckComboBox<FlightPlan> flightPlanNamesComboBox;
-
-    @FXML
-    private ToggleSwitch copyFilesToProjectFolderSwitch;
-
-    @FXML
-    private ToggleSwitch eraseFilesAfterCopyingSwitch;
 
     @FXML
     private Button showHelpButton;
@@ -111,7 +109,7 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
     private final ILanguageHelper languageHelper;
     private final IDialogContextProvider dialogContextProvider;
     private final List<ValidationVisualizer> validationVisualizers = new ArrayList<>();
-    // private final InvalidationListener tableInvalidatedListener = observable -> updateTableHeight();
+    //    private final InvalidationListener tableInvalidatedListener = observable -> updateTableHeight();
 
     @Inject
     public DataImportView(ILanguageHelper languageHelper, IDialogContextProvider dialogContextProvider) {
@@ -144,29 +142,32 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
             .showingProperty()
             .addListener(observable -> viewModel.getUpdateDriveListCommand().execute());
 
+        imagesPane.visibleProperty().bind(viewModel.imageSelectionAvailableProperty());
+        imagesPane.managedProperty().bind(imagesPane.visibleProperty());
+
         flightPlansPane.visibleProperty().bind(viewModel.flightPlanSelectionAvailableProperty());
         flightPlansPane.managedProperty().bind(flightPlansPane.visibleProperty());
 
         importButton.disableProperty().bind(viewModel.getImportCommand().notExecutableProperty());
         importButton.setOnAction(event -> viewModel.getImportCommand().execute());
 
-        viewModel.copyFilesProperty().setValue(true);
-        copyFilesToProjectFolderSwitch.selectedProperty().bindBidirectional(viewModel.copyFilesProperty());
-
-        eraseFilesAfterCopyingSwitch.disableProperty().bind(copyFilesToProjectFolderSwitch.selectedProperty().not());
-        eraseFilesAfterCopyingSwitch.selectedProperty().bindBidirectional(viewModel.eraseLogsProperty());
+        eraseFilesCheckBox.disableProperty().bind(viewModel.getImportCommand().notExecutableProperty());
+        eraseFilesCheckBox.selectedProperty().bindBidirectional(viewModel.eraseLogsProperty());
 
         validationVisualizers.add(
             new LabelValidationRichVisualizer(viewModel.cameraImagesValidationStatusProperty(), mismatchedImagesLabel));
         validationVisualizers.add(
             new LabelValidationRichVisualizer(viewModel.dataSetSizeValidationStatusProperty(), notEnoughSpaceLabel));
 
-        imagesCountLabel.textProperty().bind(viewModel.imagesFolderValidTextProperty());
-        imageFolderTextField.textProperty().bindBidirectional(viewModel.imageFolderProperty());
+        imagesCountLabel.textProperty().bind(viewModel.imagesCountProperty().asString());
+        imageFolderTextField.textProperty().bind(viewModel.imageFolderProperty());
         mismatchedImagesLabel.managedProperty().bind(mismatchedImagesLabel.visibleProperty());
 
         browseImagesButton.disableProperty().bind(viewModel.getBrowseImagesCommand().notExecutableProperty());
         browseImagesButton.setOnAction(event -> viewModel.getBrowseImagesCommand().execute());
+
+        previewImagesButton.disableProperty().bind(viewModel.getOpenImageFolderCommand().notExecutableProperty());
+        previewImagesButton.setOnAction(event -> viewModel.getOpenImageFolderCommand().execute());
 
         showHelpButton.disableProperty().bind(viewModel.getShowHelpCommand().notExecutableProperty());
         showHelpButton.setOnAction(event -> viewModel.getShowHelpCommand().execute());
@@ -190,7 +191,7 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
 
         selectionCheckBox.selectedProperty().bindBidirectional(viewModel.selectionCheckBoxProperty());
         /*
-        //dirty hack to get strings upadted on whatever change even on the mission names
+        //dirty hack to get strings upadted on whatever change even on the flight plan names
         //BUT: listener is called, but its not triggering any redraw of the items  Marco: 2018.04.06
         viewModel
             .flightPlansProperty()
@@ -204,4 +205,5 @@ public class DataImportView extends FancyTabView<DataImportViewModel> {
     public void renameClicked() {
         viewModel.getRenameMissionCommand().execute();
     }
+
 }

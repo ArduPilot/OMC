@@ -6,7 +6,6 @@
 
 package com.intel.missioncontrol.drone.connection;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
@@ -14,6 +13,7 @@ import com.intel.missioncontrol.helper.MavinciObjectFactory;
 import com.intel.missioncontrol.mission.Drone;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.Mission;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.flightplan.Flightplan;
 import eu.mavinci.plane.IAirplane;
 import eu.mavinci.plane.simjava.AirplaneSim;
@@ -29,7 +29,8 @@ public class LegacyLocalSimulationConnector implements IConnector<IDrone> {
     private final Mission mission;
     private final FlightPlan flightPlan;
 
-    private final MavinciObjectFactory mavinciObjectFactory = StaticInjector.getInstance(MavinciObjectFactory.class);
+    private final MavinciObjectFactory mavinciObjectFactory =
+        DependencyInjector.getInstance().getInstanceOf(MavinciObjectFactory.class);
 
     LegacyLocalSimulationConnector(LegacyLocalSimulationConnectionItem connectionItem) {
         this.connectionItem = connectionItem;

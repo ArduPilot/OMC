@@ -29,7 +29,7 @@ import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.SimpleAsyncListProperty;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +45,9 @@ public class KmlManager implements IKmlManager {
                 .create());
 
     @Inject
-    public KmlManager(ISettingsManager settingsManager, @Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
+    public KmlManager(ISettingsManager settingsManager, @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
         layers.overrideMetadata(
-            new PropertyMetadata.Builder<AsyncObservableList<ILayer>>().dispatcher(dispatcher).create());
+            new PropertyMetadata.Builder<AsyncObservableList<ILayer>>().synchronizationContext(syncRoot).create());
 
         layers.bindContent(
             settingsManager.getSection(KmlsSettings.class).kmlsProperty(),
@@ -98,7 +98,7 @@ public class KmlManager implements IKmlManager {
                     layer = new RenderableLayer();
                 }
 
-                ILayer wwLayerWrapper = new KmlLayerWrapper(layer, dispatcher, kmlSettings);
+                ILayer wwLayerWrapper = new KmlLayerWrapper(layer, syncRoot, kmlSettings);
                 wwLayerWrapper.enabledProperty().bindBidirectional(kmlSettings.enabledProperty());
                 PropertyHelper.setValueSafe(wwLayerWrapper.nameProperty(), new LayerName(new File(resource).getName()));
                 return wwLayerWrapper;

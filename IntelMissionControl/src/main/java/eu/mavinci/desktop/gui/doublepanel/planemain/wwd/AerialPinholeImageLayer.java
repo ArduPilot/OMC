@@ -6,9 +6,9 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.settings.ExpertSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.airspace.Point;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.core.flightplan.IMuteable;
@@ -62,7 +62,8 @@ public class AerialPinholeImageLayer extends RenderableLayer
 
     public static final Color IMG_LAYER_DEF_COL = new Color(0, 0, 255, 64);
 
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     Color color = IMG_LAYER_DEF_COL;
 
@@ -155,7 +156,7 @@ public class AerialPinholeImageLayer extends RenderableLayer
             long start = System.currentTimeMillis();
 
             int tileSizeMax = 4 * 1024;
-            tileSizeMax = StaticInjector.getInstance(ExpertSettings.class).getMaxTextureSize();
+            tileSizeMax = DependencyInjector.getInstance().getInstanceOf(ExpertSettings.class).getMaxTextureSize();
             tileSizeMax = WWMath.powerOfTwoFloor(Math.min(tileSizeMax, WWFactory.maxTextureSize));
 
             //			System.out.println("WWFactory.maxTextureSize="+WWFactory.maxTextureSize);

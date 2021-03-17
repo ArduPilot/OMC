@@ -14,6 +14,7 @@ import com.intel.missioncontrol.measure.LocationFormat;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.ui.ViewModelBase;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import eu.mavinci.desktop.gui.wwext.search.ISearchManagerListener;
@@ -71,7 +72,6 @@ public class SearchViewModel extends ViewModelBase {
     private final Command clearCommand;
     private final Command goToCommand;
     private final IMapView mapView;
-    private final IElevationModel elevationModel;
     private final SearchManager searchManager;
     private final GeneralSettings generalSettings;
     private AtomicBoolean searchLater = new AtomicBoolean();
@@ -79,13 +79,8 @@ public class SearchViewModel extends ViewModelBase {
     private boolean getCoordinates = false;
 
     @Inject
-    public SearchViewModel(
-            IMapView mapView,
-            IElevationModel elevationModel,
-            SearchManager searchManager,
-            ISettingsManager settingsManager) {
+    public SearchViewModel(IMapView mapView, SearchManager searchManager, ISettingsManager settingsManager) {
         this.mapView = mapView;
-        this.elevationModel = elevationModel;
         this.searchManager = searchManager;
         this.generalSettings = settingsManager.getSection(GeneralSettings.class);
         this.lastSearchResults.putAll(generalSettings.lastSearchResultsProperty());
@@ -260,7 +255,10 @@ public class SearchViewModel extends ViewModelBase {
                 if (sector != null) {
                     mapView.goToSectorAsync(sector, OptionalDouble.empty());
                 } else {
-                    mapView.goToPositionAsync(elevationModel.getPositionOverGround(result.getLocation().toPosition()));
+                    mapView.goToPositionAsync(
+                        DependencyInjector.getInstance()
+                            .getInstanceOf(IElevationModel.class)
+                            .getPositionOverGround(result.getLocation().toPosition()));
                 }
             }
         } else {

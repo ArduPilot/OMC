@@ -14,7 +14,7 @@ import com.intel.missioncontrol.map.LayerName;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.modules.MapModule;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class DatasetLayer extends WWLayerWrapper {
 
@@ -22,14 +22,14 @@ public class DatasetLayer extends WWLayerWrapper {
 
     @Inject
     DatasetLayer(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             Matching matching,
             IMapController mapController,
             ISelectionManager selectionManager) {
         super(
             new eu.mavinci.desktop.gui.doublepanel.planemain.tagging.rendering.MatchingLayer(
-                matching.getLegacyMatching(), mapController, selectionManager, dispatcher),
-            dispatcher);
+                matching.getLegacyMatching(), mapController, selectionManager, syncRoot),
+            syncRoot);
         this.matching = matching;
         nameProperty().bind(matching.nameProperty(), LayerName::new);
     }

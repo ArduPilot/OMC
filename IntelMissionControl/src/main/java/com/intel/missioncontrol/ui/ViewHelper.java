@@ -141,29 +141,7 @@ public abstract class ViewHelper {
             IQuantityStyleProvider quantityStyleProvider,
             int maxFractionDigits) {
         initAutoCommitSpinner(
-            spinner,
-            property,
-            null,
-            quantityStyleProvider,
-            maxFractionDigits,
-            null,
-            new Double(null),
-            new Double(null),
-            false);
-    }
-
-    public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
-            Spinner<Quantity<Q>> spinner,
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step,
-            boolean wrapAround) {
-        initAutoCommitSpinner(
-            spinner, property, unit, quantityStyleProvider, maxFractionDigits, min, max, step, wrapAround, null);
+            spinner, property, null, quantityStyleProvider, maxFractionDigits, null, null, null, false);
     }
 
     public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
@@ -178,31 +156,6 @@ public abstract class ViewHelper {
             boolean wrapAround) {
         initAutoCommitSpinner(
             spinner, property, unit, quantityStyleProvider, maxFractionDigits, min, max, step, wrapAround, null);
-    }
-
-    public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
-            Spinner<Quantity<Q>> spinner,
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int significantDigits,
-            int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step,
-            boolean wrapAround) {
-        initAutoCommitSpinner(
-            spinner,
-            property,
-            unit,
-            quantityStyleProvider,
-            significantDigits,
-            maxFractionDigits,
-            min,
-            max,
-            step,
-            wrapAround,
-            null);
     }
 
     public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
@@ -236,32 +189,6 @@ public abstract class ViewHelper {
             Unit<Q> unit,
             IQuantityStyleProvider quantityStyleProvider,
             int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step,
-            boolean wrapAround,
-            ChangeListener<? super Quantity<Q>> valueListener) {
-        Expect.notNull(property, "property");
-        Expect.notNull(spinner, "spinner");
-        Expect.notNull(quantityStyleProvider, "quantityStyleProvider");
-
-        if (maxFractionDigits < 0) {
-            maxFractionDigits = 0;
-        }
-
-        QuantitySpinnerValueFactory<Q> valueFactory =
-            createQuantityValueFactoryWithDouble(
-                property, unit, quantityStyleProvider, maxFractionDigits, min, max, step);
-
-        initAutoCommitSpinner(spinner, wrapAround, valueListener, valueFactory);
-    }
-
-    public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
-            Spinner<Quantity<Q>> spinner,
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int maxFractionDigits,
             Double min,
             Double max,
             Double step,
@@ -278,33 +205,6 @@ public abstract class ViewHelper {
         QuantitySpinnerValueFactory<Q> valueFactory =
             createQuantityValueFactoryWithDouble(
                 property, unit, quantityStyleProvider, maxFractionDigits, min, max, step);
-
-        initAutoCommitSpinner(spinner, wrapAround, valueListener, valueFactory);
-    }
-
-    public static <Q extends Quantity<Q>> void initAutoCommitSpinner(
-            Spinner<Quantity<Q>> spinner,
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int significantDigits,
-            int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step,
-            boolean wrapAround,
-            ChangeListener<? super Quantity<Q>> valueListener) {
-        Expect.notNull(property, "property");
-        Expect.notNull(spinner, "spinner");
-        Expect.notNull(quantityStyleProvider, "quantityStyleProvider");
-
-        if (maxFractionDigits < 0) {
-            maxFractionDigits = 0;
-        }
-
-        QuantitySpinnerValueFactory<Q> valueFactory =
-            createQuantityValueFactoryWithDouble(
-                property, unit, quantityStyleProvider, significantDigits, maxFractionDigits, min, max, step);
 
         initAutoCommitSpinner(spinner, wrapAround, valueListener, valueFactory);
     }
@@ -397,50 +297,6 @@ public abstract class ViewHelper {
             Unit<Q> unit,
             IQuantityStyleProvider quantityStyleProvider,
             int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step) {
-        if ((min != null) && (max != null)) {
-            if (step == null) {
-                QuantitySpinnerValueFactory<Q> factory =
-                    new QuantitySpinnerValueFactory<>(
-                        quantityStyleProvider,
-                        property.getUnitInfo(),
-                        maxFractionDigits,
-                        Quantity.of(min.get().getValue(), unit),
-                        Quantity.of(max.get().getValue(), unit));
-                factory.minProperty().bind(min);
-                factory.maxProperty().bind(max);
-                factory.valueProperty().bindBidirectional(property);
-
-                return factory;
-            }
-
-            QuantitySpinnerValueFactory<Q> factory =
-                new QuantitySpinnerValueFactory<>(
-                    quantityStyleProvider,
-                    property.getUnitInfo(),
-                    maxFractionDigits,
-                    Quantity.of(min.get().getValue(), unit),
-                    Quantity.of(max.get().getValue(), unit),
-                    step);
-            factory.minProperty().bind(min);
-            factory.maxProperty().bind(max);
-            factory.valueProperty().bindBidirectional(property);
-            return factory;
-        }
-
-        QuantitySpinnerValueFactory<Q> factory =
-            new QuantitySpinnerValueFactory<>(quantityStyleProvider, property.getUnitInfo(), maxFractionDigits);
-        factory.valueProperty().bindBidirectional(property);
-        return factory;
-    }
-
-    private static <Q extends Quantity<Q>> QuantitySpinnerValueFactory<Q> createQuantityValueFactoryWithDouble(
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int maxFractionDigits,
             Double min,
             Double max,
             Double step) {
@@ -472,55 +328,6 @@ public abstract class ViewHelper {
 
         QuantitySpinnerValueFactory<Q> factory =
             new QuantitySpinnerValueFactory<>(quantityStyleProvider, property.getUnitInfo(), maxFractionDigits);
-        factory.valueProperty().bindBidirectional(property);
-        return factory;
-    }
-
-    private static <Q extends Quantity<Q>> QuantitySpinnerValueFactory<Q> createQuantityValueFactoryWithDouble(
-            QuantityProperty<Q> property,
-            Unit<Q> unit,
-            IQuantityStyleProvider quantityStyleProvider,
-            int significantDigits,
-            int maxFractionDigits,
-            QuantityProperty<Q> min,
-            QuantityProperty<Q> max,
-            Double step) {
-        if ((min != null) && (max != null)) {
-            if (step == null) {
-                QuantitySpinnerValueFactory<Q> factory =
-                    new QuantitySpinnerValueFactory<>(
-                        quantityStyleProvider,
-                        property.getUnitInfo(),
-                        significantDigits,
-                        maxFractionDigits,
-                        Quantity.of(min.get().getValue(), unit),
-                        Quantity.of(max.get().getValue(), unit));
-                factory.minProperty().bind(min);
-                factory.maxProperty().bind(max);
-                factory.valueProperty().bindBidirectional(property);
-
-                return factory;
-            }
-
-            QuantitySpinnerValueFactory<Q> factory =
-                new QuantitySpinnerValueFactory<>(
-                    quantityStyleProvider,
-                    property.getUnitInfo(),
-                    significantDigits,
-                    maxFractionDigits,
-                    Quantity.of(min.get().getValue(), unit),
-                    Quantity.of(max.get().getValue(), unit),
-                    step);
-
-            factory.minProperty().bind(min);
-            factory.maxProperty().bind(max);
-            factory.valueProperty().bindBidirectional(property);
-            return factory;
-        }
-
-        QuantitySpinnerValueFactory<Q> factory =
-            new QuantitySpinnerValueFactory<>(
-                quantityStyleProvider, property.getUnitInfo(), significantDigits, maxFractionDigits);
         factory.valueProperty().bindBidirectional(property);
         return factory;
     }

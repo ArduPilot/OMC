@@ -6,12 +6,12 @@
 
 package eu.mavinci.flightplan.computation;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.elevation.ElevationList;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.measure.Unit;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AltitudeAdjustModes;
 import eu.mavinci.core.flightplan.Orientation;
 import eu.mavinci.core.flightplan.PlanType;
@@ -40,7 +40,8 @@ public class FlightLine implements Comparable<FlightLine>, Cloneable {
     static final double IGNORE_DISTANCE = 1;
     static final double MIN_NEW_POINT_DISTANCE = 20;
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
 
     public static Vector<FlightLine> assureTurnRadius(
             ITransformationProvider transformator,

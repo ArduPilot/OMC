@@ -128,7 +128,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class FlightplanLayer extends AbstractLayer
         implements IAirplaneListenerStartPos,
@@ -141,9 +141,9 @@ public class FlightplanLayer extends AbstractLayer
 
     public static final double HIGHLIGHT_SCALE = 1.5;
 
-    public static final Color AOI_COLOR_HOVER_OR_SELECT = new Color(0x00, 0xBB, 0xFF);
-    public static final Color AOI_COLOR_NORMAL = new Color(0x00, 0x33, 0x66); // 003c71
-    public static final Color AOI_COLOR_ON_AIR = new Color(0x00, 0x66, 0x00); // 006900
+    public static final Color AOI_COLOR_HOVER_OR_SELECT = new Color(0x00, 0xAE, 0xEF); // 00AEEF
+    public static final Color AOI_COLOR_NORMAL = new Color(0x00, 0x3c, 0x71); // 003c71
+    public static final Color AOI_COLOR_ON_AIR = new Color(0x00, 0x69, 0x00); // 006900
     public static final Color FLIGHT_LINE_COLOR = new Color(0xDF, 0xFF, 0x00); // dfff00
     public static final Color CAMERA_POINTING_LINE = new Color(0xF3, 0xF3, 0xF3); // f3f3f3
     public static final Color CAMERA_SHAPRE_PREVIEW = Color.WHITE;
@@ -200,7 +200,7 @@ public class FlightplanLayer extends AbstractLayer
     private final INavigationService navigationService;
     private final IElevationModel elevationModel;
     private final Globe globe;
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
 
     private final AsyncObjectProperty<OperationLevel> operationLevel = new SimpleAsyncObjectProperty<>(this);
 
@@ -243,7 +243,7 @@ public class FlightplanLayer extends AbstractLayer
             ILanguageHelper languageHelper,
             GeneralSettings generalSettings,
             FlightplanLayerVisibilitySettings flightplanLayerVisibilitySettings,
-            Dispatcher dispatcher) {
+            SynchronizationRoot syncRoot) {
         this.mapController = mapController;
         this.mapView = mapView;
         this.globe = globes.getDefaultGlobe();
@@ -252,7 +252,7 @@ public class FlightplanLayer extends AbstractLayer
         this.flighPlan = flighPlan;
         this.selectionManager = selectionManager;
         this.flightplanLayerVisibilitySettings = flightplanLayerVisibilitySettings;
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         recomputeListener = (observable, oldValue, newValue) -> recomp.tryStartRecomp();
         flightplanLayerVisibilitySettings.aoiVisibleProperty().addListener(new WeakChangeListener<>(recomputeListener));
         flightplanLayerVisibilitySettings
@@ -1067,7 +1067,7 @@ public class FlightplanLayer extends AbstractLayer
                         iconLayer.addIcon(new FpMoveIcon(picArea, posCenter));
                     }
 
-                    if (selectedPicArea == picArea) {
+                    if (selectionManager.getSelection() == picArea) {
                         LinkedList<eu.mavinci.flightplan.Point> points = new LinkedList<>();
                         for (IFlightplanStatement p : picArea.getCorners()) {
                             points.add((eu.mavinci.flightplan.Point)p);
@@ -1105,11 +1105,6 @@ public class FlightplanLayer extends AbstractLayer
                     return false;
                 }
 
-                if (flighPlan.areasOfInterestProperty().get() == null
-                        || flighPlan.areasOfInterestProperty().get().size() == 0) {
-                    return false;
-                }
-
                 if (isHalfVisible()) {
                     iconLayer.removeAllIcons();
                     iconLayerFoot.removeAllIcons();
@@ -1138,11 +1133,6 @@ public class FlightplanLayer extends AbstractLayer
                     return false;
                 }
 
-                if (flighPlan.areasOfInterestProperty().get() == null
-                        || flighPlan.areasOfInterestProperty().get().size() == 0) {
-                    return false;
-                }
-
                 Takeoff origin = ((Takeoff)fpObj);
                 // System.out.println("render origin: "+origin);
                 // System.out.println("fp:"+fp.getRefPointAltWgs84WithElevation());
@@ -1167,11 +1157,6 @@ public class FlightplanLayer extends AbstractLayer
                 }
             } else if (fpObj instanceof ReferencePoint) {
                 if (mapController.getMouseMode() == InputMode.ADD_POINTS) {
-                    return false;
-                }
-
-                if (flighPlan.areasOfInterestProperty().get() == null
-                        || flighPlan.areasOfInterestProperty().get().size() == 0) {
                     return false;
                 }
 
@@ -1379,14 +1364,7 @@ public class FlightplanLayer extends AbstractLayer
                     lineLayer.addRenderable(new FpLine(fp, fpPos, true));
                 }
 
-                var fpLine = new FpLine(fp, fpPos, false);
-                if (mapView.isFlatEarth()) {
-                    fpLine.setFollowTerrain(true);
-                } else {
-                    fpLine.setFollowTerrain(false);
-                }
-
-                lineLayer.addRenderable(fpLine);
+                lineLayer.addRenderable(new FpLine(fp, fpPos, false));
                 makeMarkersFromPosList(fpPos);
             }
 
@@ -1566,8 +1544,8 @@ public class FlightplanLayer extends AbstractLayer
     Font f;
 
     public Position fixTextElevation(Position p) {
-        if (mapView.isFlatEarth()) {
-            return new Position(p, 0);
+        if (p.elevation != 0 && mapView.isFlatEarth()) {
+            return new Position(p, -10000);
         }
 
         return elevationModel.renormPosition(p);
@@ -2164,6 +2142,6 @@ public class FlightplanLayer extends AbstractLayer
     public void recomputeReady(Recomputer recomputer, boolean anotherRecomputeIsWaiting, long runNo) {
         // coverage layer computation is done, I have to trigger WWD redraw here
         // redraw WWD layer
-        dispatcher.run(() -> firePropertyChange(AVKey.LAYER, null, FlightplanLayer.this));
+        syncRoot.runAsync(() -> firePropertyChange(AVKey.LAYER, null, FlightplanLayer.this));
     }
 }

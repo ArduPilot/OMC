@@ -215,7 +215,7 @@ public class AboutDialogViewModel extends DialogViewModel {
                 (licence.isBetaTesting()
                     ? languageHelper.getString(IS_BETA_TESTING)
                         + " "
-                        + languageHelper.getString("com.intel.missioncontrol.ui.controls.skins.ToggleSwitchSkin.yes")
+                        + languageHelper.getString("com.intel.missioncontrol.ui.toggle.Yes")
                     : " "));
 
             editions.set(languageHelper.getString(EDITIONS) + " " + getEditionList(licence));

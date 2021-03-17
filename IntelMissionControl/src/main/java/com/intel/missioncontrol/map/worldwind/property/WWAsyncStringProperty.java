@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import org.asyncfx.beans.property.AsyncStringPropertyBase;
 import org.asyncfx.beans.property.PropertyHelper;
 import org.asyncfx.beans.property.PropertyMetadata;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WWAsyncStringProperty extends AsyncStringPropertyBase {
 
@@ -27,11 +27,11 @@ public class WWAsyncStringProperty extends AsyncStringPropertyBase {
     public WWAsyncStringProperty(
             Object bean,
             String name,
-            Dispatcher dispatcher,
+            SynchronizationRoot syncRoot,
             String worldWindPropertyName,
             AVList avList,
             Consumer<String> setter) {
-        super(new PropertyMetadata.Builder<String>().dispatcher(dispatcher).create());
+        super(new PropertyMetadata.Builder<String>().synchronizationContext(syncRoot).create());
         this.bean = bean;
         this.name = name;
         this.propertyName = worldWindPropertyName;

@@ -6,9 +6,9 @@
 
 package eu.mavinci.desktop.helper.gdal;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.common.IPathProvider;
 import com.intel.missioncontrol.settings.SrsPrivateSettings;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.desktop.helper.MathHelper;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -138,7 +138,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
 
         MSpatialReference src =
             new MSpatialReference((String)file.getFileName().toString(), (SpatialReference)srs, srsManager, globe);
-        StaticInjector.getInstance(SrsPrivateSettings.class).add(src);
+        DependencyInjector.getInstance().getInstanceOf(SrsPrivateSettings.class).add(src);
         srsManager.loadFromApp();
 
         return src;
@@ -305,7 +305,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         if ("2005".equals(vertDatum)) {
             File geoid =
                 new File(
-                    StaticInjector.getInstance(IPathProvider.class).getGeoidDirectory().toFile(),
+                    DependencyInjector.getInstance().getInstanceOf(IPathProvider.class).getGeoidDirectory().toFile(),
                     vertDatumName + ".tif");
             // System.out.println("geoid:"+geoid);
             if (geoid.exists()) {
@@ -322,7 +322,7 @@ public class MSpatialReference implements Comparable<MSpatialReference> {
         if ("2005".equals(sr.GetAttrValue("VERT_DATUM", 1))) {
             File geoid =
                 new File(
-                    StaticInjector.getInstance(IPathProvider.class).getGeoidDirectory().toFile(),
+                    DependencyInjector.getInstance().getInstanceOf(IPathProvider.class).getGeoidDirectory().toFile(),
                     sr.GetAttrValue("VERT_DATUM", 0) + ".tif");
             return geoid;
         }

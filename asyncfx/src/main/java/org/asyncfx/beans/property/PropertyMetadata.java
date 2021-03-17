@@ -6,7 +6,11 @@
 
 package org.asyncfx.beans.property;
 
-import org.asyncfx.concurrent.Dispatcher;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.util.concurrent.Executor;
+import org.asyncfx.AsyncFX;
+import org.asyncfx.Optional;
+import org.asyncfx.concurrent.SynchronizationContext;
 
 /**
  * Defines metadata for {@link AsyncProperty}.
@@ -19,25 +23,23 @@ import org.asyncfx.concurrent.Dispatcher;
  */
 public class PropertyMetadata<T> {
 
+    public interface HasAccessDelegate {
+        boolean hasAccess();
+    }
+
     public static class Builder<V> {
-        private String name;
-        private boolean hasName;
-        private boolean customBean;
-        private boolean hasCustomBean;
-        private Dispatcher dispatcher;
-        private boolean hasDispatcher;
-        private V initialValue;
-        private boolean hasInitialValue;
-        private ConsistencyGroup consistencyGroup;
-        private boolean hasConsistencyGroup;
+        private Optional<String> name = Optional.empty();
+        private Optional<Boolean> customBean = Optional.empty();
+        private Optional<SynchronizationContext> synchronizationContext = Optional.empty();
+        private Optional<V> initialValue = Optional.empty();
+        private Optional<ConsistencyGroup> consistencyGroup = Optional.empty();
 
         /**
          * The name of the property. If this value is not specified, the name of the property field will be
          * automatically detected at runtime. Generally, you should not manually specify the name.
          */
         public Builder<V> name(String name) {
-            this.name = name;
-            this.hasName = true;
+            this.name = Optional.of(name);
             return this;
         }
 
@@ -46,8 +48,7 @@ public class PropertyMetadata<T> {
          * {@link AsyncProperty#reset()}.
          */
         public Builder<V> initialValue(V value) {
-            this.initialValue = value;
-            this.hasInitialValue = true;
+            this.initialValue = Optional.of(value);
             return this;
         }
 
@@ -55,9 +56,8 @@ public class PropertyMetadata<T> {
          * Specifies the synchronization context that is used when the property is bound to another property, or when
          * any of the -Async methods are called.
          */
-        public Builder<V> dispatcher(Dispatcher dispatcher) {
-            this.dispatcher = dispatcher;
-            this.hasDispatcher = true;
+        public Builder<V> synchronizationContext(SynchronizationContext synchronizationContext) {
+            this.synchronizationContext = Optional.of(synchronizationContext);
             return this;
         }
 
@@ -67,8 +67,7 @@ public class PropertyMetadata<T> {
          * automatic name detection will be disabled.
          */
         public Builder<V> customBean(boolean value) {
-            this.customBean = value;
-            this.hasCustomBean = true;
+            this.customBean = Optional.of(value);
             return this;
         }
 
@@ -78,138 +77,120 @@ public class PropertyMetadata<T> {
          * appear as atomic operations to observers.
          */
         public Builder<V> consistencyGroup(ConsistencyGroup value) {
-            this.consistencyGroup = value;
-            this.hasConsistencyGroup = true;
+            this.consistencyGroup = Optional.of(value);
             return this;
         }
 
         public PropertyMetadata<V> create() {
             return new PropertyMetadata<>(
                 name,
-                hasName,
                 customBean,
-                hasCustomBean,
                 initialValue,
-                hasInitialValue,
                 consistencyGroup,
-                hasConsistencyGroup,
-                dispatcher,
-                hasDispatcher);
+                synchronizationContext.isPresent() ? Optional.of(synchronizationContext.get()) : Optional.empty(),
+                synchronizationContext.isPresent() ? synchronizationContext.get()::hasAccess : null);
         }
     }
 
     public static class Accessor {
-        public static String getName(PropertyMetadata<?> metadata) {
+        public static Optional<String> getName(PropertyMetadata<?> metadata) {
             return metadata.name;
         }
 
-        public static boolean hasName(PropertyMetadata<?> metadata) {
-            return metadata.hasName;
-        }
-
-        public static boolean getCustomBean(PropertyMetadata<?> metadata) {
+        public static Optional<Boolean> getCustomBean(PropertyMetadata<?> metadata) {
             return metadata.customBean;
         }
 
-        public static boolean hasCustomBean(PropertyMetadata<?> metadata) {
-            return metadata.hasCustomBean;
-        }
-
-        public static <T> T getInitialValue(PropertyMetadata<T> metadata) {
+        public static <T> Optional<T> getInitialValue(PropertyMetadata<T> metadata) {
             return metadata.initialValue;
         }
 
-        public static boolean hasInitialValue(PropertyMetadata<?> metadata) {
-            return metadata.hasInitialValue;
-        }
-
-        public static ConsistencyGroup getConsistencyGroup(PropertyMetadata<?> metadata) {
+        public static Optional<ConsistencyGroup> getConsistencyGroup(PropertyMetadata<?> metadata) {
             return metadata.consistencyGroup;
         }
 
-        public static boolean hasConsistencyGroup(PropertyMetadata<?> metadata) {
-            return metadata.hasConsistencyGroup;
+        public static Optional<Executor> getExecutor(PropertyMetadata<?> metadata) {
+            return metadata.executor;
         }
 
-        public static Dispatcher getDispatcher(PropertyMetadata<?> metadata) {
-            return metadata.dispatcher;
-        }
-
-        public static boolean hasDispatcher(PropertyMetadata<?> metadata) {
-            return metadata.hasDispatcher;
+        public static HasAccessDelegate getHasAccess(PropertyMetadata<?> metadata) {
+            return metadata.hasAccess;
         }
     }
 
-    private final String name;
-    private final boolean hasName;
-
-    private final boolean customBean;
-    private final boolean hasCustomBean;
-
-    private final Dispatcher dispatcher;
-    private final boolean hasDispatcher;
-
-    private final T initialValue;
-    private final boolean hasInitialValue;
-
-    private final ConsistencyGroup consistencyGroup;
-    private final boolean hasConsistencyGroup;
+    private final Optional<String> name;
+    private final Optional<Boolean> customBean;
+    private final Optional<T> initialValue;
+    private final Optional<ConsistencyGroup> consistencyGroup;
+    private final Optional<Executor> executor;
+    private final HasAccessDelegate hasAccess;
 
     protected PropertyMetadata(
-            String name,
-            boolean hasName,
-            Boolean customBean,
-            boolean hasCustomBean,
-            T initialValue,
-            boolean hasInitialValue,
-            ConsistencyGroup consistencyGroup,
-            boolean hasConsistencyGroup,
-            Dispatcher dispatcher,
-            boolean hasDispatcher) {
+            Optional<String> name,
+            Optional<Boolean> customBean,
+            Optional<T> initialValue,
+            Optional<ConsistencyGroup> consistencyGroup,
+            Optional<Executor> executor,
+            HasAccessDelegate hasAccess) {
         this.name = name;
-        this.hasName = hasName;
         this.customBean = customBean;
-        this.hasCustomBean = hasCustomBean;
         this.initialValue = initialValue;
-        this.hasInitialValue = hasInitialValue;
         this.consistencyGroup = consistencyGroup;
-        this.hasConsistencyGroup = hasConsistencyGroup;
-        this.dispatcher = dispatcher;
-        this.hasDispatcher = hasDispatcher;
+        this.executor = executor;
+        this.hasAccess = hasAccess;
     }
 
     public String getName() {
-        return name;
+        return name.orElse(null);
     }
 
     public boolean isCustomBean() {
-        return customBean;
+        return customBean.orElse(false);
     }
 
-    public Dispatcher getDispatcher() {
-        return dispatcher;
+    public Executor getExecutor() {
+        return executor.orElse(MoreExecutors.directExecutor());
     }
 
     public T getInitialValue() {
-        return initialValue;
+        return initialValue.orElse(null);
     }
 
-    public ConsistencyGroup getConsistencyGroup() {
-        return consistencyGroup;
+    public final void verifyAccess() {
+        if (hasAccess != null
+                && (AsyncFX.isVerifyPropertyAccess() || AsyncFX.isRunningTests())
+                && !hasAccess.hasAccess()) {
+            throw new IllegalStateException(
+                "Illegal cross-thread access: expected = "
+                    + getExecutor().toString()
+                    + "; currentThread = "
+                    + Thread.currentThread().getName()
+                    + ".");
+        }
+
+        verifyConsistency();
+    }
+
+    final void verifyConsistency() {
+        if (consistencyGroup.isPresent()) {
+            for (ReadOnlyAsyncProperty property : consistencyGroup.get().getProperties()) {
+                if (!property.getAccessController().isLocked()) {
+                    throw new IllegalStateException(
+                        "Illegal access: property is part of a consistency group"
+                            + " and can only be accessed within a critical section.");
+                }
+            }
+        }
     }
 
     protected PropertyMetadata<T> merge(PropertyMetadata<T> metadata) {
         return new PropertyMetadata<>(
-            metadata.hasName ? metadata.name : name,
-            metadata.hasName || hasName,
-            metadata.hasCustomBean ? metadata.customBean : customBean,
-            metadata.hasCustomBean || hasCustomBean,
-            metadata.hasInitialValue ? metadata.initialValue : initialValue,
-            metadata.hasInitialValue || hasInitialValue,
-            metadata.hasConsistencyGroup ? metadata.consistencyGroup : consistencyGroup,
-            metadata.hasConsistencyGroup || hasConsistencyGroup,
-            metadata.hasDispatcher ? metadata.dispatcher : dispatcher,
-            metadata.hasDispatcher || hasDispatcher);
+            metadata.name.isPresent() ? metadata.name : name,
+            metadata.customBean.isPresent() ? metadata.customBean : customBean,
+            metadata.initialValue.isPresent() ? metadata.initialValue : initialValue,
+            metadata.consistencyGroup.isPresent() ? metadata.consistencyGroup : consistencyGroup,
+            metadata.executor.isPresent() ? metadata.executor : executor,
+            metadata.executor.isPresent() ? metadata.hasAccess : hasAccess);
     }
 
 }

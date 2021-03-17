@@ -6,12 +6,12 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Unit;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.StringHelper;
 import eu.mavinci.desktop.gui.doublepanel.camerasettings.CameraHelper;
@@ -21,8 +21,10 @@ import java.util.ArrayList;
 
 public class FuzzinessData {
 
-    private static final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     private double inMeter = -1;
     private double maxLenseDistance = -1;

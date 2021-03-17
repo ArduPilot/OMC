@@ -81,6 +81,9 @@ public class StartPlanningView extends FancyTabView<StartPlanningViewModel> {
     private ComboBox<FlightPlanTemplate> templateComboBox;
 
     @FXML
+    private ComboBox<AltitudeAdjustModes> terrainModeCombobox;
+
+    @FXML
     private MenuButton flightPlansMenuButton;
 
     @FXML
@@ -104,6 +107,7 @@ public class StartPlanningView extends FancyTabView<StartPlanningViewModel> {
                     .isEqualTo(OperationLevel.DEBUG));
         templateSettingsButton.managedProperty().bind(templateSettingsButton.visibleProperty());
 
+        initTerrainModeCombobox();
         dialogContextProvider.setContext(viewModel, context);
         this.applicationContext = applicationContext;
         projectNameLabel.textProperty().bind(viewModel.missionNameProperty());
@@ -153,6 +157,79 @@ public class StartPlanningView extends FancyTabView<StartPlanningViewModel> {
             });
 
         flightPlansMenuButton.setModel(viewModel.getFlightPlanMenuModel());
+    }
+
+    private void initTerrainModeCombobox() {
+        EnumConverter<AltitudeAdjustModes> terrainModeConverter =
+            new EnumConverter<>(languageHelper, AltitudeAdjustModes.class);
+        terrainModeCombobox
+            .getItems()
+            .addAll(Arrays.asList(AltitudeAdjustModes.CONSTANT_OVER_R, AltitudeAdjustModes.FOLLOW_TERRAIN));
+        terrainModeCombobox.setConverter(terrainModeConverter);
+        terrainModeCombobox.setCellFactory(
+            param ->
+                new ListCell<AltitudeAdjustModes>() {
+                    private final ImmutableMap<AltitudeAdjustModes, String> itemIcons =
+                        ImmutableMap.<AltitudeAdjustModes, String>builder()
+                            .put(
+                                AltitudeAdjustModes.CONSTANT_OVER_R,
+                                "/com/intel/missioncontrol/icons/icon_alt_constant.svg")
+                            .put(
+                                AltitudeAdjustModes.FOLLOW_TERRAIN,
+                                "/com/intel/missioncontrol/icons/icon_alt_linear.svg")
+                            .build();
+
+                    @Override
+                    protected void updateItem(AltitudeAdjustModes item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            try (InputStream iconInput =
+                                Thread.currentThread()
+                                    .getContextClassLoader()
+                                    .getResourceAsStream(itemIcons.get(item))) {
+                                ImageView icon = new ImageView(new Image(iconInput));
+                                icon.setFitHeight(TERRAIN_MODE_ICON_SIZE);
+                                icon.setFitWidth(TERRAIN_MODE_ICON_SIZE);
+                                icon.setPreserveRatio(true);
+                                setGraphic(icon);
+                            } catch (IOException e) {
+                                Debug.getLog().log(Debug.WARNING, "GeneralSettingsSectionView: ", e);
+                            }
+
+                            String text = terrainModeConverter.toString(item);
+                            setText(text);
+                        }
+                    }
+                });
+
+        AsyncBooleanProperty useSurfaceModel =
+            settingsManager.getSection(ElevationModelSettings.class).useSurfaceDataForPlanningProperty();
+
+        terrainModeCombobox.valueProperty().bindBidirectional(viewModel.selectedTerrainModeProperty());
+
+        useSurfaceDataForPlanningListener =
+            (obj, oldVal, newVal) -> {
+                setupTerrainModeCombo(newVal);
+            };
+        useSurfaceModel.addListener(new WeakChangeListener<>(useSurfaceDataForPlanningListener), Dispatcher.platform());
+
+        notUsingSurfaceElevationInSettings
+            .managedProperty()
+            .bind(settingsManager.getSection(ElevationModelSettings.class).useSurfaceDataForPlanningProperty().not());
+        notUsingSurfaceElevationInSettings
+            .visibleProperty()
+            .bind(settingsManager.getSection(ElevationModelSettings.class).useSurfaceDataForPlanningProperty().not());
+        setupTerrainModeCombo(useSurfaceModel.get());
+    }
+
+    private void setupTerrainModeCombo(Boolean newVal) {
+        if (!newVal.booleanValue()) {
+            terrainModeCombobox.getSelectionModel().select(AltitudeAdjustModes.CONSTANT_OVER_R);
+            terrainModeCombobox.setDisable(true);
+        } else {
+            terrainModeCombobox.getSelectionModel().select(AltitudeAdjustModes.FOLLOW_TERRAIN);
+            terrainModeCombobox.setDisable(false);
+        }
     }
 
     @Override

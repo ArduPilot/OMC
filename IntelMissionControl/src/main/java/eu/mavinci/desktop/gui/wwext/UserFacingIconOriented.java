@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.gui.wwext;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.util.texture.TextureCoords;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.globes.FlatGlobe;
@@ -33,17 +33,17 @@ public class UserFacingIconOriented extends UserFacingIconWithUserData implement
 
     public UserFacingIconOriented(BufferedImage icon, Position pos, Object userDataObject) {
         super(icon, pos, userDataObject);
-        posWgs84 = StaticInjector.getInstance(IElevationModel.class).getPositionOverGround(pos);
+        posWgs84 = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class).getPositionOverGround(pos);
     }
 
     public UserFacingIconOriented(Object icon, Position pos, Object userDataObject) {
         super(icon, pos, userDataObject);
-        posWgs84 = StaticInjector.getInstance(IElevationModel.class).getPositionOverGround(pos);
+        posWgs84 = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class).getPositionOverGround(pos);
     }
 
     public UserFacingIconOriented(String iconPath, Position pos, Object userDataObject) {
         super(iconPath, pos, userDataObject);
-        posWgs84 = StaticInjector.getInstance(IElevationModel.class).getPositionOverGround(pos);
+        posWgs84 = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class).getPositionOverGround(pos);
     }
 
     @Override

@@ -11,14 +11,14 @@ import com.google.inject.name.Named;
 import com.intel.missioncontrol.map.LayerDefaults;
 import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class OneImageBaseLayer extends WWLayerWrapper {
 
     @Inject
-    OneImageBaseLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new gov.nasa.worldwind.layers.Earth.BMNGOneImage(), dispatcher);
+    OneImageBaseLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new gov.nasa.worldwind.layers.Earth.BMNGOneImage(), syncRoot);
     }
 
 }

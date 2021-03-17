@@ -185,7 +185,7 @@ public class AoiTransformationTabViewModel extends ViewModelBase<AreaOfInterest>
         super.initializeViewModel(aoi);
         mapController
             .mouseModeProperty()
-            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform()::run);
+            .addListener(new WeakChangeListener<>(mouseModesChangeListener), Dispatcher.platform());
 
         originPositionWrapper.positionProperty().bindBidirectional(aoi.originPositionProperty());
         originElevation.bindBidirectional(aoi.originElevationProperty());

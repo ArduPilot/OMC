@@ -6,7 +6,7 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import eu.mavinci.core.main.OsTypes;
 import eu.mavinci.desktop.main.debug.Debug;
@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 public class WinRegistryQuery {
@@ -71,7 +70,7 @@ public class WinRegistryQuery {
      */
     public static Integer getTeamViewerID() {
         try {
-            OsTypes system = StaticInjector.getInstance(IVersionProvider.class).getSystem();
+            OsTypes system = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem();
             if (system.isWindows()) {
                 String ret = getValueUniv(CMD_Query_TeamViewerID_32);
                 if (ret == null) {
@@ -151,14 +150,12 @@ public class WinRegistryQuery {
             return null;
         }
     }
-    private static AtomicInteger streamReaderThreadCounter = new AtomicInteger(0);
 
     static class StreamReader extends Thread {
         private InputStream is;
         private ArrayList<Byte> list = new ArrayList<Byte>();
 
         StreamReader(InputStream is) {
-            super("StreamReader-"+streamReaderThreadCounter.incrementAndGet());
             this.is = is;
         }
 

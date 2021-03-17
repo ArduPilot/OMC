@@ -65,9 +65,9 @@ public class MavinciObjectFactory {
                 legacyFlightplan.open(flightPlanFile);
             } catch (InvalidFlightPlanFileException e) {
                 Debug.getLog()
-                    .log(Level.WARNING, "Cannot read mission file " + flightPlanFile + " : " + e.getCause());
+                    .log(Level.WARNING, "Cannot read a flightplan file " + flightPlanFile + " : " + e.getCause());
                 applicationContext.addToast(
-                    Toast.of(ToastType.ALERT).setText(languageHelper.getString("com.intel.missioncontrol.helper.cannotOpen") + flightPlanFile).setShowIcon(true).create());
+                    Toast.of(ToastType.ALERT).setText("Cannot open a flightplan file " + flightPlanFile).setShowIcon(true).create());
             }
         }
     }

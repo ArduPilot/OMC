@@ -7,12 +7,12 @@
 package eu.mavinci.core.plane;
 
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.ui.notifications.Toast;
 import com.intel.missioncontrol.ui.notifications.ToastType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.AltAssertModes;
 import eu.mavinci.core.flightplan.CEvent;
 import eu.mavinci.core.flightplan.CEventList;
@@ -93,7 +93,7 @@ public class CAirplaneCache implements IAirplaneListenerAllExternal, IAirplaneLi
     protected Double curTime = null;
     protected Double curLat = null;
     protected Double curLon = null;
-    protected Double curAltAboveStart = null;
+    protected Float curAltAboveStart = null;
 
     protected Double travelDistance = 0.;
 
@@ -492,7 +492,7 @@ public class CAirplaneCache implements IAirplaneListenerAllExternal, IAirplaneLi
 
         // geofencing stuff
         if (newPhase == AirplaneFlightphase.areaRestricted) {
-            StaticInjector.getInstance(IGeoFenceDetector.class).setGeoFencingRestrictionOn();
+            DependencyInjector.getInstance().getInstanceOf(IGeoFenceDetector.class).setGeoFencingRestrictionOn();
         }
 
         // initialize stuff, if it is not already..
@@ -727,7 +727,7 @@ public class CAirplaneCache implements IAirplaneListenerAllExternal, IAirplaneLi
 
         curLat = p.lat;
         curLon = p.lon;
-        curAltAboveStart = p.altitude / 100;
+        curAltAboveStart = p.altitude / 100f;
 
         // Position pOverStart = new Position(curLatLon, p.altitude/100.);
         // Vec4 vn = EarthElevationModel.model.getGlobe().computePointFromPosition(pOverStart);
@@ -930,7 +930,7 @@ public class CAirplaneCache implements IAirplaneListenerAllExternal, IAirplaneLi
             String name = null;
             AirplaneEventActions action = null;
 
-            // TODO GH
+            //TODO GH
             switch (event_action_reason) {
             case 1:
                 name = CEventList.NAME_GPSLOSS;
@@ -1003,23 +1003,25 @@ public class CAirplaneCache implements IAirplaneListenerAllExternal, IAirplaneLi
             // System.out.println("host="+host);
             // System.out.println("host.info"+host.info);
             if (plane.isWriteable()) { // don't be soo strict if this is only a log replay!
-                if (StaticInjector.getInstance(ISettingsManager.class)
+                if (DependencyInjector.getInstance()
+                            .getInstanceOf(ISettingsManager.class)
                             .getSection(GeneralSettings.class)
                             .getOperationLevel()
                         != OperationLevel.DEBUG) {
                     plane.getRootHandler().err_backendConnectionLost(ConnectionLostReasons.WRONG_AP_RELEASE);
                     throw new RuntimeException(
-                        "Backend has other Release Version than Open Mission Control. Connection closed!");
+                        "Backend has other Release Version than Intel Mission Control. Connection closed!");
                 }
             } else {
                 if (!hasWarnedCompatibility) {
-                    StaticInjector.getInstance(IApplicationContext.class)
+                    DependencyInjector.getInstance()
+                        .getInstanceOf(IApplicationContext.class)
                         .addToast(
                             Toast.of(ToastType.ALERT)
                                 .setText(
                                     "The release of the autopilot where the session is (or was) connected to or the act. replayed logfile comes from ("
                                         + host.info.getHumanReadableSWversion()
-                                        + ") is not equal to your version of Open Mission Control. This may lead to compatibility problems.")
+                                        + ") is not equal to your version of Intel Mission Control. This may lead to compatibility problems.")
                                 .setShowIcon(true)
                                 .create());
                     hasWarnedCompatibility = true;

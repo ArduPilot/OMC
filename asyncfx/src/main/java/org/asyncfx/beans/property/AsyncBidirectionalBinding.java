@@ -193,7 +193,7 @@ class AsyncBidirectionalBinding {
                     final OrderedValue<U> value =
                         new OrderedValue<>(
                             converter != null ? converter.convert(newValue) : (U)newValue, serial, property);
-                    remoteProperty.getExecutor().execute(new UpdateRunnable<>(remoteEndpoint, value));
+                    remoteProperty.getMetadata().getExecutor().execute(new UpdateRunnable<>(remoteEndpoint, value));
                 }
 
                 valueSource = null;

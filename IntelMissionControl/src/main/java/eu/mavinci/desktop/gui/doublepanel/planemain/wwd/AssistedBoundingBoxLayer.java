@@ -7,10 +7,10 @@
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.plane.AirplaneCacheEmptyException;
 import eu.mavinci.core.plane.PlaneConstants;
 import eu.mavinci.core.plane.listeners.IAirplaneListenerConfig;
@@ -42,7 +42,8 @@ public class AssistedBoundingBoxLayer extends RenderableLayer
     LatLon center = null;
 
     public static final Color defCol = new Color(0.f, 1.f, 0.f, 0.15f);
-    private static final Globe globe = StaticInjector.getInstance(IWWGlobes.class).getDefaultGlobe();
+    private static final Globe globe =
+        DependencyInjector.getInstance().getInstanceOf(IWWGlobes.class).getDefaultGlobe();
 
     public AssistedBoundingBoxLayer(IAirplane plane) {
         this.plane = plane;

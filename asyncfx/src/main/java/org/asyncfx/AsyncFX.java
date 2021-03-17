@@ -117,7 +117,7 @@ public class AsyncFX {
     }
 
     @SuppressWarnings("SameParameterValue")
-    public static void setRunningTests(boolean enabled) {
+    static void setRunningTests(boolean enabled) {
         runningTests = enabled;
     }
 

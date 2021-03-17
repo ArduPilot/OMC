@@ -14,24 +14,24 @@ import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.modules.MapModule;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.Vec4;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class CompassLayer extends WWLayerWrapper {
 
     @Inject
-    CompassLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher) {
-        super(new gov.nasa.worldwind.layers.CompassLayer(), dispatcher);
+    CompassLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
+        super(new gov.nasa.worldwind.layers.CompassLayer(), syncRoot);
         gov.nasa.worldwind.layers.CompassLayer compassLayer = (gov.nasa.worldwind.layers.CompassLayer)getWrappedLayer();
         compassLayer.setResizeBehavior(AVKey.RESIZE_SHRINK_ONLY);
-        compassLayer.setIconScale(0.5);
+        compassLayer.setIconScale(0.5 * ScaleHelper.getScaleFactor());
         compassLayer.setPosition(AVKey.NORTHWEST);
         compassLayer.setLocationOffset(new Vec4(ScaleHelper.emsToPixels(2), 0));
 
         ScaleHelper.scalePropProperty()
             .addListener(
                 (observable, oldVal, newVal) -> {
-                    compassLayer.setIconScale(0.5);
+                    compassLayer.setIconScale(0.5 * ScaleHelper.getScaleFactor());
                 });
     }
 

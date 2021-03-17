@@ -26,11 +26,12 @@ import javax.inject.Inject;
 
 public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
 
+    private static final String ICON_COMPLETE = "/com/intel/missioncontrol/icons/icon_complete(fill=theme-green).svg";
+    // TODO: colors
+    private static final String ICON_WARNING = "/com/intel/missioncontrol/icons/icon_warning(fill=black).svg";
+    private static final String ICON_ERROR =
+        "/com/intel/missioncontrol/icons/icon_warning(fill=theme-warning-color).svg";
     private static final String ICON_LOADING = "/com/intel/missioncontrol/icons/icon_progress.svg";
-    private static final String ICON_COMPLETE_CLASS = "icon-complete";
-    private static final String ICON_WARNING_CLASS = "icon-warning";
-    private static final String WARNING_CLASS = "warning";
-    private static final String CRITICAL_CLASS = "critical";
 
     @InjectViewModel
     private SafetyChecksViewModel viewModel;
@@ -42,16 +43,10 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
     private Pane layoutRoot;
 
     @FXML
-    private Pane autoCheckBox;
-
-    @FXML
     private RotatingImageView autoCheckImageStatus;
 
     @FXML
     private Label autoCheckStatus;
-
-    @FXML
-    private Pane checkListBox;
 
     @FXML
     private ImageView checklistImageStatus;
@@ -59,6 +54,18 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
     @FXML
     private Label checklistStatus;
 
+    @FXML
+    private ImageView takeoffPositionImageStatus;
+
+    @FXML
+    private Label takeoffPositionStatus;
+
+    @FXML
+    private Button updateTakeoffPositionButton;
+
+    private Image completeIcon;
+    private Image warningIcon;
+    private Image errorIcon;
     private Image loadingIcon;
 
     private IDialogContextProvider dialogContextProvider;
@@ -80,24 +87,15 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
             .bind(
                 Bindings.createObjectBinding(
                     () -> {
-                        autoCheckBox.getStyleClass().removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_COMPLETE_CLASS);
-                        autoCheckImageStatus.setVisible(false);
-                        autoCheckImageStatus.setManaged(false);
-
                         switch (viewModel.autoCheckAlertTypeProperty().get()) {
                         case WARNING:
-                            autoCheckBox.getStyleClass().addAll(ICON_WARNING_CLASS, WARNING_CLASS);
-                            return null;
+                            return getWarningIcon();
                         case ERROR:
-                            autoCheckBox.getStyleClass().addAll(ICON_WARNING_CLASS, CRITICAL_CLASS);
-                            return null;
+                            return getErrorIcon();
                         case LOADING:
-                            autoCheckImageStatus.setVisible(true);
-                            autoCheckImageStatus.setManaged(true);
                             return getLoadingIcon();
                         case COMPLETED:
-                            autoCheckBox.getStyleClass().add(ICON_COMPLETE_CLASS);
-                            return null;
+                            return getCompleteIcon();
                         case NONE:
                         default:
                             return null;
@@ -123,21 +121,13 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
             .bind(
                 Bindings.createObjectBinding(
                     () -> {
-                        checkListBox.getStyleClass().removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_WARNING_CLASS, ICON_COMPLETE_CLASS);
-                        checklistImageStatus.setVisible(false);
-                        checklistImageStatus.setManaged(false);
-
                         switch (viewModel.manualCheckImageTypeProperty().get()) {
                         case WARNING:
-                            checkListBox.getStyleClass().addAll(WARNING_CLASS, ICON_WARNING_CLASS);
-                            return null;
+                            return getWarningIcon();
                         case LOADING:
-                            checklistImageStatus.setVisible(true);
-                            checklistImageStatus.setManaged(true);
                             return getLoadingIcon();
                         case COMPLETED:
-                            checkListBox.getStyleClass().add(ICON_COMPLETE_CLASS);
-                            return null;
+                            return getCompleteIcon();
                         case NONE:
                         default:
                             return null;
@@ -146,8 +136,34 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
                     viewModel.manualCheckImageTypeProperty()));
         checklistStatus.textProperty().bind(viewModel.manualCheckStatusProperty());
 
+        updateTakeoffPositionButton
+            .disableProperty()
+            .bind(viewModel.getUpdateTakeoffPositionCommand().notExecutableProperty());
+        // TODO highlighting
+        takeoffPositionStatus.textProperty().bind(viewModel.takeoffPositionStatusProperty());
+        checklistStatus.textProperty().bind(viewModel.manualCheckStatusProperty());
+        takeoffPositionImageStatus
+            .imageProperty()
+            .bind(
+                Bindings.createObjectBinding(
+                    () -> {
+                        viewModel.getUpdateTakeoffPositionImageStatusString.execute();
+                        switch (viewModel.takeoffPositionImageTypeProperty().get()) {
+                        case WARNING:
+                            return getWarningIcon();
+                        case LOADING:
+                            return getLoadingIcon();
+                        case COMPLETED:
+                            return getCompleteIcon();
+                        case NONE:
+                        default:
+                            return null;
+                        }
+                    },
+                    viewModel.takeoffPositionImageTypeProperty(),
+                    viewModel.getUpdateTakeoffPositionCommand().notExecutableProperty(),
+                    viewModel.flightSegmentProperty()));
     }
-
 
     public void showViewLogDialog(@SuppressWarnings("unused") ActionEvent actionEvent) {
         viewModel.getShowAutomaticChecksDialogCommand().execute();
@@ -157,7 +173,33 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
         viewModel.getShowFlightCheckListChecksDialogCommand().execute();
     }
 
+    private Image getCompleteIcon() {
+        if (completeIcon == null) {
+            try {
+                completeIcon = new Image(ICON_COMPLETE);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
+        return completeIcon;
+    }
+
+    private Image getWarningIcon() {
+        if (warningIcon == null) {
+            warningIcon = new Image(ICON_WARNING);
+        }
+
+        return warningIcon;
+    }
+
+    private Image getErrorIcon() {
+        if (errorIcon == null) {
+            errorIcon = new Image(ICON_ERROR);
+        }
+
+        return errorIcon;
+    }
 
     private Image getLoadingIcon() {
         if (loadingIcon == null) {
@@ -176,9 +218,9 @@ public class SafetyChecksView extends ViewBase<SafetyChecksViewModel> {
     protected ViewModel getViewModel() {
         return viewModel;
     }
-/*
+
     public void updateTakeoffPosition(ActionEvent actionEvent) {
         viewModel.getUpdateTakeoffPositionCommand().execute();
     }
-*/
+
 }

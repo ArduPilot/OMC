@@ -6,17 +6,16 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.DoubleHelper;
 import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.map.elevation.ElevationModelRequestException;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import com.intel.missioncontrol.map.elevation.MinMaxTrackDistanceAndAbsolute;
 import com.intel.missioncontrol.measure.Unit;
 import com.intel.missioncontrol.mission.ReferencePointType;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.core.flightplan.AltAssertModes;
 import eu.mavinci.core.flightplan.CEventList;
@@ -24,7 +23,6 @@ import eu.mavinci.core.flightplan.CFlightplan;
 import eu.mavinci.core.flightplan.CPicArea;
 import eu.mavinci.core.flightplan.CWaypoint;
 import eu.mavinci.core.flightplan.FMLReader;
-import eu.mavinci.core.flightplan.FlightplanSpeedModes;
 import eu.mavinci.core.flightplan.IFlightplanContainer;
 import eu.mavinci.core.flightplan.IFlightplanDeactivateable;
 import eu.mavinci.core.flightplan.IFlightplanPositionReferenced;
@@ -33,13 +31,10 @@ import eu.mavinci.core.flightplan.IFlightplanStatement;
 import eu.mavinci.core.flightplan.IRecalculateable;
 import eu.mavinci.core.flightplan.KMLReader;
 import eu.mavinci.core.flightplan.PlanType;
-import eu.mavinci.core.flightplan.SpeedMode;
-import eu.mavinci.core.flightplan.visitors.AFlightplanVisitor;
 import eu.mavinci.core.flightplan.visitors.CollectsTypeVisitor;
 import eu.mavinci.core.flightplan.visitors.ExtractPicAreasVisitor;
 import eu.mavinci.core.flightplan.visitors.FirstLastOfTypeVisitor;
 import eu.mavinci.core.flightplan.visitors.ReassignIdsVisitor;
-import eu.mavinci.core.flightplan.visitors.WaypointByIndexVisitor;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.desktop.gui.doublepanel.mapmanager.IResourceFileReferenced;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerListener;
@@ -86,11 +81,13 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
     // during computation of the flightplan, we have to add some extra margin, otherwise we might find issues during
     // checking because of numerical errors
     public static final double JUMP_SAFETY_MARGIN = 1;
-    public static final double MIN_HEIGHT_OVER_TAKEOFF_TO_START_MISSION_GH = 20;
+    public static final double MIN_HEIGHT_OVER_TAKEOFF_TO_START_MISSION_FALCON = 10;
     private final String jumpOver =
-        StaticInjector.getInstance(ILanguageHelper.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(ILanguageHelper.class)
             .getString("com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.jumpOver");
-    private final IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
+    private final IElevationModel elevationModel =
+        DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
     private final Object simLock = new Object();
     private final Object fPcoveragePreviewLock = new Object();
     private final AtomicBoolean insideRecalculation = new AtomicBoolean();
@@ -162,9 +159,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         this.recalculateOnEveryChange = source.recalculateOnEveryChange;
         loadingDone = true;
         this.enableJumpOverWaypoints = source.enableJumpOverWaypoints;
-        if (source.getHardwareConfiguration().getPlatformDescription().isObstacleAvoidanceCapable()) {
-            this.obstacleAvoidanceEnabled = source.obstacleAvoidanceEnabled;
-        }
     }
 
     public boolean allAoisSizeValid() {
@@ -182,17 +176,17 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
 
     public void open(File file) throws InvalidFlightPlanFileException {
         if (!FileHelper.canRead(file, null)) {
-            throw new InvalidFlightPlanFileException("Cannot open mission:  " + file);
+            throw new InvalidFlightPlanFileException("Cannot open flight plan:  " + file);
         }
 
-        Debug.getLog().fine("try to load mission from File: " + file.getAbsolutePath());
+        Debug.getLog().fine("try to load Flightplan from File: " + file.getAbsolutePath());
 
         if (file.getName().toLowerCase().endsWith(".kml")) {
             openKml(file);
         } else if (file.getName().toLowerCase().endsWith(".fml")) {
             openFml(file);
         } else {
-            throw new InvalidFlightPlanFileException("Unsupported mission type " + file.getName());
+            throw new InvalidFlightPlanFileException("Unsupported flight plan type " + file.getName());
         }
 
         fastPositionTransformationProvider = new FastPositionTransformationProvider(Math.toRadians(refPoint.lon));
@@ -290,7 +284,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         try {
             return writer.flightplanToASM(this);
         } catch (IOException e) {
-            Debug.getLog().log(Level.WARNING, "Mission ASM conversion Problems", e);
+            Debug.getLog().log(Level.WARNING, "Flightplan ASM conversion Problems", e);
             return null;
         }
     }
@@ -306,7 +300,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         if (s != null) {
             LocalTransformationProvider trafo =
                 new LocalTransformationProvider(new Position(s.getCentroid(), 0), Angle.ZERO, 0, 0, true);
-            // for panorama missions the area covered by the points is basically zero, this
+            // for panorama flight plans the area covered by the points is basically zero, this
             // means the cam will sit exactly on the points, but actally we will then not getting them
             // rendered on the screen
             // => mitigation: if area is too small, add a height offset
@@ -423,23 +417,10 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         }
     }
 
-    public boolean obstacleAvoidanceEnabled() {
-        return obstacleAvoidanceEnabled;
-    }
-
-    public void enableObstacleAvoidance(Boolean enable) {
-        if (this.obstacleAvoidanceEnabled == enable) {
-            return;
-        }
-
-        this.obstacleAvoidanceEnabled = enable;
-        flightplanStatementChanged(this);
-    }
-
     @Override
     public String getInternalName() {
         if (getFile() == null) {
-            return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY_UNNAMED_FILE);
+            return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(KEY_UNNAMED_FILE);
         }
 
         String name = getFile().getName();
@@ -497,7 +478,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
 
     @Override
     public boolean doSubRecalculationStage1() {
-        if (!StaticInjector.getInstance(ICountryDetector.class).allowProceed(getSector())) {
+        if (!DependencyInjector.getInstance().getInstanceOf(ICountryDetector.class).allowProceed(getSector())) {
             return false;
         }
 
@@ -665,7 +646,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                 }
             }
 
-            if (foundFence) {
+            if (!foundFence) {
                 geoFences.addAll(collisions);
                 CollisionCheckResult res = new CollisionCheckResult();
                 res.picAreas = geoFences;
@@ -935,17 +916,12 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
 
         // so the problem described in IMC-1796 was due to the height variable
         // when the object is no-fly zone or a geo-fence, it´s height should be casted here to the point R
-        double height = 0;
+        double height;
         if (!pt.hasWaypoints()) {
-            try {
-                height =
-                    picArea.getRestrictionHeightAboveWgs84(
-                            picArea.getCenter(), picArea.getRestrictionCeiling(), picArea.getRestrictionCeilingRef())
-                        - getRefPointAltWgs84WithElevation()
-                        + elevationModel.getElevation(picArea.getCenter());
-            } catch (ElevationModelRequestException e) {
-                e.printStackTrace();
-            }
+            height =
+                picArea.getRestrictionHeightAboveWgs84(
+                        picArea.getCenter(), picArea.getRestrictionCeiling(), picArea.getRestrictionCeilingRef())
+                    - getRefPointAltWgs84WithElevation();
         } else {
             clearanceXY = clearanceZ = picArea.getMinObjectDistance() + safetyMargin;
             height = picArea.getObjectHeightRelativeToRefPoint() + clearanceZ;
@@ -1020,28 +996,15 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         ArrayList<LatLon> corLatLonLoop = new ArrayList<LatLon>(corLatLon);
         corLatLonLoop.add(corLatLon.get(0));
         MinMaxPair heightStart = picArea.getRestrictionIntervalInFpHeights(connection.startPos, clearanceZ);
-        if (!pt.equals(PlanType.GEOFENCE_CIRC) && !pt.equals(PlanType.GEOFENCE_POLY)) {
-            if (heightStart.contains(pointA.z) && WWMath.isLocationInside(connection.startPos, corLatLonLoop)) {
-                connection.clearObstacleHeight.enlarge(heightStart);
-                return true;
-            }
+        if (heightStart.contains(pointA.z) && WWMath.isLocationInside(connection.startPos, corLatLonLoop)) {
+            connection.clearObstacleHeight.enlarge(heightStart);
+            return true;
+        }
 
-            MinMaxPair heightEnd = picArea.getRestrictionIntervalInFpHeights(connection.endPos, clearanceZ);
-            if (heightEnd.contains(pointB.z) && WWMath.isLocationInside(connection.endPos, corLatLonLoop)) {
-                connection.clearObstacleHeight.enlarge(heightEnd);
-                return true;
-            }
-        } else {
-            if (!heightStart.contains(pointA.z) && !WWMath.isLocationInside(connection.startPos, corLatLonLoop)) {
-                connection.clearObstacleHeight.enlarge(heightStart);
-                return true;
-            }
-
-            MinMaxPair heightEnd = picArea.getRestrictionIntervalInFpHeights(connection.endPos, clearanceZ);
-            if (!heightEnd.contains(pointB.z) && !WWMath.isLocationInside(connection.endPos, corLatLonLoop)) {
-                connection.clearObstacleHeight.enlarge(heightEnd);
-                return true;
-            }
+        MinMaxPair heightEnd = picArea.getRestrictionIntervalInFpHeights(connection.endPos, clearanceZ);
+        if (heightEnd.contains(pointB.z) && WWMath.isLocationInside(connection.endPos, corLatLonLoop)) {
+            connection.clearObstacleHeight.enlarge(heightEnd);
+            return true;
         }
 
         return false;
@@ -1050,7 +1013,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
     // add a waypoint to jump over an AOI obstacle
     // "clearHeight" and position.elevation are the heights above FP.R
     private void addWaypointToJumpOver(
-            double clearHeight, Position position, double yaw, IFlightplanContainer addToContainer, boolean addToEnd) {
+            double clearHeight, Position position, IFlightplanContainer addToContainer, boolean addToEnd) {
         clearHeight += JUMP_SAFETY_MARGIN;
         try {
             // the following `if` was changed to the opposite way because it doesn't work the other way around..
@@ -1069,7 +1032,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                         null);
                 newWp.setStopHereTimeCopter(1);
                 newWp.setSpeedMpSec(getPhotoSettings().getMaxGroundSpeedMPSec());
-                newWp.getOrientation().setYaw(yaw);
                 if (addToEnd) {
                     addToContainer.addToFlightplanContainer(newWp);
                 } else {
@@ -1081,44 +1043,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
             Debug.getLog().log(Level.WARNING, "problem adding path over obstacles between AOIs", e);
         }
     }
-    // add a waypoint to fly fast to the beginning of the mission
-    private void addWaypointToControlTheSpeedBeforeTheFirstWP(
-            CWaypoint waypoint, IFlightplanContainer addToContainer, boolean addToEnd) {
-        try {
-            // add new connector WP to existing list of WPs
-            Waypoint newWp =
-                new Waypoint(
-                    waypoint.getLon(),
-                    waypoint.getLat(),
-                    waypoint.getAltInMAboveFPRefPoint(),
-                    AltAssertModes.unasserted,
-                    0,
-                    jumpOver,
-                    0,
-                    null);
-            newWp.setAssertYawOn(waypoint.getAssertYawOn());
-            newWp.setAssertYaw(waypoint.getAssertYaw());
-            newWp.setStopHereTimeCopter(0);
-            newWp.setSpeedMpSec(
-                getHardwareConfiguration()
-                    .getPlatformDescription()
-                    .getMaxPlaneSpeed()
-                    .convertTo(Unit.METER_PER_SECOND)
-                    .getValue()
-                    .doubleValue());
-            newWp.getOrientation().setYaw(waypoint.getAssertYaw());
-            newWp.setSpeedMode(SpeedMode.fast);
 
-            if (addToEnd) {
-                addToContainer.addToFlightplanContainer(newWp);
-            } else {
-                addToContainer.addToFlightplanContainer(0, newWp);
-            }
-
-        } catch (Exception e) {
-            Debug.getLog().log(Level.WARNING, "problem adding speed controlling point", e);
-        }
-    }
     // find connections between AOIs and check/warn if they intersect any AOIs
     private void checkCollisionsBetweenAOIConnections(CollectsTypeVisitor<IRecalculateable> collectsTypeVisitor) {
         // collect line segments connecting AOIs
@@ -1128,7 +1053,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         Position lastPos =
             new Position(
                 getTakeoff().getPosition(),
-                getTakeoff().getAltInMAboveFPRefPoint() + MIN_HEIGHT_OVER_TAKEOFF_TO_START_MISSION_GH);
+                getTakeoff().getAltInMAboveFPRefPoint() + MIN_HEIGHT_OVER_TAKEOFF_TO_START_MISSION_FALCON);
         IFlightplanContainer lastContainer = null;
 
         for (IRecalculateable calc : collectsTypeVisitor.matches) {
@@ -1189,7 +1114,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         for (ConnectingFlightLine connection : connectors) {
             // check collision with terrain
 
-            // making relative mission elements absolute
+            // making relative flight plan elements absolute
             Position absStartPos =
                 new Position(connection.startPos, connection.startPos.elevation + getRefPointAltWgs84WithElevation());
             Position absEndPos =
@@ -1238,30 +1163,14 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                 if (connection.startContainer != null) {
                     if (connection.endContainer != null) {
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.startPos,
-                            connection.yaw,
-                            connection.startContainer,
-                            true);
+                            connection.clearObstacleHeight.max, connection.startPos, connection.startContainer, true);
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.endPos,
-                            connection.yaw,
-                            connection.endContainer,
-                            false);
+                            connection.clearObstacleHeight.max, connection.endPos, connection.endContainer, false);
                     } else {
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.startPos,
-                            connection.yaw,
-                            connection.startContainer,
-                            true);
+                            connection.clearObstacleHeight.max, connection.startPos, connection.startContainer, true);
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.endPos,
-                            connection.yaw,
-                            connection.startContainer,
-                            true);
+                            connection.clearObstacleHeight.max, connection.endPos, connection.startContainer, true);
                     }
                 } else {
                     if (connection.endContainer != null) {
@@ -1269,17 +1178,9 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                         // will
                         // otherwise end up with the wrong order
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.endPos,
-                            connection.yaw,
-                            connection.endContainer,
-                            false);
+                            connection.clearObstacleHeight.max, connection.endPos, connection.endContainer, false);
                         addWaypointToJumpOver(
-                            connection.clearObstacleHeight.max,
-                            connection.startPos,
-                            connection.yaw,
-                            connection.endContainer,
-                            false);
+                            connection.clearObstacleHeight.max, connection.startPos, connection.endContainer, false);
                     } else {
                         // ignore... this happens if only a landing and starting point is present, but nothing else
                     }
@@ -1287,46 +1188,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
             }
         }
     }
-
-    public static class PicAreaSectorVisitor extends AFlightplanVisitor {
-        Sector picAreaSector = null;
-
-        @Override
-        public boolean visit(IFlightplanRelatedObject fpObj) {
-            if (fpObj instanceof PicArea) {
-                if (picAreaSector == null) {
-                    picAreaSector = ((PicArea)fpObj).getSector();
-                } else {
-                    picAreaSector.union(((PicArea)fpObj).getSector());
-                }
-            }
-
-            return false;
-        }
-
-        public Sector getPicAreaSector() {
-            return picAreaSector;
-        }
-    };
-
-    public static class FirstCalcPicAreaVisitor extends AFlightplanVisitor {
-
-        private PicArea picArea;
-
-        @Override
-        public boolean visit(IFlightplanRelatedObject fpObj) {
-            if (picArea == null && fpObj instanceof PicArea && ((PicArea)fpObj).getPlanType().doAutoComputation()) {
-                picArea = (PicArea)fpObj;
-                return true;
-            }
-
-            return false;
-        }
-
-        public PicArea getPicArea() {
-            return picArea;
-        }
-    };
 
     public boolean doFlightplanCalculation() {
         // System.out.println("DO RECALC"+insideRecalculation);
@@ -1362,26 +1223,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                     break;
                 }
             }
-            ////////// calc of the first wp of the first AOI
-            FirstCalcPicAreaVisitor firstAOIVisitor = new FirstCalcPicAreaVisitor();
-            this.applyFpVisitor(firstAOIVisitor, true);
-            WaypointByIndexVisitor firstWPVisitor = new WaypointByIndexVisitor(1);
-            this.applyFpVisitor(firstWPVisitor, true);
 
-            PicArea firstAOI = firstAOIVisitor.getPicArea();
-            CWaypoint firstWaypoint = firstWPVisitor.getWaypointByIndex();
-            ////////////
-            // before the first waypoint adding the point with higher speed
-            // in auto speed mode
-            FlightplanSpeedModes maxGroundSpeedAutomatic = getPhotoSettings().getMaxGroundSpeedAutomatic();
-
-            if (firstAOI != null
-                        && firstWaypoint != null
-                        && maxGroundSpeedAutomatic.equals(FlightplanSpeedModes.AUTOMATIC_DYNAMIC)
-                    || maxGroundSpeedAutomatic.equals(FlightplanSpeedModes.AUTOMATIC_CONSTANT)) {
-                addWaypointToControlTheSpeedBeforeTheFirstWP(firstWaypoint, firstAOI, false);
-            }
-            //////////
             MinMaxPair flightAlt = new MinMaxPair();
             Boolean validSizeAOIs = true;
             for (IRecalculateable calc : collectsTypeVisitor.matches) {
@@ -1432,11 +1274,11 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
             if (getEventList().isAutoComputingSafetyHeight()) {
                 // set safety altitude
                 if (photoSettings.getAltitudeAdjustMode().usesAbsoluteHeights()) {
-                    Sector picAreaSector = getPicAreaSector();
-                    if (picAreaSector != null) {
+                    Sector sector = getSector();
+                    if (sector != null) {
                         getEventList()
                             .setAltWithinM(
-                                elevationModel.getMaxElevation(picAreaSector).max
+                                elevationModel.getMaxElevation(sector).max
                                     + getHardwareConfiguration()
                                         .getPlatformDescription()
                                         .getMinGroundDistance()
@@ -1444,7 +1286,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                                         .getValue()
                                         .doubleValue()
                                     + IElevationModel.TINY_GROUND_ELEVATION
-                                    - elevationModel.getMaxElevation(picAreaSector).min);
+                                    - getRefPointAltWgs84WithElevation());
                     }
                 } else if (flightAlt.isValid()) {
                     getEventList().setAltWithinM(flightAlt.max);
@@ -1453,7 +1295,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
 
             // cleanup ID mess
             ReassignIdsVisitor vis = new ReassignIdsVisitor(true);
-            vis.startVisit(this); // this is silently unmuting the mission
+            vis.startVisit(this); // this is silently unmuting the flight plan
             setMute(true); // otherwise the setMute(false) in the bottom wouldnt be effective..
 
         } finally {
@@ -1473,12 +1315,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         return true;
     }
 
-    public Sector getPicAreaSector() {
-        PicAreaSectorVisitor visitor = new PicAreaSectorVisitor();
-        applyFpVisitor(visitor, false);
-        return visitor.picAreaSector;
-    }
-
     // class to represent info for connecting flight lines between AOIs
     public static class ConnectingFlightLine {
         public final IFlightplanPositionReferenced startPoint; // starting point of line
@@ -1491,8 +1327,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
         public final IFlightplanContainer endContainer; // picArea of ending waypoint
 
         public final MinMaxPair clearObstacleHeight = new MinMaxPair(); // height to clear highest obstacle
-
-        public final double yaw;
 
         ConnectingFlightLine(
                 IFlightplanPositionReferenced startPoint,
@@ -1507,7 +1341,6 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
             this.endPos = endPos;
             this.startContainer = startPicArea;
             this.endContainer = endPicArea;
-            this.yaw = LatLon.greatCircleAzimuth(startPos, endPos).degrees;
         }
 
         @Override
@@ -1525,9 +1358,7 @@ public class Flightplan extends CFlightplan implements ISectorReferenced, IResou
                 + ")@"
                 + endContainer
                 + "  height:"
-                + clearObstacleHeight
-                + " yaw: "
-                + yaw;
+                + clearObstacleHeight;
         }
     }
 }

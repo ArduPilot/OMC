@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javax.inject.Inject;
 
@@ -66,6 +67,9 @@ public class FlyDroneView extends FancyTabView<FlyDroneViewModel> {
 
     @FXML
     private ActivityButton returnHomeButton;
+
+    @FXML
+    private Region landfill;
 
     @FXML
     private Label flightDisallowedReasonLabel;
@@ -121,7 +125,10 @@ public class FlyDroneView extends FancyTabView<FlyDroneViewModel> {
             .visibleProperty()
             .bind(
                 viewModel.getTakeoffCommand().executableProperty().or(viewModel.getTakeoffCommand().runningProperty()));
-        takeoffButton.managedProperty().bind(takeoffButton.visibleProperty());
+        takeoffButton
+            .managedProperty()
+            .bind(
+                viewModel.getTakeoffCommand().executableProperty().or(viewModel.getTakeoffCommand().runningProperty()));
 
         abortTakeoffButton.disableProperty().bind(viewModel.getAbortTakeoffCommand().notExecutableProperty());
         abortTakeoffButton.isBusyProperty().bind(viewModel.getAbortTakeoffCommand().runningProperty());
@@ -180,17 +187,13 @@ public class FlyDroneView extends FancyTabView<FlyDroneViewModel> {
                     .getRunFlightplanCommand()
                     .executableProperty()
                     .or(viewModel.getRunFlightplanCommand().runningProperty()));
-        runPlanButton.managedProperty().bind(runPlanButton.visibleProperty());
-
         runPlanButton
-            .textProperty()
+            .managedProperty()
             .bind(
-                Bindings.createStringBinding(
-                    () ->
-                        viewModel.activeFlightplanSelectedProperty().getValue()
-                            ? languageHelper.getString(FlyDroneView.class, "resumePlan")
-                            : languageHelper.getString(FlyDroneView.class, "runPlan"),
-                    viewModel.activeFlightplanSelectedProperty()));
+                viewModel
+                    .getRunFlightplanCommand()
+                    .executableProperty()
+                    .or(viewModel.getRunFlightplanCommand().runningProperty()));
 
         pausePlanButton.disableProperty().bind(viewModel.getPauseFlightPlanCommand().notExecutableProperty());
         pausePlanButton.isBusyProperty().bind(viewModel.getPauseFlightPlanCommand().runningProperty());
@@ -209,8 +212,13 @@ public class FlyDroneView extends FancyTabView<FlyDroneViewModel> {
         returnHomeButton.disableProperty().bind(viewModel.getReturnToHomeCommand().notExecutableProperty());
         returnHomeButton.isBusyProperty().bind(viewModel.getReturnToHomeCommand().runningProperty());
 
+        landfill.visibleProperty().bind(returnHomeButton.visibleProperty().not());
+        landfill.managedProperty().bind(landfill.visibleProperty());
+
         flightDisallowedReasonLabel.textProperty().bind(viewModel.flightDisallowedReasonProperty());
-        flightDisallowedReasonLabel.visibleProperty().bind(viewModel.disallowFlightProperty());
+        flightDisallowedReasonLabel
+            .visibleProperty()
+            .bind(viewModel.disallowFlightProperty());
         flightDisallowedReasonLabel.managedProperty().bind(viewModel.disallowFlightProperty());
 
         formsContainer.getChildren().clear();

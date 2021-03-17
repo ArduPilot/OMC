@@ -8,26 +8,21 @@ package com.intel.missioncontrol.drone;
 
 import com.intel.missioncontrol.drone.connection.IDroneConnectionExceptionListener;
 import com.intel.missioncontrol.drone.connection.IDroneMessageListener;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.mission.FlightPlan;
-import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Quaternion;
 import java.time.Duration;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.asyncfx.beans.property.AsyncBooleanProperty;
-import org.asyncfx.beans.property.AsyncDoubleProperty;
 import org.asyncfx.beans.property.AsyncIntegerProperty;
 import org.asyncfx.beans.property.AsyncListProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.PropertyMetadata;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncDoubleProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
-import org.asyncfx.beans.property.SimpleAsyncDoubleProperty;
 import org.asyncfx.beans.property.SimpleAsyncIntegerProperty;
 import org.asyncfx.beans.property.SimpleAsyncListProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
@@ -43,9 +38,8 @@ public class MockDrone implements IDrone {
     private final AsyncBooleanProperty flightSegmentTelemetryOld = new SimpleAsyncBooleanProperty(this);
     private final AsyncBooleanProperty flightTimeTelemetryOld = new SimpleAsyncBooleanProperty(this);
     private final AsyncBooleanProperty autopilotStateTelemetryOld = new SimpleAsyncBooleanProperty(this);
-    private final AsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration =
-            new SimpleAsyncObjectProperty<>(this);
-    private final AsyncObjectProperty<IBattery> battery = new SimpleAsyncObjectProperty<>(this);
+    private final AsyncObjectProperty<IPlatformDescription> platformDescription = new SimpleAsyncObjectProperty<>(this);
+    private final AsyncObjectProperty<Battery> battery = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<Health> health = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<Storage> storage = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<RemoteControl> remoteControl = new SimpleAsyncObjectProperty<>(this);
@@ -53,156 +47,31 @@ public class MockDrone implements IDrone {
     private final AsyncObjectProperty<Position> position = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<Quaternion> attitude = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<FlightSegment> flightSegment =
-            new SimpleAsyncObjectProperty<>(
-                    this, new PropertyMetadata.Builder<FlightSegment>().initialValue(FlightSegment.UNKNOWN).create());
+        new SimpleAsyncObjectProperty<>(
+            this, new PropertyMetadata.Builder<FlightSegment>().initialValue(FlightSegment.UNKNOWN).create());
     private final AsyncObjectProperty<AutopilotState> autopilotState =
-            new SimpleAsyncObjectProperty<>(
-                    this, new PropertyMetadata.Builder<AutopilotState>().initialValue(AutopilotState.UNKNOWN).create());
+        new SimpleAsyncObjectProperty<>(
+            this, new PropertyMetadata.Builder<AutopilotState>().initialValue(AutopilotState.UNKNOWN).create());
     private final AsyncObjectProperty<Duration> flightTime =
-            new SimpleAsyncObjectProperty<>(
-                    this, new PropertyMetadata.Builder<Duration>().initialValue(Duration.ZERO).create());
-    private final AsyncDoubleProperty flightPlanUploadProgress =
-            new SimpleAsyncDoubleProperty(this, new PropertyMetadata.Builder<Number>().initialValue(Double.NaN).create());
+        new SimpleAsyncObjectProperty<>(
+            this, new PropertyMetadata.Builder<Duration>().initialValue(Duration.ZERO).create());
     private final AsyncObjectProperty<FlightPlan> activeFlightPlan = new SimpleAsyncObjectProperty<>(this);
     private final AsyncIntegerProperty activeFlightPlanWaypointIndex = new SimpleAsyncIntegerProperty(this);
     private final AsyncListProperty<MavlinkCamera> cameras = new SimpleAsyncListProperty<>(this);
-    private final AsyncObjectProperty<IObstacleAvoidance> obstacleAvoidance = new SimpleAsyncObjectProperty<>(this);
-    private final DistanceSensor distanceSensor;
     private final AsyncListProperty<DistanceSensor> distanceSensors =
-            new SimpleAsyncListProperty<>(
-                    this,
-                    new PropertyMetadata.Builder<AsyncObservableList<DistanceSensor>>()
-                            .initialValue(FXAsyncCollections.observableArrayList())
-                            .create());
-    private final SimpleAsyncObjectProperty<IObstacleAvoidance.Mode> mode =
-            new SimpleAsyncObjectProperty<>(
-                    this,
-                    new PropertyMetadata.Builder<IObstacleAvoidance.Mode>()
-                            .initialValue(IObstacleAvoidance.Mode.ENABLED)
-                            .create());
+        new SimpleAsyncListProperty<>(
+            this,
+            new PropertyMetadata.Builder<AsyncObservableList<DistanceSensor>>()
+                .initialValue(FXAsyncCollections.observableArrayList())
+                .create());
 
-    public MockDrone(IHardwareConfiguration hardwareConfiguration) {
-        this.hardwareConfiguration.set(hardwareConfiguration);
-
-        distanceSensor = new DistanceSensor();
-        distanceSensor.alertLevelProperty().setValue(DistanceSensor.AlertLevel.LEVEL0_CRITICAL);
-        distanceSensor.closestDistanceMetersProperty().setValue(1);
-        distanceSensors.add(distanceSensor);
-
-        obstacleAvoidance.set(getObstacleAvoidance());
-
-        position.setValue(new Position(LatLon.fromDegrees(50.0379, 8.5622), 10));
-
-        battery.setValue(getBatteryInfo());
-    }
-
-    private IBattery getBatteryInfo() {
-        return new IBattery() {
-            private final AsyncDoubleProperty remainingChargePercentage = new SimpleAsyncDoubleProperty(this);
-            private final AsyncDoubleProperty voltage = new SimpleAsyncDoubleProperty(this);
-            private final AsyncObjectProperty<BatteryAlertLevel> batteryAlertLevel =
-                    new SimpleAsyncObjectProperty<>(this);
-
-            @Override
-            public ReadOnlyAsyncDoubleProperty remainingChargePercentageProperty() {
-                remainingChargePercentage.set(10.0);
-                return remainingChargePercentage;
-            }
-
-            @Override
-            public double getRemainingChargePercentage() {
-                remainingChargePercentage.set(10.0);
-                return remainingChargePercentage.get();
-            }
-
-            @Override
-            public ReadOnlyAsyncDoubleProperty voltageProperty() {
-                voltage.set(10.0);
-                return voltage;
-            }
-
-            @Override
-            public double getVoltage() {
-                return voltage.get();
-            }
-
-            @Override
-            public ReadOnlyAsyncObjectProperty<BatteryAlertLevel> alertLevelProperty() {
-                batteryAlertLevel.setValue(BatteryAlertLevel.RED);
-                return batteryAlertLevel;
-            }
-
-            @Override
-            public BatteryAlertLevel getAlertLevel() {
-                batteryAlertLevel.setValue(BatteryAlertLevel.RED);
-                return batteryAlertLevel.get();
-            }
-
-            @Override
-            public ReadOnlyAsyncBooleanProperty telemetryOldProperty() {
-                return null;
-            }
-        };
-    }
-
-    private IObstacleAvoidance getObstacleAvoidance() {
-        return new IObstacleAvoidance() {
-            private AtomicInteger counter = new AtomicInteger(0);
-
-            @Override
-            public ReadOnlyAsyncListProperty<? extends IDistanceSensor> distanceSensorsProperty() {
-                return distanceSensors;
-            }
-
-            @Override
-            public IDistanceSensor getAggregatedDistanceSensor() {
-                return distanceSensor;
-            }
-
-            @Override
-            public ReadOnlyAsyncObjectProperty<Mode> modeProperty() {
-                return mode;
-            }
-
-            @Override
-            public Future<Void> enableAsync(boolean enable) {
-                // return Futures.failed(new Throwable("Mock Drone - Obstacle Avoidance - TESTING"));
-                return successScenario(enable);
-                // return failureScenario(enable);
-            }
-
-            private Future<Void> successScenario(boolean enable) {
-                if (!enable) {
-                    distanceSensor.alertLevelProperty().setValue(DistanceSensor.AlertLevel.UNKNOWN);
-                    distanceSensor.closestDistanceMetersProperty().setValue(Double.NEGATIVE_INFINITY);
-                    mode.setValue(Mode.DISABLED);
-                    if (counter.incrementAndGet() == 3) counter.set(0);
-                } else {
-                    if (counter.incrementAndGet() == 3) {
-                        distanceSensor.alertLevelProperty().setValue(DistanceSensor.AlertLevel.LEVEL0_CRITICAL);
-                        distanceSensor.closestDistanceMetersProperty().setValue(0);
-                        mode.setValue(Mode.ENABLED);
-                        counter.set(0);
-                    } else {
-                        distanceSensor.alertLevelProperty().setValue(DistanceSensor.AlertLevel.LEVEL3);
-                        distanceSensor.closestDistanceMetersProperty().setValue(5);
-                        mode.setValue(Mode.ENABLED);
-                    }
-                }
-
-
-                return Futures.successful();
-            }
-        };
-    }
-
-    DistanceSensor getDistanceSensor() {
-        return distanceSensor;
+    public MockDrone(IPlatformDescription platformDescription) {
+        this.platformDescription.set(platformDescription);
     }
 
     @Override
-    public ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfigurationProperty() {
-        return hardwareConfiguration;
+    public ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescriptionProperty() {
+        return platformDescription;
     }
 
     @Override
@@ -223,11 +92,6 @@ public class MockDrone implements IDrone {
     @Override
     public ReadOnlyAsyncObjectProperty<? extends IRemoteControl> remoteControlProperty() {
         return remoteControl;
-    }
-
-    @Override
-    public ReadOnlyAsyncDoubleProperty flightPlanUploadProgressProperty() {
-        return flightPlanUploadProgress;
     }
 
     @Override
@@ -301,25 +165,21 @@ public class MockDrone implements IDrone {
     }
 
     @Override
-    public ReadOnlyAsyncObjectProperty<? extends IObstacleAvoidance> obstacleAvoidanceProperty() {
-        return obstacleAvoidance;
+    public ReadOnlyAsyncListProperty<? extends IDistanceSensor> distanceSensorsProperty() {
+        return distanceSensors;
     }
 
     @Override
-    public void addListener(IDroneConnectionExceptionListener droneConnectionExceptionListener) {
-    }
+    public void addListener(IDroneConnectionExceptionListener droneConnectionExceptionListener) {}
 
     @Override
-    public void removeListener(IDroneConnectionExceptionListener droneConnectionExceptionListener) {
-    }
+    public void removeListener(IDroneConnectionExceptionListener droneConnectionExceptionListener) {}
 
     @Override
-    public void addListener(IDroneMessageListener droneMessageListener) {
-    }
+    public void addListener(IDroneMessageListener droneMessageListener) {}
 
     @Override
-    public void removeListener(IDroneMessageListener droneMessageListener) {
-    }
+    public void removeListener(IDroneMessageListener droneMessageListener) {}
 
     @Override
     public Future<Void> takeOffAsync(FlightPlanWithWayPointIndex flightPlanWithWayPointIndex) {
@@ -353,6 +213,11 @@ public class MockDrone implements IDrone {
 
     @Override
     public Future<Void> returnHomeAsync() {
+        return Futures.successful();
+    }
+
+    @Override
+    public Future<Void> setActiveFlightPlanAsync(FlightPlanWithWayPointIndex flightPlan) {
         return Futures.successful();
     }
 

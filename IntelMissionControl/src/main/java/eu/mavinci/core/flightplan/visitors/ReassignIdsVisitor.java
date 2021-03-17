@@ -45,7 +45,7 @@ public class ReassignIdsVisitor extends AFlightplanVisitor {
                 int id = rp.getId();
                 if (ids.contains(id)) {
                     // rp.reassignIDs();//dont do this call, it would become mega expensive since each time the entire
-                    // Mission has to be traversed to find a free id
+                    // Flight plan has to be traversed to find a free id
                     if (!nextFreeIDValid) {
                         nextFreeID = fpObj.getFlightplan().getUnusedId();
                         nextFreeIDValid = true;

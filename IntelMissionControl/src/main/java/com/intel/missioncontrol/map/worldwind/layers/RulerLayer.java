@@ -18,21 +18,21 @@ import com.intel.missioncontrol.map.worldwind.WorldWindowProvider;
 import com.intel.missioncontrol.measure.property.IQuantityStyleProvider;
 import com.intel.missioncontrol.modules.MapModule;
 import gov.nasa.worldwind.layers.RenderableLayer;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class RulerLayer extends WWLayerWrapper {
 
     @Inject
     RulerLayer(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IElevationModel elevationModel,
             IWWGlobes globes,
             IWWMapView mapView,
             IMapController mapController,
             WorldWindowProvider worldWindowProvider,
             IQuantityStyleProvider quantityStyleProvider) {
-        super(new RenderableLayer(), dispatcher);
+        super(new RenderableLayer(), syncRoot);
         worldWindowProvider.whenAvailable(
             worldWindow -> {
                 RenderableLayer layer = (RenderableLayer)getWrappedLayer();

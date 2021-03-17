@@ -20,15 +20,12 @@ import com.intel.missioncontrol.ui.EnumConverter;
 import com.intel.missioncontrol.ui.ViewBase;
 import com.intel.missioncontrol.ui.ViewHelper;
 import com.intel.missioncontrol.ui.controls.AdornerSplitView;
-import com.intel.missioncontrol.ui.controls.Button;
 import com.intel.missioncontrol.ui.controls.ToggleSwitch;
 import com.intel.missioncontrol.ui.controls.VariantQuantitySpinnerValueFactory;
 import de.saxsys.mvvmfx.InjectViewModel;
 import eu.mavinci.core.flightplan.LandingModes;
-import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
@@ -50,9 +47,6 @@ public class LandingView extends ViewBase<LandingViewModel> {
     private ToggleButton chooseLandingPositionButton;
 
     @FXML
-    private Button landingPositionFromUavButton;
-
-    @FXML
     private VBox locationEditBox;
 
     private final IQuantityStyleProvider quantityStyleProvider;
@@ -67,9 +61,6 @@ public class LandingView extends ViewBase<LandingViewModel> {
 
     @FXML
     private VBox elevationBox;
-
-    @FXML
-    private Label elevationLabel;
 
     @FXML
     private Spinner<Quantity<Dimension.Length>> elevationSpinner;
@@ -92,15 +83,11 @@ public class LandingView extends ViewBase<LandingViewModel> {
         landingModeCombobox.valueProperty().bindBidirectional(viewModel.selectedLandingModeProperty());
 
         locationEditBox.disableProperty().bind(viewModel.landingLocationEditableProperty().not());
+        locationEditBox.visibleProperty().bind(viewModel.landingLocationVisibleProperty());
+        locationEditBox.managedProperty().bind(viewModel.landingLocationVisibleProperty());
 
-        elevationBox.disableProperty().bind(viewModel.hoverAltitudeEditableProperty().not());
-
-        elevationLabel
-            .textProperty()
-            .bind(
-                Bindings.createStringBinding(
-                    () -> languageHelper.getString(LandingView.class, "elevationSpinner-"+landingModeCombobox.getValue().name()),
-                    landingModeCombobox.valueProperty()));
+        elevationBox.visibleProperty().bind(viewModel.showHoverAltitudeProperty());
+        elevationBox.managedProperty().bind(viewModel.showHoverAltitudeProperty());
 
         ViewHelper.initAutoCommitSpinner(
             elevationSpinner,
@@ -172,10 +159,6 @@ public class LandingView extends ViewBase<LandingViewModel> {
             .disableProperty()
             .bind(viewModel.getToggleChooseLandingPositionCommand().notExecutableProperty());
 
-        landingPositionFromUavButton
-            .disableProperty()
-            .bind(viewModel.getLandingPositionFromUavCommand().notExecutableProperty());
-
         chooseLandingPositionButton.selectedProperty().bindBidirectional(viewModel.landingButtonPressedProperty());
         chooseLandingPositionButton.getStyleClass().remove("toggle-button");
     }
@@ -193,11 +176,6 @@ public class LandingView extends ViewBase<LandingViewModel> {
     @FXML
     public void onToggleChooseLandingPositionClicked() {
         viewModel.getToggleChooseLandingPositionCommand().execute();
-    }
-
-    @FXML
-    public void landingPositionFromUavButtonClicked() {
-        viewModel.getLandingPositionFromUavCommand().execute();
     }
 
 }

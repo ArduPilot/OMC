@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class MFile {
 
     public static String adaptToCurSystem(String fileStr) {
-        if (StaticInjector.getInstance(IVersionProvider.class).getSystem().isWindows()) {
+        if (DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().isWindows()) {
             return fileStr.replaceAll(Pattern.quote("/"), Matcher.quoteReplacement(File.separator));
         } else {
             return fileStr.replaceAll(Pattern.quote("\\"), Matcher.quoteReplacement(File.separator));

@@ -37,7 +37,7 @@ public class MockDroneConnector implements IConnector<MockDrone> {
     @Override
     public Future<MockDrone> connectAsync() {
         return Futures.successful(
-            new MockDrone(hardwareConfigurationManager.getHardwareConfiguration(connectionItem.getDescriptionId())));
+            new MockDrone(hardwareConfigurationManager.getPlatformDescription(connectionItem.getDescriptionId())));
     }
 
     @Override

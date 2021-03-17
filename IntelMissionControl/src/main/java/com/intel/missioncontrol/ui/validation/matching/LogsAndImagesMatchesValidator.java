@@ -31,7 +31,6 @@ public class LogsAndImagesMatchesValidator extends MatchingValidatorBase {
         setOkMessage(languageHelper.getString(className + ".okMessage"));
         addDependencies(
             matching.toImportTriggersCountProperty(),
-            matching.toImportFlightLogProperty(),
             matching.toImportImagesCountProperty(),
             matching.statusProperty(),
             matching.toImportImageSourceFolderProperty());
@@ -44,8 +43,7 @@ public class LogsAndImagesMatchesValidator extends MatchingValidatorBase {
         }
 
         if (matching.toImportTriggersCountProperty().get() != matching.toImportImagesCountProperty().get()
-                && matching.toImportImageSourceFolderProperty().get() != null
-                && matching.toImportFlightLogProperty().get()) {
+                && matching.toImportImageSourceFolderProperty().get() != null) {
             addWarning(
                 languageHelper.getString(
                     className + ".triggerImageCountMismatch",

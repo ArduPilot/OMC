@@ -165,8 +165,6 @@ public class MapViewOptionsView extends ViewBase<MapViewOptionsViewModel> {
                     projectionDistanceBox.setVisible(newValue == ProjectionType.INSPECTIONS_3D);
                 });
         projectionDistanceBox.managedProperty().bind(projectionDistanceBox.visibleProperty());
-        projectionDistanceSpinner.managedProperty().bind(projectionDistanceBox.visibleProperty());
-        projectionDistanceSpinner.visibleProperty().bind(projectionDistanceBox.visibleProperty());
 
         rbtn2dSurveys.setUserData(ProjectionType.SURVEYS_2D);
         rbtn3dInspections.setUserData(ProjectionType.INSPECTIONS_3D);

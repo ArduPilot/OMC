@@ -4,15 +4,15 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
-<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<GridPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/2019.1" fx:id="rootNode"
+<GridPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:id="rootNode"
           fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryView"
           stylesheets="@/com/intel/missioncontrol/ui/sidepane/flight/fly/telemetry/telemetry.css">
 
@@ -24,19 +24,28 @@
     <rowConstraints>
         <RowConstraints percentHeight="33.333"/>
         <RowConstraints percentHeight="33.333"/>
-        <RowConstraints percentHeight="33.334"/>
+        <RowConstraints percentHeight="33.333"/>
     </rowConstraints>
 
     <Button fx:id="batteryButton" alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="0"
             prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell"
-            onAction="#OnBatteryButtonClicked"/>
-
+            onAction="#OnBatteryButtonClicked">
+        <graphic>
+            <Label fx:id="batteryLevel" styleClass="label-bold"/>
+        </graphic>
+    </Button>
     <Button fx:id="gnssButton" alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="1"
-            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell" onAction="#OnGnssButtonClicked"/>
-
+            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell" onAction="#OnGnssButtonClicked">
+        <graphic>
+            <Label fx:id="gnssQuality" styleClass="label-bold"/>
+        </graphic>
+    </Button>
     <Button fx:id="flightSegmentButton" alignment="CENTER" GridPane.rowIndex="0" GridPane.columnIndex="2"
-            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell"/>
-
+            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
+        <graphic>
+            <Label fx:id="flightSegment" styleClass="label-bold"/>
+        </graphic>
+    </Button>
     <Button fx:id="altitudeAGLButton" alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="0"
             prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
         <graphic>
@@ -47,7 +56,6 @@
             </VBox>
         </graphic>
     </Button>
-
     <Button fx:id="distanceToDroneButton" alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="1"
             prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
         <graphic>
@@ -58,10 +66,12 @@
             </VBox>
         </graphic>
     </Button>
-
     <Button fx:id="autoPilotButton" alignment="CENTER" GridPane.rowIndex="1" GridPane.columnIndex="2"
-            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell" onAction="#OnAutoPilotButtonClicked"/>
-
+            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
+        <graphic>
+            <Label fx:id="autopilotState" styleClass="label-bold"/>
+        </graphic>
+    </Button>
     <Button fx:id="timeUntilLandingButton" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="0"
             prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
         <graphic>
@@ -72,7 +82,6 @@
             </VBox>
         </graphic>
     </Button>
-
     <Button fx:id="flightTimeButton" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="1"
             prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
         <graphic>
@@ -83,8 +92,10 @@
             </VBox>
         </graphic>
     </Button>
-
-    <Button fx:id="obstacleAvoidanceButton" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="2"
-            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell"
-            command="+{controller.viewModel.showObstacleAvoidanceDialogCommand}"/>
+    <Button fx:id="oaDistanceButton" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnIndex="2"
+            prefHeight="Infinity" prefWidth="Infinity" styleClass="telemetry-cell">
+        <graphic>
+            <Label fx:id="oaDistance" styleClass="label-bold"/>
+        </graphic>
+    </Button>
 </GridPane>

@@ -17,10 +17,10 @@ import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.drone.connection.DroneMessage;
 import com.intel.missioncontrol.drone.connection.IConnectionItem;
 import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
-import com.intel.missioncontrol.drone.connection.mavlink.MavResultException;
 import com.intel.missioncontrol.drone.validation.IFlightValidationService;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
+import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.IMapView;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
@@ -70,7 +70,6 @@ import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncBooleanProperty;
-import org.asyncfx.beans.property.UIAsyncDoubleProperty;
 import org.asyncfx.beans.property.UIAsyncIntegerProperty;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncStringProperty;
@@ -105,19 +104,15 @@ public class FlyDroneViewModel extends ViewModelBase {
 
     private final AsyncObjectProperty<IDrone> drone = new SimpleAsyncObjectProperty<>(this);
     private final UIAsyncObjectProperty<Position> position = new UIAsyncObjectProperty<>(this);
-    private final UIAsyncBooleanProperty positionLost = new UIAsyncBooleanProperty(this);
-    private Boolean positionLostLatch = false;
     private final UIAsyncObjectProperty<Quaternion> attitude = new UIAsyncObjectProperty<>(this);
     private final UIAsyncObjectProperty<AutopilotState> autopilotState = new UIAsyncObjectProperty<>(this);
     private final UIAsyncObjectProperty<FlightSegment> flightSegment = new UIAsyncObjectProperty<>(this);
     private final UIAsyncObjectProperty<FlightPlan> activeFlightPlan = new UIAsyncObjectProperty<>(this);
-    private final UIAsyncDoubleProperty flightPlanUploadProgressProperty = new UIAsyncDoubleProperty(this);
     private final UIAsyncBooleanProperty startPlanDialogShowing = new UIAsyncBooleanProperty(this);
-    private final UIAsyncBooleanProperty activeFlightplanSelected = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty disallowFlight = new UIAsyncBooleanProperty(this);
     private final UIAsyncStringProperty flightDisallowedReason = new UIAsyncStringProperty(this);
 
-    private final ReadOnlyAsyncObjectProperty<IHardwareConfiguration> hardwareConfiguration;
+    private final ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> platformDescription;
 
     private final IApplicationContext applicationContext;
     private final IDialogService dialogService;
@@ -167,8 +162,6 @@ public class FlyDroneViewModel extends ViewModelBase {
         availableFlightPlans.bind(PropertyPath.from(mission).selectReadOnlyList(Mission::flightPlansProperty));
 
         activeFlightPlan.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::activeFlightPlanProperty));
-        flightPlanUploadProgressProperty.bind(
-            PropertyPath.from(drone).selectReadOnlyAsyncDouble(IDrone::flightPlanUploadProgressProperty));
 
         activeNextWaypointIndex.bind(
             PropertyPath.from(drone).selectReadOnlyAsyncInteger(IDrone::activeFlightPlanWaypointIndexProperty));
@@ -192,13 +185,6 @@ public class FlyDroneViewModel extends ViewModelBase {
                 }
             });
 
-        positionLost.bind(PropertyPath.from(drone).selectReadOnlyAsyncBoolean(IDrone::positionTelemetryOldProperty));
-        positionLost.addListener(
-            (observable, oldValue, newValue) -> {
-                if (newValue) positionLostLatch = true;
-            },
-            Dispatcher.platform()::run);
-
         position.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::positionProperty));
         position.addListener(
             (observable, oldValue, newValue) -> {
@@ -213,12 +199,6 @@ public class FlyDroneViewModel extends ViewModelBase {
                     positionData.lat = newValue.latitude.degrees;
                     positionData.lon = newValue.longitude.degrees;
                     positionData.altitude = (int)Math.round(newValue.elevation * 100.0);
-
-                    if (positionLostLatch) {
-                        positionData.lostPositionUpdates = true;
-                        positionLostLatch = false;
-                    }
-
                     legacyAirplane.getRootHandler().recv_position(positionData);
 
                     aircraftLayerVisibilitySettings.model3DProperty().set(true);
@@ -231,7 +211,7 @@ public class FlyDroneViewModel extends ViewModelBase {
                     aircraftLayerVisibilitySettings.model3DProperty().set(false);
                 }
             },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         attitude.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::attitudeProperty));
         attitude.addListener(
@@ -257,7 +237,7 @@ public class FlyDroneViewModel extends ViewModelBase {
                     aircraftLayerVisibilitySettings.model3DProperty().set(false);
                 }
             },
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         autopilotState.bind(
             PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::autopilotStateProperty, AutopilotState.UNKNOWN));
@@ -296,7 +276,7 @@ public class FlyDroneViewModel extends ViewModelBase {
                         return "";
                     }
 
-                    AlertType automaticChecksAlertStatus =
+                    var automaticChecksAlertStatus =
                         flightValidationService.combinedStatusProperty().get().getAlertType();
                     if (automaticChecksAlertStatus == AlertType.NONE
                             || automaticChecksAlertStatus == AlertType.LOADING
@@ -305,20 +285,10 @@ public class FlyDroneViewModel extends ViewModelBase {
                             FlyDroneViewModel.class, "flightDisallowedReason.safetyChecksError");
                     }
 
-                    AutopilotState apState = autopilotState.get();
+                    var apState = autopilotState.get();
                     if (apState != AutopilotState.AUTOPILOT) {
                         return languageHelper.getString(
                             FlyDroneViewModel.class, "flightDisallowedReason.notInAutopilotMode");
-                    }
-
-                    // TODO: this should also be checked by a blocking mission validator.
-                    // Ensure mission is not empty, otherwise waypoint selection UI in StartPlanDialog would be
-                    // broken.
-                    FlightPlan fp = flightScope.selectedFlightPlanProperty().get();
-                    int numberOfWayPoints = fp != null ? fp.waypointsProperty().size() : 0;
-                    if (numberOfWayPoints <= 0) {
-                        return languageHelper.getString(
-                            FlyDroneViewModel.class, "flightDisallowedReason.emptyFlightPlan");
                     }
 
                     return "";
@@ -345,16 +315,17 @@ public class FlyDroneViewModel extends ViewModelBase {
                 }
             });
 
-        hardwareConfiguration =
-            PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+        platformDescription = PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::platformDescriptionProperty);
 
-        hardwareConfiguration.addListener(
+        platformDescription.addListener(
             (observableValue, oldVal, newVal) -> {
                 if (mission.get() != null && newVal != null) {
                     // Set 3D model position on world map (only if no legacyAirplane is the source)
                     IAirplane legacyAirplane = mission.get().getLegacyPlane();
                     if (legacyAirplane != null) {
-                        legacyAirplane.setHardwareConfiguration(newVal);
+                        IHardwareConfiguration hwConfig =
+                            hardwareConfigurationManager.getHardwareConfiguration(newVal.getId());
+                        legacyAirplane.setHardwareConfiguration(hwConfig);
                     }
                 }
             });
@@ -403,6 +374,7 @@ public class FlyDroneViewModel extends ViewModelBase {
                     .or(flightSegment.isEqualTo(FlightSegment.PLAN_RUNNING))
                     .or(flightSegment.isEqualTo(FlightSegment.RETURN_TO_HOME))
                     .and(autopilotState.isEqualTo(AutopilotState.AUTOPILOT)));
+
         runFlightplanCommand =
             new FutureCommand(
                 () ->
@@ -420,6 +392,7 @@ public class FlyDroneViewModel extends ViewModelBase {
 
                                 if (dialogResult != null) {
                                     FlightPlanWithWayPointIndex fp = flightPlanFromDialogResult(dialogResult);
+
                                     return showPreparingFlightToastIfTimeConsumingAsync(
                                         drone.get().startFlightPlanAsync(fp));
                                 }
@@ -494,8 +467,6 @@ public class FlyDroneViewModel extends ViewModelBase {
 
         drone.bind(flightScope.currentDroneProperty());
 
-        activeFlightplanSelected.bind(activeFlightPlan.isEqualTo(flightScope.selectedFlightPlanProperty()));
-
         flyDroneMenuModel =
             new FlyDroneMenuModel(
                 dialogService,
@@ -510,6 +481,7 @@ public class FlyDroneViewModel extends ViewModelBase {
 
     private <T> Future<T> showPreparingFlightToastIfTimeConsumingAsync(Future<T> future) {
         java.time.Duration delay = java.time.Duration.ofMillis(2000);
+
         Dispatcher dispatcher = Dispatcher.background();
         Future<Void> fDelay =
             dispatcher.runLaterAsync(
@@ -518,6 +490,7 @@ public class FlyDroneViewModel extends ViewModelBase {
                         Toast.of(ToastType.INFO)
                             .setCloseable(true)
                             .setTimeout(Duration.INDEFINITE)
+                            .setText(languageHelper.getString(FlyDroneViewModel.class, "preparingForFlight"))
                             .setAction(
                                 languageHelper.getString(FlyDroneViewModel.class, "cancel"),
                                 false,
@@ -526,17 +499,6 @@ public class FlyDroneViewModel extends ViewModelBase {
                                 MoreExecutors.directExecutor())
                             .create();
 
-                    toast.getTextProperty()
-                        .bind(
-                            Bindings.createStringBinding(
-                                () -> {
-                                    double progress = flightPlanUploadProgressProperty.get();
-                                    return Double.isNaN(progress)
-                                        ? languageHelper.getString(FlyDroneViewModel.class, "preparingForFlight")
-                                        : languageHelper.getString(
-                                            FlyDroneViewModel.class, "preparingForFlightPercent", progress * 100.0);
-                                },
-                                flightPlanUploadProgressProperty));
                     future.whenDone(f -> toast.dismiss());
 
                     applicationContext.addToast(toast);
@@ -634,8 +596,6 @@ public class FlyDroneViewModel extends ViewModelBase {
 
         if (ex instanceof DroneConnectionException) {
             message = languageHelper.getString(FlyDroneViewModel.class, "linkLost");
-        } else if (ex instanceof MavResultException) {
-            message = languageHelper.getString(FlyDroneViewModel.class, "commandDenied");
         } else {
             message = ex.getMessage();
         }
@@ -643,7 +603,12 @@ public class FlyDroneViewModel extends ViewModelBase {
         Toast toast;
 
         if (isRecoverable) {
-            toast = Toast.of(ToastType.ALERT).setShowIcon(true).setCloseable(true).setText(message).create();
+            toast =
+                Toast.of(ToastType.ALERT)
+                    .setShowIcon(true)
+                    .setCloseable(true)
+                    .setText(message)
+                    .create();
         } else {
             actionString = languageHelper.getString(FlyDroneViewModel.class, "reconnect");
             onAction =
@@ -651,18 +616,20 @@ public class FlyDroneViewModel extends ViewModelBase {
                     // reconnect
                     droneConnectionService
                         .disconnectAsync(drone.get())
-                        .thenGetAsync(() -> droneConnectionService.connectAsync(connectionItem))
-                        .whenSucceeded(
-                            drone -> {
-                                flightScope.currentDroneProperty().set(drone);
-                                navigationService.navigateTo(SidePanePage.FLY_DRONE);
-                            })
-                        .whenFailed(
-                            err -> {
-                                flightScope.currentDroneProperty().set(null);
-                                navigationService.navigateTo(SidePanePage.CONNECT_DRONE);
-                                showErrorWithReconnectToast(err, false, connectionItem);
-                            });
+                        .whenDone(
+                            f ->
+                                droneConnectionService
+                                    .connectAsync(connectionItem)
+                                    .whenSucceeded(
+                                        drone -> {
+                                            flightScope.currentDroneProperty().set(drone);
+                                            navigationService.navigateTo(SidePanePage.FLY_DRONE);
+                                        })
+                                    .whenFailed(
+                                        err -> {
+                                            navigationService.navigateTo(SidePanePage.CONNECT_DRONE);
+                                            showErrorWithReconnectToast(err, false, connectionItem);
+                                        }));
             toast =
                 Toast.of(ToastType.ALERT)
                     .setShowIcon(true)
@@ -709,7 +676,8 @@ public class FlyDroneViewModel extends ViewModelBase {
 
         final String errorMessage = msg;
 
-        applicationContext.addToast(Toast.of(ToastType.ALERT).setShowIcon(true).setText(errorMessage).create());
+        applicationContext.addToast(
+            Toast.of(ToastType.ALERT).setShowIcon(true).setText(errorMessage).create());
     }
 
     public MainScope getScope() {
@@ -743,8 +711,6 @@ public class FlyDroneViewModel extends ViewModelBase {
     ReadOnlyProperty<Boolean> disallowFlightProperty() {
         return disallowFlight;
     }
-
-    ReadOnlyProperty<Boolean> activeFlightplanSelectedProperty() { return activeFlightplanSelected; }
 
     ReadOnlyProperty<String> flightDisallowedReasonProperty() {
         return flightDisallowedReason;

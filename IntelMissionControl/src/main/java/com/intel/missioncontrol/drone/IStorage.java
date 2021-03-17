@@ -21,6 +21,4 @@ public interface IStorage {
     default double getAvailableSpaceMiB() {
         return availableSpaceMiBProperty().get();
     }
-
-    ReadOnlyAsyncDoubleProperty totalSpaceMiBProperty();
 }

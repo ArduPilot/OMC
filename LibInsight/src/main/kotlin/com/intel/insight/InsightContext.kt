@@ -40,7 +40,7 @@ class InsightContext {
         headers.put("Pragma", "no-cache");
         headers.put("Referer", "$targetHost/login");
         headers.put("Origin", "$targetHost");
-        headers.put("host", "newdev.ixstack.net");
+        headers.put("host", "dev.ixstack.net");
         headers.put("Cache-Control", "no-cache");
         headers.put("Accept", "application/json, text/plain, */*");
         headers.put("Accept-Encoding", "gzip, deflate, br")
@@ -131,7 +131,7 @@ class InsightContext {
 
     }
 
-    var targetHost: String = "https://newdev.ixstack.net"
+    var targetHost: String = "https://dev.ixstack.net"
 
     fun authWithInsight(userName: String, password: String) {
 
@@ -311,7 +311,7 @@ class InsightContext {
             headers.put("Pragma", "no-cache");
             headers.put("Referer", "$targetHost/app/browse/projects");
             headers.put("Origin", "$targetHost");
-            headers.put("host", "newdev.ixstack.net");
+            headers.put("host", "dev.ixstack.net");
             headers.put("Cache-Control", "no-cache");
             headers.put("Accept", "*/*");
             headers.put("Accept-Encoding", "gzip, deflate, br")

@@ -93,6 +93,9 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
     @FXML
     private Button cancelButton;
 
+    @FXML
+    private CheckBox eraseFilesCheckbox;
+
     private final ILanguageHelper languageHelper;
 
     @Inject
@@ -127,6 +130,8 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
 
         cancelButton.disableProperty().bind(viewModel.getCloseCommand().notExecutableProperty());
         cancelButton.setOnAction(event -> viewModel.getCloseCommand().execute());
+
+        eraseFilesCheckbox.selectedProperty().bindBidirectional(viewModel.eraseLogsProperty());
 
         selectionCheckBox.selectedProperty().bindBidirectional(viewModel.selectionCheckBoxProperty());
     }
@@ -202,7 +207,7 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
                                 .bind(
                                     Bindings.createStringBinding(
                                         () ->
-                                            item.getTriggerCount() == 0
+                                            item.getImageCount() == 0
                                                 ? ""
                                                 : (item.getDate() == null
                                                     ? languageHelper.getString(
@@ -283,7 +288,7 @@ public class AddFlightLogsView extends DialogView<AddFlightLogsViewModel> {
                             textProperty()
                                 .bind(
                                     Bindings.createStringBinding(
-                                        () -> item.isReadingLogFile() ? null : Integer.toString(item.getTriggerCount()),
+                                        () -> item.isReadingLogFile() ? null : Integer.toString(item.getImageCount()),
                                         item.readingLogFileProperty()));
 
                             Tooltip tooltip = new Tooltip();

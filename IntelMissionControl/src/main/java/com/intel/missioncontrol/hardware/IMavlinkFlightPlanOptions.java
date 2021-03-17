@@ -14,18 +14,10 @@ public interface IMavlinkFlightPlanOptions {
         SET_CAMERA_TRIGGER_DISTANCE // use MAV_CMD_DO_SET_CAM_TRIGG_DIST
     }
 
-    enum TakeoffCommand {
+    enum PrependMissionItem {
         NONE,
         TAKEOFF,
-        WAYPOINT_AND_TAKEOFF,
-        VTOL_TAKEOFF,
-        WAYPOINT_AND_VTOL_TAKEOFF
-    }
-
-    enum LandCommand {
-        NONE,
-        LAND,
-        VTOL_LAND
+        WAYPOINT_AND_TAKEOFF
     }
 
     enum GimbalAndAttitudeCommand {
@@ -36,15 +28,9 @@ public interface IMavlinkFlightPlanOptions {
 
     double getAcceptanceAngleDegrees();
 
-    TakeoffCommand getTakeoffCommand();
-
-    LandCommand getLandCommand();
-
-    boolean getAutoDisarmBeforeTakeoff();
+    PrependMissionItem getPrependMissionItem();
 
     boolean getSetSpeedAtEachWaypoint();
-
-    boolean getSendAlsoNonChangedValues();
 
     GimbalAndAttitudeCommand getGimbalAndAttitudeCommand();
 

@@ -369,4 +369,5 @@ function build_gui_platform($file,$ressourcesDir,$platform, $licenceFile) {
 }
 
 
+
 ?>

@@ -6,30 +6,61 @@
 
 package com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic;
 
-import com.intel.missioncontrol.ui.controls.Hyperlink;
+import com.google.inject.Inject;
 import com.intel.missioncontrol.ui.controls.RotatingImageView;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
 import de.saxsys.mvvmfx.InjectViewModel;
 import de.saxsys.mvvmfx.JavaView;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 
 // Class needs to be public, otherwise it can't be properly initialized.
 public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemViewModel> {
 
+    private static final String ICON_COMPLETE = "/com/intel/missioncontrol/icons/icon_complete(fill=theme-green).svg";
+    // TODO colors
+    private static final String ICON_WARNING = "/com/intel/missioncontrol/icons/icon_warning(fill=black).svg";
+    private static final String ICON_ERROR =
+            "/com/intel/missioncontrol/icons/icon_warning(fill=theme-warning-color).svg";
     private static final String ICON_LOADING = "/com/intel/missioncontrol/icons/icon_progress.svg";
-    private static final String ICON_COMPLETE_CLASS = "icon-complete";
-    private static final String ICON_WARNING_CLASS = "icon-warning";
-    private static final String WARNING_CLASS = "warning";
-    private static final String CRITICAL_CLASS = "critical";
 
     @InjectViewModel
     private AutoCheckItemViewModel viewModel;
 
+    private Image completeIcon;
+    private Image warningIcon;
+    private Image errorIcon;
     private Image loadingIcon;
+
+    private Image getCompleteIcon() {
+        if (completeIcon == null) {
+            completeIcon = new Image(ICON_COMPLETE);
+        }
+
+        return completeIcon;
+    }
+
+    private Image getWarningIcon() {
+        if (warningIcon == null) {
+            warningIcon = new Image(ICON_WARNING);
+        }
+
+        return warningIcon;
+    }
+
+    private Image getErrorIcon() {
+        if (errorIcon == null) {
+            errorIcon = new Image(ICON_ERROR);
+        }
+
+        return errorIcon;
+    }
 
     private Image getLoadingIcon() {
         if (loadingIcon == null) {
@@ -40,17 +71,12 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
     }
 
     public void initialize() {
-        getStyleClass().addAll("form-row");
-
-        HBox imgBox = new HBox();
-        imgBox.getStyleClass().add("set-back");
-        getChildren().add(imgBox);
-
+        setSpacing(5);
+        setAlignment(Pos.BASELINE_LEFT);
+        setPadding(new Insets(5, 5, 5, 5));
         RotatingImageView rotatingImageView = new RotatingImageView();
-        rotatingImageView.setFitWidth(20);
-        rotatingImageView.setFitHeight(20);
-        rotatingImageView.setVisible(false);
-        rotatingImageView.setManaged(false);
+        rotatingImageView.setFitWidth(16);
+        rotatingImageView.setFitHeight(16);
 
         rotatingImageView
             .imageProperty()
@@ -62,26 +88,15 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
                             alertType = AlertType.LOADING;
                         }
 
-                        getStyleClass()
-                            .removeAll(CRITICAL_CLASS, WARNING_CLASS, ICON_COMPLETE_CLASS, ICON_WARNING_CLASS);
-                        rotatingImageView.setVisible(false);
-                        rotatingImageView.setManaged(false);
-
                         switch (alertType) {
                         case COMPLETED:
-                            getStyleClass().add(ICON_COMPLETE_CLASS);
-                            return null;
+                            return getCompleteIcon();
                         case WARNING:
-                            getStyleClass().addAll(WARNING_CLASS, ICON_WARNING_CLASS);
-                            return null;
+                            return getWarningIcon();
                         case ERROR:
-                            getStyleClass().addAll(ICON_WARNING_CLASS, CRITICAL_CLASS);
-                            return null;
+                            return getErrorIcon();
                         case LOADING:
-                        case NONE:
                         default:
-                            rotatingImageView.setVisible(true);
-                            rotatingImageView.setManaged(true);
                             return getLoadingIcon();
                         }
                     },
@@ -97,35 +112,36 @@ public class AutoCheckItemView extends HBox implements JavaView<AutoCheckItemVie
                     },
                     viewModel.alertTypeProperty()));
 
-        imgBox.getChildren().add(rotatingImageView);
+        getChildren().add(rotatingImageView);
 
         Label label = new Label();
         label.setWrapText(true);
         label.textProperty().bind(viewModel.messageStringProperty());
-        // getChildren().add(label);
+        // label.disableProperty().bind(viewModel.isInProgressProperty());
+        getChildren().add(label);
 
-        HBox actions = new HBox();
-        actions.setSpacing(10);
+        Pane pane = new Pane();
+        HBox.setHgrow(pane, Priority.ALWAYS);
+        getChildren().add(pane);
 
-        var firstResolveActionCommand = viewModel.getFirstResolveActionCommand();
-        if (firstResolveActionCommand != null) {
-            Hyperlink link = new Hyperlink();
-            link.textProperty().bind(viewModel.firstResolveActionTextProperty());
-            link.setOnAction(event -> firstResolveActionCommand.execute());
-            actions.getChildren().add(link);
-        }
-
-        var secondResolveActionCommand = viewModel.getSecondResolveActionCommand();
-        if (secondResolveActionCommand != null) {
-            Hyperlink link = new Hyperlink();
-            link.textProperty().bind(viewModel.secondResolveActionTextProperty());
-            link.setOnAction(event -> secondResolveActionCommand.execute());
-            actions.getChildren().add(link);
-        }
-
-        VBox container = new VBox(label, actions);
-        container.setMaxWidth(Double.POSITIVE_INFINITY);
-        getChildren().add(container);
+        // TODO
+        //            if (!viewModel.isValidProperty().get() && viewModel.getFirstResolveActionCommand() != null) {
+        //                Hyperlink hyperlink =
+        //                    new Hyperlink(
+        //                        languageHelper.getString(
+        //
+        // "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.automatic.AutomaticChecksDialogView.howToFix"));
+        //                hyperlink.textProperty().bind(viewModel.firstResolveActionTextProperty());
+        //                hyperlink.setAlignment(Pos.CENTER);
+        //                hyperlink.setPadding(new Insets(1, 5, 1, 1));
+        //                hyperlink.setPrefWidth(70);
+        //                hyperlink.setOnAction(event -> viewModel.getFirstResolveActionCommand().execute());
+        //                label.disableProperty().bind(viewModel.isInProgressProperty());
+        //
+        //                getChildren().add(hyperlink);
+        //
+        // hyperlink.visibleProperty().bind(viewModel.numberOfResolveActionsProperty().greaterThan(0));
+        //            }
     }
 
 }

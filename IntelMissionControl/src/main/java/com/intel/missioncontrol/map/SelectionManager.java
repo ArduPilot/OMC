@@ -17,6 +17,7 @@ import org.asyncfx.beans.property.SimpleAsyncListProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
+import org.asyncfx.concurrent.SynchronizationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,10 @@ public class SelectionManager implements ISelectionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SelectionManager.class);
 
-    private final AsyncObjectProperty<Object> currentSelection = new SimpleAsyncObjectProperty<>(this);
+    private final AsyncObjectProperty<Object> currentSelection =
+        new SimpleAsyncObjectProperty<>(
+            this,
+            new PropertyMetadata.Builder<>().synchronizationContext(SynchronizationContext.getCurrent()).create());
 
     private final AsyncListProperty<WayPoint> highlighted =
         new SimpleAsyncListProperty<>(

@@ -10,7 +10,6 @@ public class InvalidParamTypeException extends RuntimeException {
     private IMavlinkParameter parameter;
 
     InvalidParamTypeException(IMavlinkParameter parameter) {
-        super("Invalid MAVLink parameter type for " + parameter.toString());
         this.parameter = parameter;
     }
 

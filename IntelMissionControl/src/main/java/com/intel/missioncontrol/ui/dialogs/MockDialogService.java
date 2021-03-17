@@ -70,11 +70,6 @@ public class MockDialogService implements IDialogService {
     }
 
     @Override
-    public <ViewModelType extends ViewModelBase, PayloadType> Future<ViewModelType> requestPopoverDialogAsync(ViewModel ownerViewModel, Class<ViewModelType> popoverDialogViewModelClass, @Nullable Supplier<PayloadType> payloadSupplier, Point2D location) {
-        return null;
-    }
-
-    @Override
     public <T> void requestProgressDialog(Task<T> task, String title, String header) {}
 
     @Override

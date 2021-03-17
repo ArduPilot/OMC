@@ -6,8 +6,12 @@
 
 package eu.mavinci.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
+import eu.mavinci.core.flightplan.CEvent;
+import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
+import eu.mavinci.core.helper.StringHelper;
+import eu.mavinci.core.plane.AirplaneEventActions;
 import eu.mavinci.core.flightplan.CEvent;
 import eu.mavinci.core.flightplan.IFlightplanRelatedObject;
 import eu.mavinci.core.helper.StringHelper;
@@ -25,7 +29,8 @@ public class Event extends CEvent {
 
     public static final String KEY_TO_STRING = KEY + ".toString";
 
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+            DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     protected Event(
             EventList parent,
@@ -55,14 +60,14 @@ public class Event extends CEvent {
                     getNameI18n(),
                     getActionI18N(getAction()),
                     StringHelper.secToShortDHMS(getDelay()),
-                    languageHelper.getString(KEY_recover + "." + isRecover()));
+                        languageHelper.getString(KEY_recover + "." + isRecover()));
             } else {
                 return languageHelper.getString(
                     KEY_TO_STRING + ".perfomed",
                     getNameI18n(),
                     getActionI18N(getAction()),
                     StringHelper.secToShortDHMS(getDelay()),
-                    languageHelper.getString(KEY_recover + "." + isRecover()));
+                        languageHelper.getString(KEY_recover + "." + isRecover()));
             }
         } else {
             if (getAction() == AirplaneEventActions.ignore) {
@@ -71,14 +76,14 @@ public class Event extends CEvent {
                     getNameI18n(),
                     getActionI18N(getAction()),
                     StringHelper.secToShortDHMS(getDelay()),
-                    languageHelper.getString(KEY_recover + "." + isRecover()));
+                        languageHelper.getString(KEY_recover + "." + isRecover()));
             } else {
                 return languageHelper.getString(
                     KEY_TO_STRING,
                     getNameI18n(),
                     getActionI18N(getAction()),
                     StringHelper.secToShortDHMS(getDelay()),
-                    languageHelper.getString(KEY_recover + "." + isRecover()));
+                        languageHelper.getString(KEY_recover + "." + isRecover()));
             }
         }
     }

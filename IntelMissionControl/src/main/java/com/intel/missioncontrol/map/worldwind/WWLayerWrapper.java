@@ -19,7 +19,7 @@ import org.asyncfx.beans.property.AsyncDoubleProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncBooleanProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 /** Wraps an existing WorldWind layer class and exposes basic properties that are common to all layer classes. */
 public class WWLayerWrapper implements ILayer {
@@ -31,7 +31,7 @@ public class WWLayerWrapper implements ILayer {
     private final AsyncBooleanProperty pickable;
     private final AsyncDoubleProperty opacity;
 
-    public WWLayerWrapper(gov.nasa.worldwind.layers.Layer wwLayer, Dispatcher dispatcher) {
+    public WWLayerWrapper(gov.nasa.worldwind.layers.Layer wwLayer, SynchronizationRoot syncRoot) {
         this.wwLayer = wwLayer;
 
         String defaultName = null;
@@ -60,14 +60,14 @@ public class WWLayerWrapper implements ILayer {
 
         enabled =
             new WWAsyncBooleanProperty(
-                this, "enabled", dispatcher, "Enabled", wwLayer, wwLayer::setEnabled, defaultEnabled);
+                this, "enabled", syncRoot, "Enabled", wwLayer, wwLayer::setEnabled, defaultEnabled);
 
         pickable =
             new WWAsyncBooleanProperty(
-                this, "pickable", dispatcher, AVKey.PICK_ENABLED, wwLayer, wwLayer::setPickEnabled, defaultPickable);
+                this, "pickable", syncRoot, AVKey.PICK_ENABLED, wwLayer, wwLayer::setPickEnabled, defaultPickable);
 
         opacity =
-            new WWAsyncDoubleProperty(this, "opacity", dispatcher, AVKey.OPACITY, wwLayer, wwLayer::setOpacity, 1.0);
+            new WWAsyncDoubleProperty(this, "opacity", syncRoot, AVKey.OPACITY, wwLayer, wwLayer::setOpacity, 1.0);
     }
 
     protected Layer getWrappedLayer() {

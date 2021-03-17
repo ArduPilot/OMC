@@ -13,11 +13,9 @@ import com.intel.missioncontrol.drone.DistanceSensor;
 import com.intel.missioncontrol.drone.FlightSegment;
 import com.intel.missioncontrol.drone.GnssState;
 import com.intel.missioncontrol.drone.IBattery;
+import com.intel.missioncontrol.drone.IDistanceSensor;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.drone.IGnssInfo;
-import com.intel.missioncontrol.drone.IObstacleAvoidance;
-import com.intel.missioncontrol.helper.ILanguageHelper;
-import com.intel.missioncontrol.linkbox.ILinkBoxConnectionService;
 import com.intel.missioncontrol.map.worldwind.IWWGlobes;
 import com.intel.missioncontrol.measure.Dimension;
 import com.intel.missioncontrol.measure.Quantity;
@@ -44,6 +42,7 @@ import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Vec4;
 import gov.nasa.worldwind.globes.Globe;
 import java.time.Duration;
+import java.util.Comparator;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -52,9 +51,11 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import org.asyncfx.beans.property.AsyncObjectProperty;
+import org.asyncfx.beans.property.PropertyHelper;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.ReadOnlyAsyncBooleanProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
+import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncBooleanProperty;
@@ -62,13 +63,14 @@ import org.asyncfx.beans.property.UIAsyncDoubleProperty;
 import org.asyncfx.beans.property.UIAsyncObjectProperty;
 import org.asyncfx.beans.property.UIAsyncStringProperty;
 import org.asyncfx.beans.property.UIPropertyMetadata;
+import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TelemetryViewModel extends ViewModelBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TelemetryViewModel.class);
+
+    @InjectScope
+    private FlightScope flightScope;
 
     private final UIAsyncObjectProperty<BatteryAlertLevel> alertBatteryLevel = new UIAsyncObjectProperty<>(this);
     private final UIAsyncQuantityProperty<Dimension.Percentage> batteryRemainingCharge;
@@ -86,15 +88,18 @@ public class TelemetryViewModel extends ViewModelBase {
     private final UIAsyncStringProperty oaDistanceText = new UIAsyncStringProperty(this);
     private final UIAsyncObjectProperty<DistanceSensor.AlertLevel> oaDistanceAlertLevel =
         new UIAsyncObjectProperty<>(this);
-    private final UIAsyncObjectProperty<IObstacleAvoidance.Mode> obstacleAvoidanceMode =
-        new UIAsyncObjectProperty<>(this);
-    private final UIAsyncBooleanProperty hardwareOACapable = new UIAsyncBooleanProperty(true);
+
     private final UIAsyncDoubleProperty closestDistanceMeters =
         new UIAsyncDoubleProperty(this, new UIPropertyMetadata.Builder<Number>().initialValue(Double.NaN).create());
+    private final UIAsyncBooleanProperty closestDistanceTelemetryOld = new UIAsyncBooleanProperty(this);
     private final UIAsyncObjectProperty<Duration> timeUntilLanding = new UIAsyncObjectProperty<>(this);
+
     private final AsyncObjectProperty<IDrone> drone = new SimpleAsyncObjectProperty<>(this);
+    private final ReadOnlyAsyncListProperty<? extends IDistanceSensor> distanceSensors;
+
     private final ReadOnlyAsyncObjectProperty<FlightPlan> activeFlightPlan;
     private final ReadOnlyAsyncIntegerProperty activeWaypointIndex;
+
     private final UIAsyncBooleanProperty batteryTelemetryOld = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty gnssTelemetryOld = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty flightSegmentTelemetryOld = new UIAsyncBooleanProperty(this);
@@ -103,30 +108,18 @@ public class TelemetryViewModel extends ViewModelBase {
     private final UIAsyncBooleanProperty flightTimeTelemetryOld = new UIAsyncBooleanProperty(this);
     private final UIAsyncBooleanProperty oaDistanceTelemetryOld = new UIAsyncBooleanProperty(this);
     private final ParameterizedDelegateCommand<Object> showTelemetryDetailDialogCommand;
-    private final DelegateCommand showUAVLockedDialogCommand;
-    private final DelegateCommand showObstacleAvoidanceDialogCommand;
+
     private final UIAsyncBooleanProperty batteryButtonToggle = new UIAsyncBooleanProperty(this);
     private final Command batteryButtonCommand;
+
     private final BooleanProperty telemetryDetailsAvailable = new SimpleBooleanProperty(true);
-    private final BooleanProperty canShowObstacleAvoidanceTelemetry = new SimpleBooleanProperty(true);
-    private final BooleanProperty canShowUAVLockedDialog = new SimpleBooleanProperty(true);
-    private final UIAsyncBooleanProperty linkboxAuthorized = new UIAsyncBooleanProperty(this);
-
-    private final ILanguageHelper languageHelper;
-
-    @InjectScope
-    private FlightScope flightScope;
 
     @Inject
     public TelemetryViewModel(
             ISettingsManager settingsManager,
             IQuantityStyleProvider quantityStyleProvider,
             IWWGlobes wwGlobes,
-            IDialogService dialogService,
-            ILanguageHelper languageHelper,
-            ILinkBoxConnectionService linkBoxConnectionService) {
-        this.languageHelper = languageHelper;
-
+            IDialogService dialogService) {
         GeneralSettings generalSettings = settingsManager.getSection(GeneralSettings.class);
         ReadOnlyAsyncObjectProperty<? extends IBattery> battery =
             PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::batteryProperty);
@@ -197,7 +190,7 @@ public class TelemetryViewModel extends ViewModelBase {
                             return voltageFormat.format(voltage);
                         }
                     } else {
-                        return this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable");
+                        return "--";
                     }
                 },
                 batteryVoltage,
@@ -231,51 +224,18 @@ public class TelemetryViewModel extends ViewModelBase {
                         dialogService.requestDialogAsync(this, TelemetryDetailViewModel.class, false);
 
                     dialog.whenDone((v) -> telemetryDetailsAvailable.set(true));
-                    dialog.whenSucceeded((v) -> telemetryDetailsAvailable.set(true));
+                    dialog.whenSucceeded(
+                        (v) -> {
+                            telemetryDetailsAvailable.set(true);
+                        });
                     dialog.whenFailed(
                         e -> {
                             telemetryDetailsAvailable.set(true);
-                            LOGGER.error("Error evaluating message from drone", e);
+                            // LOGGER.error("Error evaluating message from drone: " + message, e);
+                            System.out.println("requestParamById Error: " + e.getMessage());
                         });
                 },
                 telemetryDetailsAvailable);
-
-        showUAVLockedDialogCommand =
-            new DelegateCommand(
-                () -> {
-                    if (canShowUAVLockedDialog.get()) {
-                        canShowUAVLockedDialog.set(false);
-                        Future<UAVLockedViewModel> dialog =
-                            dialogService.requestDialogAsync(this, UAVLockedViewModel.class, false);
-
-                        dialog.whenDone((v) -> canShowUAVLockedDialog.set(true));
-                        dialog.whenSucceeded((v) -> canShowUAVLockedDialog.set(true));
-                        dialog.whenFailed(
-                            e -> {
-                                canShowUAVLockedDialog.set(true);
-                                LOGGER.error("Error evaluating message from drone", e);
-                            });
-                    }
-                });
-
-        showObstacleAvoidanceDialogCommand =
-            new DelegateCommand(
-                () -> {
-                    if (canShowObstacleAvoidanceTelemetry.get()) {
-                        canShowObstacleAvoidanceTelemetry.set(false);
-
-                        Future<ObstacleAvoidanceTelemetryViewModel> dialog =
-                            dialogService.requestDialogAsync(this, ObstacleAvoidanceTelemetryViewModel.class, false);
-
-                        dialog.whenDone((v) -> canShowObstacleAvoidanceTelemetry.set(true));
-                        dialog.whenSucceeded((v) -> canShowObstacleAvoidanceTelemetry.set(true));
-                        dialog.whenFailed(
-                            e -> {
-                                canShowObstacleAvoidanceTelemetry.set(true);
-                                LOGGER.error("Error evaluating ObstacleAvoidance", e);
-                            });
-                    }
-                });
 
         position.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::positionProperty));
 
@@ -283,7 +243,7 @@ public class TelemetryViewModel extends ViewModelBase {
             Bindings.createStringBinding(
                 () -> {
                     if (position.get() == null) {
-                        return this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable");
+                        return "--";
                     }
 
                     double altAboveTakeoff = position.get().getAltitude();
@@ -312,7 +272,7 @@ public class TelemetryViewModel extends ViewModelBase {
                     Position pos = position.get();
                     Position activeTakeoffPos = activeTakeoffPosition.get();
                     if (pos == null || activeTakeoffPos == null) {
-                        return this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable");
+                        return "--";
                     }
 
                     Vec4 vPos = globe.computePointFromPosition(pos);
@@ -339,7 +299,7 @@ public class TelemetryViewModel extends ViewModelBase {
                 () ->
                     (flightTime.get() != null
                         ? flightTimeFormat.format(Quantity.of(flightTime.get().toMillis(), Unit.MILLISECOND))
-                        : this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable")),
+                        : "--"),
                 flightTime));
 
         activeFlightPlan = PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::activeFlightPlanProperty);
@@ -348,62 +308,58 @@ public class TelemetryViewModel extends ViewModelBase {
 
         activeFlightPlan.addListener(
             (o, oldValue, newValue) -> updateTimeUntilLanding(newValue, activeWaypointIndex.get()),
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
         activeWaypointIndex.addListener(
             (o, oldValue, newValue) -> updateTimeUntilLanding(activeFlightPlan.get(), newValue.intValue()),
-            Dispatcher.platform()::run);
+            Dispatcher.platform());
 
         timeUntilLandingText.bind(
             Bindings.createStringBinding(
                 () ->
-                    (timeUntilLanding.get() == null
-                        ? this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable")
-                        : (timeUntilLanding.get().isZero()
-                        ? this.languageHelper.getString(TelemetryViewModel.class, "landingNow")
-                        : flightTimeFormat.format(Quantity.of(timeUntilLanding.get().toMillis(), Unit.MILLISECOND)))),
+                    (timeUntilLanding.get() != null
+                        ? flightTimeFormat.format(Quantity.of(timeUntilLanding.get().toMillis(), Unit.MILLISECOND))
+                        : "--"),
                 timeUntilLanding));
 
         autoPilotState.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::autopilotStateProperty));
 
-        oaDistanceAlertLevel.bind(
-            PropertyPath.from(drone)
-                .select(IDrone::obstacleAvoidanceProperty)
-                .selectReadOnlyAsyncObject(
-                    oa -> oa.getAggregatedDistanceSensor().alertLevelProperty(), DistanceSensor.AlertLevel.UNKNOWN));
+        // Closest distance measured by any sensor
+        distanceSensors = PropertyPath.from(drone).selectReadOnlyAsyncList(IDrone::distanceSensorsProperty);
+        distanceSensors.addListener(
+            (o, oldValue, newValue, subObservable) -> {
+                try (LockedList<? extends IDistanceSensor> list = distanceSensors.lock()) {
+                    PropertyHelper.setValueSafe(
+                        closestDistanceMeters,
+                        list.stream()
+                            .mapToDouble(IDistanceSensor::getClosestDistanceMeters)
+                            .filter(d -> !Double.isNaN(d))
+                            .min()
+                            .orElse(Double.NaN));
 
-        obstacleAvoidanceMode.bind(
-            PropertyPath.from(drone)
-                .select(IDrone::obstacleAvoidanceProperty)
-                .selectReadOnlyAsyncObject(IObstacleAvoidance::modeProperty));
+                    PropertyHelper.setValueSafe(
+                        closestDistanceTelemetryOld, list.stream().anyMatch(IDistanceSensor::getTelemetryOld));
 
-        hardwareOACapable.bind(
-            obstacleAvoidanceMode
-                .isNotNull()
-                .and(obstacleAvoidanceMode.isNotEqualTo(IObstacleAvoidance.Mode.NOT_AVAILABLE)));
+                    // highest alert level
+                    PropertyHelper.setValueSafe(
+                        oaDistanceAlertLevel,
+                        list.stream()
+                            .map(IDistanceSensor::getAlertLevel)
+                            .max(Comparator.comparingInt(Enum::ordinal))
+                            .orElse(DistanceSensor.AlertLevel.UNKNOWN));
+                }
+            },
+            Dispatcher.platform());
 
-        closestDistanceMeters.bind(
-            PropertyPath.from(drone)
-                .select(IDrone::obstacleAvoidanceProperty)
-                .selectReadOnlyAsyncDouble(
-                    oa -> oa.getAggregatedDistanceSensor().closestDistanceMetersProperty(), Double.NaN));
-        oaDistanceTelemetryOld.bind(
-            PropertyPath.from(drone)
-                .select(IDrone::obstacleAvoidanceProperty)
-                .selectReadOnlyAsyncBoolean(oa -> oa.getAggregatedDistanceSensor().telemetryOldProperty()));
+        oaDistanceTelemetryOld.bind(closestDistanceTelemetryOld);
 
         oaDistanceText.bind(
             Bindings.createStringBinding(
                 () -> {
-                    boolean hwOaCapable = hardwareOACapable.get();
-                    if (!hwOaCapable) {
-                        return this.languageHelper.getString(TelemetryViewModel.class, "dataUnavailable");
+                    if (Double.isNaN(closestDistanceMeters.get())) {
+                        return "--";
                     }
 
                     double d = closestDistanceMeters.get();
-                    if (Double.isNaN(d) || Double.isInfinite(d)) {
-                        return this.languageHelper.getString(TelemetryViewModel.class, "obstacleAvoidanceOff");
-                    }
-
                     QuantityFormat format = new AdaptiveQuantityFormat(generalSettings);
                     format.setSignificantDigits(6);
                     format.setMaximumFractionDigits(1);
@@ -411,16 +367,8 @@ public class TelemetryViewModel extends ViewModelBase {
                     return format.format(Quantity.of(d, Unit.METER), UnitInfo.INVARIANT_LENGTH);
                 },
                 closestDistanceMeters,
-                hardwareOACapable,
-                obstacleAvoidanceMode,
                 generalSettings.localeProperty(),
                 generalSettings.systemOfMeasurementProperty()));
-
-        linkboxAuthorized.bind(
-            Bindings.createBooleanBinding(
-                () -> linkBoxConnectionService.linkBoxStatusProperty().get()
-                    != ILinkBoxConnectionService.LinkBoxStatus.UNAUTHENTICATED,
-                linkBoxConnectionService.linkBoxStatusProperty()));
     }
 
     private void updateTimeUntilLanding(FlightPlan fp, int waypointIndex) {
@@ -433,7 +381,7 @@ public class TelemetryViewModel extends ViewModelBase {
                 d =
                     Duration.ofSeconds(
                         Math.round(
-                            FlightPlanValidation.estimateFlightTime(fp, waypointIndex)));
+                            FlightPlanValidation.estimateFlightTime(fp, fp.waypointsProperty().get(waypointIndex))));
             }
         }
 
@@ -540,23 +488,4 @@ public class TelemetryViewModel extends ViewModelBase {
         return showTelemetryDetailDialogCommand;
     }
 
-    Command getShowUAVLockedDialogCommand() {
-        return showUAVLockedDialogCommand;
-    }
-
-    ReadOnlyProperty<IObstacleAvoidance.Mode> obstacleAvoidanceModeProperty() {
-        return obstacleAvoidanceMode;
-    }
-
-    ReadOnlyAsyncBooleanProperty hardwareOACapableProperty() {
-        return hardwareOACapable;
-    }
-
-    public Command getShowObstacleAvoidanceDialogCommand() {
-        return showObstacleAvoidanceDialogCommand;
-    }
-
-    ReadOnlyAsyncBooleanProperty linkboxAuthorizedProperty() {
-        return linkboxAuthorized;
-    }
 }

@@ -6,12 +6,12 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.helper.ScaleHelper;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.airspace.Airspace;
 import eu.mavinci.airspace.LowestAirspace;
 import eu.mavinci.core.flightplan.GPSFixType;
@@ -95,7 +95,8 @@ public class AirplaneBalloonLayer extends GlobeAnnotation
     private static final double ELEVATION = 50;
     private ProgressAnnotation progress;
     private int phase = 0;
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     /**
      * Constructor
@@ -283,13 +284,13 @@ public class AirplaneBalloonLayer extends GlobeAnnotation
             }
 
             throw new RuntimeException("If this class is used, the next line must be implemented using QuantityFormat");
-            // txt =
+            //txt =
             //    UnitsHelper.Orders.alt_like.getFormat(altitudeAboveGround, -3, true)
             //        + " "
             //        + relationChar
             //        + " "
             //        + UnitsHelper.Orders.alt_like.getFormat(airspaceAltOverGround, -3, true);
-            // annotationText += "<font color=\"#" + col + "\">" + txt + "<\\font><br\\>";
+            //annotationText += "<font color=\"#" + col + "\">" + txt + "<\\font><br\\>";
         }
 
         annotationText += StringHelper.lengthToIngName(totalDist, -3, true);

@@ -8,6 +8,7 @@ package org.asyncfx.concurrent;
 
 import java.time.Duration;
 import java.util.function.Supplier;
+import javafx.application.Platform;
 import org.asyncfx.concurrent.Future.RunnableWithProgress;
 import org.asyncfx.concurrent.Future.SupplierWithProgress;
 import org.jetbrains.annotations.NotNull;
@@ -17,18 +18,13 @@ class BackgroundDispatcher implements Dispatcher {
     static final BackgroundDispatcher INSTANCE = new BackgroundDispatcher();
 
     @Override
-    public boolean hasAccess() {
-        return DefaultFutureFactory.getInstance().isFactoryThread();
-    }
-
-    @Override
-    public boolean isSequential() {
-        return false;
+    public void execute(@NotNull Runnable runnable) {
+        run(runnable);
     }
 
     @Override
     public void run(@NotNull Runnable runnable) {
-        if (DefaultFutureFactory.getInstance().isFactoryThread()) {
+        if (!Platform.isFxApplicationThread()) {
             runnable.run();
         } else {
             FutureExecutorService.getInstance().execute(runnable);
@@ -72,8 +68,8 @@ class BackgroundDispatcher implements Dispatcher {
 
     @Override
     public Future<Void> runLaterAsync(
-            Runnable runnable, Duration delay, Duration period, CancellationSource cancellationSource) {
-        return DefaultFutureFactory.getInstance().newRunFuture(runnable, delay, period, cancellationSource);
+            Runnable runnable, Duration duration, Duration period, CancellationSource cancellationSource) {
+        return DefaultFutureFactory.getInstance().newRunFuture(runnable, duration, period, cancellationSource);
     }
 
     @Override
@@ -114,8 +110,8 @@ class BackgroundDispatcher implements Dispatcher {
     }
 
     @Override
-    public <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration delay) {
-        return DefaultFutureFactory.getInstance().newGetFuture(supplier, delay);
+    public <T> Future<T> getLaterAsync(Supplier<T> supplier, Duration duration) {
+        return DefaultFutureFactory.getInstance().newGetFuture(supplier, duration);
     }
 
     @Override
@@ -149,8 +145,4 @@ class BackgroundDispatcher implements Dispatcher {
         return DefaultFutureFactory.getInstance().newGetFuture(supplier, delay, cancellationSource);
     }
 
-    @Override
-    public String toString() {
-        return "background thread";
-    }
 }

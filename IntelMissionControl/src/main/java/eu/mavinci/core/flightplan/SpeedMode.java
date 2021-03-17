@@ -8,6 +8,5 @@ package eu.mavinci.core.flightplan;
 
 public enum SpeedMode {
     normal,
-    slow,
-    fast;
+    slow;
 }

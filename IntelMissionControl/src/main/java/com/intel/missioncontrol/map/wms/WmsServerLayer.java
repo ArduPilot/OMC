@@ -19,7 +19,7 @@ import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 /** WmsServerLayer is a layer which is in turn a group of WMS map layers... */
 public class WmsServerLayer extends LayerGroup {
@@ -33,12 +33,11 @@ public class WmsServerLayer extends LayerGroup {
                     FXAsyncCollections.observableArrayList(layer -> new AsyncObservable[] {layer.enabledProperty()}))
                 .create());
 
-    public WmsServerLayer(Dispatcher dispatcher, WmsServer wmsServer) {
+    public WmsServerLayer(SynchronizationRoot syncRoot, WmsServer wmsServer) {
         super(LayerGroupType.WMS_SERVER_GROUP, ToggleHint.ONE_OR_NONE);
         this.wmsServer.set(wmsServer);
         nameProperty().bind(wmsServer.serverNameProperty());
-        subLayersProperty()
-            .bindContent(wmsServer.wmsMapsProperty(), new WmsMapConverter(dispatcher, wmsServer.getUrl()));
+        subLayersProperty().bindContent(wmsServer.wmsMapsProperty(), new WmsMapConverter(syncRoot, wmsServer.getUrl()));
     }
 
     public WmsServer getWmsServer() {

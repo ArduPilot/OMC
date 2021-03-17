@@ -18,9 +18,9 @@ import com.intel.missioncontrol.map.MapInputEvent;
 import com.intel.missioncontrol.map.credits.MapCreditView;
 import com.intel.missioncontrol.map.credits.MapCreditViewModel;
 import com.intel.missioncontrol.map.worldwind.IWWMapView;
-import com.intel.missioncontrol.map.worldwind.WWDispatcher;
 import com.intel.missioncontrol.map.worldwind.WWElevationModel;
 import com.intel.missioncontrol.map.worldwind.WWMapModel;
+import com.intel.missioncontrol.map.worldwind.WWSyncContext;
 import com.intel.missioncontrol.map.worldwind.WorldWindowProvider;
 import com.intel.missioncontrol.modules.MapModule;
 import com.intel.missioncontrol.ui.accessibility.ShortcutLayerPresenter;
@@ -70,17 +70,40 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
+import playground.liveview.LiveVideoPane;
 
 public class MainView extends DialogView<MainViewModel> implements AutoCloseable {
 
-    private final WWDispatcher mapDispatcher;
-    private final IDialogContextProvider dialogContextProvider;
-    private final ILanguageHelper languageHelper;
-    private final WWMapModel mapModel;
-    private final IWWMapView mapView;
-    private final WorldWindowProvider worldWindowProvider;
-    private final VisibilityTracker visibilityTracker;
-    private final WorldWindProfiler profiler;
+    private static class CoordinateControl extends HBox {
+        CoordinateControl(ObservableValue<String[]> coordinates) {
+            setAlignment(Pos.CENTER_LEFT);
+            Label x = new Label();
+            x.setMinWidth(110);
+            x.textProperty()
+                .bind(
+                    Bindings.createStringBinding(
+                        () -> coordinates.getValue() != null ? coordinates.getValue()[0] : "", coordinates));
+            getChildren().add(x);
+            Label y = new Label();
+            y.setMinWidth(110);
+            y.textProperty()
+                .bind(
+                    Bindings.createStringBinding(
+                        () -> coordinates.getValue() != null ? coordinates.getValue()[1] : "", coordinates));
+            getChildren().add(y);
+            Label z = new Label();
+            z.textProperty()
+                .bind(
+                    Bindings.createStringBinding(
+                        () ->
+                            coordinates.getValue() != null && coordinates.getValue().length == 3
+                                ? coordinates.getValue()[2]
+                                : "",
+                        coordinates));
+            getChildren().add(z);
+        }
+    }
 
     @FXML
     private Pane layoutRoot;
@@ -140,10 +163,11 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
     private ToggleButton backgroundTasksButton;
 
     @FXML
-    private ToggleButton linkBoxButton;
+    private SearchView searchViewController;
 
     @FXML
-    private SearchView searchViewController;
+    @SuppressWarnings("unused")
+    private LiveVideoPane liveVideoPaneController;
 
     @InjectViewModel
     private MainViewModel viewModel;
@@ -151,12 +175,21 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
     @InjectContext
     private Context context;
 
+    private final SynchronizationRoot synchronizationRoot;
+    private final IDialogContextProvider dialogContextProvider;
+    private final ILanguageHelper languageHelper;
+    private final WWMapModel mapModel;
+    private final IWWMapView mapView;
+    private final WorldWindowProvider worldWindowProvider;
+    private final VisibilityTracker visibilityTracker;
+    private final WorldWindProfiler profiler;
+
     private ShortcutLayerPresenter shortcutLayerPresenter; // store a reference so it doesn't get GC'd
     private RotateTransition backgroundTasksIconRotation;
 
     @Inject
     public MainView(
-            @Named(MapModule.DISPATCHER) Dispatcher mapDispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot synchronizationRoot,
             IDialogContextProvider dialogContextProvider,
             ILanguageHelper languageHelper,
             WWElevationModel wwElevationModel,
@@ -165,7 +198,7 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
             WorldWindowProvider worldWindowProvider,
             VisibilityTracker visibilityTracker,
             WorldWindProfiler profiler) {
-        this.mapDispatcher = (WWDispatcher)mapDispatcher;
+        this.synchronizationRoot = synchronizationRoot;
         this.dialogContextProvider = dialogContextProvider;
         this.profiler = profiler;
         this.languageHelper = languageHelper;
@@ -184,7 +217,11 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
                             () -> {
                                 worldWindNode.redraw();
                                 Dispatcher.platform()
-                                    .runLater(() -> worldWindNode.redraw(), java.time.Duration.ofMillis(1000));
+                                    .runLater(
+                                        () -> {
+                                            worldWindNode.redraw();
+                                        },
+                                        java.time.Duration.ofMillis(1000));
                             },
                             java.time.Duration.ofMillis(1000));
                 },
@@ -198,7 +235,8 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
         PerformanceTracker.setWWNode(worldWindNode);
 
         // Sets up the synchronization context to execute code on the WorldWind thread.
-        mapDispatcher.setWWNode(worldWindNode);
+        var synchronizationContext = new WWSyncContext(worldWindNode);
+        synchronizationRoot.setContext(synchronizationContext);
         worldWindNode.setModel(mapModel.getWWModel());
         worldWindNode.setView(mapView);
         worldWindNode.addRenderingListener(visibilityTracker);
@@ -304,29 +342,6 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
                             warningsButton.localToScreen(warningsButton.getWidth() / 2, ScaleHelper.emsToPixels(0.25)))
                         .addListener(() -> warningsButton.setSelected(false), Platform::runLater);
                 });
-
-        linkBoxButton
-            .selectedProperty()
-            .addListener(
-                observable -> {
-                    if (!linkBoxButton.isSelected()) {
-                        return;
-                    }
-
-                    viewModel
-                        .getShowLinkBoxStatusCommand()
-                        .executeAsync(
-                            linkBoxButton.localToScreen(linkBoxButton.getWidth() / 2, ScaleHelper.emsToPixels(0.25)))
-                        .addListener(() -> linkBoxButton.setSelected(false), Platform::runLater);
-                });
-
-        linkBoxButton.visibleProperty().bind(viewModel.linkBoxConnectedProperty());
-        viewModel
-            .linkBoxAuthorizedProperty()
-            .addListener((
-                 observableValue, oldValue, newValue) -> updateLinkBoxButtonStyle());
-        updateLinkBoxButtonStyle();
-
         backgroundTasksButton
             .selectedProperty()
             .addListener(
@@ -356,16 +371,6 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
                     viewModel.getReloadStylesheetsCommand().execute();
                 }
             });
-    }
-
-    private void updateLinkBoxButtonStyle() {
-        Dispatcher.platform().runLaterAsync(()-> {
-            if(viewModel.linkBoxAuthorizedProperty().get()){
-                linkBoxButton.getStyleClass().removeAll("critical");
-            } else {
-                linkBoxButton.getStyleClass().add("critical");
-            }
-        });
     }
 
     @Override
@@ -453,7 +458,7 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
                 count == 1
                     ? languageHelper.getString("com.intel.missioncontrol.ui.MainView.warningSingular")
                     : languageHelper.getString("com.intel.missioncontrol.ui.MainView.warningPlural", count);
-            Dispatcher.platform().runLaterAsync(()->warningsButton.setText(text));
+            warningsButton.setText(text);
         } else {
             warningsButton.setVisible(false);
             warningsButton.setManaged(false);
@@ -490,36 +495,6 @@ public class MainView extends DialogView<MainViewModel> implements AutoCloseable
     @FXML
     private void srsButtonClicked() {
         viewModel.getChangeSrsCommand().execute();
-    }
-
-    private static class CoordinateControl extends HBox {
-        CoordinateControl(ObservableValue<String[]> coordinates) {
-            setAlignment(Pos.CENTER_LEFT);
-            Label x = new Label();
-            x.setMinWidth(110);
-            x.textProperty()
-                .bind(
-                    Bindings.createStringBinding(
-                        () -> coordinates.getValue() != null ? coordinates.getValue()[0] : "", coordinates));
-            getChildren().add(x);
-            Label y = new Label();
-            y.setMinWidth(110);
-            y.textProperty()
-                .bind(
-                    Bindings.createStringBinding(
-                        () -> coordinates.getValue() != null ? coordinates.getValue()[1] : "", coordinates));
-            getChildren().add(y);
-            Label z = new Label();
-            z.textProperty()
-                .bind(
-                    Bindings.createStringBinding(
-                        () ->
-                            coordinates.getValue() != null && coordinates.getValue().length == 3
-                                ? coordinates.getValue()[2]
-                                : "",
-                        coordinates));
-            getChildren().add(z);
-        }
     }
 
 }

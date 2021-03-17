@@ -20,7 +20,7 @@ import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Vec4;
 import java.awt.Font;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(name = "%com.intel.missioncontrol.map.worldwind.layers.grids.TerrainProfileLayer", enabled = false)
 public class TerrainProfileLayer extends WWLayerWrapper implements IKeepAll {
@@ -28,10 +28,10 @@ public class TerrainProfileLayer extends WWLayerWrapper implements IKeepAll {
 
     @Inject
     TerrainProfileLayer(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             WorldWindowProvider worldWindowProvider,
             GeneralSettings generalSettings) {
-        super(new gov.nasa.worldwind.layers.TerrainProfileLayer(), dispatcher);
+        super(new gov.nasa.worldwind.layers.TerrainProfileLayer(), syncRoot);
         tpl = (gov.nasa.worldwind.layers.TerrainProfileLayer)getWrappedLayer();
         tpl.setStartLatLon(LatLon.fromDegrees(0, -10));
         tpl.setEndLatLon(LatLon.fromDegrees(0, 65));

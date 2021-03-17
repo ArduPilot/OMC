@@ -13,14 +13,14 @@ import com.intel.missioncontrol.map.worldwind.WWLayerWrapper;
 import com.intel.missioncontrol.map.worldwind.WorldWindowProvider;
 import com.intel.missioncontrol.modules.MapModule;
 import eu.mavinci.desktop.gui.wwext.ToolTipLayer;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 @LayerDefaults(internal = true)
 public class TooltipLayer extends WWLayerWrapper {
 
     @Inject
-    TooltipLayer(@Named(MapModule.DISPATCHER) Dispatcher dispatcher, WorldWindowProvider worldWindowProvider) {
-        super(new ToolTipLayer(dispatcher), dispatcher);
+    TooltipLayer(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot, WorldWindowProvider worldWindowProvider) {
+        super(new ToolTipLayer(syncRoot), syncRoot);
         ToolTipLayer layer = (ToolTipLayer)getWrappedLayer();
         worldWindowProvider.whenAvailable(layer::setWorldWindow);
     }

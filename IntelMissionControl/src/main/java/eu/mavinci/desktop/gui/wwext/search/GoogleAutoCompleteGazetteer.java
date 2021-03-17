@@ -45,7 +45,7 @@ public class GoogleAutoCompleteGazetteer implements Gazetteer, IReaderFromCache 
 
     private static final String URL_GOOGLE =
         "https://maps.googleapis.com/maps/api/place/autocomplete/xml";
-    private static final String MAVINCI_API_KEY = "TODO key";
+    private static final String MAVINCI_API_KEY = "TODO Key";
 
     // TODO language support e.g. de, en-AU, see https://developers.google.com/maps/faq?hl=de#languagesupport
 

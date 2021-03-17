@@ -53,7 +53,7 @@ public class TelemetryListViewModel extends ViewModelBase {
     @InjectScope
     private FlightScope flightScope;
 
-    private final UIAsyncObjectProperty<BatteryAlertLevel> batteryAlertLevel = new UIAsyncObjectProperty<>(this);
+    private final UIAsyncObjectProperty<BatteryAlertLevel> alertBatteryLevel = new UIAsyncObjectProperty<>(this);
     private final UIAsyncQuantityProperty<Dimension.Percentage> batteryRemainingCharge;
     private final UIAsyncQuantityProperty<Dimension.Voltage> batteryVoltage;
     private final UIAsyncStringProperty batteryText = new UIAsyncStringProperty(this);
@@ -99,9 +99,7 @@ public class TelemetryListViewModel extends ViewModelBase {
         ReadOnlyAsyncObjectProperty<? extends IBattery> battery =
             PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::batteryProperty);
 
-        batteryAlertLevel.bind(
-            PropertyPath.from(battery)
-                .selectReadOnlyAsyncObject(IBattery::alertLevelProperty, BatteryAlertLevel.UNKNOWN));
+        alertBatteryLevel.bind(PropertyPath.from(battery).selectReadOnlyAsyncObject(IBattery::alertLevelProperty));
 
         batteryTelemetryOld.bind(PropertyPath.from(battery).selectReadOnlyAsyncBoolean(IBattery::telemetryOldProperty));
         gnssTelemetryOld.bind(
@@ -172,8 +170,7 @@ public class TelemetryListViewModel extends ViewModelBase {
                 batteryButtonToggle));
 
         AsyncObjectProperty<FlightSegment> flightSegment = new SimpleAsyncObjectProperty<>(this);
-        flightSegment.bind(
-            PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::flightSegmentProperty, FlightSegment.UNKNOWN));
+        flightSegment.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::flightSegmentProperty));
 
         QuantityFormat gnssQualityFormat = new AdaptiveQuantityFormat(generalSettings);
         gnssQualityFormat.setSignificantDigits(6);
@@ -201,15 +198,14 @@ public class TelemetryListViewModel extends ViewModelBase {
 
         ReadOnlyAsyncObjectProperty<? extends IGnssInfo> gnssInfo =
             PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::gnssInfoProperty);
-        gnssState.bind(
-            PropertyPath.from(gnssInfo).selectReadOnlyAsyncObject(IGnssInfo::gnssStateProperty, GnssState.UNKNOWN));
+        gnssState.bind(PropertyPath.from(gnssInfo).selectReadOnlyAsyncObject(IGnssInfo::gnssStateProperty));
         gnssQuality.bind(
             PropertyPath.from(gnssInfo).selectReadOnlyAsyncDouble(IGnssInfo::qualityPercentageProperty),
             qualityPercentage ->
                 Double.isNaN(qualityPercentage.doubleValue()) ? null : Quantity.of(qualityPercentage, Unit.PERCENTAGE));
 
         gnssNumberOfSatellites.bind(
-            PropertyPath.from(gnssInfo).selectReadOnlyAsyncInteger(IGnssInfo::numberOfSatellitesProperty, -1));
+            PropertyPath.from(gnssInfo).selectReadOnlyAsyncInteger(IGnssInfo::numberOfSatellitesProperty));
 
         position.bind(PropertyPath.from(drone).selectReadOnlyAsyncObject(IDrone::positionProperty));
 
@@ -358,8 +354,8 @@ public class TelemetryListViewModel extends ViewModelBase {
         return flightSegment;
     }
 
-    Property<BatteryAlertLevel> batteryAlertLevelProperty() {
-        return batteryAlertLevel;
+    Property<BatteryAlertLevel> alertBatteryLevelProperty() {
+        return alertBatteryLevel;
     }
 
     ReadOnlyProperty<GnssState> gnssStateProperty() {

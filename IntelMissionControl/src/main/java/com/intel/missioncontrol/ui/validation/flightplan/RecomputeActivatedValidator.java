@@ -15,7 +15,7 @@ import com.intel.missioncontrol.ui.validation.SimpleResolveAction;
 import com.intel.missioncontrol.ui.validation.ValidationMessageCategory;
 import eu.mavinci.flightplan.Flightplan;
 
-/** check A-18: check if this mission is in automatic recompute mode */
+/** check A-18: check if this flight plan is in automatic recompute mode */
 public class RecomputeActivatedValidator extends OnFlightplanChangedValidator {
 
     public interface Factory {

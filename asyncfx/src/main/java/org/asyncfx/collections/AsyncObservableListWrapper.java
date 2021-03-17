@@ -22,13 +22,13 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.WeakListChangeListener;
 import javafx.util.Callback;
 import org.asyncfx.PublishSource;
-import org.asyncfx.beans.AsyncInvalidationListenerWrapper;
 import org.asyncfx.beans.AsyncObservable;
+import org.asyncfx.beans.InvalidationListenerWrapper;
 import org.asyncfx.beans.SubInvalidationListener;
-import org.asyncfx.beans.AsyncSubInvalidationListenerWrapper;
 import org.asyncfx.beans.property.AsyncListPropertyBase;
-import org.asyncfx.beans.property.PropertyObject;
-import org.asyncfx.beans.property.PropertyObjectHelper;
+import org.asyncfx.beans.property.ObservableObject;
+import org.asyncfx.beans.property.ObservableObjectHelper;
+import org.asyncfx.beans.property.SubInvalidationListenerWrapper;
 import org.asyncfx.concurrent.ReentrantStampedLock;
 import org.jetbrains.annotations.NotNull;
 
@@ -806,7 +806,7 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         try {
             stamp = lock.writeLock();
 
-            subInvalidationListener = AsyncInvalidationListenerWrapper.wrap(this::fireSubValueChangedEvent, executor);
+            subInvalidationListener = InvalidationListenerWrapper.wrap(this::fireSubValueChangedEvent, executor);
 
             if (elementObserver != null) {
                 if (elementObserver.getExecutor() != null) {
@@ -816,16 +816,16 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
                 elementObserver.setExecutor(executor);
 
                 for (E item : backingList) {
-                    if (item instanceof PropertyObject) {
-                        PropertyObjectHelper.addListener((PropertyObject)item, subInvalidationListener);
+                    if (item instanceof ObservableObject) {
+                        ObservableObjectHelper.addListener((ObservableObject)item, subInvalidationListener);
                     }
 
                     elementObserver.attachListener(item);
                 }
             } else {
                 for (E item : backingList) {
-                    if (item instanceof PropertyObject) {
-                        PropertyObjectHelper.addListener((PropertyObject)item, subInvalidationListener);
+                    if (item instanceof ObservableObject) {
+                        ObservableObjectHelper.addListener((ObservableObject)item, subInvalidationListener);
                     }
                 }
             }
@@ -905,12 +905,12 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
 
     @Override
     public void addListener(InvalidationListener listener, Executor executor) {
-        addListener(AsyncInvalidationListenerWrapper.wrap(listener, executor));
+        addListener(InvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
     public void addListener(SubInvalidationListener listener, Executor executor) {
-        addListener(AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+        addListener(SubInvalidationListenerWrapper.wrap(listener, executor));
     }
 
     @Override
@@ -1089,8 +1089,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         int index = backingList.size();
         backingList.add(index, e);
 
-        if (e instanceof PropertyObject) {
-            PropertyObjectHelper.addListener((PropertyObject)e, subInvalidationListener);
+        if (e instanceof ObservableObject) {
+            ObservableObjectHelper.addListener((ObservableObject)e, subInvalidationListener);
         }
 
         if (elementObserver != null) {
@@ -1118,8 +1118,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         ensureIsChanging(ChangeState.ADDING);
         backingList.add(index, element);
 
-        if (element instanceof PropertyObject) {
-            PropertyObjectHelper.addListener((PropertyObject)element, subInvalidationListener);
+        if (element instanceof ObservableObject) {
+            ObservableObjectHelper.addListener((ObservableObject)element, subInvalidationListener);
         }
 
         if (elementObserver != null) {
@@ -1146,12 +1146,12 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         ensureIsChanging(ChangeState.SETTING);
         E old = backingList.set(index, element);
 
-        if (old instanceof PropertyObject) {
-            PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+        if (old instanceof ObservableObject) {
+            ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
         }
 
-        if (element instanceof PropertyObject) {
-            PropertyObjectHelper.addListener((PropertyObject)element, subInvalidationListener);
+        if (element instanceof ObservableObject) {
+            ObservableObjectHelper.addListener((ObservableObject)element, subInvalidationListener);
         }
 
         if (elementObserver != null) {
@@ -1181,8 +1181,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
             ensureIsChanging(ChangeState.REMOVING);
             E old = backingList.remove(i);
 
-            if (old instanceof PropertyObject) {
-                PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+            if (old instanceof ObservableObject) {
+                ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
             }
 
             if (elementObserver != null) {
@@ -1213,8 +1213,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         ensureIsChanging(ChangeState.REMOVING);
         E old = backingList.remove(index);
 
-        if (old instanceof PropertyObject) {
-            PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+        if (old instanceof ObservableObject) {
+            ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
         }
 
         if (elementObserver != null) {
@@ -1246,16 +1246,16 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         nextRemove(0, backingList);
         if (elementObserver != null) {
             for (E item : backingList) {
-                if (item instanceof PropertyObject) {
-                    PropertyObjectHelper.removeListener((PropertyObject)item, subInvalidationListener);
+                if (item instanceof ObservableObject) {
+                    ObservableObjectHelper.removeListener((ObservableObject)item, subInvalidationListener);
                 }
 
                 elementObserver.detachListener(item);
             }
         } else {
             for (E item : backingList) {
-                if (item instanceof PropertyObject) {
-                    PropertyObjectHelper.removeListener((PropertyObject)item, subInvalidationListener);
+                if (item instanceof ObservableObject) {
+                    ObservableObjectHelper.removeListener((ObservableObject)item, subInvalidationListener);
                 }
             }
         }
@@ -1345,8 +1345,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         for (int i = 0, n = toIndex - fromIndex; i < n; i++) {
             E old = it.next();
 
-            if (old instanceof PropertyObject) {
-                PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+            if (old instanceof ObservableObject) {
+                ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
             }
 
             if (elementObserver != null) {
@@ -1380,8 +1380,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         while (it.hasNext()) {
             Object old = it.next();
             if (c.contains(old)) {
-                if (old instanceof PropertyObject) {
-                    PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+                if (old instanceof ObservableObject) {
+                    ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
                 }
 
                 if (elementObserver != null) {
@@ -1420,8 +1420,8 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
         while (it.hasNext()) {
             E old = it.next();
             if (!c.contains(old)) {
-                if (old instanceof PropertyObject) {
-                    PropertyObjectHelper.removeListener((PropertyObject)old, subInvalidationListener);
+                if (old instanceof ObservableObject) {
+                    ObservableObjectHelper.removeListener((ObservableObject)old, subInvalidationListener);
                 }
 
                 if (elementObserver != null) {
@@ -1444,19 +1444,6 @@ public class AsyncObservableListWrapper<E> extends AsyncObservableListBase<E>
     @Override
     public @NotNull List<E> subList(int fromIndex, int toIndex) {
         throw new IllegalStateException("Cannot get a sublist of an unlocked list.");
-    }
-
-    @Override
-    public int hashCode() {
-        long stamp = 0;
-        try {
-            stamp = lock.readLock();
-            return backingList.hashCode();
-        } finally {
-            if (ReentrantStampedLock.isReadLockStamp(stamp)) {
-                lock.unlockRead(stamp);
-            }
-        }
     }
 
     @Override

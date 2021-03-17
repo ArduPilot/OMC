@@ -37,7 +37,7 @@ import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class DatasetLayerGroup extends LayerGroup implements IKeepClassname {
 
@@ -59,7 +59,7 @@ public class DatasetLayerGroup extends LayerGroup implements IKeepClassname {
 
     @Inject
     public DatasetLayerGroup(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IMapController mapController,
             INavigationService navigationService,
             ISettingsManager settingsManager,
@@ -83,7 +83,7 @@ public class DatasetLayerGroup extends LayerGroup implements IKeepClassname {
             .bindContent(
                 matchings,
                 matching -> {
-                    DatasetLayer layer = new DatasetLayer(dispatcher, matching, mapController, selectionManager);
+                    DatasetLayer layer = new DatasetLayer(syncRoot, matching, mapController, selectionManager);
 
                     boolean showOther;
                     boolean showCurrent;

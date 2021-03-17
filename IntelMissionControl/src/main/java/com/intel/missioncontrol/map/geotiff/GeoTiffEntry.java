@@ -9,7 +9,6 @@ package com.intel.missioncontrol.map.geotiff;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.ILayer;
 import com.intel.missioncontrol.map.IMapView;
@@ -92,6 +91,7 @@ import org.asyncfx.beans.property.UIAsyncStringProperty;
 import org.asyncfx.beans.property.UIPropertyMetadata;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Future;
+import org.asyncfx.concurrent.SynchronizationRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -135,7 +135,7 @@ public class GeoTiffEntry {
 
     private final AsyncObjectProperty<ILayer> mapLayer = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<IElevationLayer> elevationLayer = new SimpleAsyncObjectProperty<>(this);
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final IMapView mapView;
 
     private class GeoTiffElevationLayer implements IElevationLayer {
@@ -200,9 +200,9 @@ public class GeoTiffEntry {
             IApplicationContext applicationContext,
             ILanguageHelper languageHelper,
             IBackgroundTaskManager backgroundTaskManager,
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IMapView mapView) {
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.backgroundTaskManager = backgroundTaskManager;
         this.applicationContext = applicationContext;
         this.languageHelper = languageHelper;
@@ -229,24 +229,23 @@ public class GeoTiffEntry {
         this.mapView = mapView;
 
         file = new File(geoTiffSettings.pathProperty().get());
-        Platform.runLater(() -> {
-                    enabled.bindBidirectional(geoTiffSettings.enabledProperty());
-                    name.bindBidirectional(geoTiffSettings.nameProperty());
-                    shift.bindBidirectional(
-                            getGeoTiffSettings().manualElevationShiftProperty(),
-                            new BidirectionalValueConverter<>() {
-                                @Override
-                                public Number convertBack(Quantity<Dimension.Length> value) {
-                                    return value.convertTo(Unit.METER).getValue().doubleValue();
-                                }
+        enabled.bindBidirectional(geoTiffSettings.enabledProperty());
+        name.bindBidirectional(geoTiffSettings.nameProperty());
+        shift.bindBidirectional(
+            getGeoTiffSettings().manualElevationShiftProperty(),
+            new BidirectionalValueConverter<>() {
+                @Override
+                public Number convertBack(Quantity<Dimension.Length> value) {
+                    return value.convertTo(Unit.METER).getValue().doubleValue();
+                }
 
-                                @Override
-                                public Quantity<Dimension.Length> convert(Number value) {
-                                    return Quantity.of(value, Unit.METER);
-                                }
-                            });
-                    elevationModelShiftType.bindBidirectional(getGeoTiffSettings().elevationModelShiftTypeProperty());
-                };
+                @Override
+                public Quantity<Dimension.Length> convert(Number value) {
+                    return Quantity.of(value, Unit.METER);
+                }
+            });
+        elevationModelShiftType.bindBidirectional(getGeoTiffSettings().elevationModelShiftTypeProperty());
+
         load();
     }
 
@@ -564,7 +563,7 @@ public class GeoTiffEntry {
                         mapLayer.set(fxLayer);
                         this.type.set(GeoTiffType.IMAGERY);
                     },
-                    Dispatcher.platform()::run);
+                    Dispatcher.platform());
         } else if (type.equalsIgnoreCase("ElevationModel")) {
             createElevationLayer(domElement, params);
         }
@@ -579,12 +578,12 @@ public class GeoTiffEntry {
     }
 
     private Future<ILayer> createImgLayerAsync(Element domElement, AVList params) {
-        return dispatcher.getLaterAsync(
+        return syncRoot.getAsync(
             () -> {
                 Factory factory = (Factory)WorldWind.createConfigurationComponent(AVKey.LAYER_FACTORY);
                 Layer layer = (Layer)factory.createFromConfigSource(domElement, params);
                 layer.setEnabled(true); // BasicLayerFactory creates layer which is intially disabled
-                ILayer fxLayer = new GeotiffLayerWrapper(layer, dispatcher, geoTiffSettings);
+                ILayer fxLayer = new GeotiffLayerWrapper(layer, syncRoot, geoTiffSettings);
                 fxLayer.enabledProperty().bindBidirectional(enabled);
                 fxLayer.nameProperty().bind(name, LayerName::new);
                 return fxLayer;
@@ -597,7 +596,7 @@ public class GeoTiffEntry {
         BasicElevationModel slave = (BasicElevationModel)factory.createFromConfigSource(domElement, params);
         slave.setDetailHint(0.4);
 
-        IEgmModel egmModel = StaticInjector.getInstance(IEgmModel.class);
+        IEgmModel egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
         elevationModelShiftWrapper = new ElevationModelShiftWrapper(slave, getSector(), egmModel);
         IElevationLayer layer = new GeoTiffElevationLayer();
         elevationLayer.set(layer);

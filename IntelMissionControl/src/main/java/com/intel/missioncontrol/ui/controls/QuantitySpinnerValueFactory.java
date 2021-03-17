@@ -143,17 +143,12 @@ public class QuantitySpinnerValueFactory<Q extends Quantity<Q>> extends SpinnerV
                     }
 
                     if (newMin.compareTo(getMax()) > 0) {
-                        if (!minProperty().isBound()) {
-                            setMin(getMax());
-                        }
-
+                        setMin(getMax());
                         return;
                     }
 
                     if (currentValue.compareTo(newMin) < 0) {
-                        if (!minProperty().isBound()) {
-                            QuantitySpinnerValueFactory.this.setValue(newMin);
-                        }
+                        QuantitySpinnerValueFactory.this.setValue(newMin);
                     }
                 }
             };
@@ -170,17 +165,12 @@ public class QuantitySpinnerValueFactory<Q extends Quantity<Q>> extends SpinnerV
                     }
 
                     if (newMax.compareTo(getMin()) < 0) {
-                        if (!maxProperty().isBound()) {
-                            setMax(getMin());
-                        }
-
+                        setMax(getMin());
                         return;
                     }
 
                     if (currentValue.compareTo(newMax) > 0) {
-                        if (!maxProperty().isBound()) {
-                            QuantitySpinnerValueFactory.this.setValue(newMax);
-                        }
+                        QuantitySpinnerValueFactory.this.setValue(newMax);
                     }
                 }
             };
@@ -202,12 +192,11 @@ public class QuantitySpinnerValueFactory<Q extends Quantity<Q>> extends SpinnerV
 
                         final Quantity<Q> minValue = getMin();
                         final Quantity<Q> maxValue = getMax();
-                        if (!this.minProperty().isBound() && !this.maxProperty().isBound()) {
-                            if (minValue != null && newValue.compareTo(minValue) < 0) {
-                                setValue(minValue.convertTo(newValue.getUnit()));
-                            } else if (maxValue != null && newValue.compareTo(maxValue) > 0) {
-                                setValue(maxValue.convertTo(newValue.getUnit()));
-                            }
+
+                        if (minValue != null && newValue.compareTo(minValue) < 0) {
+                            setValue(minValue.convertTo(newValue.getUnit()));
+                        } else if (maxValue != null && newValue.compareTo(maxValue) > 0) {
+                            setValue(maxValue.convertTo(newValue.getUnit()));
                         }
                     } finally {
                         isUpdating = false;

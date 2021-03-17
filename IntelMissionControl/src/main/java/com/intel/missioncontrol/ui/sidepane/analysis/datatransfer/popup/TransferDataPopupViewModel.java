@@ -45,6 +45,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.util.Duration;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.concurrent.Dispatcher;
 
@@ -135,7 +136,7 @@ public class TransferDataPopupViewModel extends ViewModelBase {
         if (mission != null) {
             Drone uav = mission.droneProperty().get();
             if (uav != null) {
-                IPlatformDescription platformDesc = uav.getHardwareConfiguration().getPlatformDescription();
+                IPlatformDescription platformDesc = uav.getPlatformDescription();
                 if (platformDesc != null) {
                     return platformDesc.getAirplaneType().name();
                 }
@@ -268,7 +269,9 @@ public class TransferDataPopupViewModel extends ViewModelBase {
             };
         taskManager.submitTask(progressMonitor);
         applicationContext.addToast(
-            Toast.of(ToastType.INFO).setText(languageHelper.getString(SAMPLE_DOWNLOAD_STARTED)).create());
+            Toast.of(ToastType.INFO)
+                .setText(languageHelper.getString(SAMPLE_DOWNLOAD_STARTED))
+                .create());
     }
 
     public List<MatchingService.FolderHolder> getSampleData() {
@@ -277,7 +280,7 @@ public class TransferDataPopupViewModel extends ViewModelBase {
 
     public void closeMe() {
         settings.dataTransferPopupEnabledProperty().set(false);
-        navigationService.navigateTo(SidePanePage.VIEW_DATASET);
+        navigationService.navigateTo(SidePanePage.DATA_IMPORT);
     }
 
     public ObservableValue<Boolean> isExecutingProperty() {

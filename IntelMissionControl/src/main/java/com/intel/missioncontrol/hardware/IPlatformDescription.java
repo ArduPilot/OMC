@@ -63,9 +63,6 @@ public interface IPlatformDescription extends INotificationObject {
     String COMPATIBLE_CAMERA_IDS_PROPERTY = "compatibleCameraIds";
     String IS_COMPATIBLE_TO_LITCHI_PROPERTY = "compatibleToLitchi";
     String PHANTOM_WAYPOINTS_LITCHI_DISTANCE_PROPERTY = "phantomWaypointsLitchiDistance";
-    String IS_OBSTACLE_AVOIDANCE_CAPABLE = "isObstacleAvoidanceCapable";
-    String IS_JPG_METADATA_LOCATION_IN_CAMERA_FRAME = "isJpgMetadataLocationInCameraFrame";
-    String IS_WAYPOINT_LOCATION_IN_CAMERA_FRAME = "isWaypointLocationInCameraFrame";
 
     String getId();
 
@@ -137,26 +134,16 @@ public interface IPlatformDescription extends INotificationObject {
 
     boolean isCompatibleToLitchi();
 
-    boolean isObstacleAvoidanceCapable();
+    void setIsCompatibleToLitchi(boolean value);
 
     boolean isInsertPhantomWaypointsLitchi();
 
     Quantity<Length> getPhantomWaypointsLitchiDistance();
 
+    void setPhantomWaypointsLitchiDistance(Quantity<Length> value);
+
     default IMutablePlatformDescription asMutable() {
         return (IMutablePlatformDescription)this;
     }
-
-    /**
-     * If true, the geotagging metadata is already in the camera frame and no further shifting is needed. if false,
-     * geotagging is within the drone body frame
-     */
-    boolean isJpgMetadataLocationInCameraFrame();
-
-    /**
-     * If true, the waypoints sent to the drone should reflect the desired location of the camera, if false, it should
-     * reflect the drone body location (typically GPS antenna)
-     */
-    boolean isWaypointLocationInCameraFrame();
 
 }

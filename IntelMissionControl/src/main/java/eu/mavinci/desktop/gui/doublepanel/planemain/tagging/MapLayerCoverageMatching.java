@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerListener;
 import eu.mavinci.desktop.gui.doublepanel.planemain.wwd.AerialPinholeImage;
@@ -168,7 +168,7 @@ public class MapLayerCoverageMatching extends AMapLayerCoverage implements IMatc
 
     @Override
     public String getTooltipAddon() {
-        return StaticInjector.getInstance(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
+        return DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class).getString(KEY + ".tooltipAddon");
     }
 
     @Override

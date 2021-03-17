@@ -6,11 +6,14 @@
 
 package com.intel.missioncontrol.ui.update;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import com.intel.missioncontrol.helper.ScaleHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.main.core.Application;
 import java.awt.Desktop;
 import java.io.IOException;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -31,9 +34,11 @@ import org.slf4j.LoggerFactory;
 class UpdateItemView extends BorderPane {
     private static final Logger log = LoggerFactory.getLogger(UpdateItemView.class);
 
+
     private final CheckBox checkbox;
     private final ProgressBar progressBar;
-    private static ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
     private final Text progressText;
     private final String downloadingString;
     private final String downloadCompleteString;

@@ -6,9 +6,9 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayer;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerListener;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers.IMapLayerWW;
@@ -28,8 +28,9 @@ public class MapLayerRTKPosition extends MapLayer implements IPositionReferenced
 
     public static final String KEY = "eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerRTKPosition";
 
-    IElevationModel elevationModel = StaticInjector.getInstance(IElevationModel.class);
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    IElevationModel elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     IMapLayerListener listener =
         new IMapLayerListener() {
@@ -80,8 +81,7 @@ public class MapLayerRTKPosition extends MapLayer implements IPositionReferenced
         icon.setSelectable(true);
         fixIcon();
 
-        //was added previously in fixIcon
-        //wwLayer.addIcon(icon);
+        wwLayer.addIcon(icon);
         matching.addMapListener(listener); // if I would do the listenering by this object, I would get a call loop!!
     }
 
@@ -117,10 +117,6 @@ public class MapLayerRTKPosition extends MapLayer implements IPositionReferenced
 
         icon.setToolTipText(languageHelper.getString(KEY + ".icon", matching.getName()));
         icon.setPosition(elevationModel.getPositionOverGroundRelativeToGround(matching.getRealPosition()));
-
-        //this is needed to update the position in the IconLayer QuadTree
-        wwLayer.removeIcon(icon);
-        wwLayer.addIcon(icon);
     }
 
 }

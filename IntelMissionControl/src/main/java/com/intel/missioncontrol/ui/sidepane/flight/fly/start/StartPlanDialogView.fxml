@@ -4,7 +4,7 @@
  * Copyright (c) 2020 Intel Corporation
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- -->
+  -->
 
 <?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
 <?import javafx.scene.control.Button?>
@@ -14,12 +14,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx"
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml" fx:id="root" id="StartPlanDialog"
             fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView"
-            styleClass="dialog">
+            styleClass="dialog" style="-fx-min-width:28em; -fx-max-width:28em;">
 
-        <VBox styleClass="content, wide-spacing" VBox.vgrow="ALWAYS">
+    <VBox>
+        <VBox styleClass="content, wide-spacing">
             <VBox styleClass="form-row, unindent, label-value">
                 <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.flightplan"/>
                 <Label fx:id="selectedFlightplanLabel" styleClass="label-bold"/>
@@ -59,5 +60,6 @@
                     onAction="#OnCancelButtonClicked"/>
 
         </HBox>
+    </VBox>
 
-</VBox>
+</AnchorPane>

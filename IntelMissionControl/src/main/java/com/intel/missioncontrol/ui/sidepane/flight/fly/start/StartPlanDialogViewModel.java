@@ -7,6 +7,12 @@
 package com.intel.missioncontrol.ui.sidepane.flight.fly.start;
 
 import com.google.inject.Inject;
+import org.asyncfx.beans.property.AsyncObjectProperty;
+import org.asyncfx.beans.property.PropertyPath;
+import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
+import org.asyncfx.beans.property.UIAsyncIntegerProperty;
+import org.asyncfx.beans.property.UIAsyncObjectProperty;
+import org.asyncfx.beans.property.UIPropertyMetadata;
 import com.intel.missioncontrol.drone.IDrone;
 import com.intel.missioncontrol.map.ISelectionManager;
 import com.intel.missioncontrol.mission.FlightPlan;
@@ -29,12 +35,6 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import org.asyncfx.beans.property.AsyncObjectProperty;
-import org.asyncfx.beans.property.PropertyPath;
-import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
-import org.asyncfx.beans.property.UIAsyncIntegerProperty;
-import org.asyncfx.beans.property.UIAsyncObjectProperty;
-import org.asyncfx.beans.property.UIPropertyMetadata;
 
 public class StartPlanDialogViewModel extends DialogViewModel<StartPlanDialogResult, Void> {
 
@@ -108,12 +108,7 @@ public class StartPlanDialogViewModel extends DialogViewModel<StartPlanDialogRes
 
         selectedFlightPlan.bind(flightScope.selectedFlightPlanProperty());
 
-        if (activeFlightplanProperty().getValue() != null
-                && activeFlightplanProperty().getValue().equals(selectedFlightplanProperty().getValue())) {
-            startingWaypoint.set(activeNextWaypointIndex.getValue() + 1);
-        } else {
-            startingWaypoint.set(1);
-        }
+        startingWaypoint.set(activeNextWaypointIndex.getValue() + 1);
 
         flightScope
             .nextWayPointIndexProperty()
@@ -124,19 +119,20 @@ public class StartPlanDialogViewModel extends DialogViewModel<StartPlanDialogRes
                     selectionManager.getHighlighted().remove(wp.get());
                 }
 
-                wp.set(selectedFlightPlan.get().waypointsProperty().get(newValue.intValue() - 1));
+                if (activeFlightPlan.get() != null) {
+                    wp.set(activeFlightPlan.get().waypointsProperty().get(newValue.intValue() - 1));
+                } else {
+                    wp.set(selectedFlightPlan.get().waypointsProperty().get(newValue.intValue() - 1));
+                }
+
                 selectionManager.getHighlighted().add(wp.get());
                 startPlanType.set(StartPlanType.START_PLAN_FROM_WAYPOINT);
             });
 
         if (startingWaypoint.get() - 1 > 0) {
-            if (activeFlightplanProperty().getValue() != null
-                    && activeFlightplanProperty().getValue().equals(selectedFlightplanProperty().getValue())
-                    && selectedFlightPlan.get().waypointsProperty().get().size() >= startingWaypoint.get()) {
-                wp.set(selectedFlightPlan.get().waypointsProperty().get(startingWaypoint.get() - 1));
-                // selectionManager.getHighlighted().clear();
-                selectionManager.getHighlighted().add(wp.get());
-            }
+            wp.set(selectedFlightPlan.get().waypointsProperty().get(startingWaypoint.get() - 1));
+            // selectionManager.getHighlighted().clear();
+            selectionManager.getHighlighted().add(wp.get());
         }
 
         // pre-select run plan options

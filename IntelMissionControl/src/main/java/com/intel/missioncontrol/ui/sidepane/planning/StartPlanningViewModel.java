@@ -13,7 +13,6 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.intel.missioncontrol.IApplicationContext;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.SuppressLinter;
 import com.intel.missioncontrol.api.IFlightPlanService;
 import com.intel.missioncontrol.api.IFlightPlanTemplateService;
@@ -50,6 +49,7 @@ import com.intel.missioncontrol.ui.navigation.WorkflowStep;
 import com.intel.missioncontrol.ui.scope.planning.PlanningScope;
 import com.intel.missioncontrol.ui.validation.IValidationService;
 import de.saxsys.mvvmfx.InjectScope;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import de.saxsys.mvvmfx.utils.commands.Command;
 import de.saxsys.mvvmfx.utils.commands.DelegateCommand;
 import de.saxsys.mvvmfx.utils.notifications.NotificationCenter;
@@ -95,7 +95,6 @@ import javafx.stage.Stage;
 import org.apache.http.client.utils.URIBuilder;
 import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.concurrent.Dispatcher;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -584,7 +583,8 @@ public class StartPlanningViewModel extends ViewModelBase {
         try {
             pilot +=
                 ":"
-                    + StaticInjector.getInstance(ISettingsManager.class)
+                    + DependencyInjector.getInstance()
+                        .getInstanceOf(ISettingsManager.class)
                         .getSection(GeneralSettings.class)
                         .fullNameInSupportProperty()
                         .get();
@@ -651,10 +651,14 @@ public class StartPlanningViewModel extends ViewModelBase {
     }
 
     private static void showLaancAirmap(String[] qrCode) {
+        IDialogService dialogService;
+        dialogService = DependencyInjector.getInstance().getInstanceOf(IDialogService.class);
         LaancAirmapDialogViewModel vm =
-            StaticInjector.getInstance(IDialogService.class)
-                .requestDialogAndWait(
-                    WindowHelper.getPrimaryViewModel(), LaancAirmapDialogViewModel.class, () -> qrCode);
+            dialogService.requestDialogAndWait(
+                WindowHelper.getPrimaryViewModel(), LaancAirmapDialogViewModel.class, () -> qrCode);
+        if (!vm.getDialogResult()) {
+            return;
+        }
     }
 
     private void exportFlightPlan() {
@@ -850,13 +854,13 @@ public class StartPlanningViewModel extends ViewModelBase {
                         navigationService.navigateTo(SidePanePage.EDIT_FLIGHTPLAN);
                     }
                 },
-                Dispatcher.platform()::run)
+                Dispatcher.platform())
             .whenDone(
                 future -> {
                     isBusy.set(false);
                     navigationService.enable();
                 },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
     }
 
     public ObjectProperty<FlightPlanTemplate> selectedTemplateProperty() {
@@ -883,13 +887,13 @@ public class StartPlanningViewModel extends ViewModelBase {
             FlightPlanTemplate templateImported = flightPlanTemplateService.importFrom(file);
             if (templateImported == null) {
                 logger.warn(
-                    "The mission of {} file cannot be saved as template. Save mission first, please",
+                    "The flight plan of {} file cannot be saved as template. Save flight plan first, please",
                     file.getAbsolutePath());
             } else {
                 availableTemplates.add(templateImported);
             }
         } catch (IOException e) {
-            logger.error(String.format("Failure on a mission import from %s", file), e);
+            logger.error(String.format("Failure on a flight plan import from %s", file), e);
         }
     }
 
@@ -897,14 +901,14 @@ public class StartPlanningViewModel extends ViewModelBase {
         FlightPlanTemplate template =
             availableTemplates.stream().filter(t -> t.getName().equals(templateName)).findFirst().orElse(null);
         if (template == null) {
-            logger.warn("The '{}' mission template is not available already.", templateName);
+            logger.warn("The '{}' flight plan template is not available already.", templateName);
             return;
         }
 
         try {
             flightPlanTemplateService.updateTemplateWith(template, file);
         } catch (Exception e) {
-            logger.error(String.format("Failure on '%s' mission template", templateName), e);
+            logger.error(String.format("Failure on '%s' flight plan template", templateName), e);
             return;
         }
 
@@ -934,7 +938,7 @@ public class StartPlanningViewModel extends ViewModelBase {
             try {
                 newCurrentFlightPlan = currentMission.loadFlightPlan(legacyFlightPlanFile.toPath());
             } catch (InvalidFlightPlanFileException e) {
-                logger.warn("cant revert mission changes " + legacyFlightPlanFile.toPath(), e);
+                logger.warn("cant revert flight plan changes " + legacyFlightPlanFile.toPath(), e);
                 return;
             }
         }
@@ -1004,7 +1008,7 @@ public class StartPlanningViewModel extends ViewModelBase {
         try {
             clonedFlightPlan = applicationContext.getCurrentMission().loadFlightPlan(Paths.get(clonedPath + FML));
         } catch (Exception e) {
-            logger.warn("cant clone mission " + fpFullPath, e);
+            logger.warn("cant clone flight plan " + fpFullPath, e);
             return;
         }
 

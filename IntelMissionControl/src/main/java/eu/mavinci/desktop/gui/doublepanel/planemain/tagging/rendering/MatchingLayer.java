@@ -6,8 +6,10 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging.rendering;
 
+import com.google.inject.name.Named;
 import com.intel.missioncontrol.map.IMapController;
 import com.intel.missioncontrol.map.ISelectionManager;
+import com.intel.missioncontrol.modules.MapModule;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.AMapLayerMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerCoverageMatching;
 import eu.mavinci.desktop.gui.doublepanel.planemain.tagging.MapLayerDatasetTrack;
@@ -24,7 +26,7 @@ import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.render.DrawContext;
 import java.awt.Point;
 import java.util.ArrayList;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class MatchingLayer extends AbstractLayer {
 
@@ -33,7 +35,7 @@ public class MatchingLayer extends AbstractLayer {
 
     private final IMapController mapController;
     private final AMapLayerMatching matching;
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final ISelectionManager selectionManager;
 
     IMapLayerListener listener =
@@ -81,17 +83,17 @@ public class MatchingLayer extends AbstractLayer {
             AMapLayerMatching matching,
             IMapController mapController,
             ISelectionManager selectionManager,
-            Dispatcher dispatcher) {
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot) {
         this.matching = matching;
         this.mapController = mapController;
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.selectionManager = selectionManager;
         matching.addMapListener(listener);
         reconstruct();
     }
 
     private void reconstruct() {
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 // not needed to do this on synchronisation root
                 ArrayList<Layer> innerLayers = new ArrayList<>();
@@ -121,7 +123,7 @@ public class MatchingLayer extends AbstractLayer {
 
                 for (MapLayerPicArea picArea : matching.getPicAreas()) {
                     if (picArea != null && picArea.isVisibleIncludingParent()) {
-                        innerLayers.add(new TaggingPicAreaLayer(picArea, mapController, selectionManager, dispatcher));
+                        innerLayers.add(new TaggingPicAreaLayer(picArea, mapController, selectionManager, syncRoot));
                     }
                 }
 
@@ -131,7 +133,7 @@ public class MatchingLayer extends AbstractLayer {
     }
 
     private void flagRedrawNeeded() {
-        dispatcher.run(
+        syncRoot.runAsync(
             () -> {
                 firePropertyChange(AVKey.LAYER, null, this);
             });

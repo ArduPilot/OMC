@@ -16,14 +16,14 @@ var c: InsightContext = InsightContext();
 
 class AnnotationService {
 
-    constructor(username: String, password: String, targetHost: String = "https://newdev.ixstack.net") {
+    constructor(username: String, password: String, targetHost: String = "https://dev.ixstack.net") {
         c.targetHost = targetHost
         c.authWithInsight(username, password)
         c.oauthResponse.accessToken
         this.targetHost = targetHost
     }
 
-    constructor(context: InsightContext, targetHost: String = "https://newdev.ixstack.net") {
+    constructor(context: InsightContext, targetHost: String = "https://dev.ixstack.net") {
         c = context
         this.targetHost = targetHost
     }

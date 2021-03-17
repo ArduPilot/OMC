@@ -42,19 +42,4 @@ class StrandTest extends TestBase {
         awaiter.await(iterations);
     }
 
-    @Test
-    void Strand_Executes_Immediately_Completed_Operations_Serially() {
-        final int iterations = 20;
-
-        Awaiter awaiter = new Awaiter();
-        Strand strand = new Strand();
-
-        for (int i = 0; i < iterations; ++i) {
-            int I = i;
-            strand.getLaterAsync(() -> Futures.successful(I).whenDone(awaiter::signal));
-        }
-
-        awaiter.await(iterations);
-    }
-
 }

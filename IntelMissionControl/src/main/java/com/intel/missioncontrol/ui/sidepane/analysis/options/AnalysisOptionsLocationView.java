@@ -188,6 +188,7 @@ public class AnalysisOptionsLocationView extends ViewBase<AnalysisOptionsLocatio
          * com.intel.missioncontrol.ui.validation.matching.RtkLocationConfirmedValidator} but the way its done here
          * works as well well enough
          */
+
         updateVisibility(viewModel.rtkBaseLocationProperty().getValue());
 
         rtkLocationGroup
@@ -196,7 +197,6 @@ public class AnalysisOptionsLocationView extends ViewBase<AnalysisOptionsLocatio
                 (observable, oldValue, newValue) -> {
                     String rtkLocation = (String)newValue.getUserData();
                     viewModel.rtkBaseLocationProperty().setValue(LocationType.valueOf(rtkLocation));
-                    viewModel.resetAssumedRtkPosition();
                 });
 
         viewModel.rtkBaseLocationProperty().addListener((observable, oldValue, newValue) -> updateVisibility(newValue));

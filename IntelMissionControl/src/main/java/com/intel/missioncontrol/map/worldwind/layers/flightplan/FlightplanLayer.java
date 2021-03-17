@@ -19,12 +19,12 @@ import com.intel.missioncontrol.mission.Drone;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.ui.navigation.INavigationService;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class FlightplanLayer extends WWLayerWrapper {
 
     FlightplanLayer(
-            Dispatcher dispatcher,
+            SynchronizationRoot syncRoot,
             FlightPlan flightPlan,
             Drone uav,
             IWWGlobes globes,
@@ -51,8 +51,8 @@ public class FlightplanLayer extends WWLayerWrapper {
                 languageHelper,
                 generalSettings,
                 flightplanLayerVisibilitySettings,
-                dispatcher),
-            dispatcher);
+                syncRoot),
+            syncRoot);
         nameProperty().bind(flightPlan.nameProperty(), LayerName::new);
     }
 

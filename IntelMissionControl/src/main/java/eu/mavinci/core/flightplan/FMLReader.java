@@ -6,8 +6,8 @@
 
 package eu.mavinci.core.flightplan;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
 import eu.mavinci.core.main.OsTypes;
 import eu.mavinci.core.xml.MEntryResolver;
@@ -65,7 +65,7 @@ public class FMLReader {
             xr.setContentHandler(handler);
             xr.setEntityResolver(res);
             xr.setErrorHandler(handler);
-            OsTypes system = StaticInjector.getInstance(IVersionProvider.class).getSystem();
+            OsTypes system = DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem();
             if (!system.isAndroid()) { // avoid warning in
                 // android
                 xr.setDTDHandler(handler); // not supported in android
@@ -143,6 +143,7 @@ public class FMLReader {
         public static final String MAX_GROUND_SPEED_KMH = "maxGroundSpeedKMH";
         public static final String MAX_GROUND_SPEED_AUTOMATIC = "maxGroundSpeedAutomatic";
         public static final String TARGET = "target";
+
 
         public static final String lastAutoLandingRefStartPosLat = "lastAutoLandingRefStartPosLat";
         public static final String lastAutoLandingRefStartPosLon = "lastAutoLandingRefStartPosLon";
@@ -290,8 +291,6 @@ public class FMLReader {
         public static final String PITCH_OFFSET_LINE_BEGIN = "pitchOffsetLineBegin";
 
         public static final String ENABLE_JUMP_OVER_WAYPOINTS = "enableJumpOverWaypoints";
-
-        public static final String OBSTACLE_AVOIDANCE = "obstacleAvoidance";
 
         public static final String HUB_DIAMETER = "hubDiameter";
         public static final String HUB_LENGTH = "hubLength";

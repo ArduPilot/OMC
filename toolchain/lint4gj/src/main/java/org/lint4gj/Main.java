@@ -376,7 +376,7 @@ public class Main {
         if (lines.length > 0) {
             if (lines[0].contains(",")) {
                 String[] tokens = lines[0].split(",");
-                if (tokens.length >= 2) {
+                if (tokens.length == 2) {
                     return tokens[1].trim();
                 }
             } else if (lines[0].startsWith("HEAD ->")) {

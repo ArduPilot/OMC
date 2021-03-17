@@ -6,12 +6,12 @@
 
 package eu.mavinci.airspace;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.airspaces.sources.AirspaceSource;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.map.elevation.IEgmModel;
 import com.intel.missioncontrol.map.elevation.IElevationModel;
 import de.saxsys.mvvmfx.MvvmFX;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.desktop.main.debug.Debug;
 import gov.nasa.worldwind.geom.LatLon;
@@ -184,7 +184,7 @@ public class EAirspaceManager {
             gov.nasa.worldwind.geom.LatLon latLon = gov.nasa.worldwind.geom.LatLon.fromDegrees(latDegrees, lonDegrees);
 
             if (elevationModel == null) {
-                elevationModel = StaticInjector.getInstance(IElevationModel.class);
+                elevationModel = DependencyInjector.getInstance().getInstanceOf(IElevationModel.class);
             }
 
             double tmp = elevationModel.getElevationAsGoodAsPossible(latLon);
@@ -199,7 +199,7 @@ public class EAirspaceManager {
 
             // elevationCache.put(latLon, tmp);
             if (egmModel == null) {
-                egmModel = StaticInjector.getInstance(IEgmModel.class);
+                egmModel = DependencyInjector.getInstance().getInstanceOf(IEgmModel.class);
             }
 
             double egmOffset = egmModel.getEGM96Offset(latLon);

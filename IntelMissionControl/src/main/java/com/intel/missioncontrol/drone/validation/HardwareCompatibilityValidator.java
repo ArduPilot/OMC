@@ -10,12 +10,10 @@ import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.intel.missioncontrol.INotificationObject;
 import com.intel.missioncontrol.drone.IDrone;
-import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IPlatformDescription;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import java.util.Objects;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -25,15 +23,19 @@ import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.concurrent.CancellationSource;
 import org.asyncfx.concurrent.Dispatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Check if mission hardware type is compatible with connected drone */
+/** Check if flight plan hardware type is compatible with connected drone */
 public class HardwareCompatibilityValidator implements IFlightValidator {
     public interface Factory {
         HardwareCompatibilityValidator create(CancellationSource cancellationSource);
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HardwareCompatibilityValidator.class);
     private final AsyncObjectProperty<FlightValidationStatus> validationStatus = new SimpleAsyncObjectProperty<>(this);
 
+    private final AsyncObjectProperty<IPlatformDescription> dronePlatformDesc = new SimpleAsyncObjectProperty<>(this);
     private final AsyncObjectProperty<IPlatformDescription> fpPlatformDesc = new SimpleAsyncObjectProperty<>(this);
 
     private final IFlightValidationService flightValidationService;
@@ -45,9 +47,9 @@ public class HardwareCompatibilityValidator implements IFlightValidator {
             @Assisted CancellationSource cancellationSource) {
         this.flightValidationService = flightValidationService;
 
-        ReadOnlyAsyncObjectProperty<IHardwareConfiguration> droneHwConfig =
+        ReadOnlyAsyncObjectProperty<? extends IPlatformDescription> dronePlatformDesc =
             PropertyPath.from(flightValidationService.droneProperty())
-                .selectReadOnlyAsyncObject(IDrone::hardwareConfigurationProperty);
+                .selectReadOnlyAsyncObject(IDrone::platformDescriptionProperty);
 
         // TODO: bind fpPlatformDesc directly to FlightPlan; add HardwareConfig property to FlightPlan
 
@@ -63,7 +65,7 @@ public class HardwareCompatibilityValidator implements IFlightValidator {
                 HardwareCompatibilityValidator.this.addFlightPlanHardwareListener();
             };
 
-        flightValidationService.flightPlanProperty().addListener(fpChangeListener, Dispatcher.platform()::run);
+        flightValidationService.flightPlanProperty().addListener(fpChangeListener, Dispatcher.platform());
 
         cancellationSource.addListener(
             mayInterruptIfRunning ->
@@ -77,8 +79,7 @@ public class HardwareCompatibilityValidator implements IFlightValidator {
         validationStatus.bind(
             Bindings.createObjectBinding(
                 () -> {
-                    IHardwareConfiguration hwConfig = droneHwConfig.get();
-                    IPlatformDescription droneDesc = hwConfig == null ? null : hwConfig.getPlatformDescription();
+                    IPlatformDescription droneDesc = dronePlatformDesc.get();
                     IPlatformDescription fpDesc = fpPlatformDesc.get();
                     if (droneDesc == null || fpDesc == null) {
                         return new FlightValidationStatus(
@@ -104,7 +105,7 @@ public class HardwareCompatibilityValidator implements IFlightValidator {
                                 droneHardwareString));
                     }
                 },
-                droneHwConfig,
+                dronePlatformDesc,
                 fpPlatformDesc));
     }
 
@@ -144,16 +145,6 @@ public class HardwareCompatibilityValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.HARDWARE_COMPATIBILITY;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 
 }

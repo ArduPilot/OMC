@@ -18,7 +18,10 @@ import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.ptr.IntByReference;
 import java.util.List;
+import javafx.application.Platform;
 import org.asyncfx.AsyncFX;
+import org.asyncfx.beans.property.UIDispatcher;
+import org.asyncfx.concurrent.Dispatcher;
 
 public class PerformanceReporter {
 
@@ -33,7 +36,7 @@ public class PerformanceReporter {
 
     private PerformanceReporter() {
         ensureFile();
-        thread = new Thread(this::run, "PerformanceReporterDaemon");
+        thread = new Thread(this::run);
         thread.setDaemon(true);
         thread.start();
     }
@@ -42,6 +45,8 @@ public class PerformanceReporter {
         if (INSTANCE == null) {
             INSTANCE = new PerformanceReporter();
         }
+
+        UIDispatcher.setDispatcher(Dispatcher.platform()::runLater, Platform::isFxApplicationThread);
     }
 
     public static synchronized void stop() {
@@ -49,6 +54,8 @@ public class PerformanceReporter {
             INSTANCE.close();
             INSTANCE = null;
         }
+
+        UIDispatcher.setDispatcher(Platform::runLater, Platform::isFxApplicationThread);
     }
 
     private void run() {

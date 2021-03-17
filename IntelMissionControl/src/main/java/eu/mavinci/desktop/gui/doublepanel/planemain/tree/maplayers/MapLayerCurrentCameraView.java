@@ -7,8 +7,8 @@
 package eu.mavinci.desktop.gui.doublepanel.planemain.tree.maplayers;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.networking.INetworkInformation;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.doublepanel.planemain.wwd.AerialPinholeCurrentView;
 import eu.mavinci.geo.ISectorReferenced;
 import eu.mavinci.plane.IAirplane;
@@ -38,7 +38,8 @@ public class MapLayerCurrentCameraView extends MapLayer
         image = new AerialPinholeCurrentView(plane);
         plane.getHardwareConfiguration().addListener(new INotificationObject.WeakChangeListener(this));
 
-        StaticInjector.getInstance(INetworkInformation.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(INetworkInformation.class)
             .networkAvailableProperty()
             .addListener(new WeakChangeListener<>(networkBecomesAvailableListener));
     }

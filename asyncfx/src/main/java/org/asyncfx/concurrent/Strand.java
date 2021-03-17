@@ -6,6 +6,7 @@
 
 package org.asyncfx.concurrent;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.function.Function;
@@ -17,8 +18,8 @@ import java.util.function.Supplier;
  */
 public final class Strand {
 
-    private final Queue<Function<Future<?>, Future<?>>> postedItems = new ArrayDeque<>();
-    private Future<?> currentFuture;
+    private final Queue<Function<Future, Future>> postedItems = new ArrayDeque<>();
+    private WeakReference<Future> currentFuture;
 
     public Future<Void> runLater(Runnable runnable) {
         return runLaterAsync(() -> Dispatcher.background().runLaterAsync(runnable));
@@ -29,10 +30,11 @@ public final class Strand {
     }
 
     public synchronized Future<Void> runLaterAsync(Future.FutureRunnable futureRunnable) {
+        Future<?> currentFuture = this.currentFuture != null ? this.currentFuture.get() : null;
         if (currentFuture == null) {
             Future<Void> nextFuture = futureRunnable.run();
-            currentFuture = nextFuture;
             nextFuture.whenDone(this::currentFutureDone);
+            this.currentFuture = new WeakReference<>(nextFuture);
             return nextFuture;
         }
 
@@ -57,10 +59,11 @@ public final class Strand {
     }
 
     public synchronized Future<Void> runLaterAsync(Future.FutureFinallyRunnable futureRunnable) {
+        Future<?> currentFuture = this.currentFuture != null ? this.currentFuture.get() : null;
         if (currentFuture == null) {
             Future<Void> nextFuture = futureRunnable.run(null);
-            currentFuture = nextFuture;
             nextFuture.whenDone(this::currentFutureDone);
+            this.currentFuture = new WeakReference<>(nextFuture);
             return nextFuture;
         }
 
@@ -85,10 +88,11 @@ public final class Strand {
     }
 
     public synchronized <V> Future<V> getLaterAsync(Future.FutureSupplier<V> futureSupplier) {
+        Future<?> currentFuture = this.currentFuture != null ? this.currentFuture.get() : null;
         if (currentFuture == null) {
             Future<V> nextFuture = futureSupplier.get();
-            currentFuture = nextFuture;
             nextFuture.whenDone(this::currentFutureDone);
+            this.currentFuture = new WeakReference<>(nextFuture);
             return nextFuture;
         }
 
@@ -113,10 +117,11 @@ public final class Strand {
     }
 
     public synchronized <V> Future<V> getLaterAsync(Future.FutureFinallySupplier<V> futureSupplier) {
+        Future<?> currentFuture = this.currentFuture != null ? this.currentFuture.get() : null;
         if (currentFuture == null) {
             Future<V> nextFuture = futureSupplier.get(null);
-            currentFuture = nextFuture;
             nextFuture.whenDone(this::currentFutureDone);
+            this.currentFuture = new WeakReference<>(nextFuture);
             return nextFuture;
         }
 
@@ -144,23 +149,13 @@ public final class Strand {
         return postedItems.size();
     }
 
-    private synchronized void currentFutureDone(Future<?> previousFuture) {
-        Function<Future<?>, Future<?>> posted = this.postedItems.poll();
-        if (posted == null) {
-            currentFuture = null;
-            return;
+    private synchronized void currentFutureDone(Future previousFuture) {
+        Function<Future, Future> posted = this.postedItems.poll();
+        if (posted != null) {
+            Future<?> nextFuture = posted.apply(previousFuture);
+            nextFuture.whenDone(this::currentFutureDone);
+            currentFuture = new WeakReference<>(nextFuture);
         }
-
-        Future<?> nextFuture = posted.apply(previousFuture);
-        while (posted != null && nextFuture.isDone()) {
-            posted = this.postedItems.poll();
-            if (posted != null) {
-                nextFuture = posted.apply(nextFuture);
-            }
-        }
-
-        currentFuture = nextFuture;
-        nextFuture.whenDone(this::currentFutureDone);
     }
 
 }

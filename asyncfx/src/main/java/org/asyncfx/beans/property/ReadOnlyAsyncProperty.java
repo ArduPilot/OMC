@@ -6,13 +6,9 @@
 
 package org.asyncfx.beans.property;
 
-import com.google.common.util.concurrent.MoreExecutors;
-import java.util.concurrent.Executor;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.AccessController;
 import org.asyncfx.beans.value.AsyncObservableValue;
-import org.asyncfx.concurrent.Dispatcher;
-import org.asyncfx.concurrent.SequentialExecutors;
 
 @PublishSource(module = "openjfx", licenses = "intel-gpl-classpath-exception")
 public interface ReadOnlyAsyncProperty<T> extends AsyncObservableValue<T> {
@@ -29,34 +25,5 @@ public interface ReadOnlyAsyncProperty<T> extends AsyncObservableValue<T> {
     PropertyMetadata<T> getMetadata();
 
     AccessController getAccessController();
-
-    default Executor getExecutor() {
-        Dispatcher dispatcher = getMetadata().getDispatcher();
-        if (dispatcher != null) {
-            return dispatcher::run;
-        }
-
-        Object bean = getBean();
-        dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-        return dispatcher != null ? dispatcher::run : MoreExecutors.directExecutor();
-    }
-
-    default Executor getSequentialExecutor() {
-        Dispatcher dispatcher = getMetadata().getDispatcher();
-        if (dispatcher != null) {
-            dispatcher.verifySequential();
-            return dispatcher::run;
-        }
-
-        Object bean = getBean();
-        dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-
-        if (dispatcher != null) {
-            dispatcher.verifySequential();
-            return dispatcher::run;
-        }
-
-        return SequentialExecutors.sequentialDirectExecutor();
-    }
 
 }

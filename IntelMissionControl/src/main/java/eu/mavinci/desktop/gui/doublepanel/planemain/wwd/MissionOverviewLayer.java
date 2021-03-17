@@ -32,7 +32,7 @@ import java.util.Map;
 import javafx.collections.ListChangeListener;
 import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.collections.LockedList;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class MissionOverviewLayer extends AbstractLayer {
 
@@ -49,11 +49,11 @@ public class MissionOverviewLayer extends AbstractLayer {
     public MissionOverviewLayer(
             IMissionManager missionManager,
             Globe nonFlatEarth,
-            Dispatcher dispatcher,
+            SynchronizationRoot syncRoot,
             ISelectionManager selectionManager) {
         this.nonFlatEarth = nonFlatEarth;
         this.missionMaterial = new Material(new Color(0xf3, 0xf3, 0xf3));
-        this.missionSelectedMaterial = new Material(new Color(0x00, 0xBB, 0xFF));
+        this.missionSelectedMaterial = new Material(new Color(0x0A, 0xAE, 0xEF));
         setPickEnabled(true);
         setName("MissionOverview");
         polygonLayer.setMaxActiveAltitude(3000000);
@@ -64,7 +64,7 @@ public class MissionOverviewLayer extends AbstractLayer {
         textLayer.getTextRenderer().setOnTopEyeDistance(11);
         textLayer.getTextRenderer().setEffect(AVKey.TEXT_EFFECT_SHADOW);
         recentMissions = missionManager.recentMissionInfosProperty();
-        recentMissions.addListener((ListChangeListener<MissionInfo>)c -> reconstruct(), dispatcher::run);
+        recentMissions.addListener((ListChangeListener<MissionInfo>)c -> reconstruct(), syncRoot);
         selectionManager
             .currentSelectionProperty()
             .addListener(
@@ -75,8 +75,8 @@ public class MissionOverviewLayer extends AbstractLayer {
                         setSelectedMission(null);
                     }
                 },
-                dispatcher::run);
-        dispatcher.run(this::reconstruct);
+                syncRoot);
+        syncRoot.runLaterAsync(this::reconstruct);
     }
 
     @Override

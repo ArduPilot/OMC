@@ -39,6 +39,7 @@ import org.asyncfx.collections.FXAsyncCollections;
 import org.asyncfx.collections.LockedList;
 import org.asyncfx.concurrent.Dispatcher;
 import org.asyncfx.concurrent.Strand;
+import org.asyncfx.concurrent.SynchronizationRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class WmsManager implements IWmsManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(WmsManager.class);
     public static final int RELOAD_ON_FAIL_DELAY = 5000;
 
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final ISettingsManager settingsManager;
     private final IPathProvider pathProvider;
     private final ILanguageHelper languageHelper;
@@ -78,7 +79,7 @@ public class WmsManager implements IWmsManager {
 
     @Inject
     public WmsManager(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             ISettingsManager settingsManager,
             IPathProvider pathProvider,
             ILanguageHelper languageHelper,
@@ -86,7 +87,7 @@ public class WmsManager implements IWmsManager {
             IApplicationContext applicationContext,
             INetworkInformation networkInformation,
             ProxyManager proxyManager) {
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.settingsManager = settingsManager;
         this.pathProvider = pathProvider;
         this.languageHelper = languageHelper;
@@ -112,7 +113,7 @@ public class WmsManager implements IWmsManager {
             new LifecycleValueConverter<>() {
                 @Override
                 public WmsServerLayer convert(WmsServer value) {
-                    return new WmsServerLayer(dispatcher, value);
+                    return new WmsServerLayer(syncRoot, value);
                 }
 
                 @Override
@@ -120,11 +121,11 @@ public class WmsManager implements IWmsManager {
 
                 @Override
                 public void remove(WmsServerLayer value) {
-                    Dispatcher.background().run(value::dropCache);
+                    Dispatcher.background().run(() -> value.dropCache());
                 }
             });
 
-        wmsServersSettings.wmssProperty().bindContent(wmsServersProperty(), (WmsServer::getWmsSettings));
+        wmsServersSettings.wmssProperty().bindContent(wmsServersProperty(), (value -> value.getWmsSettings()));
 
         // TODO what does it do, why
         wmsServerLayers.addListener(

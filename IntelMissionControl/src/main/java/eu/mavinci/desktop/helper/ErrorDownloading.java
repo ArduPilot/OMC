@@ -6,11 +6,11 @@
 
 package eu.mavinci.desktop.helper;
 
-import com.intel.missioncontrol.StaticInjector;
+import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
-import com.intel.missioncontrol.settings.OperationLevel;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.gui.widgets.IMProgressMonitor;
 import eu.mavinci.desktop.helper.uploader.Uploader;
 import eu.mavinci.desktop.helper.uploader.UploaderMAVinciSCP;
@@ -106,7 +106,8 @@ public class ErrorDownloading {
                 Ensure.notNull(fUnzipped, "fUnzipped");
                 name = fUnzipped.getName();
 
-                if (StaticInjector.getInstance(ISettingsManager.class)
+                if (DependencyInjector.getInstance()
+                                .getInstanceOf(ISettingsManager.class)
                                 .getSection(GeneralSettings.class)
                                 .getOperationLevel()
                                 .compareTo(OperationLevel.TECHNICIAN)

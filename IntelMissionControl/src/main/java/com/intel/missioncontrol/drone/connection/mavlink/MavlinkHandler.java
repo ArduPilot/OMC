@@ -10,14 +10,16 @@ import com.intel.missioncontrol.drone.connection.TcpIpTransportType;
 import io.dronefleet.mavlink.MavlinkDialect;
 import io.dronefleet.mavlink.annotations.MavlinkMessageInfo;
 import io.dronefleet.mavlink.ardupilotmega.ArdupilotmegaDialect;
+import io.dronefleet.mavlink.asluav.AsluavDialect;
+import io.dronefleet.mavlink.autoquad.AutoquadDialect;
 import io.dronefleet.mavlink.common.CommonDialect;
 import io.dronefleet.mavlink.common.MavAutopilot;
-import io.dronefleet.mavlink.grayhawk.GrayhawkDialect;
 import io.dronefleet.mavlink.protocol.MavlinkPacket;
 import io.dronefleet.mavlink.serialization.payload.MavlinkPayloadDeserializer;
 import io.dronefleet.mavlink.serialization.payload.MavlinkPayloadSerializer;
 import io.dronefleet.mavlink.serialization.payload.reflection.ReflectionPayloadDeserializer;
 import io.dronefleet.mavlink.serialization.payload.reflection.ReflectionPayloadSerializer;
+import io.dronefleet.mavlink.slugs.SlugsDialect;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -61,7 +63,9 @@ public class MavlinkHandler extends ChannelInboundHandlerAdapter {
         this.channel = channel;
         payloadReceivedDelegates = new CopyOnWriteArrayList<>();
 
-        dialects.put(MavAutopilot.MAV_AUTOPILOT_PX4, new GrayhawkDialect());
+        dialects.put(MavAutopilot.MAV_AUTOPILOT_SLUGS, new SlugsDialect());
+        dialects.put(MavAutopilot.MAV_AUTOPILOT_ASLUAV, new AsluavDialect());
+        dialects.put(MavAutopilot.MAV_AUTOPILOT_AUTOQUAD, new AutoquadDialect());
         dialects.put(MavAutopilot.MAV_AUTOPILOT_ARDUPILOTMEGA, new ArdupilotmegaDialect());
     }
 
@@ -178,23 +182,65 @@ public class MavlinkHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
             }
+
+            // TODO: use ParameterProtocolMicroService for this:
+            /*
+            // If we received a Heartbeat message, then we can use that in order to update the dialect
+            // for this system.
+            if (payload instanceof Heartbeat) {
+                Heartbeat heartbeat = (Heartbeat)payload;
+                Mavlink2Message<ParamRequestRead> sendMsg =
+                    new Mavlink2Message<>(
+                        0,
+                        0,
+                        255,
+                        0,
+                        ParamRequestRead.builder().targetSystem(1).targetComponent(1).paramIndex(4).build());
+
+                MavlinkMessageInfo msgInfo = sendMsg.getPayload().getClass().getAnnotation(MavlinkMessageInfo.class);
+                byte[] serializedPayload = serializer.serialize(sendMsg.getPayload());
+
+                MavlinkPacket sendPkt =
+                    MavlinkPacket.create(
+                        sendMsg.getIncompatibleFlags(),
+                        sendMsg.getCompatibleFlags(),
+                        sequence++,
+                        sendMsg.getOriginSystemId(),
+                        sendMsg.getOriginComponentId(),
+                        msgInfo.id(),
+                        msgInfo.crc(),
+                        serializedPayload);
+
+                sendPkt.getRawBytes();
+                DatagramPacket udpPkt = new DatagramPacket(Unpooled.wrappedBuffer(sendPkt.getRawBytes()), pkt.sender());
+
+                ctx.write(udpPkt);
+                if (dialects.containsKey(heartbeat.autopilot().entry())) {
+                    systemDialects.put(mavPkt.getSystemId(), dialects.get(heartbeat.autopilot().entry()));
+                }
+            }
+
+            if (payload instanceof ParamValue) {
+                ParamValue paramValue = (ParamValue)payload;
+                // TODO
+            }
+
+            MavlinkMessage<Object> mavMsg =
+                new MavlinkMessage<>(mavPkt.getSystemId(), mavPkt.getCameraNumber(), payload);
+            */
         }
+
+        // System.out.println(pkt.sender().getAddress().toString());
+        // pkt.content().readBytes(pos, pkt.content().readableBytes());
 
         msgHandle.release();
     }
 
-    public void unRegisterSystemDialect(int systemId) {
-        systemDialects.remove(systemId);
-    }
-
-    public void registerSystemDialect(int systemId, MavlinkDialect mavlinkDialect) {
-        systemDialects.put(systemId, mavlinkDialect);
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.debug("MavlinkHandler: " + cause.getMessage());
+        LOGGER.error(cause.getMessage());
         // TODO error event
+        ctx.close();
     }
 
     Future<Void> writePacketAsync(MavlinkPacket sendPkt, MavlinkEndpoint targetEndpoint) {

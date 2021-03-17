@@ -6,12 +6,12 @@
 
 package com.intel.missioncontrol.maplayer;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.map.worldwind.layers.MapboxLayer;
 import com.intel.missioncontrol.map.worldwind.layers.mercator.FancyDownloadQueue;
 import com.intel.missioncontrol.map.worldwind.layers.mercator.FastMercatorTiledImageLayer;
 import com.intel.missioncontrol.networking.INetworkInformation;
 import com.intel.missioncontrol.networking.NetworkInterceptor;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.layers.LatLonGraticuleLayer;
 import gov.nasa.worldwind.layers.Layer;
@@ -64,29 +64,30 @@ public class FastMercatorTiledImageTestApp extends ApplicationTemplate {
 
             FancyDownloadQueue queue = new FancyDownloadQueue(true, 3);
             FancyDownloadQueue.DebugLayer debug = queue.getDebugLayer();
-            // debug.setPickEnabled(false);
+            //debug.setPickEnabled(false);
+
 
             MapboxLayer.Options options = new MapboxLayer.Options(baseDir, null);
             options.tileQueue = queue;
             options.maxRequests = 8;
 
-            options.networkInterceptor = new NetworkInterceptor() {};
+            options.networkInterceptor = new NetworkInterceptor() {
 
-            //                new OkHttpUtil.NetworkActivityListener() {
-            //                    @Override
-            //                    public void onNetworkActivityStarted(Object tag) {
-            //                        System.out.println("MapBoxOrth2: downloading");
-            //                    }
-            //
-            //                    @Override
-            //                    public void onNetworkActivityStopped(Object tag) {
-            //                        System.out.println("MapBoxOrth2: idle");
-            //                    }
-            //                });
+            };
 
-            FastMercatorTiledImageLayer mapboxOrtho21 =
-                new MapboxLayer(
-                    MapboxLayer.MapType.HYBRID, options, StaticInjector.getInstance(INetworkInformation.class));
+//                new OkHttpUtil.NetworkActivityListener() {
+//                    @Override
+//                    public void onNetworkActivityStarted(Object tag) {
+//                        System.out.println("MapBoxOrth2: downloading");
+//                    }
+//
+//                    @Override
+//                    public void onNetworkActivityStopped(Object tag) {
+//                        System.out.println("MapBoxOrth2: idle");
+//                    }
+//                });
+
+            FastMercatorTiledImageLayer mapboxOrtho21 = new MapboxLayer(MapboxLayer.MapType.HYBRID, options, DependencyInjector.getInstance().getInstanceOf(INetworkInformation.class));
             mapboxOrtho2 = mapboxOrtho21;
             mapboxOrtho2.setName("Fast MapboxOrtho");
 

@@ -7,12 +7,12 @@
 package com.intel.missioncontrol.airmap;
 
 import com.intel.missioncontrol.airspace.render.TiledRenderableLayer;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class AirMap2Layer extends TiledRenderableLayer {
 
-    public AirMap2Layer(Dispatcher dispatcher) {
-        super(AirMap2Source.getInstance(), dispatcher);
+    public AirMap2Layer(SynchronizationRoot syncRoot) {
+        super(AirMap2Source.getInstance(), syncRoot);
         setMaxActiveAltitude(70_000);
     }
 

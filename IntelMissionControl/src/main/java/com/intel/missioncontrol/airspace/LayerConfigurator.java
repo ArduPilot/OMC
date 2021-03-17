@@ -82,19 +82,6 @@ public class LayerConfigurator {
     public static LevelSet createDefaultLevelSet() {
         AVList params = new AVListImpl();
 
-        /**
-         * It seems that the mapping of airmap tiles to row/column is a bit different
-         * longitude goes from -180 to +180 and
-         * latitude from -85 to +85
-         * and by default, on the lowest level (0), the
-         * longitude is split in 8 equal parts and the (45 degrees)
-         * latitude is split in 4 equal parts (42.4 degrees)
-         *
-         * based on that, for level 8, the
-         * longitude diff is 45/2^8 = 0.17578125, and the
-         * latitude diff is 42.5/2^8 = 0.166015625
-         *
-         */
         // important
         params.setValue(AVKey.NUM_LEVELS, 9);
         params.setValue(AVKey.NUM_EMPTY_LEVELS, 0);

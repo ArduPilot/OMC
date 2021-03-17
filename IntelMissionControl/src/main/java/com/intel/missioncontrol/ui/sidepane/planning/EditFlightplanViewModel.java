@@ -49,9 +49,9 @@ import eu.mavinci.core.flightplan.PlanType;
 import eu.mavinci.core.licence.ILicenceManager;
 import eu.mavinci.flightplan.Flightplan;
 import eu.mavinci.flightplan.PicArea;
-import java.util.Objects;
 import java.util.Optional;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -101,6 +101,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     private Command saveFlightplanAndProceedCommand;
     private Command exportFlightplanCommand;
 
+    private BooleanBinding isEmergencyActionsVisibleBinding;
     private BooleanProperty isLandingVisibleBinding;
     private BooleanBinding isWarningsVisibleBinding;
 
@@ -239,11 +240,11 @@ public class EditFlightplanViewModel extends ViewModelBase {
                         }
                     }
                 },
-                Dispatcher.platform()::run);
+                Dispatcher.platform());
 
         selectionManager
             .currentSelectionProperty()
-            .addListener((observable, oldValue, newValue) -> switchMode(newValue), Dispatcher.platform()::run);
+            .addListener((observable, oldValue, newValue) -> switchMode(newValue), Dispatcher.platform());
 
         selectedAoiProperty()
             .addListener(
@@ -283,6 +284,16 @@ public class EditFlightplanViewModel extends ViewModelBase {
         navigationService
             .workflowStepProperty()
             .addListener((observable, oldValue, newValue) -> this.maybeZoomOnSelectionChange());
+
+        isEmergencyActionsVisibleBinding =
+            Bindings.createBooleanBinding(
+                () ->
+                    planningScope
+                        .selectedHardwareConfigurationProperty()
+                        .get()
+                        .getPlatformDescription()
+                        .areEmergencyActionsSettable(),
+                planningScope.selectedHardwareConfigurationProperty());
 
         isLandingVisibleBinding = licenceManager.isGrayHawkEditionProperty();
 
@@ -385,6 +396,10 @@ public class EditFlightplanViewModel extends ViewModelBase {
         return planningScope.currentFlightplanProperty();
     }
 
+    public BooleanBinding isEmergencyActionsVisibleBinding() {
+        return isEmergencyActionsVisibleBinding;
+    }
+
     public BooleanProperty isLandingVisibleBinding() {
         return isLandingVisibleBinding;
     }
@@ -473,7 +488,7 @@ public class EditFlightplanViewModel extends ViewModelBase {
     private void enterEditingModeFromSelectionManager() {
         AreaOfInterest areaOfInterest = findAoiBySelection(selectionManager.getSelection());
         // if already in edit mode and not switching between editing different aois - return
-        if (editState.get() && Objects.equals(selectedAoi.get(), areaOfInterest)) {
+        if (editState.get() && selectedAoi.get().equals(areaOfInterest)) {
             return;
         }
 

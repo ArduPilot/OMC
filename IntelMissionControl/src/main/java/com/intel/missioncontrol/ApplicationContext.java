@@ -7,10 +7,11 @@
 package com.intel.missioncontrol;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.intel.missioncontrol.api.IFlightPlanService;
-import com.intel.missioncontrol.drone.connection.IDroneConnectionService;
 import com.intel.missioncontrol.helper.Expect;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import com.intel.missioncontrol.map.worldwind.impl.IScreenshotManager;
 import com.intel.missioncontrol.mission.IMissionManager;
 import com.intel.missioncontrol.mission.LoadedMissionManager;
 import com.intel.missioncontrol.mission.Mission;
@@ -60,12 +61,12 @@ public class ApplicationContext implements IApplicationContext, EventHandler<Win
             IDialogService dialogService,
             IFlightPlanService flightPlanService,
             ISettingsManager settingsManager,
-            IDroneConnectionService droneConnectionService) {
+            Provider<IScreenshotManager> screenshotManager) {
         this.languageHelper = languageHelper;
         this.settingsManager = settingsManager;
         this.loadedMissionManager =
             new LoadedMissionManager(
-                this, missionManager, languageHelper, dialogService, flightPlanService, droneConnectionService);
+                this, missionManager, languageHelper, dialogService, flightPlanService, screenshotManager);
 
         currentMissionIsNoDemoBinding =
             Bindings.createBooleanBinding(

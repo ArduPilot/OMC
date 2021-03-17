@@ -20,7 +20,6 @@ import com.intel.missioncontrol.mission.FlightPlan;
 import com.intel.missioncontrol.mission.WayPoint;
 import com.intel.missioncontrol.ui.controls.AdaptiveQuantityFormat;
 import com.intel.missioncontrol.ui.sidepane.flight.fly.checks.AlertType;
-import com.intel.missioncontrol.ui.validation.IResolveAction;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ReadOnlyListProperty;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 /** Check if drone is in automatic mode */
 public class StorageValidator implements IFlightValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(StorageValidator.class);
-    public static final double GIB = 1024.0;
 
     public interface Factory {
         StorageValidator create();
@@ -61,10 +59,6 @@ public class StorageValidator implements IFlightValidator {
                 .select(IDrone::storageProperty)
                 .selectReadOnlyAsyncDouble(IStorage::availableSpaceMiBProperty);
 
-        ReadOnlyAsyncDoubleProperty totalSpaceMiB =
-            PropertyPath.from(flightValidationService.droneProperty())
-                .select(IDrone::storageProperty)
-                .selectReadOnlyAsyncDouble(IStorage::totalSpaceMiBProperty);
         ReadOnlyListProperty<WayPoint> wayPoints =
             PropertyPath.from(flightValidationService.flightPlanProperty())
                 .selectReadOnlyList(FlightPlan::waypointsProperty);
@@ -107,8 +101,6 @@ public class StorageValidator implements IFlightValidator {
             Bindings.createObjectBinding(
                 () -> {
                     double availableSpMiB = availableSpaceMiB.get();
-                    double totalSpMiB = totalSpaceMiB.get();
-
                     double requiredSpMiB = requiredSpaceMiB.get();
 
                     Storage.Status s = storageStatus.get();
@@ -128,26 +120,8 @@ public class StorageValidator implements IFlightValidator {
                             AlertType.WARNING,
                             languageHelper.getString(StorageValidator.class, "noStorageDeviceMessage"));
                     case OK:
-                        String availableSpString;
-                        String totalSpString;
-                        String requiredSpString;
-                        if (availableSpMiB < GIB) {
-                            availableSpString = quantityFormat.format(Quantity.of(availableSpMiB, Unit.MEBIBYTE));
-                        } else {
-                            availableSpString = quantityFormat.format(Quantity.of(availableSpMiB / GIB, Unit.GIBIBYTE));
-                        }
-
-                        if (totalSpMiB < GIB) {
-                            totalSpString = quantityFormat.format(Quantity.of(totalSpMiB, Unit.MEBIBYTE));
-                        } else {
-                            totalSpString = quantityFormat.format(Quantity.of(totalSpMiB / GIB, Unit.GIBIBYTE));
-                        }
-
-                        if (requiredSpMiB < GIB) {
-                            requiredSpString = quantityFormat.format(Quantity.of(requiredSpMiB, Unit.MEBIBYTE));
-                        } else {
-                            requiredSpString = quantityFormat.format(Quantity.of(requiredSpMiB / GIB, Unit.GIBIBYTE));
-                        }
+                        String availableSpString = quantityFormat.format(Quantity.of(availableSpMiB, Unit.MEBIBYTE));
+                        String requiredSpString = quantityFormat.format(Quantity.of(requiredSpMiB, Unit.MEBIBYTE));
 
                         if (availableSpMiB < requiredSpMiB) {
                             return new FlightValidationStatus(
@@ -156,18 +130,13 @@ public class StorageValidator implements IFlightValidator {
                                     StorageValidator.class,
                                     "insufficientStorageSpaceMessage",
                                     requiredSpString,
-                                    availableSpString,
-                                    totalSpString));
+                                    availableSpString));
                         }
 
                         return new FlightValidationStatus(
                             AlertType.COMPLETED,
                             languageHelper.getString(
-                                StorageValidator.class,
-                                "okMessage",
-                                requiredSpString,
-                                availableSpString,
-                                totalSpString));
+                                StorageValidator.class, "okMessage", requiredSpString, availableSpString));
                     case UNKNOWN:
                     default:
                         return new FlightValidationStatus(
@@ -186,15 +155,5 @@ public class StorageValidator implements IFlightValidator {
     @Override
     public FlightValidatorType getFlightValidatorType() {
         return FlightValidatorType.STORAGE;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getFirstResolveAction() {
-        return null;
-    }
-
-    @Override
-    public ReadOnlyAsyncObjectProperty<IResolveAction> getSecondResolveAction() {
-        return null;
     }
 }

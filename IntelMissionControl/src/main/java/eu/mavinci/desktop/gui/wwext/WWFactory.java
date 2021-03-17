@@ -6,10 +6,10 @@
 
 package eu.mavinci.desktop.gui.wwext;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.ILanguageHelper;
 import com.intel.missioncontrol.settings.ExpertSettings;
 import com.jogamp.opengl.Threading;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.update.UpdateURL;
 import eu.mavinci.desktop.helper.FileFilterUniversal;
 import eu.mavinci.desktop.helper.FileHelper;
@@ -311,7 +311,8 @@ public class WWFactory {
 
                 @Override
                 public void run() {
-                    ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+                    ILanguageHelper languageHelper =
+                        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
                     if (maximumAgeInSeconds < 0) {
                         Debug.getLog()

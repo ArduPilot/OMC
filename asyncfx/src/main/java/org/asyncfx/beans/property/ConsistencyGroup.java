@@ -12,10 +12,10 @@ import java.util.List;
 /** @see Critical */
 public final class ConsistencyGroup {
 
-    private List<ReadOnlyAsyncProperty<?>> initList = new ArrayList<>(5);
-    private volatile ReadOnlyAsyncProperty<?>[] properties;
+    private List<ReadOnlyAsyncProperty> initList = new ArrayList<>(5);
+    private volatile ReadOnlyAsyncProperty[] properties;
 
-    void add(ReadOnlyAsyncProperty<?> property) {
+    void add(ReadOnlyAsyncProperty property) {
         synchronized (this) {
             if (initList == null) {
                 throw new IllegalStateException(
@@ -26,8 +26,8 @@ public final class ConsistencyGroup {
         }
     }
 
-    final ReadOnlyAsyncProperty<?>[] getProperties() {
-        ReadOnlyAsyncProperty<?>[] propertiesCopy = properties;
+    final ReadOnlyAsyncProperty[] getProperties() {
+        ReadOnlyAsyncProperty[] propertiesCopy = properties;
         if (propertiesCopy == null) {
             synchronized (this) {
                 propertiesCopy = properties;

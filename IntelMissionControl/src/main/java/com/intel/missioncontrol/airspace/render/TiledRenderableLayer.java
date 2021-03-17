@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class TiledRenderableLayer extends AbstractLayer {
     protected final PickSupport pickSupport = new PickSupport();
@@ -51,7 +51,7 @@ public class TiledRenderableLayer extends AbstractLayer {
     Collection<Renderable> debugRenderable;
     boolean debug;
 
-    Dispatcher dispatcher;
+    SynchronizationRoot syncRoot;
 
     public interface TileRenderableManager {
         void onTilesWillBecomeVisible(TiledRenderableLayer layer, Set<Tile> tiles);
@@ -77,10 +77,10 @@ public class TiledRenderableLayer extends AbstractLayer {
 
     ISource source;
 
-    public TiledRenderableLayer(ISource source, Dispatcher dispatcher) {
+    public TiledRenderableLayer(ISource source, SynchronizationRoot syncRoot) {
         this(source.getTileLoader(), source.getTileMapper());
         this.source = source;
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
     }
 
     public ISource getSource() {
@@ -93,8 +93,8 @@ public class TiledRenderableLayer extends AbstractLayer {
         // setPickEnabled(false);
         renderableManager.registerRedrawCallback(
             () -> {
-                if (dispatcher != null) {
-                    dispatcher.run(() -> firePropertyChange(AVKey.LAYER, null, TiledRenderableLayer.this));
+                if (syncRoot != null) {
+                    syncRoot.runAsync(() -> firePropertyChange(AVKey.LAYER, null, TiledRenderableLayer.this));
                 }
             });
         setMaxActiveAltitude(100_000);

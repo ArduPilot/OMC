@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+  -->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="playground.liveview.LiveVideoPane"
+      fx:id="root" StackPane.alignment="TOP_RIGHT"
+      style="-fx-background-color: #deadee"
+      maxWidth="250"
+      maxHeight="-Infinity">
+    <StackPane.margin>
+        <Insets top="20" right="10"/>
+    </StackPane.margin>
+    <!-- NOTE: no elements should be added here, they will be added/removed programmatically -->
+</VBox>

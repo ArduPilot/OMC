@@ -6,10 +6,10 @@
 
 package eu.mavinci.core.licence;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.helper.Ensure;
 import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.crypto.CryptoHelper;
 import eu.mavinci.core.crypto.CryptoHelper.ZipData;
 import eu.mavinci.core.helper.MProperties;
@@ -586,11 +586,12 @@ public class Licence extends MProperties {
         PrintStream out = new PrintStream(file, "UTF-8");
         XMLWriter xml = new XMLWriter(new PrintWriter(out));
         xml.begin("", 2);
-        xml.comment(StaticInjector.getInstance(ILicenceManager.class).getExportHeaderCore());
+        xml.comment(DependencyInjector.getInstance().getInstanceOf(ILicenceManager.class).getExportHeaderCore());
         xml.start("bml");
         xml.contentTag("type", "5"); // gui mlf (MAVinci Licence File)
 
-        xml.contentTag("platform", StaticInjector.getInstance(IVersionProvider.class).getSystem().name());
+        xml.contentTag(
+            "platform", DependencyInjector.getInstance().getInstanceOf(IVersionProvider.class).getSystem().name());
 
         // xml.contentTag("jar", "false");
 

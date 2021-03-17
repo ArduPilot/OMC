@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Open Mission Control</name>
+    <name>Intel Mission Control</name>
     <artifactId>IntelMissionControl</artifactId>
     <version>${versionExt}</version>
     <packaging>jar</packaging>
@@ -12,13 +12,13 @@
         <artifactId>Application</artifactId>
         <version>0-SNAPSHOT</version>
     </parent>
-    
+
     <properties>
         <!-- Specify this variable on the maven command line to override it for release builds. -->
         <versionExt>1.0-SNAPSHOT</versionExt>
 
         <java.home>${basedir}/../toolchain/openjdk-11.0.2-mirror</java.home>
-        <javafx.home>${basedir}/../toolchain/javafx-sdk-13.0.2-mirror</javafx.home>
+        <javafx.home>${basedir}/../toolchain/javafx-sdk-12.0.1-mirror</javafx.home>
         <cssconv.home>${basedir}/../toolchain/cssconv</cssconv.home>
         <lint4gj.home>${basedir}/../toolchain/lint4gj</lint4gj.home>
         <lint4gj.skip>false</lint4gj.skip>
@@ -45,16 +45,12 @@
         <repository>
             <id>repo1</id>
             <name>Maven Plugin Repository</name>
-            <url>https://repo1.maven.org/maven2</url>
+            <url>http://repo1.maven.org/maven2</url>
         </repository>
         <repository>
             <id>central</id>
             <name>Maven Central Repository</name>
-            <url>https://central.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>scijava.public</id>
-            <url>https://maven.scijava.org/content/groups/public</url>
+            <url>http://central.maven.org/maven2</url>
         </repository>
     </repositories>
 
@@ -254,7 +250,7 @@
                             <outputDirectory>${basedir}/..</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.sourceDirectory}/../resources/logging-development</directory>
+                                    <directory>${project.build.sourceDirectory}/../resources</directory>
                                     <include>log4j2.xml</include>
                                 </resource>
                             </resources>
@@ -270,7 +266,7 @@
                             <outputDirectory>${project.build.directory}/artifact/conf</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.sourceDirectory}/../resources/logging-production</directory>
+                                    <directory>${project.build.sourceDirectory}/../resources</directory>
                                     <include>log4j2.xml</include>
                                 </resource>
                             </resources>
@@ -333,8 +329,7 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>${mainClass}</Main-Class>
                                         <Specification-Title>${project.artifactId}</Specification-Title>
@@ -344,8 +339,7 @@
                                         <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
                                     </manifestEntries>
                                 </transformer>
-                                <transformer
-                                        implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer"/>
+                                <transformer implementation="com.github.edwgiz.mavenShadePlugin.log4j2CacheTransformer.PluginsCacheFileTransformer"/>
                             </transformers>
                             <filters>
                                 <filter>
@@ -437,13 +431,13 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
@@ -455,31 +449,31 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
-            <version>13.0.2</version>
+            <version>12.0.1</version>
             <classifier>win</classifier>
         </dependency>
 
@@ -541,27 +535,27 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.25</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.13.0</version>
+            <version>2.11.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.13.0</version>
+            <version>2.11.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.13.0</version>
+            <version>2.11.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <version>2.11.2</version>
         </dependency>
 
         <!-- *******************************************************************
@@ -606,17 +600,6 @@
             <groupId>com.airmap.airmapsdk</groupId>
             <artifactId>AirMapRestClient</artifactId>
             <version>1.0.4-local</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.squareup.okhttp3</groupId>
-                    <artifactId>okhttp</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
-            <version>4.3.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.davidmoten</groupId>
@@ -801,7 +784,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.8.0</version>
+            <version>3.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.asyncfx</groupId>
@@ -839,49 +822,17 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.39.Final</version>
+            <version>4.1.33.Final</version>
         </dependency>
         <dependency>
             <groupId>io.dronefleet.mavlink</groupId>
             <artifactId>mavlink</artifactId>
-            <version>1.0.15-imc7</version>
-        </dependency>
-        <dependency>
-            <groupId>io.dronefleet.mavlink</groupId>
-            <artifactId>mavlink-protocol</artifactId>
-            <version>1.0.15-imc7</version>
+            <version>1.0.15-imc4</version>
         </dependency>
         <dependency>
             <groupId>net.jodah</groupId>
             <artifactId>typetools</artifactId>
             <version>0.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.imagej</groupId>
-            <artifactId>ij</artifactId>
-            <version>1.52p</version>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.signalr</groupId>
-            <artifactId>signalr</artifactId>
-            <version>3.0.0-rc1.19457.4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>0.10.7</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>0.10.7</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <version>0.10.7</version>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

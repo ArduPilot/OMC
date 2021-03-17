@@ -35,7 +35,7 @@ public class RotatingImageView extends ImageView {
             {
                 stopRotating();
 
-                rotateTransition = new RotateTransition(Duration.millis(2000), RotatingImageView.this);
+                rotateTransition = new RotateTransition(Duration.millis(1500), RotatingImageView.this);
                 rotateTransition.setInterpolator(Interpolator.LINEAR);
                 rotateTransition.setFromAngle(0);
                 rotateTransition.setToAngle(360);

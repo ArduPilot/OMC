@@ -11,13 +11,11 @@ import io.dronefleet.mavlink.common.MavMissionType;
 import io.dronefleet.mavlink.common.MissionAck;
 import io.dronefleet.mavlink.common.MissionClearAll;
 import io.dronefleet.mavlink.common.MissionCount;
-import io.dronefleet.mavlink.common.MissionCurrent;
 import io.dronefleet.mavlink.common.MissionItem;
 import io.dronefleet.mavlink.common.MissionItemInt;
 import io.dronefleet.mavlink.common.MissionRequest;
 import io.dronefleet.mavlink.common.MissionRequestInt;
 import io.dronefleet.mavlink.common.MissionRequestList;
-import io.dronefleet.mavlink.common.MissionSetCurrent;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -29,10 +27,11 @@ import org.asyncfx.concurrent.FutureCompletionSource;
 
 /** implements mavlink mission protocol https://mavlink.io/en/services/mission.html */
 public class MissionProtocolSender extends PayloadSender {
-    protected static final Duration missionRequestTimeout = Duration.ofSeconds(5);
 
     /** Receiver for individual mission items. */
-    protected static class MissionItemReceiver extends PayloadReceiver {
+    private static class MissionItemReceiver extends PayloadReceiver {
+        private final Duration missionRequestTimeout = Duration.ofSeconds(1);
+
         MissionItemReceiver(MavlinkEndpoint targetEndpoint, MavlinkHandler handler) {
             super(targetEndpoint, handler);
         }
@@ -55,7 +54,7 @@ public class MissionProtocolSender extends PayloadSender {
     }
 
     /** Sender for individual mission items */
-    protected static class MissionItemSender extends PayloadSender {
+    private static class MissionItemSender extends PayloadSender {
 
         MissionItemSender(MavlinkEndpoint recipient, MavlinkHandler handler, CancellationSource cancellationSource) {
             super(recipient, handler, cancellationSource);
@@ -95,7 +94,7 @@ public class MissionProtocolSender extends PayloadSender {
     }
 
     /** Sender for Mission count notifications & requests */
-    protected static class MissionCountSender extends PayloadSender {
+    private static class MissionCountSender extends PayloadSender {
         MissionCountSender(MavlinkEndpoint recipient, MavlinkHandler handler, CancellationSource cancellationSource) {
             super(recipient, handler, cancellationSource);
         }
@@ -113,20 +112,14 @@ public class MissionProtocolSender extends PayloadSender {
             Function<ReceivedPayload<?>, MissionAck> receiverFnc =
                 PayloadReceiver.createPayloadTypeReceiverFnc(
                     MissionAck.class,
-                    p -> {
-                        // Workaround for Ardupilot design flaw: Ignore invalid sequence mission ack
-                        return mavMissionType == p.missionType().entry()
-                            && p.type().entry() != MavMissionResult.MAV_MISSION_INVALID_SEQUENCE;
-                    },
+                    p -> mavMissionType == p.missionType().entry(),
                     targetEndpoint.getSystemId(),
                     targetEndpoint.getComponentId());
 
             int repetitions = 10;
-            // timeout after sum of all mission item timeouts plus ack timeout
             Duration responseTimeoutPerRepetition =
-                MissionProtocolSender.missionRequestTimeout
-                    .multipliedBy(count + 1)
-                    .plus(PayloadSender.defaultResponseTimeoutPerRepetition);
+                PayloadSender.defaultResponseTimeoutPerRepetition.multipliedBy((count + 1) * 3);
+
             return sendAndExpectResponseWithRetriesAsync(
                 payloadToSend, receiverFnc, repetitions, responseTimeoutPerRepetition);
         }
@@ -173,13 +166,6 @@ public class MissionProtocolSender extends PayloadSender {
         Runnable onMissionItemRequestTimeout =
             () -> fcs.setException(new TimeoutException("Mission item request timeout"));
 
-        Consumer<Integer> updateProgress =
-            seq -> {
-                int count = missionItems.size();
-                double progress = count == 0 ? 1.0 : (((double)seq + 1.0) / count);
-                fcs.setProgress(progress);
-            };
-
         // Prepare receiver for MissionItem and MissionItemInt requests. Receiver timeout will cancel sender as well.
         MissionItemReceiver missionItemReceiver = new MissionItemReceiver(targetEndpoint, handler);
         MissionItemReceiver missionItemIntReceiver = new MissionItemReceiver(targetEndpoint, handler);
@@ -207,7 +193,6 @@ public class MissionProtocolSender extends PayloadSender {
                         // reply with MissionItem:
                         MissionItem item = missionItems.get(seq).asMissionItemForRecipient(targetEndpoint);
                         missionItemSender.sendMissionItemAsync(item).whenFailed(fcs::setException);
-                        updateProgress.accept(seq);
                     }
                 },
                 onMissionItemRequestTimeout,
@@ -231,7 +216,6 @@ public class MissionProtocolSender extends PayloadSender {
                         // reply with MissionItemInt:
                         MissionItemInt item = missionItems.get(seq).asMissionItemIntForRecipient(targetEndpoint);
                         missionItemSender.sendMissionItemIntAsync(item).whenFailed(fcs::setException);
-                        updateProgress.accept(seq);
                     }
                 },
                 onMissionItemRequestTimeout,
@@ -315,21 +299,4 @@ public class MissionProtocolSender extends PayloadSender {
                 });
     }
 
-    public Future<Void> sendMissionSetCurrentAsync(int seq) {
-        MissionSetCurrent payloadToSend =
-            MissionSetCurrent.builder()
-                .seq(seq)
-                .targetSystem(targetEndpoint.getSystemId())
-                .targetComponent(targetEndpoint.getComponentId())
-                .build();
-
-        Function<ReceivedPayload<?>, MissionCurrent> receiverFnc =
-            PayloadReceiver.createPayloadTypeReceiverFnc(
-                MissionCurrent.class,
-                payload -> payload.seq() == seq,
-                targetEndpoint.getSystemId(),
-                targetEndpoint.getComponentId());
-
-        return sendAndExpectResponseWithRetriesAsync(payloadToSend, receiverFnc).thenAccept(x -> {});
-    }
 }

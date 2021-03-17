@@ -14,7 +14,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
-/** Aggregates exceptions from multiple sequential async stack traces or multiple parallel async stack traces. */
+/** Aggregates exceptions from multiple sequential async stack traces. */
 public class AggregateException extends RuntimeException {
 
     private final Throwable[] throwables;
@@ -52,11 +52,6 @@ public class AggregateException extends RuntimeException {
         } else {
             this.throwables = array;
         }
-    }
-
-    AggregateException(Throwable[] throwables) {
-        super(throwables.length > 0 ? throwables[0] : null);
-        this.throwables = throwables;
     }
 
     public Throwable getFirstCause() {

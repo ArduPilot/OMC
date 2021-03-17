@@ -18,10 +18,10 @@ class SearchService {
     constructor(username: String, password: String) {
         c.authWithInsight(username, password)
         c.oauthResponse.accessToken
-        this.targetHost = "https://newdev.ixstack.net"
+        this.targetHost = "https://dev.ixstack.net"
     }
 
-    constructor(username: String, password: String, targetHost: String = "https://newdev.ixstack.net") {
+    constructor(username: String, password: String, targetHost: String = "https://dev.ixstack.net") {
         c.authWithInsight(username, password)
         c.oauthResponse.accessToken
         this.targetHost = targetHost

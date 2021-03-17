@@ -6,10 +6,10 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.tagging;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IGenericCameraConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.helper.ILanguageHelper;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.flightplan.CPhotoLogLine;
 import eu.mavinci.core.helper.MinMaxPair;
 import eu.mavinci.desktop.gui.widgets.i18n.MCFrame;
@@ -42,7 +42,8 @@ public class TaggingSyncVisWindow extends MCFrame {
     private static final long serialVersionUID = -720235730287332043L;
 
     public static String KEY = "eu.mavinci.desktop.gui.doublepanel.planemain.tagging.TaggingSyncVisWindow";
-    private static final ILanguageHelper languageHelper = StaticInjector.getInstance(ILanguageHelper.class);
+    private static final ILanguageHelper languageHelper =
+        DependencyInjector.getInstance().getInstanceOf(ILanguageHelper.class);
 
     public TaggingSyncVisWindow(
             ITaggingAlgorithm alg,

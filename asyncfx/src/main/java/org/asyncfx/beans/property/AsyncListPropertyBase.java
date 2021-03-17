@@ -6,7 +6,14 @@
 
 package org.asyncfx.beans.property;
 
+import static org.asyncfx.beans.AccessControllerImpl.LockName.EVENT;
+import static org.asyncfx.beans.AccessControllerImpl.LockName.VALUE;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.GROUP;
+import static org.asyncfx.beans.AccessControllerImpl.LockType.INSTANCE;
+
 import java.lang.ref.WeakReference;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.StampedLock;
 import javafx.beans.InvalidationListener;
@@ -16,23 +23,21 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import org.asyncfx.AsyncFX;
+import org.asyncfx.Optional;
 import org.asyncfx.PublishSource;
 import org.asyncfx.beans.AccessController;
 import org.asyncfx.beans.AccessControllerImpl;
-import org.asyncfx.beans.AsyncInvalidationListenerWrapper;
-import org.asyncfx.beans.AsyncSubInvalidationListenerWrapper;
+import org.asyncfx.beans.InvalidationListenerWrapper;
 import org.asyncfx.beans.SubInvalidationListener;
 import org.asyncfx.beans.binding.AsyncListExpressionHelper;
 import org.asyncfx.beans.binding.ValueConverter;
-import org.asyncfx.beans.value.AsyncChangeListenerWrapper;
-import org.asyncfx.beans.value.AsyncSubChangeListenerWrapper;
+import org.asyncfx.beans.value.ChangeListenerWrapper;
 import org.asyncfx.beans.value.SubChangeListener;
 import org.asyncfx.collections.AsyncListChangeListener;
 import org.asyncfx.collections.AsyncObservableList;
 import org.asyncfx.collections.ListChangeListenerWrapper;
 import org.asyncfx.collections.LockedList;
 import org.asyncfx.collections.SubObservableList;
-import org.asyncfx.concurrent.Dispatcher;
 
 @PublishSource(
     module = "openjfx",
@@ -46,46 +51,20 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
     private final AsyncListChangeListener<E> listChangeListener =
         change -> {
-            Dispatcher dispatcher = getMetadata().getDispatcher();
-            if (dispatcher == null) {
-                Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-            }
-
-            if (dispatcher != null) {
-                dispatcher.run(
-                    () -> {
-                        invalidateProperties();
-                        invalidated();
-                        fireValueChangedEvent(change);
-                    });
-            } else {
-                invalidateProperties();
-                invalidated();
-                fireValueChangedEvent(change);
-            }
+            invalidateProperties();
+            invalidated();
+            fireValueChangedEvent(change);
         };
 
     private final SubInvalidationListener subInvalidationListener =
         (observable, subInvalidation) -> {
             if (subInvalidation) {
-                Dispatcher dispatcher = getMetadata().getDispatcher();
-                if (dispatcher == null) {
-                    Object bean = getBean();
-                    dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-                }
-
-                if (dispatcher != null) {
-                    dispatcher.run(() -> fireSubValueChangedEvent(observable));
-                } else {
-                    fireSubValueChangedEvent(observable);
-                }
+                fireSubValueChangedEvent(observable);
             }
         };
 
     private final long uniqueId = PropertyHelper.getNextUniqueId();
     private final AccessControllerImpl accessController;
-    private final Executor effectiveExecutor = runnable -> getExecutor().execute(runnable);
     private PropertyMetadata<AsyncObservableList<E>> metadata;
     private volatile boolean metadataSealed;
     private String name;
@@ -93,52 +72,55 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     private ObservableValue<? extends AsyncObservableList<E>> observable = null;
     private InvalidationListener listener = null;
     private boolean valid = true;
+    private AsyncListExpressionHelper<E> helper;
     private AsyncIntegerProperty size0;
     private AsyncBooleanProperty empty0;
-    AsyncListExpressionHelper<E> helper;
+    private Queue<DeferredListListener<E>> deferredListeners;
 
     public AsyncListPropertyBase(PropertyMetadata<AsyncObservableList<E>> metadata) {
         this.metadata = metadata;
         this.accessController = new AccessControllerImpl();
         this.value = metadata.getInitialValue();
 
-        ConsistencyGroup consistencyGroup = metadata.getConsistencyGroup();
-        if (consistencyGroup != null) {
-            consistencyGroup.add(this);
+        Optional<ConsistencyGroup> consistencyGroup = PropertyMetadata.Accessor.getConsistencyGroup(metadata);
+        if (consistencyGroup.isPresent()) {
+            consistencyGroup.get().add(this);
         }
 
         if (this.value instanceof ListInitializer) {
-            ((ListInitializer)this.value).initializeList(effectiveExecutor);
+            ((ListInitializer)this.value).initializeList(metadata.getExecutor());
         }
 
         if (this.value != null) {
-            this.value.addListener(listChangeListener);
+            this.value.addListener(ListChangeListenerWrapper.wrap(listChangeListener, metadata.getExecutor()));
 
             if (this.value instanceof SubObservableList) {
-                ((SubObservableList)this.value).addListener(subInvalidationListener);
+                ((SubObservableList)this.value)
+                    .addListener(SubInvalidationListenerWrapper.wrap(subInvalidationListener, metadata.getExecutor()));
             }
         }
     }
 
-    AsyncListPropertyBase(PropertyObject bean, PropertyMetadata<AsyncObservableList<E>> metadata) {
+    AsyncListPropertyBase(ObservableObject bean, PropertyMetadata<AsyncObservableList<E>> metadata) {
         this.metadata = metadata;
         this.accessController = bean != null ? bean.getSharedAccessController() : new AccessControllerImpl();
         this.value = metadata.getInitialValue();
 
-        ConsistencyGroup consistencyGroup = metadata.getConsistencyGroup();
-        if (consistencyGroup != null) {
-            consistencyGroup.add(this);
+        Optional<ConsistencyGroup> consistencyGroup = PropertyMetadata.Accessor.getConsistencyGroup(metadata);
+        if (consistencyGroup.isPresent()) {
+            consistencyGroup.get().add(this);
         }
 
         if (this.value instanceof ListInitializer) {
-            ((ListInitializer)this.value).initializeList(effectiveExecutor);
+            ((ListInitializer)this.value).initializeList(metadata.getExecutor());
         }
 
         if (this.value != null) {
-            this.value.addListener(listChangeListener);
+            this.value.addListener(ListChangeListenerWrapper.wrap(listChangeListener, metadata.getExecutor()));
 
             if (this.value instanceof SubObservableList) {
-                ((SubObservableList)this.value).addListener(subInvalidationListener);
+                ((SubObservableList)this.value)
+                    .addListener(SubInvalidationListenerWrapper.wrap(subInvalidationListener, metadata.getExecutor()));
             }
         }
     }
@@ -152,14 +134,14 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     public String getName() {
         long stamp = 0;
         try {
-            stamp = AsyncFX.isDebuggerAttached() ? 0 : accessController.readLock(false);
+            stamp = AsyncFX.isDebuggerAttached() ? 0 : accessController.readLock(VALUE, INSTANCE);
             if (name == null) {
                 this.name = PropertyHelper.getPropertyName(getBean(), this, metadata);
             }
 
             return name;
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(VALUE, stamp);
         }
     }
 
@@ -174,13 +156,13 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
         if (!sealed) {
             long stamp = 0;
             try {
-                stamp = accessController.readLock(false);
+                stamp = accessController.readLock(VALUE, INSTANCE);
                 sealed = metadataSealed;
                 if (!sealed) {
                     metadataSealed = true;
                 }
             } finally {
-                accessController.unlockRead(stamp);
+                accessController.unlockRead(VALUE, stamp);
             }
         }
 
@@ -191,7 +173,7 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     public void overrideMetadata(PropertyMetadata<AsyncObservableList<E>> metadata) {
         long stamp = 0;
         try {
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (metadataSealed) {
                 throw new IllegalStateException("Metadata cannot be overridden because it is sealed after first use.");
             }
@@ -200,7 +182,7 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
             this.value = this.metadata.getInitialValue();
             this.name = null;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -208,24 +190,24 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     public ReadOnlyAsyncIntegerProperty sizeProperty() {
         long stamp = 0;
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 AsyncIntegerProperty size0 = this.size0;
-                if (accessController.validate(false, stamp) && size0 != null) {
+                if (accessController.validate(VALUE, INSTANCE, stamp) && size0 != null) {
                     return size0;
                 }
             }
 
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (size0 == null) {
                 size0 =
                     new SimpleAsyncIntegerProperty(this, new PropertyMetadata.Builder<Number>().name("size").create());
-                AsyncObservableList<E> list = getCore();
+                AsyncObservableList<E> list = getUnsynchronized();
                 size0.set(list != null ? list.size() : 0);
             }
 
             return size0;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -233,215 +215,305 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     public ReadOnlyAsyncBooleanProperty emptyProperty() {
         long stamp = 0;
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 AsyncBooleanProperty empty0 = this.empty0;
-                if (accessController.validate(false, stamp) && empty0 != null) {
+                if (accessController.validate(VALUE, INSTANCE, stamp) && empty0 != null) {
                     return empty0;
                 }
             }
 
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             if (empty0 == null) {
                 empty0 =
                     new SimpleAsyncBooleanProperty(
                         this, new PropertyMetadata.Builder<Boolean>().name("empty").create());
-                AsyncObservableList<E> list = getCore();
+                AsyncObservableList<E> list = getUnsynchronized();
                 empty0.set(list == null || list.isEmpty());
             }
 
             return empty0;
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
     @Override
     public void addListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.addListener(helper, this, getUnsynchronized(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(InvalidationListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncListExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncInvalidationListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncListExpressionHelper.addListener(
+                        helper, this, getUnsynchronized(), InvalidationListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(InvalidationListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(InvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.removeListener(helper, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubInvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.addListener(helper, this, getUnsynchronized(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubInvalidationListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncListExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncSubInvalidationListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncListExpressionHelper.addListener(
+                        helper, this, getUnsynchronized(), SubInvalidationListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(SubInvalidationListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(SubInvalidationListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.removeListener(helper, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super AsyncObservableList<E>> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.addListener(helper, this, getUnsynchronized(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ChangeListener<? super AsyncObservableList<E>> listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncListExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncListExpressionHelper.addListener(
+                        helper, this, getUnsynchronized(), ChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(ChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(ChangeListener<? super AsyncObservableList<E>> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.removeListener(helper, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubChangeListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.addListener(helper, this, getUnsynchronized(), listener);
+            } else {
+                addListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(SubChangeListener listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncListExpressionHelper.addListener(
-                    helper, this, getCore(), AsyncSubChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncListExpressionHelper.addListener(
+                        helper, this, getUnsynchronized(), SubChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(SubChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(SubChangeListener listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.removeListener(helper, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ListChangeListener<? super E> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.addListener(helper, this, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.addListener(helper, this, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void addListener(ListChangeListener<? super E> listener, Executor executor) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper =
-                AsyncListExpressionHelper.addListener(
-                    helper, this, getCore(), ListChangeListenerWrapper.wrap(listener, executor));
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper =
+                    AsyncListExpressionHelper.addListener(
+                        helper, this, getUnsynchronized(), ListChangeListenerWrapper.wrap(listener, executor));
+            } else {
+                addListenerDeferred(ListChangeListenerWrapper.wrap(listener, executor));
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
     @Override
     public void removeListener(ListChangeListener<? super E> listener) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = AsyncListExpressionHelper.removeListener(helper, getCore(), listener);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
+            if ((eventStamp = accessController.tryWriteLock(EVENT, INSTANCE)) != 0) {
+                resolveDeferredListeners();
+                helper = AsyncListExpressionHelper.removeListener(helper, getUnsynchronized(), listener);
+            } else {
+                removeListenerDeferred(listener);
+            }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(valueStamp, eventStamp);
         }
     }
 
@@ -466,13 +538,13 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
         boolean read = true;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
                 AsyncObservableList<E> value = this.value;
                 PropertyMetadata<AsyncObservableList<E>> metadata = this.metadata;
-                if (accessController.validate(true, stamp)) {
+                if (accessController.validate(VALUE, GROUP, stamp)) {
                     if (critical) {
-                        PropertyHelper.verifyConsistency(metadata);
+                        metadata.verifyConsistency();
                     }
 
                     if (valid) {
@@ -484,36 +556,36 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
             }
 
             if (read) {
-                stamp = accessController.readLock(true);
+                stamp = accessController.readLock(VALUE, GROUP);
                 if (valid) {
                     if (critical) {
-                        PropertyHelper.verifyConsistency(metadata);
+                        metadata.verifyConsistency();
                     }
 
                     return value;
                 }
             }
 
-            long newStamp = accessController.tryConvertToWriteLock(true, stamp);
+            long newStamp = accessController.tryConvertToWriteLock(VALUE, GROUP, stamp);
             if (newStamp == 0) {
-                accessController.unlockRead(stamp);
-                stamp = accessController.writeLock(true);
+                accessController.unlockRead(VALUE, stamp);
+                stamp = accessController.writeLock(VALUE, GROUP);
             } else {
                 stamp = newStamp;
             }
 
             if (critical) {
-                PropertyHelper.verifyConsistency(metadata);
+                metadata.verifyConsistency();
             }
 
-            return getCore();
+            return getUnsynchronized();
         } finally {
-            accessController.unlock(stamp);
+            accessController.unlock(VALUE, stamp);
         }
     }
 
     @SuppressWarnings("unchecked")
-    AsyncObservableList<E> getCore() {
+    private AsyncObservableList<E> getUnsynchronized() {
         if (!valid) {
             if (observable instanceof ReadOnlyAsyncListProperty) {
                 value = ((ReadOnlyAsyncListProperty<E>)observable).getUncritical();
@@ -523,12 +595,12 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
             valid = true;
             if (value != null) {
-                value.addListener(ListChangeListenerWrapper.wrap(listChangeListener, effectiveExecutor));
+                value.addListener(ListChangeListenerWrapper.wrap(listChangeListener, metadata.getExecutor()));
 
                 if (this.value instanceof SubObservableList) {
                     ((SubObservableList)this.value)
                         .addListener(
-                            AsyncSubInvalidationListenerWrapper.wrap(subInvalidationListener, effectiveExecutor));
+                            SubInvalidationListenerWrapper.wrap(subInvalidationListener, metadata.getExecutor()));
                 }
             }
         }
@@ -538,14 +610,13 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
     @Override
     public void set(AsyncObservableList<E> newValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         boolean invalidate, fireEvent = false;
-        AsyncListExpressionHelper<E> helper;
 
         try {
-            stamp = accessController.writeLock(true);
-            PropertyHelper.verifyAccess(this, metadata);
-            PropertyHelper.verifyConsistency(metadata);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
+            metadata.verifyAccess();
 
             if (observable != null) {
                 throw new RuntimeException("A bound value cannot be set.");
@@ -565,13 +636,19 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
             value = newValue;
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncListExpressionHelper.validatesValue(helper)) {
-                    newValue = getCore();
+                    try {
+                        newValue = getUnsynchronized();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
 
                 if (!(fireEvent = !accessController.isLocked())) {
@@ -579,18 +656,30 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
                     accessController.defer(
                         () -> {
-                            invalidated();
-                            AsyncListExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            long stamp = 0;
+                            try {
+                                stamp = accessController.writeLock(EVENT, GROUP);
+                                invalidated();
+                                AsyncListExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                            } finally {
+                                accessController.unlockWrite(EVENT, stamp);
+                            }
                         });
+
+                    accessController.unlockWrite(EVENT, eventStamp);
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (fireEvent) {
-            invalidated();
-            AsyncListExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            try {
+                invalidated();
+                AsyncListExpressionHelper.fireValueChangedEvent(helper, newValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
@@ -601,16 +690,13 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
     protected void fireValueChangedEvent(AsyncListChangeListener.AsyncChange<? extends E> change) {
         long stamp = 0;
-        AsyncListExpressionHelper<E> helper;
 
         try {
-            stamp = accessController.writeLock(false);
-            helper = this.helper;
+            stamp = accessController.writeLock(EVENT, INSTANCE);
+            AsyncListExpressionHelper.fireValueChangedEvent(helper, change);
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(EVENT, stamp);
         }
-
-        AsyncListExpressionHelper.fireValueChangedEvent(helper, change);
     }
 
     protected void invalidated() {}
@@ -626,22 +712,21 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     }
 
     private void markInvalid(AsyncObservableList<E> oldValue) {
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         AsyncObservableList<E> currentValue = null;
-        AsyncListExpressionHelper<E> helper;
         boolean invalidate;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(true)) != 0) {
+            if ((valueStamp = accessController.tryOptimisticRead(VALUE, GROUP)) != 0) {
                 boolean valid = this.valid;
-                if (accessController.validate(true, stamp) && !valid) {
+                if (accessController.validate(VALUE, GROUP, valueStamp) && !valid) {
                     return;
                 }
             }
 
-            stamp = accessController.writeLock(true);
+            valueStamp = accessController.writeLock(VALUE, GROUP);
             invalidate = valid;
-            helper = this.helper;
 
             if (invalidate) {
                 if (oldValue != null) {
@@ -649,19 +734,30 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
                 }
 
                 valid = false;
+                eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                resolveDeferredListeners();
 
                 if (AsyncListExpressionHelper.validatesValue(helper)) {
-                    currentValue = getCore();
+                    try {
+                        currentValue = getUnsynchronized();
+                    } catch (Exception e) {
+                        accessController.unlockWrite(EVENT, eventStamp);
+                        throw e;
+                    }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            invalidateProperties();
-            invalidated();
-            AsyncListExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            try {
+                invalidateProperties();
+                invalidated();
+                AsyncListExpressionHelper.fireValueChangedEvent(helper, currentValue, false);
+            } finally {
+                accessController.unlockWrite(EVENT, eventStamp);
+            }
         }
     }
 
@@ -670,17 +766,17 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
         long stamp = 0;
 
         try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
+            if ((stamp = accessController.tryOptimisticRead(VALUE, INSTANCE)) != 0) {
                 boolean bound = observable != null;
-                if (accessController.validate(false, stamp)) {
+                if (accessController.validate(VALUE, INSTANCE, stamp)) {
                     return bound;
                 }
             }
 
-            stamp = accessController.readLock(false);
+            stamp = accessController.readLock(VALUE, INSTANCE);
             return observable != null;
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(VALUE, stamp);
         }
     }
 
@@ -689,16 +785,16 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
         long stamp = 0;
 
         try {
-            stamp = accessController.readLock(false);
+            stamp = accessController.readLock(EVENT, INSTANCE);
             return AsyncListExpressionHelper.containsBidirectionalBindingEndpoints(helper);
         } finally {
-            accessController.unlockRead(stamp);
+            accessController.unlockRead(EVENT, stamp);
         }
     }
 
     @Override
     public <U> void bind(
-            ObservableValue<? extends U> source, ValueConverter<U, AsyncObservableList<E>> converter) {
+            ObservableValue<? extends U> source, ValueConverter<U, ? extends AsyncObservableList<E>> converter) {
         throw new UnsupportedOperationException();
     }
 
@@ -714,35 +810,32 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
                 "A bidirectionally bound property cannot be the target of a unidirectional binding.");
         }
 
-        long stamp = 0;
+        long valueStamp = 0;
+        long eventStamp = 0;
         AsyncObservableList<E> newValue = null;
         PropertyMetadata<AsyncObservableList<E>> metadata;
-        AsyncListExpressionHelper<E> helper;
         boolean invalidate = false;
 
         try {
-            stamp = accessController.writeLock(false);
+            valueStamp = accessController.writeLock(VALUE, INSTANCE);
             metadata = this.metadata;
-            helper = this.helper;
 
-            if (metadata.getConsistencyGroup() != null) {
+            if (PropertyMetadata.Accessor.getConsistencyGroup(metadata).isPresent()) {
                 throw new IllegalStateException("A property of a consistency group cannot be bound.");
             }
 
             if (!source.equals(observable)) {
                 unbindUnsynchronized();
                 observable = source;
+                final Executor targetExecutor = metadata.getExecutor();
                 if (listener == null) {
-                    listener = new Listener<>(this);
+                    listener = new Listener<>(this, targetExecutor);
                 }
 
-                PropertyHelper.addListener(observable, listener, accessController);
+                observable.addListener(listener);
 
                 if (observable instanceof ReadOnlyAsyncListProperty) {
-                    newValue =
-                        (AsyncObservableList<E>)
-                            PropertyHelper.getValueUncritical(
-                                (ReadOnlyAsyncListProperty<E>)observable, accessController);
+                    newValue = ((ReadOnlyAsyncListProperty<E>)observable).getUncritical();
                 } else {
                     newValue = observable.getValue();
                 }
@@ -754,35 +847,38 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
                 invalidate = valid;
                 if (invalidate) {
                     valid = false;
+                    eventStamp = accessController.writeLock(EVENT, INSTANCE);
+                    resolveDeferredListeners();
 
                     if (AsyncListExpressionHelper.validatesValue(helper)) {
-                        newValue = getCore();
+                        try {
+                            newValue = getUnsynchronized();
+                        } catch (Exception e) {
+                            accessController.unlockWrite(EVENT, eventStamp);
+                            throw e;
+                        }
                     }
                 }
             }
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, valueStamp);
         }
 
         if (invalidate) {
-            Dispatcher dispatcher = metadata.getDispatcher();
-            if (dispatcher == null) {
-                Object bean = getBean();
-                dispatcher = bean instanceof PropertyObject ? ((PropertyObject)bean).getDispatcher() : null;
-            }
+            final AsyncObservableList<E> newValueCopy = newValue;
+            final long eventStampCopy = eventStamp;
 
-            if (dispatcher != null) {
-                final AsyncObservableList<E> newValueCopy = newValue;
-
-                dispatcher.run(
+            metadata.getExecutor()
+                .execute(
                     () -> {
-                        invalidated();
-                        AsyncListExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        try {
+                            accessController.changeEventLockOwner(Thread.currentThread());
+                            invalidated();
+                            AsyncListExpressionHelper.fireValueChangedEvent(helper, newValueCopy, false);
+                        } finally {
+                            accessController.unlockWrite(EVENT, eventStampCopy);
+                        }
                     });
-            } else {
-                invalidated();
-                AsyncListExpressionHelper.fireValueChangedEvent(helper, newValue, false);
-            }
         }
     }
 
@@ -791,10 +887,10 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
         long stamp = 0;
 
         try {
-            stamp = accessController.writeLock(false);
+            stamp = accessController.writeLock(VALUE, INSTANCE);
             unbindUnsynchronized();
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(VALUE, stamp);
         }
     }
 
@@ -813,37 +909,151 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
     }
 
     private void fireSubValueChangedEvent(@SuppressWarnings("unused") Observable observable) {
-        long stamp = 0;
-        AsyncListExpressionHelper<E> helper;
-
+        long eventStamp = 0;
         try {
-            stamp = accessController.writeLock(false);
-            helper = this.helper;
-
+            eventStamp = accessController.writeLock(EVENT, INSTANCE);
+            AsyncListExpressionHelper.fireValueChangedEvent(
+                helper, AsyncListExpressionHelper.validatesValue(helper) ? get() : null, true);
         } finally {
-            accessController.unlockWrite(stamp);
+            accessController.unlockWrite(EVENT, eventStamp);
         }
-
-        AsyncListExpressionHelper.fireValueChangedEvent(
-            helper, AsyncListExpressionHelper.validatesValue(helper) ? get() : null, true);
     }
 
-    protected void verifyAccess() {
-        long stamp = 0;
+    private void addListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
 
-        try {
-            if ((stamp = accessController.tryOptimisticRead(false)) != 0) {
-                PropertyMetadata metadata = this.metadata;
-                if (accessController.validate(true, stamp)) {
-                    PropertyHelper.verifyAccess(this, metadata);
+        deferredListeners.add(new DeferredListListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(ChangeListener<? super AsyncObservableList<E>> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, true));
+    }
+
+    private void addListenerDeferred(ListChangeListener<? super E> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, true));
+    }
+
+    private void removeListenerDeferred(InvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubInvalidationListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(ChangeListener<? super AsyncObservableList<E>> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(SubChangeListener listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, false));
+    }
+
+    private void removeListenerDeferred(ListChangeListener<? super E> listener) {
+        if (deferredListeners == null) {
+            deferredListeners = new ArrayDeque<>();
+        }
+
+        deferredListeners.add(new DeferredListListener<>(listener, false));
+    }
+
+    private void resolveDeferredListeners() {
+        if (deferredListeners == null) {
+            return;
+        }
+
+        AsyncObservableList<E> value = getUnsynchronized();
+
+        while (!deferredListeners.isEmpty()) {
+            DeferredListListener<E> deferredListener = deferredListeners.remove();
+            if (deferredListener.invalidationListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncListExpressionHelper.addListener(
+                            helper, this, value, deferredListener.invalidationListener);
                 } else {
-                    accessController.readLock(false);
-                    PropertyHelper.verifyAccess(this, this.metadata);
+                    helper =
+                        AsyncListExpressionHelper.removeListener(helper, value, deferredListener.invalidationListener);
+                }
+            } else if (deferredListener.subInvalidationListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncListExpressionHelper.addListener(
+                            helper, this, value, deferredListener.subInvalidationListener);
+                } else {
+                    helper =
+                        AsyncListExpressionHelper.removeListener(
+                            helper, value, deferredListener.subInvalidationListener);
+                }
+            } else if (deferredListener.changeListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncListExpressionHelper.addListener(helper, this, value, deferredListener.changeListener);
+                } else {
+                    helper = AsyncListExpressionHelper.removeListener(helper, value, deferredListener.changeListener);
+                }
+            } else if (deferredListener.subChangeListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncListExpressionHelper.addListener(helper, this, value, deferredListener.subChangeListener);
+                } else {
+                    helper =
+                        AsyncListExpressionHelper.removeListener(helper, value, deferredListener.subChangeListener);
+                }
+            } else if (deferredListener.listChangeListener != null) {
+                if (deferredListener.added) {
+                    helper =
+                        AsyncListExpressionHelper.addListener(helper, this, value, deferredListener.listChangeListener);
+                } else {
+                    helper =
+                        AsyncListExpressionHelper.removeListener(helper, value, deferredListener.listChangeListener);
                 }
             }
-        } finally {
-            accessController.unlock(stamp);
         }
+
+        deferredListeners = null;
     }
 
     @Override
@@ -855,7 +1065,7 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
 
         try {
             if (!AsyncFX.isDebuggerAttached()) {
-                stamp = accessController.writeLock(false);
+                stamp = accessController.writeLock(VALUE, INSTANCE);
             }
 
             if (bean != null) {
@@ -870,28 +1080,30 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
                 result.append("bound, ");
 
                 if (valid) {
-                    result.append("value: ").append(AsyncFX.isDebuggerAttached() ? value : getCore());
+                    result.append("value: ").append(AsyncFX.isDebuggerAttached() ? value : getUnsynchronized());
                 } else {
                     result.append("invalid");
                 }
             } else {
-                result.append("value: ").append(AsyncFX.isDebuggerAttached() ? value : getCore());
+                result.append("value: ").append(AsyncFX.isDebuggerAttached() ? value : getUnsynchronized());
             }
 
             result.append("]");
             return result.toString();
         } finally {
             if (!AsyncFX.isDebuggerAttached() && StampedLock.isWriteLockStamp(stamp)) {
-                accessController.unlockWrite(stamp);
+                accessController.unlockWrite(VALUE, stamp);
             }
         }
     }
 
-    private static class Listener<E> implements InvalidationListener, WeakListener, Runnable {
+    private static class Listener<E> implements InvalidationListener, WeakListener {
         private final WeakReference<AsyncListPropertyBase<E>> wref;
+        private final Executor executor;
 
-        Listener(AsyncListPropertyBase<E> ref) {
+        public Listener(AsyncListPropertyBase<E> ref, Executor executor) {
             this.wref = new WeakReference<>(ref);
+            this.executor = executor;
         }
 
         @Override
@@ -900,15 +1112,8 @@ public abstract class AsyncListPropertyBase<E> extends AsyncListProperty<E> {
             if (ref == null) {
                 observable.removeListener(this);
             } else {
-                ref.getExecutor().execute(this);
-            }
-        }
-
-        @Override
-        public void run() {
-            AsyncListPropertyBase<E> ref = wref.get();
-            if (ref != null) {
-                ref.markInvalid(ref.value);
+                final AsyncObservableList<E> value = ref.value;
+                executor.execute(() -> ref.markInvalid(value));
             }
         }
 

@@ -6,8 +6,8 @@
 
 package eu.mavinci.desktop.gui.doublepanel.planemain.wwd;
 
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.utils.IVersionProvider;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.desktop.helper.ImageHelper;
 import eu.mavinci.desktop.main.debug.Debug;
 import java.awt.RenderingHints;
@@ -48,7 +48,8 @@ public class PlanarImageCache {
     }
 
     static boolean haveOpenJDKwarnedOnce =
-        StaticInjector.getInstance(IVersionProvider.class)
+        DependencyInjector.getInstance()
+            .getInstanceOf(IVersionProvider.class)
             .isOpenJDK(); // openJDK will fail anywai, so not even try it ;-)
 
     public static synchronized PlanarImage getImage(File f) {

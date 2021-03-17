@@ -289,7 +289,7 @@ public class VersionProvider implements IVersionProvider, IKeepConstructors {
             }
         }
         // MAC is not supporting commandline launch
-        throw new RuntimeException("commandline launch of this Open Mission Control version ist not supported");
+        throw new RuntimeException("commandline launch of this Intel Mission Control version ist not supported");
     }
 
     @Override

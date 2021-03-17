@@ -24,15 +24,15 @@ class SearchServiceTest {
         println(photoResponse)
     }
 
-    private fun getAnnotations(id: String = "5c8a263cbcf3e41d197714cb"): Annotations? {
+    private fun getAnnotations(id: String ="5c8a263cbcf3e41d197714cb"): Annotations? {
         var c = InsightContext()
-        c.authWithInsight("imc_cloud@intel.com", "hdjetta18!")
+        c.authWithInsight("jan-hendrik.trosemeier@intel.com", "hdjetta18!")
         c.oauthResponse.accessToken
 
         var headers = c.prepareHeaders(c.oauthResponse.accessToken.orEmpty())
         var gson = GsonBuilder().create()
 
-        var targetHost = "https://newdev.ixstack.net/"
+        var targetHost = "https://dev.ixstack.net/"
         var reqs = Unirest.post("$targetHost/uisrv/annotations/search")
                 .headers(headers)
                 .body("{\"project_id\":\"$id\"}\n")
@@ -60,19 +60,19 @@ class SearchServiceTest {
         var reqs = this.getRequests()
         var annotationIds = ArrayList<String>()
         var projectIds = ArrayList<String>()
-        for (req in reqs.flightRequests) {
+        for(req in reqs.flightRequests) {
             annotationIds.add(req.annotationId!!)
             projectIds.add(req.projectId!!)
-            println("project id: ${req.projectId}, annotation id: ${req.annotationId}, notes: ${req.notes}")
+            println("project id: ${req.projectId}, annotation id: ${req.annotationId}, notes: ${req.notes}" )
         }
         var annotationsList = ArrayList<Annotations>()
-        for (id in projectIds) {
+        for(id in projectIds) {
             annotationsList.add(getAnnotations(id)!!)
         }
 
-        for (annotations in annotationsList) {
-            for (annotation in annotations.annotations) {
-                if (annotation.id in annotationIds) {
+        for(annotations in annotationsList) {
+            for(annotation in annotations.annotations) {
+                if(annotation.id in annotationIds) {
                     println(annotation.id)
                 } else {
                     println("whoa" + annotation.id)
@@ -81,14 +81,14 @@ class SearchServiceTest {
         }
     }
 
-    fun getRequests(): FlightRequests {
+    fun   getRequests() : FlightRequests {
         var c = InsightContext()
-        c.authWithInsight("imc_cloud@intel.com", "hdjetta18!")
+        c.authWithInsight("jan-hendrik.trosemeier@intel.com", "hdjetta18!")
         c.oauthResponse.accessToken
 
         var headers = c.prepareHeaders(c.oauthResponse.accessToken.orEmpty())
 
-        var targetHost = "https://newdev.ixstack.net/"
+        var targetHost = "https://dev.ixstack.net/"
         var reqs = Unirest.get("$targetHost/uisrv/flight-request/")
                 .headers(headers)
                 .asString()
@@ -101,6 +101,7 @@ class SearchServiceTest {
         println(photoResponse)
         return photoResponse
     }
+
 
 
 }

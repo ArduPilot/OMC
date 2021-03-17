@@ -72,7 +72,6 @@ public class TitledForm extends StackPane implements Initializable {
     private BooleanProperty showAdvancedDialogPossible = new SimpleBooleanProperty();
 
     private BooleanProperty isInEditState = new SimpleBooleanProperty(false);
-    private BooleanProperty isInInitialAddingState = new SimpleBooleanProperty(false);
     private BooleanProperty isExpanded = new SimpleBooleanProperty(false);
 
     private final StringProperty title;
@@ -80,9 +79,7 @@ public class TitledForm extends StackPane implements Initializable {
     private final Node viewNode;
 
     public TitledForm(
-            StringProperty title,
-            Callback<TitledForm, Node> editNodeFactory,
-            Callback<TitledForm, Node> viewNodeFactory) {
+            StringProperty title, Callback<TitledForm, Node> editNodeFactory, Callback<TitledForm, Node> viewNodeFactory) {
         this.title = title;
         this.editNode = editNodeFactory.call(this);
         this.viewNode = viewNodeFactory.call(this);
@@ -105,10 +102,6 @@ public class TitledForm extends StackPane implements Initializable {
 
     public BooleanProperty isExpandedProperty() {
         return isExpanded;
-    }
-
-    public BooleanProperty isInInitialAddingStateProperty() {
-        return isInInitialAddingState;
     }
 
     @Override
@@ -136,9 +129,6 @@ public class TitledForm extends StackPane implements Initializable {
         showAdvanced.visibleProperty().bind(doneAddingButton.visibleProperty().not());
         showAdvanced.managedProperty().bind(showAdvanced.visibleProperty());
         showAdvanced.disableProperty().bind(showAdvancedDialogPossible.not());
-
-        doneAddingButton.visibleProperty().bind(isInInitialAddingState);
-        doneAddingButton.managedProperty().bind(isInInitialAddingState);
 
         if (removeCommand != null) {
             buttonRemove.disableProperty().bind(removeCommand.notExecutableProperty());
@@ -177,6 +167,8 @@ public class TitledForm extends StackPane implements Initializable {
         }
 
         isInEditState.set(false);
+        doneAddingButton.visibleProperty().set(false);
+        doneAddingButton.managedProperty().set(false);
         submitCommand.execute();
     }
 

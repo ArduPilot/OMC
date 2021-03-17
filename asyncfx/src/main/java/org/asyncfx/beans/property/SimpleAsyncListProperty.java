@@ -18,7 +18,7 @@ public class SimpleAsyncListProperty<E> extends AsyncListPropertyBase<E> {
         this(bean, new PropertyMetadata.Builder<AsyncObservableList<E>>().create());
     }
 
-    public SimpleAsyncListProperty(PropertyObject bean) {
+    public SimpleAsyncListProperty(ObservableObject bean) {
         this(bean, new PropertyMetadata.Builder<AsyncObservableList<E>>().create());
     }
 
@@ -26,12 +26,12 @@ public class SimpleAsyncListProperty<E> extends AsyncListPropertyBase<E> {
         super(metadata);
         this.bean = bean;
 
-        if (bean instanceof PropertyObject) {
-            ((PropertyObject)bean).registerProperty(this);
+        if (bean instanceof ObservableObject) {
+            ((ObservableObject)bean).registerProperty(this);
         }
     }
 
-    public SimpleAsyncListProperty(PropertyObject bean, PropertyMetadata<AsyncObservableList<E>> metadata) {
+    public SimpleAsyncListProperty(ObservableObject bean, PropertyMetadata<AsyncObservableList<E>> metadata) {
         super(bean, metadata);
         this.bean = bean;
 

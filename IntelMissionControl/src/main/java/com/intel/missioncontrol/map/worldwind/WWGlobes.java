@@ -14,26 +14,26 @@ import com.intel.missioncontrol.modules.MapModule;
 import eu.mavinci.desktop.gui.wwext.FastEarth;
 import eu.mavinci.desktop.gui.wwext.MFlatEarth;
 import gov.nasa.worldwind.globes.Globe;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class WWGlobes implements IWWGlobes {
 
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final Provider<IWWMapView> mapViewProvider;
     private Globe defaultGlobe;
     private Globe flatGlobe;
     private Globe activeGlobe;
 
     @Inject
-    public WWGlobes(@Named(MapModule.DISPATCHER) Dispatcher dispatcher, Provider<IWWMapView> mapViewProvider) {
-        this.dispatcher = dispatcher;
+    public WWGlobes(@Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot, Provider<IWWMapView> mapViewProvider) {
+        this.syncRoot = syncRoot;
         this.mapViewProvider = mapViewProvider;
     }
 
     @Override
     public Globe getActiveGlobe() {
         if (activeGlobe == null) {
-            activeGlobe = new GlobeSelector(dispatcher, mapViewProvider.get(), getDefaultGlobe(), getFlatGlobe());
+            activeGlobe = new GlobeSelector(syncRoot, mapViewProvider.get(), getDefaultGlobe(), getFlatGlobe());
         }
 
         return activeGlobe;

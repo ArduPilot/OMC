@@ -16,6 +16,7 @@ import com.intel.missioncontrol.mission.Matching;
 import com.intel.missioncontrol.mission.Mission;
 import com.intel.missioncontrol.settings.GeneralSettings;
 import com.intel.missioncontrol.settings.ISettingsManager;
+import com.intel.missioncontrol.settings.OperationLevel;
 import com.intel.missioncontrol.ui.ViewModelBase;
 import com.intel.missioncontrol.ui.common.BindingUtils;
 import eu.mavinci.core.helper.StringHelper;
@@ -107,6 +108,8 @@ public class AnalysisOptionsStatisticsViewModel extends ViewModelBase {
             ILanguageHelper languageHelper, ISettingsManager settingsManager, IApplicationContext applicationContext) {
         this.languageHelper = languageHelper;
         this.settingsManager = settingsManager;
+        rtkStatisticVisible.bind(
+            settingsManager.getSection(GeneralSettings.class).operationLevelProperty().isEqualTo(OperationLevel.DEBUG));
 
         initCoverageItems();
         initSystemOfMeasurement();
@@ -122,8 +125,6 @@ public class AnalysisOptionsStatisticsViewModel extends ViewModelBase {
         currentMatching.bind(
             PropertyPath.from(applicationContext.currentMissionProperty())
                 .selectReadOnlyObject(Mission::currentMatchingProperty));
-        rtkStatisticVisible.bind(
-                PropertyPath.from(currentMatching).selectReadOnlyBoolean(Matching::rtkAvailableProperty));
     }
 
     private void initSystemOfMeasurement() {

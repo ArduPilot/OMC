@@ -7,10 +7,10 @@
 package eu.mavinci.core.flightplan;
 
 import com.intel.missioncontrol.INotificationObject;
-import com.intel.missioncontrol.StaticInjector;
 import com.intel.missioncontrol.hardware.IHardwareConfiguration;
 import com.intel.missioncontrol.hardware.IHardwareConfigurationManager;
 import com.intel.missioncontrol.helper.Ensure;
+import de.saxsys.mvvmfx.internal.viewloader.DependencyInjector;
 import eu.mavinci.core.desktop.listener.WeakListenerList;
 import eu.mavinci.core.flightplan.visitors.DistanceVisitor;
 import eu.mavinci.core.flightplan.visitors.ExtractByIdVisitor;
@@ -47,7 +47,8 @@ public abstract class CFlightplan extends AFlightplanContainer
 
     protected static synchronized IHardwareConfigurationManager getHardwareConfigurationManager() {
         if (hardwareConfigurationManager == null) {
-            hardwareConfigurationManager = StaticInjector.getInstance(IHardwareConfigurationManager.class);
+            hardwareConfigurationManager =
+                DependencyInjector.getInstance().getInstanceOf(IHardwareConfigurationManager.class);
         }
 
         return hardwareConfigurationManager;
@@ -168,9 +169,7 @@ public abstract class CFlightplan extends AFlightplanContainer
     // changed in corparsion to saved version
     protected boolean isChanged = true;
 
-    protected boolean enableJumpOverWaypoints = true;
-
-    protected boolean obstacleAvoidanceEnabled;
+    protected boolean enableJumpOverWaypoints;
 
     public boolean isChanged() {
         return isChanged;
@@ -238,7 +237,7 @@ public abstract class CFlightplan extends AFlightplanContainer
             try {
                 reader.readFML(fp, is, getHardwareConfigurationManager());
             } catch (Exception e) {
-                Debug.getLog().log(Level.WARNING, "Mission XML reading Problems", e);
+                Debug.getLog().log(Level.WARNING, "Flightplan XML reading Problems", e);
             }
         }
 
@@ -278,7 +277,6 @@ public abstract class CFlightplan extends AFlightplanContainer
             this.eventList = fp.eventList;
             this.eventList.setParent(this);
             this.enableJumpOverWaypoints = fp.enableJumpOverWaypoints;
-            this.obstacleAvoidanceEnabled = fp.obstacleAvoidanceEnabled;
 
             setSilentUnmute();
             isEmpty = false;
@@ -374,7 +372,7 @@ public abstract class CFlightplan extends AFlightplanContainer
         try {
             writer.writeFlightplan(this, file);
         } catch (IOException e) {
-            Debug.getLog().log(Level.WARNING, "Mission Save Problems", e);
+            Debug.getLog().log(Level.WARNING, "Flightplan Save Problems", e);
         }
 
         isChanged = false;
@@ -400,8 +398,8 @@ public abstract class CFlightplan extends AFlightplanContainer
         try {
             return writer.flightplanToXML(this, null);
         } catch (IOException e) {
-            Debug.getLog().log(Level.WARNING, "Mission to XML conversion Problems", e);
-            throw new IllegalStateException("Mission to XML conversion Problems", e);
+            Debug.getLog().log(Level.WARNING, "Flightplan toXML conversion Problems", e);
+            throw new IllegalStateException("Flightplan toXML conversion Problems", e);
         }
     }
 
@@ -411,8 +409,8 @@ public abstract class CFlightplan extends AFlightplanContainer
         try {
             return writer.flightplanToXML(this, hash);
         } catch (IOException e) {
-            Debug.getLog().log(Level.WARNING, "Mission toXMLwithHash conversion Problems", e);
-            throw new IllegalStateException("Mission toXMLwithHash conversion Problems: ", e);
+            Debug.getLog().log(Level.WARNING, "Flightplan toXMLwithHash conversion Problems", e);
+            throw new IllegalStateException("Flightplan toXMLwithHash conversion Problems: ", e);
         }
     }
 
@@ -466,8 +464,7 @@ public abstract class CFlightplan extends AFlightplanContainer
                 && Objects.equals(file, fp.file)
                 && Objects.equals(name, fp.getName())
                 && Objects.equals(notes, fp.notes)
-                && enableJumpOverWaypoints == fp.enableJumpOverWaypoints
-                && obstacleAvoidanceEnabled == fp.obstacleAvoidanceEnabled;
+                && enableJumpOverWaypoints == fp.enableJumpOverWaypoints;
         }
 
         return false;
@@ -956,9 +953,9 @@ public abstract class CFlightplan extends AFlightplanContainer
             newPicArea.setGsd(templatePicArea.getGsd());
             this.addToFlightplanContainer(newPicArea);
         } catch (FlightplanContainerFullException e) {
-            throw new RuntimeException("no space left in plan to add another goal", e);
+            throw new RuntimeException("no space left in flight plan to add another AOI", e);
         } catch (FlightplanContainerWrongAddingException e) {
-            throw new RuntimeException("cant add goal to plan because of wrong type", e);
+            throw new RuntimeException("cant add AOI to flight plan because of wrong type", e);
         }
 
         return newPicArea;

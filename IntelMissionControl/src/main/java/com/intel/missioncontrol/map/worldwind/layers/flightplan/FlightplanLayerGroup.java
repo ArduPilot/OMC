@@ -50,7 +50,7 @@ import org.asyncfx.beans.property.PropertyPath;
 import org.asyncfx.beans.property.PropertyPathStore;
 import org.asyncfx.beans.property.SimpleAsyncObjectProperty;
 import org.asyncfx.collections.LockedList;
-import org.asyncfx.concurrent.Dispatcher;
+import org.asyncfx.concurrent.SynchronizationRoot;
 
 public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
 
@@ -123,7 +123,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
         }
     }
 
-    private final Dispatcher dispatcher;
+    private final SynchronizationRoot syncRoot;
     private final IMapModel mapModel;
     private final IWWMapView mapView;
     private final IMapController mapController;
@@ -147,7 +147,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
 
     @Inject
     public FlightplanLayerGroup(
-            @Named(MapModule.DISPATCHER) Dispatcher dispatcher,
+            @Named(MapModule.SYNC_ROOT) SynchronizationRoot syncRoot,
             IMapModel mapModel,
             IWWGlobes globes,
             IWWMapView mapView,
@@ -165,7 +165,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
             AircraftLayerVisibilitySettings aircraftLayerVisibilitySettings,
             DatasetLayerVisibilitySettings datasetLayerVisibilitySettings) {
         super(LayerGroupType.FLIGHT_PLAN_GROUP);
-        this.dispatcher = dispatcher;
+        this.syncRoot = syncRoot;
         this.globes = globes;
         this.mapModel = mapModel;
         this.mapView = mapView;
@@ -221,7 +221,7 @@ public class FlightplanLayerGroup extends LayerGroup implements IKeepClassname {
                 public ILayer convert(FlightPlan flightPlan) {
                     FlightplanLayer layer =
                         new FlightplanLayer(
-                            dispatcher,
+                            syncRoot,
                             flightPlan,
                             currentMission.get().droneProperty().get(),
                             globes,

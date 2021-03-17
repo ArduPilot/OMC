@@ -6,12 +6,9 @@
 
 package com.intel.missioncontrol.drone;
 
-import com.intel.missioncontrol.hardware.IGenericCameraDescription;
-import java.util.List;
-import org.asyncfx.beans.property.ReadOnlyAsyncIntegerProperty;
-import org.asyncfx.beans.property.ReadOnlyAsyncListProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncObjectProperty;
 import org.asyncfx.beans.property.ReadOnlyAsyncStringProperty;
+import com.intel.missioncontrol.hardware.IGenericCameraDescription;
 
 public interface ICamera {
     enum Status {
@@ -32,23 +29,15 @@ public interface ICamera {
         return cameraDescriptionProperty().get();
     }
 
-    ReadOnlyAsyncListProperty<? extends IVideoStream> videoStreamsProperty();
+    ReadOnlyAsyncObjectProperty<? extends IVideoStream> videoStreamProperty();
 
-    default List<? extends IVideoStream> getVideoStreams() {
-        return videoStreamsProperty().get();
+    default IVideoStream getVideoStream() {
+        return videoStreamProperty().get();
     }
 
     ReadOnlyAsyncObjectProperty<Status> statusProperty();
 
     default Status getStatus() {
         return statusProperty().get();
-    }
-
-    /** The number of images taken by this camera. Reset to 0 when starting a mission. */
-    ReadOnlyAsyncIntegerProperty imageCountProperty();
-
-    default int getImageCount()
-    {
-        return imageCountProperty().get();
     }
 }
