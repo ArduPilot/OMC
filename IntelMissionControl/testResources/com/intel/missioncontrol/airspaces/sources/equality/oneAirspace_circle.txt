@@ -1,7 +1,0 @@
-AC R
-AN Test airspace - circle
-AH 2300 MSL
-AL GND
-V X=49:42:34 N 008:24:56 E
-DC 10.80
-*49.70944444 8.41555556

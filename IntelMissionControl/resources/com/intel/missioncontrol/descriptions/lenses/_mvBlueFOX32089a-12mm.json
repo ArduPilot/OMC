@@ -1,9 +1,0 @@
-{
-  "id": "mvBlueFOX32089a-12mm",
-  "name": "12mm",
-  "focalLength": 12.0,
-  "maxTimeVariation": 1.1,
-  "minRepTime": 0.04,
-  "isManual": true,
-  "lensType": "STANDARD"
-}

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<fx:root xmlns:fx="http://javafx.com/fxml"
-         fx:id="summaryPane" type="javafx.scene.layout.VBox" style="-fx-padding:0 0 0 3em;">
-
-</fx:root>

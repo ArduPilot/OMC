@@ -34,6 +34,10 @@ public class LitchiCsvExporterTest {
         wp1.setOrientation(new Orientation(0, 120, 180));
         wp2.setOrientation(new Orientation(0, 90, 359));
         wp3.setOrientation(new Orientation(0, 0, 0));
+        wp1.setTriggerImageHereCopterMode(true);
+        wp2.setTriggerImageHereCopterMode(true);
+        wp3.setTriggerImageHereCopterMode(true);
+        wp1.setStopHereTimeCopter(1000);
 
         // putting waypoints into a list
         List<Waypoint> wpList = List.of(wp1, wp2, wp3);
@@ -63,20 +67,20 @@ public class LitchiCsvExporterTest {
                 // check first waypoint is correct
                 String line2 = br.readLine();
                 Assert.assertEquals(
-                    "49.346867333,8.708903447,30.0,180,0.2,0,2,30.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,"
+                    "49.346867333,8.708903447,30.0,180,0.2,0,2,30.0,0,1000.0,1,0.0,-1,0.0,-1,0.0,-1,"
                         + "0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,0,5.0,0.0,0.0,"
                         + "0",
                     line2);
                 // check second waypoint is correct
                 String line3 = br.readLine();
                 Assert.assertEquals(
-                    "49.346773728,8.70890344,31.0,359,0.2,0,2,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,"
+                    "49.346773728,8.70890344,31.0,359,0.2,0,2,0.0,0,0.0,1,0.0,-1,0.0,-1,0.0,-1,0.0,"
                         + "-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,0,6.0,0.0,0.0,0",
                     line3);
                 // check third waypoint is correct
                 String line4 = br.readLine();
                 Assert.assertEquals(
-                    "49.34668847,8.708903434,32.0,0,0.2,0,2,-90.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,"
+                    "49.34668847,8.708903434,32.0,0,0.2,0,2,-90.0,0,0.0,1,0.0,-1,0.0,-1,0.0,-1,0.0,"
                         + "-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,-1,0.0,0,7.0,0.0,0.0,0",
                     line4);
             }

@@ -15,7 +15,7 @@
 	<property name="path.licenceMangager" value="${path.root.norm}/MAVinciLicenceManager"/>
 	<property name="path.win" value="${path.root.norm}/MAVinciDesktopWin"/>
 	-->
-	<property name="path.imc" value="${path.root.norm}/OpenMissionControl"/>
+	<property name="path.imc" value="${path.root.norm}/IntelMissionControl"/>
 	<property name="path.mnfy.dir" value="${path.buildSysten}/tools"/>
 	
 	
@@ -30,6 +30,7 @@
 	<property name="gson.jar" value="${path.base}/lib/gson-2.8.0.jar"/>
 		
 	<property name="controlsfx.jar" value="${path.base}/lib/controlsfx.jar"/>
+	<property name="serialo.jar" value="${path.base}/lib/Serialio.jar"/>
 	<property name="jinput.jar" value="${path.base}/lib/jinput.jar"/>
 	<property name="pdfbox.jar" value="${path.base}/lib/pdfbox-app-1.8.10_withoutBC.jar"/>
 

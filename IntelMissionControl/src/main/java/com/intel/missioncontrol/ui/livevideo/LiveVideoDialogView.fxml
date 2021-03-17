@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml/2019.1" fx:id="root"
+      fx:controller="com.intel.missioncontrol.ui.livevideo.LiveVideoDialogView">
+    <Region VBox.vgrow="ALWAYS"/>
+    <fx:include source="LiveVideoScreenView.fxml" fx:id="liveVideoScreen"/>
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <HBox alignment="CENTER_LEFT">
+        <Button onAction="#selectPrevCam"
+                styleClass="transparent-icon-button, icon-chevron-left"/>
+        <ComboBox fx:id="comboBoxStreams" items="+{controller.viewModel.streamList}"/>
+        <Button onAction="#selectNextCam"
+                styleClass="transparent-icon-button, icon-chevron-right"/>
+        <Region HBox.hgrow="SOMETIMES"/>
+        <Button fx:id="btnResize"
+                styleClass="transparent-icon-button"
+                style="-fx-background-size: 0.5em;
+                -fx-background-image: url('/com/intel/missioncontrol/gfx/resize_corner.svg');
+                -fx-background-position: right bottom;"
+        />
+    </HBox>
+</VBox>

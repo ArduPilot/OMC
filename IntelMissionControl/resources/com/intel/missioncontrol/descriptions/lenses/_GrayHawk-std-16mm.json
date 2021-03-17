@@ -1,9 +1,0 @@
-{
-  "id": "GrayHawk-std-16mm",
-  "name": "16mm",
-  "focalLength": 16.0,
-  "maxTimeVariation": 1.1,
-  "minRepTime": 1.0,
-  "isManual": true,
-  "lensType": "STANDARD"
-}

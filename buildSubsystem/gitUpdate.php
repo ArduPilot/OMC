@@ -8,7 +8,7 @@
 <?php
 use \DateTime;
 
-define('SERVER_HOSTNAME','HOST');
+define('SERVER_HOSTNAME','intern.mavinci.de');
 
 function run($cmd){
 	echo $cmd."\n";
@@ -21,7 +21,7 @@ function run($cmd){
 	return $out;
 }
 
-run('git fetch https://USER:PASS@HOST/git/root/INMAV/');
-run('git pull https://USER:PASS@HOST/git/root/INMAV/');
+run('git fetch https://ekorotkova:KOR-2017@nearshore.altran.pt/git/root/INMAV/');
+run('git pull https://ekorotkova:KOR-2017@nearshore.altran.pt/git/root/INMAV/');
 
 ?>

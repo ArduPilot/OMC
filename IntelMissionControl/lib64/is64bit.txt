@@ -1,3 +1,0 @@
-The existence of this file indicates
-that the MAVinci Desktop installer
-recognizes this system to have a 64Bit Windows installed. 

@@ -1,9 +1,0 @@
-{
-  "id": "MicaSenseRedEdge-5mm",
-  "name": "5.5mm",
-  "focalLength": 5.5,
-  "minRepTime": 1.05,
-  "maxTimeVariation": 4.0,
-  "isManual": false,
-  "lensType": "STANDARD"
-}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<fx:root type="javafx.scene.layout.VBox"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.intel.missioncontrol.ui.sidepane.planning.widgets.PowerPoleWidgetView">
+
+<VBox styleClass="form-row">
+    <Label  text="%com.intel.missioncontrol.ui.sidepane.planning.widgets.powerpole.nrpointsHead" styleClass="label-regular" style="-fx-padding:0;"/>
+    <Label fx:id="nrPointsLbl" text="%com.intel.missioncontrol.ui.sidepane.planning.widgets.PowerPoleWidgetView.nrpoints"/>
+    <Button fx:id="openPowerPoleDialog" styleClass="secondary-button"
+            text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.openPowerPoleDialog.buttonLabel"/>
+
+
+    <!--<AutoCommitSpinner fx:id="repeatTimesSpinner"/>-->
+    <!--<AutoCommitSpinner fx:id="repeatDistanceSpinner"/>-->
+    <!--<AutoCommitSpinner fx:id="repeatAngleSpinner"/>-->
+    <!--<Button fx:id="repeatAoI" styleClass="secondary-button"-->
+            <!--text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.openPowerPoleDialog.repeatAoIButton"/>-->
+
+
+
+</VBox>
+</fx:root>

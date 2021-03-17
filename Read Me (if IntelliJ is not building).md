@@ -2,10 +2,10 @@
 
 First of all, I'm sorry! Take a deep breath! Do not punch your monitor (you will only hurt your hand and IntelliJ won't care) 
 
-If OMC isn't building because some classes are WorldWind or Dronekit are missing here are some things you can try:
+If IMC isn't building because some classes are WorldWind or Dronekit are missing here are some things you can try:
    
 1. Refresh IntelliJ's Maven Cache 
-    1. Make sure OMC is not running (otherwise Maven may not be able to clean some libraries)
+    1. Make sure IMC is not running (otherwise Maven may not be able to clean some libraries)
 
     2. Open the 'Maven Projects' side bar either by clicking the tab on the right
        of the window or using the menu:

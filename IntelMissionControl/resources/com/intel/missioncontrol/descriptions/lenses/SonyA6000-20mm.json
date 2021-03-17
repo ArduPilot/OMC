@@ -1,9 +1,0 @@
-{
-  "id": "SonyA6000-20mm",
-  "name": "20mm",
-  "focalLength": 20.0,
-  "maxTimeVariation": 1.65,
-  "minRepTime": 1.1,
-  "isManual": false,
-  "lensType": "STANDARD"
-}

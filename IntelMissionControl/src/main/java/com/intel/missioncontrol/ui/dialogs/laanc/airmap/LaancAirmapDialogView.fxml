@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.laanc.airmap.LaancAirmapDialogView"
+      minWidth="540.0" maxWidth="540" styleClass="dialog">
+    <stylesheets>
+
+    </stylesheets>
+
+    <VBox VBox.vgrow="ALWAYS" styleClass="content">
+        <VBox fx:id="laancAirmapUrlPane" VBox.vgrow="ALWAYS" styleClass="wide-spacing">
+            <HBox styleClass="summary, form-row, icon-scan-qr">
+                <Label text="%com.intel.missioncontrol.ui.dialogs.laanc.airmap.LaancAirmapDialogView.disclaimerText"
+                       VBox.vgrow="NEVER" wrapText="true" textOverrun="CLIP"/>
+            </HBox>
+            <HBox alignment="CENTER">
+                <Label fx:id="imageLabel" alignment="CENTER"
+                       styleClass="label-regular" style="-fx-padding:0;"/>
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <Separator VBox.vgrow="NEVER"/>
+
+    <BorderPane styleClass="footer">
+        <left>
+            <HBox styleClass="wide-spacing">
+                <Button fx:id="copyLinkButton"
+                        text="%com.intel.missioncontrol.ui.dialogs.laanc.airmap.LaancAirmapDialogView.copyLink"
+                        styleClass="primary-button">
+                    <tooltip>
+                        <Tooltip
+                                text="%com.intel.missioncontrol.ui.dialogs.laanc.airmap.LaancAirmapDialogView.copyLink.toolTip"/>
+                    </tooltip>
+                </Button>
+
+            </HBox>
+        </left>
+        <right>
+            <HBox styleClass="wide-spacing">
+                <Button fx:id="closeButton"
+                        text="%com.intel.missioncontrol.ui.dialogs.laanc.airmap.LaancAirmapDialogView.close"
+                        styleClass="secondary-button"/>
+            </HBox>
+        </right>
+    </BorderPane>
+
+
+</VBox>

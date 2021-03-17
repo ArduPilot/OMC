@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<GridPane fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryListView"
+          styleClass="content">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/dialog.css"/>
+    </stylesheets>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="50"/>
+        <ColumnConstraints percentWidth="50"/>
+    </columnConstraints>
+
+
+    <VBox fx:id="gnssVBox" GridPane.rowIndex="0" GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.gnssStatusLabel"/>
+        <Label fx:id="gnssStatus" styleClass="label-bold"/>
+    </VBox>
+    <VBox fx:id="coordinatesVBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="1"
+          GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.LatitudeLabel"/>
+        <Label fx:id="latitude" styleClass="label-bold"/>
+
+    </VBox>
+    <VBox fx:id="coordinates2VBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="1"
+          GridPane.columnIndex="1"
+          styleClass="form-row, unindent, label-value">
+
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.LongitudeLabel"/>
+        <Label fx:id="longitude" styleClass="label-bold"/>
+
+    </VBox>
+    <VBox fx:id="gnss2VBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="2" GridPane.columnIndex="0"
+          styleClass="form-row, unindent, label-value">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.gnssLabel"/>
+        <Label fx:id="gnssQuality" styleClass="label-bold"/>
+
+    </VBox>
+    <VBox fx:id="gnss3VBox" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" GridPane.rowIndex="2" GridPane.columnIndex="1"
+          styleClass="form-row, unindent, label-value">
+
+        <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.FlyDroneView.status.gnssSatellitesLabel"/>
+
+        <Label fx:id="gnssSatellites" styleClass="label-bold"/>
+    </VBox>
+</GridPane>

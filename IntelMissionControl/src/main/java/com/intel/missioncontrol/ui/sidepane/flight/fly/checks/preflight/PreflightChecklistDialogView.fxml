@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx" fx:id="checklistrootlayout"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView"
+      styleClass="dialog" style="-fx-pref-width: 36em; -fx-pref-height: 40em;">
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true">
+        <ItemsView fx:id="checklists" VBox.vgrow="ALWAYS">
+            <!--ignore this warning - itemsPane with VBox inside needed here-->
+            <itemsPane>
+                <VBox styleClass="content"/>
+            </itemsPane>
+        </ItemsView>
+    </ScrollPane>
+    <VBox styleClass="footer">
+        <BorderPane>
+            <right>
+                <Button
+                        onAction="#onCloseClicked"
+                        text="%com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.doneButton"
+                        styleClass="secondary-button"/>
+            </right>
+        </BorderPane>
+    </VBox>
+</VBox>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="USE_RELEASE_OPTION" value="false" />
     <excludeFromCompile>
       <file url="file://$PROJECT_DIR$/IntelMissionControl/libraries/dronekit/ClientLib/src/main/java/com/o3dr/android/client/utils/video/MediaCodecManager.java" />
       <file url="file://$PROJECT_DIR$/IntelMissionControl/libraries/dronekit/ClientLib/src/main/java/com/o3dr/android/client/utils/video/NaluChunkAssembler.java" />
@@ -21,14 +20,24 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="OpenMissionControl" />
-        <module name="WorldWindJavaAmalgamated" />
+        <module name="IntelMissionControl" />
+        <module name="WorldWindJava" />
+        <module name="LibInsight" />
+        <module name="InsightService" />
+        <module name="asyncfx" />
+        <module name="missioncontrol.worldwind" />
+        <module name="missioncontrol.asyncfx" />
+        <module name="missioncontrol.imc-presentation" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="WorldWindJavaAmalgamated" target="10" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="OpenMissionControl" options="--add-exports=javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.css=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.stage=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.javafx.scene.input=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control.skin=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control.skin.resources=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.binding=ALL-UNNAMED --add-exports=javafx.base/com.sun.javafx.collections=ALL-UNNAMED --add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED --add-exports=java.base/sun.util.logging=ALL-UNNAMED --add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED" />
-      <module name="WorldWindJavaAmalgamated" options="--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.prism=ALL-UNNAMED" />
+      <module name="InsightService" options="--add-exports=javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports=javafx.graphics/com.sun.prism=ALL-UNNAMED" />
+      <module name="LibInsight" options="" />
     </option>
   </component>
 </project>

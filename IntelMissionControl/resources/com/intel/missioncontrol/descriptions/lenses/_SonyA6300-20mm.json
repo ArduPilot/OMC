@@ -1,9 +1,0 @@
-{
-  "id": "SonyA6300-20mm",
-  "name": "20mm",
-  "focalLength": 20.0,
-  "minRepTime": 1.0,
-  "maxTimeVariation": 1.1,
-  "isManual": false,
-  "lensType": "STANDARD"
-}

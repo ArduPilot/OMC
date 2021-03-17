@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.layout.HBox?>
+<AdornerSplitView fx:id="rootNode" xmlns="http://javafx.com/javafx"
+                  xmlns:fx="http://javafx.com/fxml"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.landing.LandingView">
+    <VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.landing.LandingView.landingModeCombobox"/>
+            <ComboBox fx:id="landingModeCombobox" maxWidth="Infinity"
+                      AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                      AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.landing.LandingView.landingModeCombobox.tooltip"/>
+        </VBox>
+
+        <VBox fx:id="locationEditBox">
+
+            <HBox styleClass="form-row, normal-spacing">
+                <ToggleButton fx:id="chooseLandingPositionButton"
+                              styleClass="secondary-button, iconized, icon-crosshair"
+                              onAction="#onToggleChooseLandingPositionClicked"
+                              text="%com.intel.missioncontrol.ui.planning.landing.LandingView.setOnMap"/>
+                <Button fx:id="landingPositionFromUavButton" styleClass="secondary-button, iconized, icon-uav"
+                        onAction="#landingPositionFromUavButtonClicked"
+                        text="%com.intel.missioncontrol.ui.planning.landing.LandingView.fromUAV"/>
+            </HBox>
+
+            <VBox styleClass="form-row, icon-latitude">
+                <Label text="%com.intel.missioncontrol.ui.planning.landing.LandingView.latitudeLabel"/>
+                <AutoCommitSpinner fx:id="landingLatitudeSpinner" editable="true"
+                                   maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row, icon-longitude">
+                <Label text="%com.intel.missioncontrol.ui.planning.landing.LandingView.longitudeLabel"/>
+                <AutoCommitSpinner fx:id="landingLongitudeSpinner" editable="true"
+                                   maxWidth="Infinity"/>
+            </VBox>
+
+        </VBox>
+
+        <VBox styleClass="form-row, icon-auto-land">
+            <Label text="%com.intel.missioncontrol.ui.planning.landing.LandingView.auto"/>
+            <ToggleSwitch fx:id="autoLandingSwitch"/>
+        </VBox>
+
+        <VBox styleClass="form-row, icon-elevation" fx:id="elevationBox">
+            <Label fx:id="elevationLabel"/>
+            <AutoCommitSpinner fx:id="elevationSpinner" editable="true" maxWidth="Infinity"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.landing.LandingView.elevationSpinner.tooltip"/>
+        </VBox>
+    </VBox>
+</AdornerSplitView>
+

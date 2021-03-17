@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.112"
+      xmlns:fx="http://javafx.com/fxml/1" id="Telemetry" fx:id="rootNote"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView" styleClass="dialog">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/dialog.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/flight/fly/telemetry/telemetry.css"/>
+    </stylesheets>
+
+    <children>
+        <VBox styleClass="content" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+            <TabPane fx:id="parametersTabPane" tabClosingPolicy="UNAVAILABLE">
+                <tabs>
+                    <Tab fx:id="generalTab"
+                         text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView.generalTab">
+                        <ScrollPane fitToWidth="true">
+                            <fx:include fx:id="telemetryListView" source="TelemetryListView.fxml"/>
+                        </ScrollPane>
+                    </Tab>
+                </tabs>
+            </TabPane>
+        </VBox>
+        <HBox VBox.vgrow="NEVER" HBox.hgrow="NEVER" styleClass="footer" alignment="BASELINE_RIGHT">
+
+            <Button fx:id="configureRTKButton" styleClass="secondary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView.btnConfigureRTKButton"
+                    onAction="#configureRTK"/>
+            <Button fx:id="closeButton" styleClass="secondary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView.btnClose"/>
+        </HBox>
+
+    </children>
+</VBox>

@@ -1,9 +1,0 @@
-{
-  "id": "Falcon-SonyRX1R2-35mm",
-  "name": "35mm",
-  "focalLength": 35.0,
-  "maxTimeVariation": 1.25,
-  "minRepTime": 1.5,
-  "isManual": false,
-  "lensType": "STANDARD"
-}

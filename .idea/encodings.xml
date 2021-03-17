@@ -2,10 +2,11 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/InsightService" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/IntelMissionControl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/IntelMissionControl/ant/setup.nsi" charset="ISO-8859-1" />
-    <file url="file://$PROJECT_DIR$/IntelMissionControl/libraries/dronekit/ClientLib" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/IntelMissionControl/libraries/dronekit/dependencyLibs/AndroidCompat" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/IntelMissionControl/ant/setup.nsi" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/LibInsight" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/WorldWindJava" charset="UTF-8" />
   </component>
 </project>

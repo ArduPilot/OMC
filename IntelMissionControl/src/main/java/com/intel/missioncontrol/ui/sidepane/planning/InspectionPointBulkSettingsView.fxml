@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettingsView"
+            prefHeight="400.0" prefWidth="600.0" fx:id="layoutRoot">
+    <VBox alignment="CENTER_LEFT" fx:id="lowerBulkSettingsBox" styleClass="content">
+        <VBox>
+            <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.editPanelHeader"
+                   styleClass="label-bold"/>
+        </VBox>
+        <FlowPane styleClass="content, wide-spacing">
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.latitude"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="latCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="latSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.longitude"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="lonCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="lonSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.altAbbr"/>
+                        <!--<Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.altitude"-->
+                               <!--style="-fx-padding:0 0.2em 0;"/>-->
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="altCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="altSpinner"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.pitch"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="pitchCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="pitchSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.yaw"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="yawCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="yawSpinner"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.trigger"/>
+
+                    </HBox>
+                    <ComboBox fx:id="triggerComboBox" style="-fx-pref-width:12em;"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.target"/>
+
+                    </HBox>
+                    <ComboBox fx:id="targetComboBox" style="-fx-pref-width:12em;"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.resolution"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="resolutionCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="resolutionSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.distance"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="distanceCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="distanceSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.frameDiag"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="frameDiagCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="frameDiagSpinner"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.bearing"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="rotateCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="rotateSpinner"/>
+                </VBox>
+            </HBox>
+
+
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.note"/>
+                    </HBox>
+                    <TextField fx:id="noteTextField"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <Button fx:id="deleteAllBtn" onAction="#deleteAll" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.deleteAllBtn"/>
+
+                <Button fx:id="applyButton" onAction="#applyToAll" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.applyToAll"/>
+
+                <Button fx:id="cancelBtn" onAction="#cancel" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.InspectionPointBulkSettings.cancel"/>
+
+
+            </HBox>
+        </FlowPane>
+    </VBox>
+
+
+
+</AnchorPane>

@@ -1,13 +1,13 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="Application" factoryName="Application" singleton="true" nameIsGenerated="true">
-    <option name="ALTERNATIVE_JRE_PATH" value="13" />
+    <option name="ALTERNATIVE_JRE_PATH" value="11" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.intel.missioncontrol.Main" />
-    <module name="OpenMissionControl" />
-    <option name="VM_PARAMETERS" value="-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Djava.library.path=resources/gdal;lib64 -Djna.library.path=lib64 -Djogamp.gluegen.UseTempJarCache=false -DGDAL_DATA=resources/gdal/data -Dprism.order=d3d -Dsun.java2d.d3d=false -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9199 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Duser.language=en -Duser.country=us -Dcom.intel.missioncontrol.eagerPropertyNameEvaluation=true -Dcom.intel.missioncontrol.verifyMethodAccess=false -Dcom.intel.missioncontrol.verifyPropertyAccess=true -Dcom.intel.missioncontrol.enableDeadlockDetection=true -Dcom.intel.missioncontrol.eventHandlerTimeout=50" />
+    <module name="IntelMissionControl" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=src/main/resources/logging-development/log4j2.xml -Djava.library.path=src/main/resources/gdal;lib64 -Djna.library.path=lib64 -Djogamp.gluegen.UseTempJarCache=false -DGDAL_DATA=src/main/resources/gdal/data -Dprism.order=es2 -Dsun.java2d.d3d=false -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9199 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Duser.language=en -Duser.country=us -Dcom.intel.missioncontrol.eagerPropertyNameEvaluation=true -Dcom.intel.missioncontrol.verifyMethodAccess=false -Dcom.intel.missioncontrol.verifyPropertyAccess=true -Dcom.intel.missioncontrol.enableDeadlockDetection=true -Dcom.intel.missioncontrol.eventHandlerTimeout=50" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/IntelMissionControl" />
     <RunnerSettings RunnerId="Debug with VisualVM">
-      <option name="visualVMId" value="566067718238884" />
+      <option name="visualVMId" value="564504118466" />
     </RunnerSettings>
     <method v="2">
       <option name="Make" enabled="true" />

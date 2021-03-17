@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<project default="maybeObfuscatePython" name="Maybe Obfuscate Py for IntelMissionControl" basedir="../">
+
+	<import file="paths.xml" />
+
+	
+	<property name="py.agisoft.1.0" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-0.py" />
+	<property name="py.agisoft.1.1" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-1.py" />
+	<property name="py.agisoft.1.2" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-2.py" />
+	<property name="py.agisoft.1.3" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-3.py" />
+	<property name="py.agisoft.1.4" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-4.py" />
+	<property name="py.agisoft.1.5" value="${path.imc}/src/main/resources/eu/mavinci/agisoft/IntelLib_1-5.py" />
+
+
+	<target name="obfuscatePython" unless="debugOn">
+		<pyObfuscate file="${py.agisoft.1.0}"/>
+		<pyObfuscate file="${py.agisoft.1.1}"/>
+		<pyObfuscate file="${py.agisoft.1.2}"/>
+		<pyObfuscate file="${py.agisoft.1.3}"/>
+		<pyObfuscate file="${py.agisoft.1.4}"/>
+		<pyObfuscate file="${py.agisoft.1.5}"/>
+	</target>
+
+	<target name="maybeObfuscatePython" depends="obfuscatePython" />
+
+</project>

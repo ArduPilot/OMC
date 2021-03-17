@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="layoutRoot" id="EditPowerPolePoints" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.planning.EditPowerpolePointsView" styleClass="dialog">
+
+    <!-- Optional header with display-coordinates yes/no switch, only shown if reference point exists -->
+
+    <HBox fx:id="displayCoordinatesBox" styleClass="content">
+        <Label fx:id="displayCoordinatesLabel"
+               text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.displayCoordinatesLabel"/>
+        <ToggleSwitch fx:id="localOrGlobalSwitch"/>
+    </HBox>
+
+    <HBox fx:id="optimizeWaypointsBox" styleClass="content">
+        <Label fx:id="optimizeWayPointsLabel"
+               text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.optimizeWayPointsLabel"/>
+        <ToggleSwitch fx:id="optimizeWayPointsSwitch"/>
+    </HBox>
+
+    <!--Main table-->
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS" editable="true"
+               maxHeight="Infinity" minWidth="${layoutRoot.width}" maxWidth="Infinity">
+        <columns>
+
+            <!--Checkbox-->
+
+            <TableColumn fx:id="checkedColumn" reorderable="false" sortable="false">
+                <graphic>
+                    <CheckBox fx:id="selectionCheckBox">
+                        <contextMenu>
+                            <ContextMenu>
+                                <items>
+                                    <MenuItem onAction="#selectAllClicked"
+                                              text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.selectAll"/>
+                                    <MenuItem onAction="#deselectAllClicked"
+                                              text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.deselectAll"/>
+                                    <MenuItem onAction="#invertSelectionClicked"
+                                              text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.invertSelection"/>
+                                    <MenuItem onAction="#selectNoImgClicked"
+                                              text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.selectNoImg"/>
+                                    <MenuItem onAction="#deselectNoImgClicked"
+                                              text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.deselectNoImg"/>
+                                </items>
+                            </ContextMenu>
+                        </contextMenu>
+                    </CheckBox>
+                </graphic>
+            </TableColumn>
+
+            <TableColumn fx:id="numberInFlightColumn" reorderable="true"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.numberInFlight"/>
+
+
+            <TableColumn fx:id="latColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.latitude"/>
+            <TableColumn fx:id="lonColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.longitude"/>
+            <TableColumn fx:id="altitudeAboveRColumn"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.altitudeAboveR"/>
+
+
+            <TableColumn fx:id="pitchColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.pitch"/>
+            <TableColumn fx:id="yawColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.yaw"/>
+            <TableColumn fx:id="triggerColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.trigger"/>
+            <TableColumn fx:id="targetColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.target"/>
+            <TableColumn fx:id="resolutionColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.resolution"/>
+            <TableColumn fx:id="distanceColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.distance"/>
+            <TableColumn fx:id="frameDiagColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.frameDiag"/>
+            <TableColumn fx:id="noteColumn" reorderable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.description"/>
+            <TableColumn fx:id="deleteColumn" reorderable="false" sortable="false"/>
+        </columns>
+    </TableView>
+
+    <VBox alignment="CENTER_LEFT" fx:id="controls" styleClass="content">
+        <FlowPane styleClass="content, wide-spacing">
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <SplitMenuButton fx:id="addPointMenu" text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.addPoint">
+                    <items>
+                        <MenuItem fx:id="duplicateSelectedMenuItem"
+                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.duplicateSelected"
+                                  onAction="#duplicateSelected">
+                        </MenuItem>
+                        <MenuItem fx:id="getFromUAVMenuItem"
+                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.getFromUAV"
+                                  onAction="#getFromUAV">
+                        </MenuItem>
+
+                    </items>
+                </SplitMenuButton>
+                <Button fx:id="importBtn" onAction="#importAction" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.import"/>
+
+                <Button fx:id="moveUpBtn" onAction="#moveUpAction" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.moveUp"/>
+
+                <Button fx:id="moveDownBtn" onAction="#moveDownAction" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.moveDown"/>
+
+                <Button fx:id="bulkEditBtn" onAction="#openBulkEditDialog" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.bultEditDialog"/>
+
+
+
+
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" VBox.vgrow="NEVER">
+                <Button fx:id="closeBtn" onAction="#closeAction" styleClass="secondary-button"
+                        text="%com.intel.missioncontrol.ui.sidepane.planning.EditPowerPolePointsView.close"/>
+
+            </HBox>
+        </FlowPane>
+    </VBox>
+</VBox>

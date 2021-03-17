@@ -1,6 +1,7 @@
 #run at svn://IntelMissionControl/03.02\ -\ Development/
 mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=IntelMissionControl/lib/controlsfx.jar -DgroupId=org.controlsfx -DartifactId=controlsfx -Dversion=8.40.11-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository
 mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=IntelMissionControl/lib/samplr-core-1.0-SNAPSHOT-compileWrap.jar -DgroupId=com.logicstyle -DartifactId=samplr-core -Dversion=1.0-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository
+mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=IntelMissionControl/lib/Serialio.jar -DgroupId=Serialio -DartifactId=Serialio -Dversion=1.0-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository
 mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=ftp4j/ftp4j-1.7.2.m1.jar -DgroupId=it.sauronsoftware -DartifactId=ftp4j -Dversion=1.7.2-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository
 mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=WorldWindJava/worldwindx.jar -DgroupId=gov.nasa -DartifactId=worldwindx -Dversion=2.1.2-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository
 mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file -Dfile=WorldWindJava/worldwind.jar -DgroupId=gov.nasa -DartifactId=worldwind -Dversion=2.1.2-local -Dpackaging=jar -DlocalRepositoryPath=./maven-local-repository

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:id="root" id="StartPlanDialog"
+            fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView"
+            styleClass="dialog">
+
+        <VBox styleClass="content, wide-spacing" VBox.vgrow="ALWAYS">
+            <VBox styleClass="form-row, unindent, label-value">
+                <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.flightplan"/>
+                <Label fx:id="selectedFlightplanLabel" styleClass="label-bold"/>
+            </VBox>
+            <VBox styleClass="form-row, unindent">
+                <fx:define>
+                    <ToggleGroup fx:id="startPlanToggleGroup"/>
+                </fx:define>
+                <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.actionRadios"/>
+                <VBox styleClass="radio-group">
+                    <RadioButton fx:id="startPlanFromBeginningRadio"
+                                 text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.startPlanFromBeginning"
+                                 toggleGroup="$startPlanToggleGroup"/>
+                    <HBox styleClass="normal-spacing">
+                        <RadioButton fx:id="startPlanFromWaypointRadio"
+                                     text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.startPlanFromWaypoint"
+                                     toggleGroup="$startPlanToggleGroup" style="-fx-padding:0.1em 0 0;"/>
+                        <AutoCommitSpinner fx:id="startingWaypointSpinner"/>
+                    </HBox>
+                    <RadioButton fx:id="resumePlanRadio"
+                                 text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.resumePlan"
+                                 toggleGroup="$startPlanToggleGroup"/>
+                </VBox>
+            </VBox>
+            <VBox styleClass="normal-spacing">
+                <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.note"/>
+                <Label styleClass="label-bold"
+                       text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.note2"/>
+            </VBox>
+        </VBox>
+        <HBox styleClass="footer">
+            <Button fx:id="confirmButton" styleClass="primary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.confirm"
+                    onAction="#OnConfirmTakeoffButtonClicked"/>
+            <Button styleClass="secondary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.flight.fly.start.StartPlanDialogView.cancel"
+                    onAction="#OnCancelButtonClicked"/>
+
+        </HBox>
+
+</VBox>

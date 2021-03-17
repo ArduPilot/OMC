@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (c) 2020 Intel Corporation
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ -->
+
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<FancyTab xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView">
+    <tabId>
+        <SidePaneTab fx:value="FLY_DRONE"/>
+    </tabId>
+
+    <header>
+        <VBox styleClass="">
+            <HBox styleClass="primary,header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white"
+                        onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary,header">
+                <MenuButton fx:id="availableDronesMenuButton" HBox.hgrow="NEVER" styleClass="drop-down-selector"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="showOnMapButton" HBox.hgrow="NEVER" styleClass="flat-icon-button, icon-show-on-map">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.sidepane.showOnMap.tooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </header>
+
+    <content>
+        <VBox>
+
+            <fx:include source="telemetry/TelemetryView.fxml"/>
+
+            <StackPane>
+                <ScrollPane hbarPolicy="NEVER" fitToWidth="true">
+                    <!-- FlightPlanOptionView and SafetyChecksView: -->
+                    <VBox fx:id="formsContainer" minWidth="0" maxWidth="Infinity" spacing="2"/>
+                </ScrollPane>
+            </StackPane>
+        </VBox>
+    </content>
+
+    <footer>
+        <Pane>
+            <HBox styleClass="footer" maxWidth="Infinity">
+                <Label fx:id="flightDisallowedReasonLabel"
+                       visible="false" styleClass="label-bold"/>
+                <ActivityButton fx:id="takeoffButton" styleClass="primary-button, landfill"
+                                onAction="#onTakeoffClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.takeoff"/>
+                <ActivityButton fx:id="runPlanButton" styleClass="primary-button"
+                                onAction="#onRunFlightPlanClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.resumePlan" HBox.hgrow="ALWAYS"/>
+                <ActivityButton fx:id="pausePlanButton" styleClass="secondary-button"
+                                onAction="#onPauseClicked"  HBox.hgrow="ALWAYS"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.pause"/>
+                <ActivityButton fx:id="returnHomeButton" styleClass="secondary-button"
+                                onAction="#onReturnHomeClicked"  HBox.hgrow="ALWAYS"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.returnHome"/>
+                <ActivityButton fx:id="abortTakeoffButton" styleClass="cautionary-button, landfill"
+                                onAction="#onAbortTakeoffClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.abortTakeoff"/>
+                <ActivityButton fx:id="landButton" styleClass="cautionary-button, landfill"
+                                onAction="#onLandClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.land"/>
+                <ActivityButton fx:id="abortLandingButton" styleClass="cautionary-button, landfill"
+                                onAction="#onAbortLandingClicked"
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.FlyDroneView.abortLanding"/>
+
+            </HBox>
+        </Pane>
+    </footer>
+</FancyTab>
