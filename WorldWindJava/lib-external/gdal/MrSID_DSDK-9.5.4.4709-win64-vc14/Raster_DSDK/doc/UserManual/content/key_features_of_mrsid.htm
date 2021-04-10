@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="MrSIDSupport" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Key Features of MrSID</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="mrsid_support.htm">MrSIDSupport</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Key Features of MrSID</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor65"></a>Key Features of MrSID</h2>
+        <p>In this section we describe in more detail some of the features and capabilities of the MrSID technology for raster image data.</p>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The MrSID&#160;format also supports LiDAR data, but a separate set of tools and libraries is used in supporting LiDAR data in the MrSID format, and separate documentation is available in your installation for integrating support for LiDAR-encoded MrSID&#160;files.</p>
+        <h5><a name="kanchor66"></a><a name="DataTypesAndFormats"></a>Datatypes and Formats</h5>
+        <p>The MrSID technology is agnostic with respect to the input file format, as long as the input pixel data meets certain datatype requirements. This means that MrSID files can be generated from a variety of data sources including GeoTIFF, Imagine, and ECW.</p>
+        <p>The MrSID technology supports most data types used in geospatial raster imagery today: up to 16 bits per sample (signed or unsigned). MG2 and MG4 also support floating point data. Raster image data is almost always represented using unsigned integers. Digital elevation models and file formats like DTED, however, often use a signed integer representation, and so to support situations where our users want to compress these sorts of datasets, or perhaps use terrain models as base layers for their visualizations, MrSID supports signed integer data of up to 16 bits.</p>
+        <p>The MrSID technology also supports 1-band grayscale, 3-band RGB, and 1- to 255-band multispectral or hyperspectral imagery.</p>
+        <h5><a name="kanchor67"></a><a name="ImageQuality"></a>Image Quality</h5>
+        <p>As discussed above, MrSID technology offers excellent image quality for a given file size target.</p>
+        <ul>
+            <li value="1">Numerically lossless: This level of compression typically yields a 2:1 compression ratio, for a 50% reduction in storage space. Lossless compression should be used when it is critical that all bits of the original image be preserved. This is the case for archival storage, as well as for uncommon workflows where no possible loss of precision is ever acceptable. You may also wish to use lossless compression when you are generating a “master” image from which other derivative images will be made, as through the MrSID optimization process described below.</li>
+            <li value="2">Visually lossless: This level of compression is typically 20:1 for RGB and 10:1 for grayscale imagery. This is the most common level of compression quality used, as it preserves the appearance of the imagery for most workflows, including use of your imagery as a background layer and for many forms of visual analysis and exploitation.</li>
+            <li value="3">Lossy: Beyond 20:1, image degradation and artifacts can appear, although often not too significantly until ratios of 40:1 or 50:1. Such lossy quality may be acceptable when the imagery is used only as a background layer for appearance or when the image quality is less important than the storage size or speed, such as for informal visual inspections.</li>
+        </ul>
+        <h5><a name="kanchor68"></a><a name="Performance"></a>Performance</h5>
+        <p>When considering performance, we usually consider the cost of running some process, such as compression or decompression, in terms of memory usage, CPU usage, and I/O bandwidth. The MrSID technology is designed with these concerns in mind.</p>
+        <h6 class="h7"><a name="kanchor69"></a><a name="Compression"></a>Compression </h6>
+        <p>When dealing with very large images, many image processing algorithms first partition the image into tiles and then process each tile independently. This allows the computation to proceed without slowing down due to excessive paging of memory to disk. However, especially in the case of compression algorithms, such tiling can introduce artifacts in the resulting image because the algorithms cannot efficiently process cross-tile regions. MrSID technology is specifically designed to process imagery whose size is larger than the amount of RAM available on the machine without resorting to tiling schemes and therefore without introducing any tiling artifacts.</p>
+        <h6 class="h7"><a name="kanchor70"></a><a name="Decompression"></a>Decompression</h6>
+        <p>When decompressing imagery, the most common use case is for viewing, which means extracting out scenes – only some subsets or regions of the image are needed at any one time. With the multiresolution support inherent in the MrSID format, the viewing application may first decide the resolution level needed to display the scene at some physical screen resolution and then extract only the resolution levels needed; this significantly improves disk I/O time and lowers the amount of imagery the CPU must process. Additionally, the viewer need only request those portions of the file that correspond to the region of interest; the entire image (at the given level) need not be processed, again saving I/O bandwidth and processing time.</p>
+        <p>When decompressing the entire image is required, the performance of the decompression step is roughly comparable to that of the earlier compression step: again, MrSID technology is designed to run within reasonable amounts of RAM, even for large datasets. If lossy compression was used, the decompression will be somewhat faster since there is correspondingly less data being read in and processed.</p>
+        <h5><a name="kanchor71"></a><a name="Optimization"></a>Optimization</h5>
+        <p>For most users, the typical image compression workflow consists of a compression followed by one or more decompressions, either for viewing (small decodes) or for bringing the image back into some other format for some other tool or purpose (large decodes), as shown in the top line of Figure 1. In many cases, however, the need for the large decode step can be reduced.</p>
+        <p>Once an image is in the MrSID format, a new MrSID file can be generated from it without resorting to a decode followed by a re-encode – this means you can generate derivative products from a single source, as shown in the bottom of Figure 1. This is referred to as “optimizing” the image.</p>
+        <p style="text-align: center;">
+            <img src="resources/images/key_features_mrsid/optimize.jpg" />
+        </p>
+        <p>For example, a data provider might create and archive a lossless MrSID file to use as a “master”, and then as customer requests come in, that master copy can be used to quickly generate new MrSID files that fit a variety of needs:</p>
+        <ul>
+            <li value="1">a MrSID file with a lower baseline resolution – for example, resolution levels can be removed if only one foot per pixel resolution is needed from a six-inch resolution image</li>
+            <li value="2">a MrSID file requiring less storage space – for example, 20:1 compression can be used to fit the image onto a CD or DVD</li>
+            <li value="3">a MrSID file containing less area – for example, a scene containing only a certain neighborhood can be extracted from an image covering a whole city</li>
+        </ul>
+        <p>Again, to meet these three different requirements (or perhaps some combination of them) only one fast step is required to generate a new MrSID file from the original MrSID file. There is no need to decode the entire image first.</p>
+        <h5><a name="kanchor72"></a><a name="Metadata"></a>Metadata</h5>
+        <p>Because MrSID is a geospatial data format, MrSID files also include geospatial referencing information such as the coordinate reference system (CRS), the geographic extents (corner points) of the image, and the pixel resolution.</p>
+        <p>This metadata is an inherent part of the MrSID file format and is based on the well-known GeoTIFF tag scheme. When performing a reprojection operation or one of the optimization steps described above, the metadata is updated to reflect the properties of the derived image: when performing scale reduction, for example, the resolution metadata is updated accordingly.</p>
+        <p>MrSID metadata also is used to record what operations may have been performed on your dataset. For example, you can determine if the file you have still corresponds to the lossless original data or if it has been modified in some way. </p>
+        <p>This native geographic metadata support allows you use a third-party application to import your MrSID imagery for use as a base map with other georeferenced datasets you might have.</p>
+        <h5><a name="kanchor73"></a><a name="MultispectralSupport"></a>Multispectral Support</h5>
+        <p>For many years, some types of geospatial data have included more than just the usual three color (RGB) bands. Only recently, however, have these kinds of multispectral datasets started to be widely available to GIS users. For example, in 2011, USDA’s NAIP program plans to collect data for 15 states which will contain the red, green, and blue (RGB) bands plus a fourth infrared (IR) band. DigitalGlobe’s recently launched WorldView 2 satellite records RGB plus five additional bands: a yellow band, two IR bands, and two “coastal” bands. NASA's MODIS&#160;now collects 36 bands. Other remote sensing platforms are now collecting hyperspectral datasets, typically one hundred or more narrow bands. All these additional bands are chosen for their abilities to improve feature classification and extraction by providing more discriminating information in areas such as vegetation cover, shallow-water bathymetry, and man-made features.</p>
+        <p>To support these new, richer datasets, the MG4 format can compress images with up to 255 bands. The same key features are still available: lossless and lossy encoding, multiple resolution levels, and selective decoding.</p>
+        <p>As more data is being encoded and decoded, of course, more time will be required. The figure below shows the relative performance of encoding 5Kx5K pixel images with 1, 2, 4, 8, 16, and 32 bands of data: the time required scales linearly, when normalized to the number of bands. That is, if it takes 1 minute to encode a 1-banded image, it will take 10 minutes to encode an 10-banded image of the same width and height.</p>
+        <p style="text-align: center;">
+            <img src="resources/images/key_features_mrsid/numbandssourcenormalized.jpg" />
+        </p>
+        <p>The time required to decode imagery with varying numbers of bands scales similarly. However, many users of multispectral imagery only view one or perhaps three of the bands at a time, mapping the bands into the familiar grayscale or RGB space. In the same way that the MrSID algorithms will perform selective decompression for viewing only the scene of interest, they will also decode only the bands of interest. The figure below shows the relative time it takes to decode 1-, 2-, and 4-band scenes from images with 1, 2, 4, 8, 16, and 32 bands of data: the time required does not depend on the number of bands. More concretely, if it takes 1 minute to extract a single band from 1-banded image, it will take only 1 minute to extract a single band from a 10-banded image of the same width/height.</p>
+        <p style="text-align: center;">
+            <img src="resources/images/key_features_mrsid/numbandssourceimage.jpg" />
+        </p>
+        <h5><a name="kanchor74"></a><a name="AlphaBands"></a>Alpha Bands</h5>
+        <p>In previous versions of the MrSID format, nodata regions were indicated by a sentinel pixel value, typically black. When mosaicking tiles together, nodata regions would be used to indicate how to “combine” one image on top of another. Users who have worked with MrSID images in the past, however, may have noticed a problem with this. A black nodata pixel, represented by (0,0,0) might be slightly changed when subjected to lossy compression. The value (0,0,0) might change to (1,0,2) or (0,2,0) – by itself visually indistinguishable from black, but in a mosaicking context it is no longer the nodata sentinel value and so in the worst case this might have caused “speckling” artifacts to appear.</p>
+        <p>The MG4 format uses an alpha band instead of a single nodata pixel value to indicate which areas of the image do not have valid data. When encoding existing imagery, users indicate which pixel value corresponds to nodata and a mask is created corresponding to those values. Subsequent mosaicking operations then use that mask to determine how to combine tiles. Lossy compression no longer affects this process, because while the putative nodata pixels might get slightly changed, the alpha mask is always kept lossless and is always honored by the decoders.</p>
+        <p>The alpha band is treated just like the other bands in the image, such as the RGB bands, except that it is never subjected to any lossy compression. Because the alpha band contains relatively simple sequences of data – very long runs of ones or of zeros – it compresses losslessly extremely well and little or no overhead will be noticeable in your MrSID files.</p>
+        <h5><a name="kanchor75"></a><a name="TilingAndComposites"></a>Tiling and Composites</h5>
+        <p>Many of our customers have a single MrSID file which covers a large geographic region. With the ability of the MrSID technology to composite multiple MrSID files together, you can have one MrSID file that is made up internally of dozens of MrSID files serving as image tiles.</p>
+        <p>As new MrSID tiles are acquired – such as from a more recent flight, perhaps with higher accuracy data – these tiles can be easily added to the existing MrSID composite image. Because only MrSID files are involved, this process does not require any decompression or compression steps and so can be done very quickly. When displaying the data, the new tiles’ data will correctly layer on top of the older data. Additionally, the overview tile is automatically updated to account for the new tiles. </p>
+        <p>There are several important differences between MG3 composites and MG4 composites. </p>
+        <ul>
+            <li value="1">In MG3 format you can also combine MG2 files in your composite image, whereas MG4 composites restrict input to MG4 files. </li>
+            <li value="2">MG4 composite images are created with a special overview tile, so even files consisting of hundreds of tiles can be quickly viewed at lower resolutions which span multiple tiles.</li>
+            <li value="3">MG4 composite images can be composed of files of multiple resolutions.</li>
+        </ul>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Coding Conventions</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Coding Conventions</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor54"></a>Coding Conventions</h2>
+        <p>The developers of the MrSID SDK follow a general set of coding conventions and guidelines. While we certainly don't expect third-party developers to adhere to these conventions, they are described here as an aid to understanding and working with the SDK, both at the syntactic and semantic level.
+
+</p>
+        <p>Note that these are only conventions, not hard rules; the SDK does not follow all of these guidelines all the time, for reasons of practicality, historical practice, compatibility, etc. Where important for developers, such deviations are noted in the <a href="ReferenceManual/index.html" target="_blank" class="interTopic2">Reference Manual</a>.
+
+ 
+
+</p>
+        <h6 class="h7">Syntactic Conventions
+</h6>
+        <p class="glossaryManualEntry">Line length</p>
+        <blockquote>
+            <p>Lines should be no longer than 78 columns in order to avoid line- and wordwrapping.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Tabbing</p>
+        <blockquote>
+            <p>Tabs are implemented as 3 spaces.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Namespaces</p>
+        <blockquote>
+            <p>Header files should surround declarations with <span class="fixedWidth">LT_BEGIN_NAMESPACE(LizardTech)</span> and <span class="fixedWidth">LT_END_NAMESPACE(LizardTech)</span>, and source files should declare <span class="fixedWidth">LT_USE_NAMESPACE(LizardTech)</span> at the top.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Warning levels</p>
+        <blockquote>
+            <p>Source files should be compiled with high warning levels on Win32 compilers:
+
+</p>
+            <p class="codesampleFirstLine">#if defined(LT_COMPILER_MS)
+
+                  </p>
+            <p class="codesampleIndent02">#pragma warning(push,4)
+</p>
+            <p class="codesample">#endif
+
+            </p>
+            <p class="codesample">...
+
+</p>
+            <p class="codesample">#if defined(LT_COMPILER_MS)
+
+                  </p>
+            <p class="codesampleIndent02">#pragma warning(ppop)
+</p>
+            <p class="codesample">#endif
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Variable names, type names, etc
+
+</p>
+        <blockquote>
+            <ul>
+                <li value="1">variables are spelled using camelcase: <span class="fixedWidth">upperLeftPos</span></li>
+                <li value="2">function names are also spelled using camelcase: <span class="fixedWidth">getUpperLeft()</span></li>
+                <li value="3">class member variables use an "<span class="fixedWidth">m_</span>" prefix: <span class="fixedWidth">m_xPosition</span></li>
+                <li value="4">static variables (whether class members or not) use an "<span class="fixedWidth">s_</span>" prefix: <span class="fixedWidth">s_twoPi</span></li>
+                <li value="5">enum and type names are capitalized: <span class="fixedWidth">LTIImageStage</span>, <span class="fixedWidth">LTIDataType</span></li>
+                <li value="6">however, the integral primitive types are an exception: <span class="fixedWidth">lt_uint8</span></li>
+                <li value="7">enum values are uppercase and generally are named to reflect their datatype: <span class="fixedWidth">LTI_DATATYPE_UINT8</span></li>
+                <li value="8">macros are uppercase: <span class="fixedWidth">LT_USE_NAMESPACE</span></li>
+            </ul>
+        </blockquote>
+        <p class="glossaryManualEntry">Integral primitives</p>
+        <blockquote>
+            <p>The use of the typedef'd primitive datatypes, e.g. <span class="fixedWidth">lt_uint8</span>, is preferred when possible and practical.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">File names</p>
+        <blockquote>
+            <p>For the "LT" and "LTI" classes, the source filenames are spelled with leading prefixes – for example, class <span class="fixedWidth">LTIGeoCoord</span> is defined in header <span class="fixedWidth">lti_geoCoord.h</span>. For all other classes, the filename matches the class name – for example, class <span class="fixedWidth">MG4ImageWriter</span> and header <span class="fixedWidth">MG4ImageWriter.h</span>.
+
+ 
+
+</p>
+        </blockquote>
+        <h6 class="h7">Semantic Conventions
+
+ 
+
+</h6>
+        <p class="glossaryManualEntry">Initialization</p>
+        <blockquote>
+            <p>As a precaution, all variables should be initialized at the point of declaration. A value of 0 or -1, <span class="fixedWidth">INVALID</span> (available for most enums), or <span class="fixedWidth">LT_STS_Uninit</span> (for status codes) is usually appropriate.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Status codes</p>
+        <blockquote>
+            <p>The public SDK does not use exceptions, and the internal implementation uses them only sparingly. In general, functions should return status codes rather than relying on <span class="fixedWidth">throw</span>. While putting an additional burden on the user, our experience has shown that status codes are both more portable and less prone to error than the alternatives. If a function returns a status code, always check it. The standard idiom for checking status codes is:
+
+</p>
+            <p class="codesampleFirstLine">LT_STATUS
+
+</p>
+            <p class="codesample">Class::foo()
+
+</p>
+            <p class="codesampleIndent01">{
+
+             </p>
+            <p class="codesampleIndent02">...
+
+             </p>
+            <p class="codesampleIndent02">LT_STATUS sts = bar();
+
+</p>
+            <p class="codesampleIndent02">             if (!LT_SUCCESS(sts)) return sts;
+</p>
+            <p class="codesampleIndent02">...
+
+</p>
+            <p class="codesampleIndent02">             return LT_STS_Success;
+</p>
+            <p class="codesampleIndent01">}
+
+</p>
+            <p>When writing a new function, consider returning an <span class="fixedWidth">LT_STATUS</span> status code hardwired to <span class="fixedWidth">LT_STS_Success</span> instead of just returning <span class="fixedWidth">void</span>. If future development of the function requires the ability to return failure codes, downstream uses will not have to be changed.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Constructors
+        </p>
+        <blockquote>
+            <p>"Heavy" objects which require nontrivial work in their constructors should use an <span class="fixedWidth">initialize()</span> function. This requires extra code for the user, but provides a means for returning status codes back to the user without relying on exceptions. In particular, objects should not (explicitly or implicitly) call new or any other nontrivial function from within their constructors.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">The "creator-deletes" rule</p>
+        <blockquote>
+            <p>The object that creates a new object is considered to be the "owner" of that new object and as such has responsibility for deleting it. Passing the allocated object by address to a function doesn't pass ownership to that function (unless documented otherwise).
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Reference counting</p>
+        <blockquote>
+            <p>The SDK uses reference counting to manage the lifespan of objects that comprise image pipelines.  This is similar in spirit to “smart” or “auto” pointers.  The static member function <span class="fixedWidth">create()</span> of a class should be used to create a new instance of that class.  Similarly, the (non-static) member function <span class="fixedWidth">release()</span> should be used when you are done with object – for example, when the pointer to the object goes out of scope.  The <span class="fixedWidth">retain()</span>function should be used to hold onto an object, i.e. increment the reference count; if you created the object, however, do not call <span class="fixedWidth">retain()</span>.  When the last reference calls <span class="fixedWidth">release()</span>, the object will delete itself.  The two most common reference counted classes are <span class="fixedWidth">LTImageStage</span> and <span class="fixedWidth">LTIImageStageManager</span>.</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Overrides
+        </p>
+        <blockquote>
+            <p>The SDK uses a system of “mixins” to simplify the overriding of <span class="fixedWidth">LTIImageStage</span> properties.  Specifically, <span class="fixedWidth">LTIImageStage</span> defines an abstract interface that needs to be implemented by derived class of <span class="fixedWidth">LTIImageFilter</span>; <span class="fixedWidth">LTIImageFilter</span> implements the <span class="fixedWidth">LTIImageStage</span> interface by forwarding the method call to the next <span class="fixedWidth">LTIImageStage</span> in the pipeline.  Derived classes of <span class="fixedWidth">LTIImageFilter</span> that change image properties will need to override the accessor functions.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Pass-by-reference</p>
+        <blockquote>
+            <p>Data should be passed by reference whenever possible, for example <span class="fixedWidth">LTIImageStage&amp;</span> rather than <span class="fixedWidth">LTIImageStage*</span>. Pass-by-address is preferred when reassigning ownership or when <span class="fixedWidth">NULL</span> is being used for some sentinel value.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Const</p>
+        <blockquote>
+            <p>Use <span class="fixedWidth">const</span> whenever possible. In function declarations, it is used to indicate "in/out" semantics for parameters (excluding by-value parameters). In variable declarations, it is used to clarify intent of the variable's usage. 
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Disabled standard class member functions</p>
+        <blockquote>
+            <p>Unless they are required by the class, it is preferable to explicitly disable the assignment operator, copy constructor, and default constructor.
+
+</p><pre class="codesample04emFirstLine">private:
+
+            LTINavigator();
+
+            LTINavigator(LTINavigator&amp;);
+
+            LTINavigator&amp; operator=(const LTINavigator&amp;);
+
+</pre>
+        </blockquote>
+        <p class="glossaryManualEntry">One class per header file</p>
+        <blockquote>
+            <p>A header file should contain the declaration of only one class. Implementations should not be in the header file unless truly warranted.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Inlining</p>
+        <blockquote>
+            <p>Implementations should not be defined inline in the header file unless truly warranted. Do not use compiler-specific inlining pragmas.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Templates</p>
+        <blockquote>
+            <p>Use templates sparingly and only when truly warranted, as they lead to code bloat and/or incompatibilities among various compilers. Consider using a templated function private to a source module instead of making a public templated class. If you must use templates, avoid the more complex parts of the language.
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Template headers</p>
+        <blockquote>
+            <p>A header file containing only a templated class should have a corresponding source file which includes it, even though the source file contains no implementation code.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Global data</p>
+        <blockquote>
+            <p>The SDK contains no global variables. No non-const module statics or singleton classes are used.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Threadsafety</p>
+        <blockquote>
+            <p>The SDK may be safely used in multithreaded applications. Locking of SDK objects is NOT provided, however; the application must guarantee each object is accessed serially within a particular thread context.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Assertions</p>
+        <blockquote>
+            <p>Assertion macros, specifically <code>LT_ASSERT()</code>, should be used liberally.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Delegates</p>
+        <blockquote>
+            <p>Where appropriate, for "callback" or "handler" mechanisms the use of simple abstract classes ("delegates") is preferred to using a function pointer typedef.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Set/get</p>
+        <blockquote>
+            <p>Use <span class="fixedWidth">set()/get()</span> style member variable access instead of making data members public.
+
+ 
+
+</p>
+        </blockquote>
+        <h6 class="h7">Other Conventions
+
+ 
+
+</h6>
+        <p class="glossaryManualEntry">STL</p>
+        <blockquote>
+            <p>Do not use STL in public interfaces, as this may cause linkage problems. While the SDK uses STL internally in some areas, its use is in general discouraged.
+
+</p>
+        </blockquote>
+        <p class="glossaryManualEntry">Optimization</p>
+        <blockquote>
+            <p>Do not write "hand-optimized" code. Write first for correctness and maintainability; optimize it later only if profiling justifies it.
+</p>
+        </blockquote>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

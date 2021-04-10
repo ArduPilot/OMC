@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CatapultTargetIndex Count="48">
+    <IndexEntry>
+        <Entries>
+            <IndexEntry Term="Architecture and design">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor27" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Buffer management classes">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The Buffer Management Classes" Link="/Content/The_Buffer_Management_Classes.htm#kanchor11" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Class hierarchy">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor28" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Code examples">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Code Examples" Link="/Content/Code_Examples.htm#kanchor3" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Command line tools">
+                <Entries>
+                    <IndexEntry Term="lidardecode">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="Decompressing MG4 Files" Link="/Content/Decompressing_MG4_Files.htm#kanchor14" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="lidarinfo">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="Viewing File Information" Link="/Content/Viewing_File_Information.htm#kanchor2" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                </Entries>
+                <Links>
+                    <IndexLink Title="MrSID Decode SDK Command Line Tools" Link="/Content/MrSID_Decode_SDK_Command_Line_Tools.htm#kanchor1" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Contents">
+                <Entries />
+                <Links>
+                    <IndexLink Title="SDK Contents" Link="/Content/SDK_contents.htm#kanchor16" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Decompressing MG4 files">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Decompressing MG4 Files" Link="/Content/Decompressing_MG4_Files.htm#kanchor14" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Floating point quantization">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor32" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Installation">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Installation" Link="/Content/Installation.htm#kanchor24" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Language bindings">
+                <Entries />
+                <Links>
+                    <IndexLink Title="SDK Contents" Link="/Content/SDK_contents.htm#kanchor17" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="lidardecode">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Decompressing MG4 Files" Link="/Content/Decompressing_MG4_Files.htm#kanchor14" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="lidarinfo">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Viewing File Information" Link="/Content/Viewing_File_Information.htm#kanchor2" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="LizardTech">
+                <Entries />
+                <Links>
+                    <IndexLink Title="About LizardTech and LizardTech Products" Link="/Content/About_LizardTech_and_LizardTech_Products.htm#kanchor22" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Metadata class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The Metadata Class" Link="/Content/The_Metadata_Class.htm#kanchor19" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="MG4PointReader class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The MG4PointReader Class" Link="/Content/The_MG4PointReader_Class.htm#kanchor10" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Other LizardTech products">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Other LizardTech Products" Link="/Content/Other_LizardTech_Products.htm#kanchor18" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="PointInfo class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The Buffer Management Classes" Link="/Content/The_Buffer_Management_Classes.htm#kanchor12" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="PointIterator class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The PointInterator Class" Link="/Content/The_PointIterator_Class.htm#kanchor15" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="PointSource class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The PointSource Class" Link="/Content/The_PointSource_Class.htm#kanchor21" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="PointWriter class">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The PointWriter Class" Link="/Content/The_PointWriter_Class.htm#kanchor23" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Programming and memory model">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor30" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Quantization">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor32" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Sample code">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Code Examples" Link="/Content/Code_Examples.htm#kanchor3" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="SDK classes">
+                <Entries>
+                    <IndexEntry Term="Buffer management">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The Buffer Management Classes" Link="/Content/The_Buffer_Management_Classes.htm#kanchor11" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="metadata">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The Metadata Class" Link="/Content/The_Metadata_Class.htm#kanchor19" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="MG4PointReader">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The MG4PointReader Class" Link="/Content/The_MG4PointReader_Class.htm#kanchor10" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="PointIterator">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The PointInterator Class" Link="/Content/The_PointIterator_Class.htm#kanchor15" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="PointSource">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The PointSource Class" Link="/Content/The_PointSource_Class.htm#kanchor21" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="PointWriter">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The PointWriter Class" Link="/Content/The_PointWriter_Class.htm#kanchor23" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="support">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="The Support Classes" Link="/Content/The_Support_Classes.htm#kanchor13" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="text point readers and writers">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="Text Point Readers and Writers" Link="/Content/Text_Point_Readers_and_Writers.htm#kanchor20" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                </Entries>
+                <Links />
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Specifying a region of interest">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor29" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Support classes">
+                <Entries />
+                <Links>
+                    <IndexLink Title="The Support Classes" Link="/Content/The_Support_Classes.htm#kanchor13" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="SWIG bindings">
+                <Entries />
+                <Links>
+                    <IndexLink Title="SDK Contents" Link="/Content/SDK_contents.htm#kanchor17" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="System requirements">
+                <Entries>
+                    <IndexEntry Term="Android">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor9" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="iOS">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor8" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="Linux">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor6" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="Macintosh">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor7" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                    <IndexEntry Term="Windows">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor5" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                </Entries>
+                <Links>
+                    <IndexLink Title="System Requirements" Link="/Content/System_Requirements.htm#kanchor4" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Technical support">
+                <Entries>
+                    <IndexEntry Term="before you contact us...">
+                        <Entries />
+                        <Links>
+                            <IndexLink Title="Technical Support" Link="/Content/Technical_Support.htm#kanchor26" UsedConditions="" LocalConditions="" />
+                        </Links>
+                        <SeeAlsoLinks />
+                        <IndexControlLinks />
+                        <SortAsLinks />
+                    </IndexEntry>
+                </Entries>
+                <Links>
+                    <IndexLink Title="Technical Support" Link="/Content/Technical_Support.htm#kanchor25" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Text point readers and writers">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Text Point Readers and Writers" Link="/Content/Text_Point_Readers_and_Writers.htm#kanchor20" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Thread safety">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Architecture and Design" Link="/Content/Architecture_and_Design.htm#kanchor31" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+            <IndexEntry Term="Viewing file information">
+                <Entries />
+                <Links>
+                    <IndexLink Title="Viewing File Information" Link="/Content/Viewing_File_Information.htm#kanchor2" UsedConditions="" LocalConditions="" />
+                </Links>
+                <SeeAlsoLinks />
+                <IndexControlLinks />
+                <SortAsLinks />
+            </IndexEntry>
+        </Entries>
+        <Links />
+        <SeeAlsoLinks />
+        <IndexControlLinks />
+        <SortAsLinks />
+    </IndexEntry>
+</CatapultTargetIndex>

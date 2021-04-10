@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The C API" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Image Support</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_c_api.htm">The C API</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Image Support</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor81"></a>Image Support</h2>
+        <p>The functions for opening and closing existing MrSID, JPEG 2000 and NITF images are:
+
+</p>
+        <ul>
+            <li value="1"><code>ltic_openMrSIDImageFile()</code>
+            </li>
+            <li value="2"><code>ltic_openMrSIDImageStream()</code> <![CDATA[ ]]></li>
+            <li value="3"><code>ltic_openJP2ImageFile()</code>
+            </li>
+            <li value="4"><code>ltic_openJP2ImageStream()</code>
+            </li>
+            <li value="5"><code>ltic_openNITFImageFile()</code>
+            </li>
+            <li value="6"><code>ltic_closeImage()</code>
+            </li>
+        </ul>
+        <p>These functions all take either a filename or a stream, denoting the input, and a pointer to an “image handle” of type <code>LTICImageH</code>. This handle is used to provide the context for all other functions in the C API. Returned status codes are used to indicate success or failure.
+</p>
+        <p>To close an image, the <code>ltic_closeImage()</code> function is used.
+
+</p>
+        <p>Due to rounding and file format differences, you should not manually calculate the image dimensions at magnification. Instead, you should use the <code>ltic_getDimsAtMag()</code> function to ask the SDK for the dimensions of the image at a given magnification.
+
+ 
+
+</p>
+        <p>Basic image properties such as width, height, colorspace, geospatial position, etc, are accessed using simple query functions. For example, the width of an image is determined by calling this function:
+
+</p>
+        <p class="codesampleFirstLine">lt_int32 ltic_getWidth(const LTICImageH image)
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

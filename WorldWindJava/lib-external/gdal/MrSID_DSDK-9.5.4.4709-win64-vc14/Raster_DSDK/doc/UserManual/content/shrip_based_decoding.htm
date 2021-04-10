@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Architecture and Design" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Strip-Based Decoding</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="architecture_and_design.htm">Architecture and Design</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Strip-Based Decoding</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor29"></a>Strip-Based Decoding</h2>
+        <p>The MrSID SDK is designed for workflows involving large images. To accommodate large (gigabyte-sized) datasets, the image pipeline framework is designed to process images in advancing horizontal strips. This reduces the amount of memory required to process the image.
+
+</p>
+        <p>To read a scene from an image, the SDK uses the following general workflow:
+
+</p>
+        <p class="codesampleFirstLine">begin read, for given scene</p>
+        <p class="codesample">foreach strip in scene, do</p>
+        <p class="codesample"><span style="color: #ffffff;">xxxxx</span>read strip</p>
+        <p class="codesample">done</p>
+        <p class="codesample">end read</p>
+        <p>These three phases are implemented in the <span class="fixedWidth">LTIImageStage</span> class using the methods <span class="fixedWidth">readBegin()</span>, <span class="fixedWidth">readStrip()</span>, and <span class="fixedWidth">readEnd()</span>. These methods handle all the logic for decomposing the full scene into sequential strips, and they internally call the corresponding pure virtual protected methods <span class="fixedWidth">decodeBegin()</span>, <span class="fixedWidth">decodeStrip()</span>, and <span class="fixedWidth">decodeEnd()</span>, which derived image stages are required to implement as appropriate.
+
+</p>
+        <p>The “connection” between stages is accomplished via an <span class="fixedWidth">LTISceneBuffer</span> object passed into the <span class="fixedWidth">read()</span> call. As each strip is processed in each stage, a subsection of the buffer is used and passed between stages; in general, no intermediate buffering is required as the same buffer is used through the entire pipeline.
+
+</p>
+        <p>The <span class="fixedWidth">LTISceneBuffer</span> class stores the image data in a BSQ format for a specified width and height. Typically the user will supply the allocated memory to be used for the image data; however, the class also supports creation of a new buffer with a “windowed” view into an original buffer. This enables the same region of memory to be used by multiple stages in the pipeline, without the need for excessive data copying.
+
+</p>
+        <p>For decodes of large images, calling <span class="fixedWidth">read()</span> with a single large buffer is clearly inappropriate. In this case, the client at the “end” of the pipeline can choose to explicitly implement the above decode begin/strip/end workflow in a “pull” model, and only need to have one strip worth of image data resident at a time. The <span class="fixedWidth">LTIImageWriter</span> class implements this functionality, so that derived writers can encode large images efficiently.
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

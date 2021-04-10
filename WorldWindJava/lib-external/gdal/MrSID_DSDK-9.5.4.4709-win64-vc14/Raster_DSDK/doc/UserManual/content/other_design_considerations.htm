@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Architecture and Design" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Other Design Considerations</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="architecture_and_design.htm">Architecture and Design</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Other Design Considerations</span>
+        </div>
+        <h2 class="ptdh2">Other Design Considerations</h2>
+        <p>The C++ classes and functions that make up the MrSID SDK follow a few other general principles and conventions. They are explained here to motivate their usage. For other, less central principles, see <a href="coding_conventions.htm" target="" title="" alt="" class="MCXref_0">"Coding Conventions"</a>.
+
+ 
+
+</p>
+        <h6 class="h7"><a name="kanchor55"></a>Status Codes 
+
+</h6>
+        <p>Many of the SDK member functions return status codes to report success or failure conditions, instead of other mechanisms such as throwing exceptions. The status codes are represented using the <span class="fixedWidth">LT_STATUS</span> datatype (typedef’d to an unsigned integer). Functions that return status codes must be checked for success or failure.
+</p>
+        <h6 class="h7"><a name="kanchor56"></a>Initializations
+
+</h6>
+        <p>Heavy-weight objects requiring nontrivial work in their constructors provide an initialize() member function that must be called immediately after invoking the object’s constructor. While this requires extra code for the developer, it provides a means for returning status codes back to the caller without relying on constructor-thrown exceptions.
+
+ 
+
+</p>
+        <h6 class="h7"><a name="kanchor57"></a>Creator Deletes Rule
+
+</h6>
+        <p>The SDK classes generally follow the “creator deletes” rule. That is, the object that allocates a new object on the heap is responsible for deleting it as well. (The documentation notes specifically where this rule does not hold and ownership is to be passed across a call-site.)
+ In some cases reference counting, via the <code>RC&lt;&gt;</code> class, is used to address this issue.
+ 
+
+</p>
+        <h6 class="h7"><a name="kanchor58"></a>“No Magic” Rule
+</h6>
+        <p>The functions in the SDK tend not to provide features or functionality that attempt to silently “guess” at default values for complex situations or otherwise “just do the right thing.” While such guesses are often correct and occasionally easier for the developer, they are just as often incorrect or serve only to mask deeper errors or workflow inefficiencies. For example, the various decode methods can return pixels only in the colorspace and datatype of the input image stage: no mechanism for implicit conversion is available, e.g. via configuration of the output buffer. In this case, a datatype filter and a colorspace filter must be explicitly built into the image pipeline.
+</p>
+        <h6 class="h7"><a name="kanchor59"></a>Reference Counting</h6>
+        <p>The SDK uses reference counting to manage the lifespan of objects that comprise image pipelines.  This is similar in spirit to “smart” or “auto” pointers.  The static member function <span class="fixedWidth">create()</span> of a class should be used to create a new instance of that class.  Similarly, the (non-static) member function <span class="fixedWidth">release()</span> should be used when you are done with object – for example, when the pointer to the object goes out of scope.  The <span class="fixedWidth">retain()</span>function should be used to hold onto an object, i.e. increment the reference count; if you created the object, however, do not call <span class="fixedWidth">retain()</span>.  When the last reference calls <span class="fixedWidth">release()</span>, the object will delete itself.  </p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

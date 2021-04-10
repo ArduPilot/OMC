@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Metadata Class</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <link href="Resources/TableStyles/buttonsTable2.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="The_SDK_Classes.htm">The SDK Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Metadata Class</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor19"></a>The Metadata Class</h2>
+        <p>The <span class="fixedWidth">Metadata</span> class is a container for storing metadata about the point cloud. It is a key-value pair container that you can use to store strings, arrays of floating point values and raw binary data (BLOBs).</p>
+        <p>Each key-value pair has the following properties:</p>
+        <ul>
+            <li value="1">key name</li>
+            <li value="2">description  (optional) </li>
+            <li value="3">data type (string, reals, or BLOB,stored as a <span class="fixedWidth">MetadataDataType</span> enum)</li>
+            <li value="4">values and length</li>
+        </ul>
+        <p>For a table of code examples included the SDK, see <a href="Code_Examples.htm" target="" title="" alt="" class="MCXref_0">"Code Examples"</a>). </p>
+        <h6 class="h7">Known Metadata Key Names</h6>
+        <p>The MrSID Decode SDK&#160;recognizes six fixed metadata key names and one key pattern, but will accept any name. The seven recognized names are listed in the following table.</p>
+        <table style="width: 100%;mc-table-style: url('../../lt_doc_lidar_sdk/Content/Resources/TableStyles/buttonsTable2.css');margin-left: auto;margin-right: auto;" class="TableStyle_buttonsTable2" cellspacing="0">
+            <caption>Metadata Key Names</caption>
+            <col style="width: 250px;" />
+            <col style="width: 100px;" />
+            <col />
+            <thead>
+                <tr>
+                    <th class="TableStyle_buttonsTable2_Head_0_0_RowSep_ColSep">Name</th>
+                    <th class="TableStyle_buttonsTable2_Head_0_0_RowSep_ColSep" style="text-align: center;">Data Type</th>
+                    <th class="TableStyle_buttonsTable2_Head_0_0_RowSep_ColEnd">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">FileSourceID</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Identifies the source of the data.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">ProjectID</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Identifies the project that the data was acquired for.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">SystemID</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Identifies the hardware system or the method by which the file was made.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">GeneratingSoftware</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">The software that created the file.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">FileCreationDate</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Date the file was created in the form yyyy-mm-dd</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">PointRecordsByReturnCount</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">array of reals</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Contains an array of point counts per return</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">PreCompressionPointCount</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">array of reals of length 1</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Used to store the number of points that were in the input file before it was compressed/decimated.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep"><span class="fixedWidth">LAS_BoundingBox</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="text-align: center;">array of reals of length 6</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd">Stores the bounding box of the original LAS&#160;file if the source was a LAS file.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep"><span class="fixedWidth">&lt;LAS VLR User ID&gt;::&lt;Record ID&gt;</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="text-align: center;">BLOB</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColEnd">The method we use to store unrecognized variable length records (VLRs) from LAS files.</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

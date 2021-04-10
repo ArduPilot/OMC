@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Reference Counting</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Reference Counting</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor44"></a>Reference Counting</h2>
+        <p><span class="fixedWidth">LTIImageStage</span> objects are now reference counted.</p>
+        <ul>
+            <li value="1">Use <span class="fixedWidth">ClassName::create()</span> to create a new object of type <span class="fixedWidth">ClassName</span>.
+</li>
+            <li value="2">Use <span class="fixedWidth">object-&gt;retain()</span> when you want to keep an object around (but not if you created it)
+</li>
+            <li value="3">Use <span class="fixedWidth">object-&gt;release()</span> when you are done using the object.
+</li>
+        </ul>
+        <p>As a rule of thumb, if you <span class="italic">create </span>or <span class="italic">retain </span>an object then you must issue a corresponding <span class="italic">release </span>for it.  <span class="fixedWidth">ClassName::create()</span> and <span class="fixedWidth">LTIImageStageManager::createImageStage()</span> are the two must common ways to create an <span class="fixedWidth">LTIImageStage</span> object. When you pass a reader to a filter, the filter calls <span class="fixedWidth">retain()</span> on the reader which “keeps the object alive”.  Before the pointer to the reader goes out of scope or is reassigned you must call <span class="fixedWidth">release()</span> as shown in the following example:
+</p>
+        <p class="codesampleFirstLine">LTIImageStage *pipeline = NULL;
+
+</p>
+        <p class="codesample">{
+ 	   </p>
+        <p class="codesample">&#160;</p>
+        <p class="codesampleIndent01">MrSIDImageReader *reader = MrSIDImageReader::create();  
+   </p>
+        <p class="codesampleIndent01">sts = reader-&gt;initialize(filename);
+   </p>
+        <p class="codesampleIndent01">pipeline = reader;
+</p>
+        <p class="codesample">}</p>
+        <p class="codesample">&#160;</p>
+        <p class="codesample">{
+   </p>
+        <p class="codesampleIndent01">MyImageFilter *filter = MyImageFilter::create();
+</p>
+        <p class="codesampleIndent01">// ‘pipeline’ will be retained by ‘filter’</p>
+        <p class="codesampleIndent01">sts = filter-&gt;initialize(pipeline);
+
+   </p>
+        <p class="codesampleIndent01">&#160;</p>
+        <p class="codesampleIndent01">// release ‘pipeline’ because we are reusing the variable    </p>
+        <p class="codesampleIndent01">pipeline-&gt;release();
+</p>
+        <p class="codesampleIndent01">pipeline = filter;
+</p>
+        <p class="codesample">}
+
+</p>
+        <p class="codesample">&#160;</p>
+        <p class="codesample">...
+</p>
+        <p class="codesample">... do something with the pipeline
+</p>
+        <p class="codesample">...
+
+</p>
+        <p class="codesample">// done with the pipeline: releasing ‘pipeline’ will release the
+</p>
+        <p class="codesample">// filter, which will in turn release the reader
+</p>
+        <p class="codesample">pipeline -&gt;release();
+</p>
+        <p class="codesample">pipeline = NULL;
+
+
+
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

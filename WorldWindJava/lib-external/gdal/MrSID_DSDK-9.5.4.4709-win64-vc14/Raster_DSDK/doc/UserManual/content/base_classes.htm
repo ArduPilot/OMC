@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Base Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Base Classes</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_sdk_base_classes.htm">The SDK Base Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Base Classes</span>
+        </div>
+        <h2 class="ptdh2">Base Classes<a name="kanchor76"></a></h2>
+        <p>A number of lightweight classes are used to represent primitive objects in support of the imaging framework.</p>
+        <p>The <code>LTISample</code> class represents a single sample of a pixel; the properties of a sample include datatype, color, and an optional value. The <code>LTIPixel</code> class represents a set of samples; the properties of a pixel include the samples themselves and a colorspace. The <code>LTIPixelLookupTable</code> class is used to represent the concept of a set of pixels in a color lookup table.</p>
+        <p>The <code>LTIGeoCoord</code> class represents simple geographic position information, analogous to the conventional AUX files or world files used in many GIS systems. The properties of this class include the projection system (WKT), the upper-left x- and y-position, the <span class="italic">x</span>- and <span class="italic">y</span>-resolution, and the two rotation terms. Every <code>LTIImage</code> has associated <code>LTIGeoCoord</code> information.</p>
+        <p>The SDK uses delegates (see delegates in Glossary) as a means of proving the functionality of callback functions in a more natural C++ style. The two most common delegate classes, <code>LTIInterruptDelegate</code> and <code>LTIProgressDelegate</code>, provide mechanisms for applications performing (potentially long-running) <span class="fixedWidth">read()</span> operations to make out-of-band requests to abort the operation and to receive out-of-band notifications of percent-complete. Examples of delegate usage can be found in the <a href="ReferenceManual/index.html" target="_blank" class="interTopic2">Reference Manual</a>.</p>
+        <p>Finally, the <code>LTIUtils</code> class contains a number of static methods generally useful for working with the SDK. These include conversion between dynamic range representations, conversion between scale/magnification representations, colorspace information, SDK version information, etc.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

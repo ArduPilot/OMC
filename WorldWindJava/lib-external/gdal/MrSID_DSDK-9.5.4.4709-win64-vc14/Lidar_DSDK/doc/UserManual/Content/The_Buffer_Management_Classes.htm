@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Buffer Management Classes</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <link href="Resources/TableStyles/buttonsTable2.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="The_SDK_Classes.htm">The SDK Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Buffer Management Classes</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor11"></a>The Buffer Management Classes</h2>
+        <p>When extracting points we use the <span class="fixedWidth">PointData</span> class to pass around parts of the point cloud among functions. This class is a group of <span class="fixedWidth">ChannelData</span> classes for the channels that are to be extracted.</p>
+        <h6 class="h7"><a name="TheChannelInfoClass"></a>The ChannelInfo Class</h6>
+        <p>A channel is all the values for a given attribute. For example, the X channel is all the X values for a given point cloud.</p>
+        <p>The three aspects of a channel are:<br /></p>
+        <ul>
+            <li value="1">name</li>
+            <li value="2">data type (floating point, signed integer, etc., stored as a <span class="fixedWidth">DataType</span> enum)</li>
+            <li value="3">number of bits of precision </li>
+        </ul>
+        <p class="note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>For floating point data types, the number of bits of precision is the number of bits you need to store the quantized point value as an integer (for more information, see <a href="Architecture_and_Design.htm#FloatingPointQuantization" target="" title="" alt="" class="MCXref_0">"Floating Point Quantization"</a>).</p>
+        <p>The MrSID Decode SDK&#160;handles the following channels:</p>
+        <table style="width: 100%;mc-table-style: url('../../lt_doc_lidar_sdk/Content/Resources/TableStyles/buttonsTable2.css');margin-left: auto;margin-right: auto;" class="TableStyle_buttonsTable2" cellspacing="0">
+            <caption>Standard Channels </caption>
+            <col style="width: 180px;" />
+            <col />
+            <tbody>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">X</span>,&#160;<span class="fixedWidth">Y</span> and <span class="fixedWidth">Z</span></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">(Required) The X, Y and Z values specify the physical location of the point.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">Intensity</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Intensity is the integer representation of the pulse return magnitude.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">ReturnNum</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;page-break-inside: auto;">The return number is a number that uniquely and sequentially identifies each return from a given output pulse.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">NumReturns</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The number of returns is the total number of returns from an output pulse.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">ScanDir</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The scan direction is the direction at which the scanner mirror was traveling at the time of the output pulse.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">EdgeFlightLine</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The edge of flight line value is the last point on a given scan line before it changes direction. The edge of flight line has a value of 1 only when the point is at the end of a scan (when the mirror is not moving).</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">ClassId</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The classification identifier is an index into the <span class="fixedWidth">ClassIdName</span> array of the <span class="fixedWidth">PointSource</span> instance<span class="fixedWidth">&#160;</span></td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">ScanAngle</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The scan angle is an integer representation of the angle off of nadir at which the pulse was output. Negative scan angle value represents an angle to the port side of the plane, and a positive scan angle value represents an angle to the starboard side. Zero is nadir.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">UserData</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The user data value is any integer value the user wishes to add.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">SourceId</span><span class="fixedWidth">&#160;</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The point source identifier identifies a file as the original source of the data.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">GPSTime</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The GPS&#160;time value is the time at which a given point was sampled.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">Red, Green, Blue</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">The red, green and blue values represent the color of the point.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;"><span class="fixedWidth">&lt;UserDefinedChannelName&gt;</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColEnd" style="vertical-align: top;">This channel can be used by the creator of the file for any additional data they would like to include.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h6 class="h7"><a name="kanchor12"></a><a name="ThePointInfoClass"></a>The PointInfo Class</h6>
+        <p>The <span class="fixedWidth">PointInfo</span> class is a group of <span class="fixedWidth">ChannelInfo</span> classes that are used to store information about all the channels of a point source. This class is used to obviate passing around arrays of <span class="fixedWidth">ChannelInfo</span> objects and the associated array lengths, which was required when using     <span class="fixedWidth">PointSource::createIterator()</span> and <span class="fixedWidth">PointData::init()</span>.</p>
+        <h6 class="h7">The ChannelData Class</h6>
+        <p>The <span class="fixedWidth">ChannelData</span> class is a derived class of <span class="fixedWidth">ChannelInfo</span> which adds a data buffer and length.</p>
+        <h6 class="h7">The PointData Class</h6>
+        <p>The <span class="fixedWidth">PointData</span> class is a group of <span class="fixedWidth">ChannelData</span> classes that are used in the point extraction calls <span class="fixedWidth">PointIterator::getNextPoints()</span> and <span class="fixedWidth">PointSource::read()</span>.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

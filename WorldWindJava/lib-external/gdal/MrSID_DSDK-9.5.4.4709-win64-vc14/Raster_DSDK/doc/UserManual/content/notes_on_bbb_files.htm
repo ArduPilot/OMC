@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Notes on BBB Files</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Notes on BBB Files</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor40"></a>Notes on BBB Files</h2>
+        <p>A BBB image consists of two files, a binary file containing only the raw sample values of the image and a text file describing the image properties. The raw data may be organized in one of three layouts: "band-interleaved by pixel" (BIP), "band-interleaved by line" (BIL), and "band sequential" (BIL). The three formats are collectively referred to as the BBB file format.
+
+</p>
+        <p>Because BBB files only contain raw data with an easily editable header format, they are often used as a "least common denominator" interchange format. However, there is no set standard for the keywords that may be contained in the header. This document describes the header format that the MrSID SDK supports, via the <span class="fixedWidth">LTIBBBImageReader</span> and <span class="fixedWidth">LTIBBBImageWriter</span> classes.
+
+ 
+
+</p>
+        <h6 class="h7">Filenames
+
+</h6>
+        <p>The <span class="fixedWidth">LTIBBBImageReader</span> class supports four filename extensions: <span class="fixedWidth">.bip</span>, <span class="fixedWidth">.bil</span>, <span class="fixedWidth">.bsq</span>, and <span class="fixedWidth">.bbb</span>. The first three imply the layout is BIP, BIL, or BIP respectively; the <span class="fixedWidth">.bbb</span> extension implies the default layout, which is BIP.
+
+</p>
+        <p>The header file for a BBB image has the same name as the image, but with a <span class="fixedWidth">.hdr</span> extension.
+
+ 
+
+</p>
+        <h6 class="h7">Header Syntax
+
+</h6>
+        <p>The header file is a simple text file containing keywords and their associated value, one keyword/value(s) set per line.</p>
+        <p>All keywords and values are case-insensitive.
+
+</p>
+        <p>Blank lines are ignored. Leading and trailing whitespace is ignored.
+
+</p>
+        <p>A line that begins with a '#' character, possibly preceded by whitespace, indicates a comment line. Comment lines are ignored.
+
+ 
+
+</p>
+        <h6 class="h7">Supported Keywords (Reader)
+
+</h6>
+        <p>The keywords and their allowed values, as supported by the <span class="fixedWidth">LTIBBBImageReader</span>, are as follows:
+
+</p>
+        <p class="switchEntryFirstLine">BANDGAPBYTES</p>
+        <p class="switchBody">Not currently supported – value is ignored
+
+</p>
+        <p class="switchEntry">BANDROWBYTES</p>
+        <p class="switchBody">Not currently supported – value is ignored)
+
+</p>
+        <p class="switchEntry">BANDS</p>
+        <p class="switchBody">Same as <span class="fixedWidth">NBANDS</span></p>
+        <p class="switchEntry"><span class="fixedWidth">BYTE_ORDER</span> <![CDATA[ ]]></p>
+        <p class="switchBodyNotLast">Endianness interpretation of data</p>
+        <p class="switchBodyNotLast">Allowed values:
+
+</p>
+        <blockquote>
+            <ul>
+                <li value="1"><span class="fixedWidth">MOTOROLA</span>, <span class="fixedWidth">M</span>, <span class="fixedWidth">BIG</span>, <span class="fixedWidth">BIGENDIAN</span></li>
+                <li value="2"><span class="fixedWidth">INTEL</span>, <span class="fixedWidth">I</span>, <span class="fixedWidth">LITTLE</span>, <span class="fixedWidth">LITTLEENDIAN</span></li>
+                <li value="3"><span class="fixedWidth">NA</span>
+                </li>
+            </ul>
+        </blockquote>
+        <p class="switchBodyNotLast">Default: host endianness
+
+</p>
+        <p class="switchBody">The value <span class="fixedWidth">NA</span> (not applicable) may only be used if the number of bands is 1
+
+</p>
+        <p class="switchEntry">BYTEORDER</p>
+        <p class="switchBody">Same as <span class="fixedWidth">BYTE_ORDER</span></p>
+        <p class="switchEntry">COLORSPACE</p>
+        <p class="switchBodyNotLast">The colorspace of the image</p>
+        <p class="switchBodyNotLast">Allowed values:
+
+</p>
+        <blockquote>
+            <ul>
+                <li value="1"><span class="fixedWidth">GREY</span>, <span class="fixedWidth">GRAY</span>, <span class="fixedWidth">GREYSCALE</span>, <span class="fixedWidth">GRAYSCALE</span></li>
+                <li value="2"><span class="fixedWidth">RGB</span>
+                </li>
+                <li value="3"><span class="fixedWidth">CMYK</span>
+                </li>
+                <li value="4"><span class="fixedWidth">MULTISPECTRAL</span>
+                </li>
+            </ul>
+        </blockquote>
+        <p class="switchBody">Default: <span class="fixedWidth">GRAY</span> for 1-banded images, <span class="fixedWidth">RGB</span> for 3-banded images, otherwise <span class="fixedWidth">MULTISPECTRAL</span></p>
+        <p class="switchEntry">COLS</p>
+        <p class="switchBody">Same as <span class="fixedWidth">NCOLS</span></p>
+        <p class="switchEntry">DATATYPE</p>
+        <p class="switchBodyNotLast">The data type of the samples
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: <span class="fixedWidth">U8</span>, <span class="fixedWidth">U16</span>, <span class="fixedWidth">F32</span></p>
+        <p class="switchBody">Default: <span class="fixedWidth">U8</span></p>
+        <p class="switchEntryFirstLine">DYNAMICRANGELEVEL</p>
+        <p class="switchBodyNotLast">The midpoint of the range of the data
+</p>
+        <p class="switchBodyNotLast">Allowed values: a single floating-point value (applies to all bands)</p>
+        <p class="switchBody">Default:   (none – value is determined by <span class="fixedWidth">LTIImage</span>)</p>
+        <p class="switchEntry">DYNAMICRANGEMAX</p>
+        <p class="switchBodyNotLast">The maximum dynamic range
+</p>
+        <p class="switchBodyNotLast">Allowed values: a single floating-point value (applies to all bands)</p>
+        <p class="switchBody">Default:  (none – value is determined by <span class="fixedWidth">LTIImage</span>)</p>
+        <p class="switchEntry">DYNAMICRANGEMIN</p>
+        <p class="switchBodyNotLast">The minimum dynamic range</p>
+        <p class="switchBodyNotLast">Allowed values: a single floating-point value (applies to all bands)
+
+</p>
+        <p class="switchBody">Default:  (none – value is determined by <span class="fixedWidth">LTIImage</span>)</p>
+        <p class="switchEntry">DYNAMICRANGEWINDOW</p>
+        <p class="switchBodyNotLast">The size of the range of the data
+</p>
+        <p class="switchBodyNotLast">Allowed values: a single floating-point value (applies to all bands)</p>
+        <p class="switchBody">Default:   (none – value is determined by <span class="fixedWidth">LTIImage</span>)</p>
+        <p class="switchEntry">E_SQUARED</p>
+        <p class="switchBodyNotLast">Sphere eccentricity squared, for georeferencing</p>
+        <p class="switchBodyNotLast">Allowed values: (floating-point)
+
+</p>
+        <p class="switchBody">Default:  (none) </p>
+        <p class="switchEntry">INTERLEAVING</p>
+        <p class="switchBody">Same as <span class="fixedWidth">LAYOUT</span></p>
+        <p class="switchEntry">LAYOUT</p>
+        <p class="switchBodyNotLast">The data layout; use of this keyword overrides the layout implied by the filename extension
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: <span class="fixedWidth">BIP</span>, <span class="fixedWidth">BIL</span>, <span class="fixedWidth">BSQ</span>, or <span class="fixedWidth">NA</span></p>
+        <p class="switchBodyNotLast">Default: <span class="fixedWidth">BIP</span></p>
+        <p class="switchBody">The value <span class="fixedWidth">NA</span> (not applicable) may only be used if the number of bands is 1
+
+</p>
+        <p class="switchEntry">MAP_UNITS</p>
+        <p class="switchBodyNotLast">Measurement unit for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (string)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">NBANDS</p>
+        <p class="switchBodyNotLast">The number of bands in the image
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: <span>1-65535</span></p>
+        <p class="switchBody">Default: (none – this keyword is required)
+
+</p>
+        <p class="switchEntry">NBITS</p>
+        <p class="switchBodyNotLast">Number of bits used per sample
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: 1 to (total number of bits per sample)
+
+</p>
+        <p class="switchBody">Default: the total number of bits per sample
+
+</p>
+        <p class="switchEntry">NCOLS</p>
+        <p class="switchBodyNotLast">Width of image, in pixels
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: 1 to 2^31
+
+</p>
+        <p class="switchBody">Default: (none – this keyword is required)
+
+</p>
+        <p class="switchEntry">NROWS</p>
+        <p class="switchBodyNotLast">Height of image, in pixels
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: 1 to 2^31
+
+</p>
+        <p class="switchBody">Default: (none – this keyword is required)
+
+</p>
+        <p class="switchEntry">PIXEL_HEIGHT</p>
+        <p class="switchBody">Same as YDIM
+
+</p>
+        <p class="switchEntry">PIXEL_WIDTH</p>
+        <p class="switchBody">Same as XDIM
+
+</p>
+        <p class="switchEntry">PROJECTION_NAME</p>
+        <p class="switchBodyNotLast">Name of projection system, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (string)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">PROJECTION_PARAMETERS</p>
+        <p class="switchBodyNotLast">Numeric projection parameters, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (1 to 15 floating point values)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">PROJECTION_ZONE</p>
+        <p class="switchBodyNotLast">Projection zone number, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (int32)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">RADIUS</p>
+        <p class="switchBodyNotLast">Sphere radius, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (floating point)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">ROWS</p>
+        <p class="switchBody">Same as <span class="fixedWidth">NROWS</span></p>
+        <p class="switchEntry">SEMI_MAJOR_AXIS</p>
+        <p class="switchBodyNotLast">Semimajor axis, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (floating point)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">SEMI_MINOR_AXIS</p>
+        <p class="switchBodyNotLast">Semiminor axis, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (floating point)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">SKIPBYTES</p>
+        <p class="switchBodyNotLast">Number of bytes at top of image file to skip
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: 0 to (image size in bytes)
+
+</p>
+        <p class="switchBodyNotLast">Default: 0
+
+</p>
+        <p class="switchBody">This can be used for raw formats which contain a fixed number of "header" bytes at the top of the data file
+
+</p>
+        <p class="switchEntry">SPHEROID_NAME</p>
+        <p class="switchBodyNotLast">Name of projection system, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (string)
+
+</p>
+        <p class="switchBody">Default: (none)
+
+</p>
+        <p class="switchEntry">TOTALROWBYTES</p>
+        <p class="switchBody">Not currently supported – value is ignored
+
+</p>
+        <p class="switchEntry">UL_X_COORDINATE</p>
+        <p class="switchBody">Same as <span class="fixedWidth">ULXMAP</span></p>
+        <p class="switchEntry">UL_Y_COORDINATE</p>
+        <p class="switchBody">Same as <span class="fixedWidth">ULYMAP</span></p>
+        <p class="switchEntry">ULXMAP</p>
+        <p class="switchBodyNotLast">Upperleft <span class="italic">x</span>-position, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (any floating point value)
+
+</p>
+        <p class="switchBody">Default:  (none – value is determined by <span class="fixedWidth">LTIImage</span>)
+
+</p>
+        <p class="switchEntry">ULYMAP</p>
+        <p class="switchBodyNotLast">Upperleft <span class="italic">y</span>-position, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (any floating point value)
+
+</p>
+        <p class="switchBody">Default:  (none – value is determined by <span class="fixedWidth">LTIImage</span>)
+
+</p>
+        <p class="switchEntry">WORDLENGTH</p>
+        <p class="switchBodyNotLast">Number of bytes per sample
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: 1 or 2
+
+</p>
+        <p class="switchBody">Default: 1, unless overridden by <span class="fixedWidth">DATATYPE</span></p>
+        <p class="switchEntry">XDIM</p>
+        <p class="switchBodyNotLast">Size of pixel in <span class="italic">x</span>-direction, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (any floating point value)
+
+</p>
+        <p class="switchBody">Default:  (none – value is determined by <span class="fixedWidth">LTIImage</span>)
+
+</p>
+        <p class="switchEntry">YDIM</p>
+        <p class="switchBodyNotLast">Size of pixel in <span class="italic">y</span>-direction, for georeferencing
+
+</p>
+        <p class="switchBodyNotLast">Allowed values: (any floating point value)
+
+</p>
+        <p class="switchBodyNotLast">Default:  (none – value is determined by<span class="fixedWidth"> LTIImage</span>)
+
+</p>
+        <p class="switchBody">This is expected to be a positive value
+
+ 
+
+</p>
+        <h6 class="h7Ital">Additional Notes</h6>
+        <ul>
+            <li value="1">These keywords are required: <span class="fixedWidth">NBANDS</span>, <span class="fixedWidth">NCOLS</span>, <span class="fixedWidth">NROWS</span>. All other keywords have default values.
+
+</li>
+            <li value="2">If dynamic range is used, either both <span class="fixedWidth">DYNAMICRANGEMIN</span> and <span class="fixedWidth">DYNAMICRANGEMAX</span> must be set or both <span class="fixedWidth">DYNAMICRANGEWINDOW</span> and <span class="fixedWidth">DYNAMICRANGELEVEL</span> must be set.
+
+ 
+
+</li>
+        </ul>
+        <h6 class="h7">Supported Keywords (Writer)
+
+ 
+
+</h6>
+        <p>The <span class="fixedWidth">LTIBBBImageWriter</span> class only writes a subset of the above keywords to the header file. The keywords used are:
+
+</p>
+        <p class="switchEntryFirstLine">BYTEORDER</p>
+        <p class="switchBody">Determined by constructor
+
+</p>
+        <p class="switchEntry">COLORSPACELAYOUT</p>
+        <p class="switchBody">Only set if image colorspace is </p>
+        <p class="switchEntry">CMYK
+
+</p>
+        <p class="switchBody">Set to <span class="fixedWidth">BIP</span>, <span class="fixedWidth">BIL</span>, or <span class="fixedWidth">BSQ</span> as per constructor argument
+
+</p>
+        <p class="switchEntry">NROWS</p>
+        <p class="switchBody">Height of scene being written
+
+</p>
+        <p class="switchEntry">NCOLS</p>
+        <p class="switchBody">Width of scene being written
+
+</p>
+        <p class="switchEntry">NBANDS</p>
+        <p class="switchBody">Number of bands in image
+
+</p>
+        <p class="switchEntry">NBITS</p>
+        <p class="switchBody">Bits of precision of image samples
+
+</p>
+        <p class="switchEntry">ULXMAP</p>
+        <p class="switchBody">Determined by scene/image
+
+</p>
+        <p class="switchEntry">ULYMAP</p>
+        <p class="switchBody">Determined by scene/image
+
+</p>
+        <p class="switchEntry">XDIM</p>
+        <p class="switchBody">Determined by scene/image
+
+</p>
+        <p class="switchEntry">YDIM</p>
+        <p class="switchBody">Determined by scene/image
+
+ 
+
+</p>
+        <h6 class="h7">Example
+</h6>
+        <p>This BBB header files describes a 640x480 color image, using 16 bits per sample.
+
+</p><pre class="codesample04emFirstLine">NROWS 480
+
+NCOLS 640
+
+NBANDS 3
+
+DATATYPE U16
+
+ 
+
+</pre>
+        <h6 class="h7">Extensions
+</h6>
+        <p>Note that some of the header syntax supported by the MrSID SDK may not be supported by other vendors' BIP/BIL/BSQ implementations. In particular, the following features and keywords may be somewhat specific to LizardTech:</p>
+        <ul>
+            <li value="1">interpretation of .bbb extension as meaning layout of BIP
+
+</li>
+            <li value="2">support for comment lines
+
+</li>
+            <li value="3">the <span class="fixedWidth">COLORSPACE</span> keyword
+
+</li>
+            <li value="4">the <span class="fixedWidth">DYNAMICRANGEMIN</span>, <span class="fixedWidth">DYNAMICRANGEMAX</span>, <span class="fixedWidth">DYNAMICRANGEWINDOW</span>, and <span class="fixedWidth">DYNAMICRANGELEVEL</span> keywords
+</li>
+        </ul>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

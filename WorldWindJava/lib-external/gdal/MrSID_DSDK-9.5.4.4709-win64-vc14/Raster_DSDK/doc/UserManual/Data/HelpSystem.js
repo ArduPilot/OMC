@@ -1,0 +1,4 @@
+var xmlHelpSystemData = "";
+xmlHelpSystemData += '<?xml version=\"1.0\" encoding=\"utf-8\"?>';
+xmlHelpSystemData += '<WebHelpSystem DefaultUrl=\"content/introduction.htm\" Toc=\"Data/Toc.xml\" Index=\"Data/Index.xml\" Concepts=\"Data/Concepts.xml\" Glossary=\"content/glossary1.htm\" SearchDatabase=\"Data/Search.xml\" Alias=\"Data/Alias.xml\" Synonyms=\"Data/Synonyms.xml\" Skin=\"Data/Skindsdk/Skin.xml\" Multilingual=\"false\" Skins=\"DSDK,ESDK\" BuildTime=\"3/17/2017 12:31:19 PM\" BuildVersion=\"13.1.6219.3621\" TargetType=\"WebHelp\" SkinTemplateFolder=\"Skin/\" InPreviewMode=\"false\" MoveOutputContentToRoot=\"false\" ReplaceReservedCharacters=\"false\" MakeFileLowerCase=\"true\" UseCustomTopicFileExtension=\"false\" PreventExternalUrls=\"false\" EnableResponsiveOutput=\"false\" IncludeGlossarySearchResults=\"true\" ResultsPerPage=\"20\" xml:lang=\"en-us\" LanguageName=\"English\" />';
+CMCXmlParser._FilePathToXmlStringMap.Add('HelpSystem', xmlHelpSystemData);

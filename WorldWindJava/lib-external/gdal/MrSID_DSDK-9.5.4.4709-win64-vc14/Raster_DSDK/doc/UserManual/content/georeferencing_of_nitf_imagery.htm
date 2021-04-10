@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Georeferencing of NITF Imagery</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Georeferencing of NITF Imagery</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor16"></a>Georeferencing of NITF Imagery</h2>
+        <p>Typically, TREs are used to provide the necessary georeferencing. As the current SDK release does NOT provide TRE support, however, some additional documentation may be helpful to some developers.
+
+</p>
+        <p>This technical note provides commentary on how the SDK reads and writes “positioning information” in our NITF support – including basic world file information (upper left points, resolution), coordinate system information (WKT data), and positioning of image segments relative to each other.
+
+ 
+
+</p>
+        <h5>Geo Support Features in NITF
+</h5>
+        <p>Independent of any of our implementation issues, the file format itself can provide georeferencing support in the following ways.
+
+ 
+
+</p>
+        <h6 class="h7">IGEOLO
+</h6>
+        <p>Each image segment may contain an ICORDS and an IGEOLO field. Together these fields give low-precision positioning data for the four corner points of the image. The standard makes it very clear that this data is only for cataloging purposes and should not be used for accurate georeference positioning.
+
+</p>
+        <p>The ICORDS field indicates whether the IGEOLO points are in UTM, UTM/MGRS, or WGS84. The four pairs of numbers are expressed in either lat/long (decimal degrees) or UTM form, as appropriate.
+
+</p>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The standard does not address the coordinate system of the image data itself. IGEOLO data only indicates what the boundary points of the image would be, if the image were to be projected into WGS84.
+
+</p>
+        <p>Use of the IGEOLO data is optional. For more information see MIL-STD-2500C, table A-3 (page 86).
+
+ 
+</p>
+        <h6 class="h7">CCS
+</h6>
+        <p>Each image segment in the file must be positioned according to the Common Coordinate System, a virtual, underlying grid which is used to collocate all the segments in the file. The grid is expressed using integer values with (0,0) at the upper-left. The CCS info for a segment has four parts:
+
+</p>
+        <p><span class="bolder">ILOC:</span> the upper-left (<span class="italic">x</span>,<span class="italic">y</span>) offset of the segment on the CCS grid. This may be an “absolute offset” (which is relative to (0,0)) or it may be a “relative offset” (which is relative to another segment’s ILOC), depending on the IALVL value. 
+</p>
+        <p><span class="bolder">IDLVL:</span> display level, or Z-ordering. Each segment must have a unique IDLVL value. The “lowest” segment has the lowest number. (<span class="bolder">Note:</span> segment numbering starts at 1, not 0.) </p>
+        <p><span class="bolder">IALVL:</span> attachment level. A segment’s ILOC position on the CCS grid may be expressed relative to another segment, by setting its IALVL value to the IDLVL level of the that other segment. If IALVL is zero, the ILOC position is relative to (0,0). 
+</p>
+        <p>The ILOC values must be in the range -9,999 to 99,999 (5-digit field). This means that certain mosaics cannot be represented. For example, consider four 40Kx40K images laid out as follows:
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/georeferencing_nitf_imagery_imajes/georefnitfa.gif" />
+        </p>
+        <p>The ILOC for images 1 and 4 cannot be expressed relative to (0,0) as they would require offsets of 120,000, which is out of range. They cannot be expressed relative to the origin of images 2 and 3 either, as they would require offsets of -40,000, which is also out of range.  A more obvious – but less likely – mosaic which cannot be represented is simply two images spread far apart:
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/georeferencing_nitf_imagery_imajes/georefnitfb.gif" />
+        </p>
+        <p>where the images are both 1Kx1K and image 2 is 150,000 units from the origin.
+
+</p>
+        <p>Use of the CCS data is required. For more information see MIL-STD-2500C, table A-3 (page 97).
+
+ 
+
+</p>
+        <h6 class="h7">BLOCKA TRE
+</h6>
+        <p>This metadata extension contains four fields which repeat the IGEOLO fields for the segment but provide higher precision. They are always expressed in WGS84 lat/long, as degrees/minutes/seconds or decimal degrees.
+
+</p>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>As with IGEOLO, the BLOCKA data does not say anything about the coordinate system of the image data itself.
+
+</p>
+        <p>Use of the BLOCKA TRE is optional.  Within BLOCKA, the LOC fields are themselves optional. For more information see STDI-0002, section 8.3.4 (page 83).
+
+ 
+
+</p>
+        <h6 class="h7">World Files
+</h6>
+        <p>Although not part of any NITF standard, the normal LizardTech world file conventions nonetheless can be used to specify the upper-left coordinates and resolution of the image.
+
+ 
+
+</p>
+        <h6 class="h7">Image Segment CRSes
+</h6>
+        <p>A careful consideration of the above will reveal that, given the data available, <span class="italic">the SDK has no way to determine the coordinate system of any image segment</span> absent any TRE support. It may know where the image is, for cataloging or indexing purposes, but it knows nothing about the data itself.
+
+</p>
+        <p>This could be addressed by adding our own “proprietary” TRE or Text Segment which would contain our WKT string. Such extensions would go against the intent of the standard, however. Absent the TRE information, in the near term we suggest that image segments should generally be projected into the common WGS84 space, where possible and practical.
+
+ 
+
+</p>
+        <h5>Implementation Support
+</h5>
+        <p>This section describes the rules governing how the above fields are interpreted and represented within the SDK for NITF files. We consider the four cases of reading and writing both single and multiple segment files.
+
+</p>
+        <p>In the following discussion, recall that within the SDK framework, an “image” (class <span class="fixedWidth">LTIImage</span>) contains a “geo coord” object (class <span class="fixedWidth">LTIGeoCoord</span>) which contains three main pieces of data:
+
+</p>
+        <ul>
+            <li value="1">the (<span class="italic">x</span>,<span class="italic">y</span>) upper-left position 
+</li>
+            <li value="2">the (<span class="italic">x</span>,<span class="italic">y</span>) resolution 
+</li>
+            <li value="3">the WKT string 
+ 
+
+</li>
+        </ul>
+        <h6 class="h7">Single Segment Reading
+</h6>
+        <p>The SDK supports the ability to read any one single segment from a NITF file.
+
+</p>
+        <p>As discussed above, the SDK can never know the projection system of an image segment. Nonetheless, the geo position is determined as follows:
+
+</p>
+        <ol>
+            <li value="1">First, we fall back to the normal default of (0,h) for the upper-left position. The WKT string is left empty. </li>
+            <li value="2">If set, we interpret the IGEOLO/ICORDS field to determine the <span class="italic">x</span>,<span class="italic">y</span> corner position. </li>
+            <li value="3">If present, a world file will then override the default positions. 
+</li>
+            <li value="4">We then offset the geo position of the image based on the ILOC data for the segment.  (<span class="bolder">Note:</span> The ILOC data is multiplied by the resolution, before adding it to the position) 
+</li>
+        </ol>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The world file serves to describe the position of CCS (0,0), not any individual segment in particular.
+
+ 
+
+</p>
+        <h6 class="h7">Multiple Segment Reading
+</h6>
+        <p>The SDK only supports the ability to read a single segment. To read
+multiple segments, to be displayed as a mosaic of tiles, the SDK's mosaic filter stage should be used.
+
+</p>
+        <h6 class="h7">Single Segment Writing
+</h6>
+        <p>When writing an image, the SDK will always have good georeferencing information, but we may or may not have good WKT data.
+
+</p>
+        <ul>
+            <li value="1">set ILOC to (0,0), IDLVL to 1, and IALVL to 0 
+</li>
+            <li value="2">if we have WKT data, and if the points can be reprojected into WGS84, then 
+<ul style="list-style-type: circle;"><li value="1">write the IGEOLO data 
+</li><li value="2">write the BLOCKA TRE 
+</li></ul></li>
+            <li value="3">write a world file (at user’s discretion) 
+ 
+
+</li>
+        </ul>
+        <h6 class="h7">Multiple Segment Writing
+</h6>
+        <p>When writing multiple segments, the SDK is given both the constructed mosaic and each of the individual segments.
+</p>
+        <ul>
+            <li value="1">ILOC data: 
+<ul style="list-style-type: circle;"><li value="1">the ILOC (x,y) of each segment is set based on the segment’s georeferencing information, relative to the georeferencing information of the origin of the overall mosaic (and scaled appropriately by resolution) 
+</li><li value="2">the IDLVL is set to the segment number 
+</li><li value="3">the IALVL is set to 0 
+</li></ul></li>
+            <li value="2">as in the single segment case, if we have WKT data, and if the points can be reprojected into WGS84, then 
+<ul style="list-style-type: circle;"><li value="1">write the IGEOLO data </li><li value="2">write the BLOCKA TRE 
+</li></ul></li>
+            <li value="3">write a world file (at user’s discretion) 
+<ul style="list-style-type: circle;"><li value="1">using the georeferencing information of the overall mosaic </li></ul></li>
+        </ul>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>Because we keep IALVL at 0, we’re limited to having any one segment at most 100K units from the CCS origin. That is, we do not yet support the ability to position one segment relative to another.
+
+ 
+
+</p>
+        <h6 class="h7">Writing JPEG 2000 Segments
+</h6>
+        <p>When writing JPEG 2000 segments, you may use the “boxed” format. This means the classical metadata box is typically present; if so, this is used to recover the georeferencing information for the segment per the normal SDK processes.
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

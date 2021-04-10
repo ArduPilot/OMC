@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The MG4PointReader Class</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="The_SDK_Classes.htm">The SDK Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The MG4PointReader Class</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor10"></a>The <span class="fixedWidth">MG4PointReader</span> Class</h2>
+        <p>The <span class="fixedWidth">MG4PointReader</span> class is the class that you will use to enable your application to read LiDAR-based MG4 files. <span class="fixedWidth">MG4PointReader</span> is a concrete implementation of the <span class="fixedWidth">PointSource</span> class (see <a href="The_PointSource_Class.htm" target="" title="" alt="" class="MCXref_0">"The PointSource Class"</a>). </p>
+        <h6 class="h7">Opening an MG4 File</h6>
+        <p>There are two methods of opening an MG4 file:</p>
+        <ul>
+            <li value="1"><span class="fixedWidth">init()</span> with an IO object</li>
+            <li value="2"><span class="fixedWidth">init()</span> with a file name</li>
+        </ul>
+        <p> The first is the preferred method; create a <span class="fixedWidth">FileIO</span> object for the file name and then pass the <span class="fixedWidth">FileIO</span>&#160;object to <span class="fixedWidth">MG4PointReader::init()</span>(see <a href="The_Support_Classes.htm#TheIOClass" target="" title="" alt="" class="MCXref_0">"The IO&#160;Classes"</a>).</p>
+        <p>The second method takes a string for the file name. </p>
+        <p class="note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The string used in the second method is a native codepage string, which is much simpler to use for testing but can cause problems if you can't represent the file path in the codepage. </p>
+        <p>For an example of <span class="fixedWidth">MG4PointReader</span> class usage, see <a href="Code_Examples.htm" target="" title="" alt="" class="MCXref_0">"Code Examples"</a>.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The C API</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><span class="MCBreadcrumbs">The C API</span>
+        </div>
+        <h1 class="ptdh1"><a name="kanchor3"></a>The C API</h1>
+        <p>The MrSID SDK is a large set of C++ classes containing many features and designed for many different needs and workflows. There is a corresponding cost in learning and development time to working with the full SDK.</p>
+        <p>Recognizing this cost, the SDK also provides a small, C-based API for developers who wish to quickly implement or prototype simple decode support for MrSID, JPEG 2000 and NITF images.</p>
+        <p>The C API provides the following features:</p>
+        <ul>
+            <li value="1">decode support for MrSID, JPEG 2000 and NITF</li>
+            <li value="2">basic metadata access</li>
+            <li value="3">file-based and stream-based decodes</li>
+            <li value="4">BSQ format output</li>
+        </ul>
+        <p>Major features not available through the C API include:</p>
+        <ul>
+            <li value="1">access to the image pipeline architecture (readers, filters, writers)</li>
+            <li value="2">support for other file formats</li>
+            <li value="3">encode support</li>
+            <li value="4">progress and interrupt delegates</li>
+        </ul>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The C API is built on top of the C++ API. Although the linkage is done with C names, use of C++ runtime libraries is still required.</p>
+        <p>This chapter describes the basics of the C API, as implemented in the two files <code>ltic_api.h</code> and <code>lt_ioCStream.h</code>, in the <span class="fixedWidth">include</span> directory. The <a href="ReferenceManual/index.html" target="_blank" class="interTopic2">Reference Manual</a> contains complete details and examples.</p>
+        <p MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK">Click any link below for more information.</p>
+        <p class="topiclinklistFirstLine" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="image_support.htm" class="downloadLearnMore">Image Support</a>
+        </p>
+        <p class="topiclinklist" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="decode_support.htm" class="downloadLearnMore">Decode Support</a>
+        </p>
+        <p class="topiclinklist" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="metadata_support2.htm" class="downloadLearnMore">Metadata Support</a>
+        </p>
+        <p class="topiclinklist" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="streams2.htm" class="downloadLearnMore">Streams</a>
+        </p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

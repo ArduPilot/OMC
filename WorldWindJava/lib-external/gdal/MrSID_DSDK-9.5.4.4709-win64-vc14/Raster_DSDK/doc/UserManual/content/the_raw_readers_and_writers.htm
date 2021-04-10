@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Base Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Raw Readers and Writers</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_sdk_base_classes.htm">The SDK Base Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Raw Readers and Writers</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor10"></a>The Raw Readers and Writers</h2>
+        <p>Because they are the foundation of many other readers and writers, as well as being useful for development and debugging, the SDK base classes include “raw” reader and writer classes, <code>LTIRawImageReader</code> and <code>LTIRawImageWriter</code>.
+
+</p>
+        <p>The two raw classes read and write image data directly to binary files (or streams) with no header information. Both support BIP/BIL/BSQ output formats and provide for big/little/host byte ordering (see Endianness in the <a href="glossary.htm" target="" title="" alt="" class="MCXref_0">"Glossary"</a>), plus the usual <code>LTIImage</code> properties of background and nodata color, geographic position, metadata, etc.
+
+</p>
+        <p>The <code>LTIBBBImageReader</code> and <code>LTIBBBImageWriter</code> classes extend the raw reader and writer classes by providing the ability to read and write “BBB” headers to accompany the raw image data. For information on the supported header syntax see <a href="notes_on_bbb_files.htm" target="" title="" alt="" class="MCXref_0">"Notes on BBB Files"</a>. 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

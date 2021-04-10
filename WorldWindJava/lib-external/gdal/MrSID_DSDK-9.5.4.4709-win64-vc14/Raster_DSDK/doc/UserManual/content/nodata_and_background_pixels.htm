@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Nodata and Background Pixels</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Nodata and Background Pixels</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor32"></a>Nodata and Background Pixels</h2>
+        <p>This note describes how the MrSID SDK implements the concepts of "nodata" and "background" pixelsPixels.</p>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The following is not applicable to the MG4 format, in which transparency is implemented through the use of alpha bands. </p>
+        <h6 class="h7">Definitions
+</h6>
+        <p class="glossaryManualEntry">Nodata</p>
+        <p class="glossaryManualBody">The nodata pixel of an image is used to indicate which pixels within the bounds of the image are to be ignored when performing an operation on the image, for example mosaicking, rendering, etc. The default is to have no nodata pixel associated with an image; in this case, all pixels in the image represent valid data.
+
+</p>
+        <p class="glossaryManualEntry">Background Data</p>
+        <p class="glossaryManualBody">The background pixel of an image is used to provide valid pixel values outside of the bounds of the image. In rendering the image, if the specified scene exceeds the boundaries of the image, the background pixel can be used by an application to fill in the portion of the output buffer beyond the image boundary.
+
+</p>
+        <p class="glossaryManualBody">The default is to have no background pixel associated with an image. In this case, when pixels "outside of" the image are required, the black pixel consisting of a zero in each band will be used. For CMYK images, however, the pixel consisting of the maximum sample values in each band will be used.
+
+</p>
+        <p class="glossaryManualBody">While the <span class="fixedWidth">LTIImageStage::read()</span> function does not allow for decoding outside the bounds of the image, the background pixel and the nodata pixel are used when mosaicking multiple images together.
+
+</p>
+        <p class="glossaryManualEntry">Transparency</p>
+        <p class="glossaryManualBody">The MrSID SDK does not support transparency operations more generally than the above simple nodata support, for example via bitmasks, clipping paths, or alpha blending.
+
+ 
+
+</p>
+        <h6 class="h7">MrSID Metadata Tags
+
+</h6>
+        <p>For compatibility reasons, the classical metadata tag names used in MrSID do not correlate well with the definitions given above.
+
+</p>
+        <p>The tags used are:
+
+</p>
+        <p class="switchEntryFirstLine">IMAGE::NO_DATA_VALUE</p>
+        <p class="switchBody">Represents the background pixel (used by older MrSID images)
+</p>
+        <p class="switchEntry">IMAGE::DEFAULT_DATA_VALUE</p>
+        <p class="switchBody">Represents the background pixel (used by newer MrSID images)
+
+</p>
+        <p class="switchEntry">IMAGE::TRANSPARENT_DATA_VALUE</p>
+        <p class="switchBody">Represents the nodata pixel
+
+ 
+
+</p>
+        <p>Figure 1 shows two images, A and B, that are to be mosaicked together into image C, such that B lies precisely on top of A. Both images have a background color of red and a nodata color of blue. In the mosaic C, the upper rectangle is yellow because the data comes from the nodata region of B, which allows the A image to “show through”. The lower rectangle is red, however, because we again "see through"&#160;B and onto the corresponding region of A; that region is set to the nodata color, therefore the red background of A is used.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/nodata_and_background_pixels_imajes/nodata_background.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span>Nodata and background color in overlapping images
+
+ 
+
+</p>
+        <h6 class="h7">Notes on the Mosaicking Process
+
+</h6>
+        <p>When mosaicking two images together, the nodata pixel of the image "on top" is honored. Many images do not have a nodata pixel explicitly set, however, so the following rules are applied:
+
+</p>
+        <ol>
+            <li value="1">      If the image has a nodata pixel set, use that.
+
+</li>
+            <li value="2">Otherwise, if the image has a background pixel set, use that.
+
+</li>
+            <li value="3">Otherwise, use the "black" pixel.
+</li>
+        </ol>
+        <p>The motivation for this treatment of nodata is to give the best looking image for the case when two images are being mosaicked together such that only their corners overlap, resulting in a large image with a lot of "black" background. If this resulting mosaic is then laid on top of some other even bigger image, we want to be able to treat that black background as nodata. (<span class="bolder">Note:</span> this solution does allow for speckling in the image, as the original two squares might have legitimate black pixels within their data.)
+
+</p>
+        <p>If either background or nodata is to be set for an image, set both properties to the same value. When mosaicking images together, all images should have the same background and nodata color.
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

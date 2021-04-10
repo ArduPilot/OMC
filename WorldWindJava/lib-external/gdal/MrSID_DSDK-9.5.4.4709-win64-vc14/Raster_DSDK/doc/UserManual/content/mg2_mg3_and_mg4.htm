@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="MrSIDSupport" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>MG2, MG3 and MG4</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="mrsid_support.htm">MrSIDSupport</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">MG2, MG3 and MG4</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor38"></a>MG2, MG3 and MG4</h2>
+        <p>The most current version of the MrSID technology and file format is known as MrSID Generation 4 (MG4). Its predecessors were known as MG3 and MG2. </p>
+        <p>MG2 was the first commercial version of the compression technology and file format originally developed at Los Alamos National Laboratory. MG2 supports selective decoding (by scale or region), but unlike MG3 and MG4 it does not support optimization workflows, lossless encoding, or composite images (although an MG2 image can be a tile within an MG3 composite). Additionally, the quality of MG2 compression is in many cases somewhat inferior to that of MG3 and MG4.
+</p>
+        <p>MG3 introduced lossless encoding, optimization (by scale, quality or region) and selective decoding (by scale, quality or region). In addition, MG3 introduced the ability to store multiple images in a single file known as a “composite” MG3 file. This allows for large MrSID images to be “updated” when new data for certain areas becomes available. The “tiles” that make up an MG3 composite are complete and valid images unto themselves and may be in the MG3 or MG2 format (MG4 composites can contain only MG4 tiles). The MG3 reader (decoder) class allows the user to inspect the type and geographic extent of each tile in a composite image, and any subset of the tiles may be specified when opening the composite image for decoding. Internally, the SDK handles the logic of mosaicking the specified tiles together.
+
+</p>
+        <p>The key new features of MG4 are:</p>
+        <ul>
+            <li value="1">multispectral (and hyperspectral) support</li>
+            <li value="2">alpha band support</li>
+            <li value="3">improved composite mosaicking&#160;(embedded overviews, multiresolution support)</li>
+        </ul>
+        <p>Support for multispectral imagery in MG4 enables users to compress 4-band NAIP data, 8-band Landsat data or even 224-band AVIRIS data, losslessly or with LizardTech's usual high-quality visually lossless compression. The MG4 format also adds support for alpha bands, enabling users with shapefiles defining the boundaries of their image data to perform more complex mosaicking operations than ever before. Embedded overviews mean that decoding MG4 composites takes less time. Finally, MG4 composites can contain source tiles of differing resolutions.</p>
+        <p>For more information see <a href="key_features_of_mrsid.htm" target="" title="" alt="" class="MCXref_0">"Key Features of MrSID"</a>.</p>
+        <h6 class="h7">Differences Among the MG2, MG3, and MG4 Formats</h6>
+        <p>As the MrSID technology has evolved over the years, the range of capabilities supported has evolved as well. Specifically:</p>
+        <ul>
+            <li value="1">MG2 does not support lossless compression</li>
+            <li value="2">MG2 does not support optimization</li>
+            <li value="3">MG2 does not support composite images</li>
+            <li value="4">MG3 does not support 32-bit floating point data</li>
+            <li value="5">Only MG4 supports signed integer data</li>
+            <li value="6">Only MG4 supports alpha masking</li>
+            <li value="7">Only MG4 offers support for multispectral and hyperspectral imagery</li>
+            <li value="8">While MG3 composite mosaics can contain MG2 files, MG4 composite mosaics must be made up of only MG4 files.</li>
+            <li value="9">While both MG3 and MG4 allow creating flat mosaics using source tiles of different resolutions, only MG4 allows different resolutions in source tiles for composite mosaics.</li>
+        </ul>
+        <p>While some applications may only write newer versions of the MrSID format, all applications that read MrSID files will always continue to support all versions of the format. These considerations are important to keep in mind, since there are so many older MG2 and MG3 files kept in long-term archives.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Code Examples" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Code Examples</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink selected" href="#">Code Examples</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Code Examples</span>
+        </div>
+        <h1 class="ptdh1"><a name="kanchor3"></a>Code Examples</h1>
+        <p>The MrSID Decode SDK&#160;includes code samples that demonstrate the use of the SDK's different interfaces.</p>
+        <p>The following C++ (.cpp)&#160;files are located in your <span class="fixedWidth">examples/src</span> directory.</p>
+        <table style="width: 100%; margin-left: auto; margin-right: auto;" cellspacing="0">
+            <caption>Code example files and what they demonstrate</caption>
+            <col style="width: 180px;" />
+            <col />
+            <tbody>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">UserTutorial.cpp</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Opening MG4 files</p>
+                        <p>Using the <span class="fixedWidth">PointIterator</span> to access the point cloud</p>
+                        <p>Using <span class="fixedWidth">PointSource::read()</span> to access a fixed number of points</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">DumpMG4Info.cpp</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Accessing the point cloud properties</p>
+                        <p>Displaying metadata</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">DecodeMG4ToTXT.cpp</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Using a <span class="fixedWidth">PointWriter</span> class</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">IterateOverPoints.cpp</span><span class="fixedWidth">&#160;</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Using a <span class="fixedWidth">PointIterator</span> <![CDATA[ ]]></p>
+                        <p>Accessing channel values from a <span class="fixedWidth">PointData</span> object </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">support.cpp</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Using the <span class="fixedWidth">FileIO</span>&#160;class</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;"><span class="fixedWidth">UserTest.cpp</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColEnd" style="vertical-align: top;">Enables you to add your own test code to explore the SDK</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Below, we walk through the <span class="fixedWidth">UserTutorial.cpp</span> example.</p>
+        <p>The following code opens an MG4 file:</p><pre class="codesample04emFirstLine" xml:space="preserve">FileIO *file = FileIO::create();
+file-&gt;init("data/Tetons_200k.sid", "r");
+MG4PointReader *pointSource = MG4PointReader::create();
+pointSource-&gt;init(file);
+file-&gt;release();</pre>
+        <p>&#160;</p>
+        <p>Now that the file is initialized, you can access the properties of the point cloud using the following code:</p><pre class="codesample05em" xml:space="preserve">PointSource::count_type numPoints = pointSource-&gt;getNumPoints();
+size_t numChannels = pointSource-&gt;getNumChannels();
+const PointInfo &amp;pointInfo = pointSource-&gt;getPointInfo();
+
+printf("Number of points: %lld\n", numPoints);
+printf("Number of channels: %lu\n", numChannels);
+for(size_t i = 0; i &lt; numChannels; i += 1)
+   printf("Channel %lu: %s\n",  i,  pointInfo.getChannel(i).getName());</pre>
+        <p>&#160;</p>
+        <p>You can use either of the following two methods to access the point cloud. In the first, we use the <span class="fixedWidth">PointIterator</span> mechanism.</p><pre class="codesample04emFirstLine" xml:space="preserve">PointData buffer;
+// create buffers for all the channels 1000 samples long
+buffer.init(pointInfo, 1000);
+// create an iterator of the whole point cloud with all the channels
+PointIterator *iter = pointSource-&gt;createIterator(pointSource-&gt;getBounds(),
+                                                  1.0,
+                                                  pointInfo,
+                                                  NULL);
+
+size_t count;
+// walk the iterator
+while((count = iter-&gt;getNextPoints(buffer)) != 0)
+{
+   // do some thing with this chunk of the point cloud.
+}
+iter-&gt;release();</pre>
+        <p>&#160;</p>
+        <p>The second method extracts a fixed number of points (10,000 in this case):</p><pre class="codesample04emFirstLine" xml:space="preserve">PointData buffer;
+{
+   // only decode X, Y, Z
+   PointInfo pointInfo;
+   pointInfo.init(3);
+   pointInfo.getChannel(0).init(*pointSource-&gt;getChannel(CHANNEL_NAME_X));
+   pointInfo.getChannel(1).init(*pointSource-&gt;getChannel(CHANNEL_NAME_Y));
+   pointInfo.getChannel(2).init(*pointSource-&gt;getChannel(CHANNEL_NAME_Z));
+   buffer.init(pointInfo, 10000);
+}
+
+pointSource-&gt;read(Bounds::Huge(), buffer, NULL);
+// do some thing with the points</pre>
+        <p>&#160;</p>
+        <p>Now we'll do a little housecleaning. When you're done with your point source, you should release it:</p><pre class="codesample04emFirstLine">pointSource-&gt;release();
+pointSource = NULL;</pre>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>NITF Support</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><span class="MCBreadcrumbs">NITF Support</span>
+        </div>
+        <h1 class="ptdh1"><a name="kanchor15"></a>NITF Support</h1>
+        <p>The National Imagery Transmission Format (NITF) standard was created by the Department of Defense as a means of formatting digital imagery and imagery-related products and exchanging them among members of the intelligence community, the Department of Defense (DOD), and other government departments and agencies. NITF was created partly because government agencies needed a single common image representation that supported certain metadata features and workflows. While it is called an image format, NITF is more precisely described as a file format that wraps one or more image files and their corresponding metadata.
+
+</p>
+        <p>The <MadCap:conditionalText MadCap:conditions="Default.ScreenDSDK,Default.PrintDSDK">D</MadCap:conditionalText>SDK supports reading NITF files and includes the following features:
+
+</p>
+        <ol>
+            <li value="1">support for image segments with JPEG and JPEG 2000 compression 
+</li>
+            <li value="2">some support for files containing multiple image segments 
+</li>
+            <li value="3">some support for TRE data 
+</li>
+        </ol>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>Text, label, and symbol segment types are not supported.
+
+ 
+
+</p>
+        <h6 class="h7">Important Notes On NITF Compliance in the MrSID SDK
+</h6>
+        <p>This version of the MrSID SDK follows the following NITF standards:
+
+</p>
+        <ol>
+            <li value="1">versions 2.1 (MIL-STD-2500C, Draft April 2004) and 2.0 of the NITF file format for reading 
+</li>
+            <li value="2">the BIIF Profile (BPJ2K01.00, Draft January 2004) including the J2KLRA TRE 
+</li>
+        </ol>
+        <p>NITF v1.1. files are not supported.
+
+</p>
+        <p>Some of these NITF standards are not yet ratified; future SDK releases will track the evolution of these standards to ensure interoperability.
+
+</p>
+        <p>The architecture of the NITF classes may change in a future release, so as to provide simpler and more efficient access to NITF features such as multiple image segments and TRE data.
+
+</p>
+        <p>The motivated reader may wish to learn more in <a href="georeferencing_of_nitf_imagery.htm" target="" title="" alt="" class="MCXref_0">"Georeferencing of NITF Imagery"</a>. </p>
+        <p MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK">Click any link below for more information
+
+ 
+
+</p>
+        <p class="topiclinklistFirstLine" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="nitf_reader.htm" class="downloadLearnMore">The NITF Reader</a>
+        </p>
+        <p class="topiclinklist" MadCap:conditions="Default.ScreenESDK,Default.ScreenDSDK"><a href="nitf_input_metadata.htm" class="downloadLearnMore">NITF Input Metadata</a>
+        </p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

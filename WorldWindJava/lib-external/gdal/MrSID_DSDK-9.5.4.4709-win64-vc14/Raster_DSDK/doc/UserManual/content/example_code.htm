@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Getting Started" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Example Code</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/tablestyles/basic.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="getting_started.htm">Getting Started</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Example Code</span>
+        </div>
+        <h2 class="ptdh2">Example Code</h2>
+        <p>The GeoExpress SDK&#160;includes a number of examples that demonstrate the major features of the SDK. The table below shows which files to consult for various types of operations.</p>
+        <table style="border-left-style: none;border-left-width: 0px;border-left-color: #000000;border-right-style: none;border-right-width: 0px;border-right-color: #000000;border-top-style: solid;border-top-width: 1px;border-top-color: #000000;border-bottom-style: solid;border-bottom-width: 1px;border-bottom-color: #000000;margin-left: auto;margin-right: auto;caption-side: top;width: 100%;mc-table-style: url('resources/tablestyles/basic.css');" class="TableStyle-Basic" cellspacing="0">
+            <caption>Code example files to use as demonstrations of various common tasks</caption>
+            <col style="width: 33%;" class="TableStyle-Basic-Column-Column1" />
+            <col style="width: 30%;" class="TableStyle-Basic-Column-Column1" />
+            <col style="width: 25%;" class="TableStyle-Basic-Column-Column1" />
+            <tbody>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;" rowspan="3">
+                        <p>Opening image files</p>
+                    </td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">JP2</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeJP2ToBBB.cpp<br />DecodeJP2ToJPG.cpp<br />DecodeJP2ToMemory.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">MrSID</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDBandSelection.cpp<br />DecodeMrSIDToMemory.cpp<br />DecodeMrSIDToRaw.cpp<br />DecodeMrSIDToTIFF.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">NITF</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeNITFToBBB.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Setting the number of threads for a decoding operation</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">MrSID</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDToMemory.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Getting image properties</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">ImageInfo.cpp <br />MetadataDump.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;" rowspan="3">Writing images files</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Raw</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeJP2ToBBB.cpp<br />DecodeMrSIDToRaw.cpp<br />DecodeNITFToBBB.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">JPEG</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeJP2ToJPG.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">TIFF</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDToTIFF.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;" rowspan="4">Working with pixel data using <span style="font-family: monospace;">LTISceneBuffer</span></td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Accessing the BSQ data</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDBandSelection.cpp<br />DerivedImageFilter.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Converting between BSQ and BIP</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DerivedImageReader.cpp<br />DerivedImageWriter.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Using your own memory</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeJP2ToMemory.cpp<br />DecodeMrSIDToMemory.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">Using sub-buffers</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">SceneBuffer.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Working with multispectral data</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDBandSelection.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Working with Alpha</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDBandSelection.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Creating custom progress and interrupt  delegates</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">ProgressDelegate.cpp <br />InterruptDelegate.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Converting a Geo region of interest to an <span style="font-family: monospace;">LTIScene</span></td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">GeoScene.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Checking MrSID version</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DecodeMrSIDLidar.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Looking up error messages</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">ErrorHandling.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Working with <span style="font-family: monospace;">LTIOStreamInf</span></td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DerivedStream.cpp<br />UsingStreams.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;">Building an image pipeline</td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;">&#160;</td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">Pipeline.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="vertical-align: top;font-size: 9pt;" rowspan="3">Creating sub-class of <span style="font-family: monospace;">LTIImageStage</span></td>
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;"><span style="font-family: monospace;">LTIImageReader</span>
+                    </td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DerivedImageReader.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyE-Column1-Body1" style="font-size: 9pt;"><span style="font-family: monospace;">LTIImageFilter</span>
+                    </td>
+                    <td class="TableStyle-Basic-BodyD-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DerivedImageFilter.cpp</td>
+                </tr>
+                <tr class="TableStyle-Basic-Body-Body1">
+                    <td class="TableStyle-Basic-BodyB-Column1-Body1" style="font-size: 9pt;"><span style="font-family: monospace;">LTIImageWriter</span>
+                    </td>
+                    <td class="TableStyle-Basic-BodyA-Column1-Body1" style="font-size: 9pt;font-family: monospace;">DerivedImageWriter.cpp</td>
+                </tr>
+            </tbody>
+        </table>
+        <p>&#160;</p>
+        <p>&#160;</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

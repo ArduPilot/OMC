@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Metadata Support" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Metadata Record</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="metadata_support.htm">Metadata Support</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Metadata Record</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor17"></a>The Metadata Record</h2>
+        <p>A single key/value pair is represented by the <code>LTIMetadataRecord</code> class. This class has several properties:
+
+</p>
+        <ul>
+            <li value="1">tag name 
+</li>
+            <li value="2">datatype 
+</li>
+            <li value="3">dimension information (number of dimensions and dimension array) </li>
+            <li value="4">data pointer </li>
+        </ul>
+        <p>The tag name is represented as an ASCII string. The well-known strings (those for common metadata tags) have corresponding values in the <code>LTIMetadataTag</code> enum. Either form may be used for most metadata operations.
+</p>
+        <p>The dimension information describes the “shape” of the data element(s), which is pointed to with a <code>void*</code> pointer.
+
+</p>
+        <ul>
+            <li value="1">If the data is a single value (scalar), the number of dimensions is 1 and the dimension array is a one-element vector whose entry is one, i.e. <code>int dims[1] = { 1 </code>}. 
+</li>
+            <li value="2">If the data is a vector of values, the number of dimensions is 1 and the dimension array is a one-element vector whose entry is the number of the values, i.e.<code> int dims[1] = { 10 }</code> for a 10-element data record. 
+</li>
+            <li value="3">If the data is an arbitrary vector of values, the number of dimensions is <i>n</i> and the dimension array is an N-element vector whose entries are the lengths of each dimension, i.e. <code>int dims[2] = { 4,5 }</code> for a 20-element data record formatted as a 4x5 array of values. </li>
+        </ul>
+        <p>In all cases, the data values will all have the same data type. The <code>void*</code> pointer is cast to the appropriate type and dereferenced accordingly to access the true value.
+
+</p>
+        <p>The <code>LTIMetadataRecord</code> class contains a number of helper functions to get and set the data values.
+
+</p>
+        <p>The class <code>LTIMetadataDumper</code> can be used to pretty print a metadata record as a development and debugging aid.
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

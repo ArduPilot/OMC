@@ -1,0 +1,686 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>GeoTIFF Metadata for JPEG 2000</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">GeoTIFF Metadata for JPEG 2000</span>
+        </div>
+        <h2 class="ptdh2">GeoTIFF Metadata for JPEG 2000<a name="kanchor52"></a></h2>
+        <p style="text-align: left;">Following is a copy of the first draft of <span style="font-weight: normal;font-style: italic;">The "GeoTIFF Box" Specification for JPEG 2000 Metadata</span>.</p>
+        <p style="text-align: left;">&#160;</p>
+        <p style="text-align: center;">*** DRAFT ***
+
+ 
+
+ 
+
+         </p>
+        <p style="text-align: center;font-weight: bold;font-style: normal;font-size: 16pt;">The "GeoTIFF Box" Specification for JPEG 2000 Metadata
+
+ 
+
+ 
+
+                             </p>
+        <p style="text-align: center;font-size: 12pt;font-weight: bold;font-style: normal;">Version 0.0
+
+                              </p>
+        <p style="text-align: center;font-size: 12pt;font-weight: bold;font-style: normal;">30 April 2004
+
+                              
+
+                            </p>
+        <p style="text-align: center;">*** DRAFT ***
+
+ 
+
+ 
+
+                                                   </p>
+        <p style="text-align: center;">&#160;</p>
+        <p style="text-align: center;font-weight: normal;font-style: italic;">Michael P. Gerlek, editor
+
+                                                   </p>
+        <p style="text-align: center;font-weight: normal;font-style: italic;">mpg(AT)lizardtech(DOT)com
+
+                                                  
+
+                                                   </p>
+        <p style="text-align: center;font-weight: normal;font-style: italic;">LizardTech, Inc.
+
+                                                   </p>
+        <p style="text-align: center;font-weight: normal;font-style: italic;">1008 Western Ave Suite 403 </p>
+        <p style="text-align: center;font-weight: normal;font-style: italic;">Seattle, WA 98104
+
+                                                   USA
+
+ 
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h5>0 Editorial Notes
+
+</h5>
+        <p>This is a DRAFT document.  Comments welcome.
+
+ 
+
+</p>
+        <p>Sections in [brackets] are editorial asides, calling out specific questions or
+
+details to be resolved.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">0.1 Disclaimers and Copyrights
+</h6>
+        <p>This document is copyright © 2004 Celartem, Inc., doing business as LizardTech.  Permission to copy without
+
+fee all or part of this material is granted provided that the copies are not
+
+made or distributed for direct or commercial advantage and this copyright
+
+notice appears.
+
+ 
+
+</p>
+        <p>LizardTech assumes no liability for any special, incidental, indirect or
+
+consequences of any kind, or any damages whatsoever resulting from loss of
+
+use, data or profits, whether or not advised of the possibility of damage, and
+
+on any theory of liability, arising out of or in connection with the use of
+
+this specification.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h5>1.0 Introduction
+ 
+
+</h5>
+        <p>This specification describes a GeoTIFF-based method for adding geospatial
+
+metadata to a JPEG 2000 file.  While the actual specification is not at all
+
+complex or hard to implement, there has been some confusion about what it
+
+actually is, what restrictions apply to its use, etc.  Enough people have
+
+asked about it that we considered it worthwhile to put something on paper and
+
+have it reviewed by some independent developers.
+
+ 
+
+</p>
+        <p>Note the intent of this document is only to codify existing practice as of
+
+this writing; no modifications or extensions to this specification are planned
+
+or expected.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">1.1 History, Background
+
+</h6>
+        <p>Mapping Science Inc. (MSI) provided the first implementation of this
+
+specification in their GeoJP2(tm) encoder product in 2003.  At that time, the
+
+definition of the specification was available only under certain licensing
+
+restrictions from MSI.
+
+ 
+
+</p>
+        <p>LizardTech, Inc. acquired the assets of Mapping Science in 2004.  It is
+
+LizardTech's position that this specification should be publicly available for
+
+anyone to implement. Neither JPEG 2000 nor GeoTIFF are proprietary standards;
+
+the combination should not be either.
+
+ 
+
+</p>
+        <p>Note that "GeoJP2" is a trademark that refers to the original MSI encoder (now
+
+owned by LizardTech).  Please don't use the term "GeoJP2" to refer to this
+
+metadata specification -- we don't want this specification to be encumbered by
+
+trademark issues.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">1.2 Box Structure
+
+</h6>
+        <p>Two UUID boxes are defined.
+
+ 
+
+</p>
+        <p>The first, called the GeoTIFF box, contains a degenerate GeoTIFF file as
+
+described in section 2.
+</p>
+        <p>The second, called the world file box, contains the usual six doubles as in an
+
+external world (.wld) file, plus some additional version information.  This is
+
+described in section 3.  Presence of the world file box is optional.
+
+ 
+
+</p>
+        <p>This specification assumes a compliant JP2 file with only one codestream box.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h5>2.0 The GeoTIFF Box</h5>
+        <p>The GeoTIFF box provides a simple mechanism for a JP2 file to have the same
+
+level of geospatial metadata as is provided by the widely supported GeoTIFF
+
+standard, using the normal GeoTIFF implementations.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">2.1 UUID</h6>
+        <p>The UUID for this box is
+
+ 
+
+  </p><pre class="codesample04emFirstLine">static unsigned char geotiff_box[16] =
+
+  {
+
+    0xb1, 0x4b, 0xf8, 0xbd,
+
+             0x08, 0x3d, 0x4b, 0x43,
+
+             0xa5, 0xae, 0x8c, 0xd7,
+
+             0xd5, 0xa6, 0xce, 0x03
+
+  };
+
+ 
+
+ 
+
+</pre>
+        <h6 class="h7">2.2 Box Contents</h6>
+        <p>This box contains a valid GeoTIFF image.  The image is "degenerate", in that
+
+it represents a very simple image with specific constraints:
+</p>
+        <ul>
+            <li value="1">the image height and width are both 1
+
+  </li>
+            <li value="2">the datatype is 8-bit
+
+  </li>
+            <li value="3">the colorspace is grayscale
+</li>
+            <li value="4">the (single) pixel must have a value of 0 for its (single) sample
+
+ 
+
+</li>
+        </ul>
+        <p>The TIFF image is to be encoded in little endian format.  [Note that an early
+
+and possibly unreleased MSI encoder seems to have used big endian form, but
+
+the GeoTIFF data appears corrupt.]
+
+ 
+
+</p>
+        <p>The intent is that any compliant GeoTIFF reader/writer will be able to
+
+read/write this image.
+
+ 
+
+</p>
+        <p>Note that the TIFF image properties -- width, bitdepth, etc -- do NOT reflect
+
+the image properties of the JP2 image.  These image properties are not to be
+
+used in the interpretation of the geospatial metadata.
+
+ 
+
+</p>
+        <p>Other TIFF image properties maybe present; if so, they should be similarly
+
+ignored.
+
+ 
+
+</p>
+        <p>[ If the TIFF image properties do not meet the constraints above, the
+
+geospatial information represented by this box should be considered to be
+
+undefined. ]
+</p>
+        <p>The GeoTIFF image may contain TIFF metadata tags.  These should be ignored;
+
+they do not apply to the JP2 image.
+
+ 
+
+</p>
+        <p>The GeoTIFF image may contain any number of GeoTIFF keys, as allowed by the
+
+GeoTIFF standard.  These keys define the geospatial metadata of this box and
+
+of the JP2 image itself.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h5>3.0 The World File Box
+
+</h5>
+        <p>[ This description is based on my reading of the MSI source code; I will have
+
+to flesh this out as I become more confident of it. Alternatively, at some
+
+point if I can get the code suitably cleaned up I may just publish the
+
+implementation itself... If anyone needs this information now, feel free to
+
+contact me. ]
+
+ 
+
+</p>
+        <p>The world file box contains one or more "chunks" of metadata data of various
+
+types.  The most common chunk type encodes the normal six-doubles style of
+
+geopositioning information found in the conventional external world files
+
+often used with some image types.
+
+ 
+
+</p>
+        <p>[ Other chunk types were used to indicate the operating system the JP2 image
+
+created on, the MSI command line used, and arbitrary user-defined bytes.  It
+
+is not clear if these other chunk types were ever widely used or not.  I will
+
+attempt to define these other chunks, but they use should be considered to be
+
+OBSOLETE and not used in future implementations. ]
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">3.1 UUID</h6>
+        <p>The UUID for this box is
+
+ 
+
+  </p><pre class="codesample04emFirstLine">static unsigned char world_box[16] =
+
+  {
+
+    0x96, 0xa9, 0xf1, 0xf1,
+
+             0xdc, 0x98, 0x40, 0x2d,
+
+             0xa7, 0xae, 0xd6, 0x8e,
+
+             0x34, 0x45, 0x18, 0x09
+
+  };
+
+ 
+
+ 
+
+ 
+
+</pre>
+        <h6 class="h7">3.2 Box Contents</h6>
+        <p>The first bytes in the box, which we will call the "header", give some
+
+versioning information and the number of chunks in the box.  The "chunks"
+
+themselves then follow, laid out as contiguous bytes.  The box ends with a
+
+small of amount of data in what we will call the "footer".
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7Ital">3.2.1 Header Format
+</h6>
+        <p>Bytes 0-3: 'M', 'S', 'I', 'G'.
+
+ 
+
+</p>
+        <p>Bytes 4-5: major and minor version numbers (shifted and packed together)
+
+  - the actual values of these numbers may not be used for anything
+
+ 
+
+</p>
+        <p>Bytes 6-13: feature set flags
+
+  - current values are {1, 0, 0, 0, 0, 0, 0, 0}
+
+  - first flag controls interpretation of the world file values,
+
+    see section 3.2.2.1
+
+  - second flag indicates windows or linux build of encoder; not used for anything?
+
+  - remaining flags undefined (leave as zero)
+
+ 
+
+</p>
+        <p>Byte 14: number of chunks in the box?
+
+ 
+
+</p>
+        <p>Byte 15: next box?; apparently always 0
+
+ 
+
+</p>
+        <p>The next bytes in the file correspond to the serialization of each chunk. 
+
+There may be zero or more chunks present; each chunk type may appear at most
+
+once.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7Ital">3.2.2 Chunk Format
+</h6>
+        <p>The chunk format appears to be a simple header of six bytes, followed by the
+
+chunk-specific data.
+
+ 
+
+</p>
+        <p>Byte 0: chunk index, used to indicate type of chunk
+</p>
+        <p>Byte 1: chunk properties  [not used?]
+
+ 
+
+</p>
+        <p>Bytes 2-5:  chunk length  (including these six bytes)
+
+  - stored as little-endian unsigned int
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h9">3.2.2.1 World Chunk Format</h6>
+        <p>Byte 0: chunk index (equal to 0)
+
+</p>
+        <p>Byte 1: chunk properties
+
+ 
+
+</p>
+        <p>Bytes 2-5:  chunk length  (equal to 2 + 4 + 6*8)
+
+  - stored as little-endian unsigned int
+
+ 
+
+</p>
+        <p>Bytes 6-13:   x scale (resolution)
+
+</p>
+        <p>Bytes 14-21:  x rotation
+
+</p>
+        <p>Bytes 22-29:  y rotation
+
+</p>
+        <p>Bytes 30-37:  y scale (resolution)
+
+</p>
+        <p>Bytes 38-45:  x upper-left
+
+</p>
+        <p>Bytes 46-53:  y upper-left
+
+ 
+
+</p>
+        <p>The six geo values are stored as little-endian doubles.
+
+ 
+
+</p>
+        <p>The first feature flag (defined in section 3.2.1) control the interpretation
+
+of these values.  According to the comments in the source code, if set to 1
+
+then the following applies:
+
+ 
+
+  </p>
+        <blockquote>
+            <p style="font-weight: normal;font-style: italic;">"This was instituted with version 1.03.11 (May 15, 2003) to signify that we
+
+  clarified the definition of the georeferencing data and found out that that
+
+  data represents the upper left corner of the upper left pixel, not the
+
+  center as we had thought, so the [world chunk values are] not equal to the
+
+  geotiff data, but is shifted by 0.5*scale to the center of the pixel."
+
+ 
+
+</p>
+        </blockquote>
+        <p>If the world chunk is present, these values should override the corresponding
+
+values in the GeoTIFF box.
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h9">3.2.2.2 User Data Chunk Format
+
+</h6>
+        <p>Byte 0: chunk index (equal to 1)
+
+</p>
+        <p>Byte 1: chunk properties
+
+ 
+
+</p>
+        <p>Bytes 2-5:  chunk length
+
+  - stored as little-endian unsigned int
+
+ 
+
+</p>
+        <p>Bytes 6..n:  user-defined data (chunk length minus 6 bytes)
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h9">3.2.2.2 Command-Line Chunk Format</h6>
+        <p>Byte 0: chunk index (equal to 2)
+
+</p>
+        <p>Byte 1: chunk properties
+
+ 
+
+</p>
+        <p>Bytes 2-5:  chunk length
+
+  - stored as little-endian unsigned int
+
+ 
+
+</p>
+        <p>Bytes 6..n:   command-line string (chunk length minus 6 bytes)
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h9">3.2.2.2 OS Data Chunk Format</h6>
+        <p>Byte 0: chunk index (equal to 3)
+
+</p>
+        <p>Byte 1: chunk properties
+
+ 
+
+</p>
+        <p>Bytes 2-5:  chunk length
+
+  - stored as little-endian unsigned int
+
+ 
+
+</p>
+        <p>Bytes 6..n:  unknown data (chunk length minus 6 bytes)
+
+ 
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7Ital">3.2.3 Footer Format
+</h6>
+        <p>The footer, coming after the chunk data, is six bytes long.
+
+ 
+
+</p>
+        <p>Byte 0:  set to 0xff
+
+</p>
+        <p>Byte 1:  set to 0x00
+
+</p>
+        <p>Bytes 2-5: file offset of next world file box?
+
+ 
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>
