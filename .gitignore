@@ -210,3 +210,5 @@ IntelMissionControl/resources/META-INF/MANIFEST.MF
 #embedded external libs
 external/maven-local-repository/
 /IntelMissionControl/ant/imc-mapping.txt
+
+.vagrant
