@@ -26,7 +26,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.time.mask>dd.MM.yyyy '@' HH:mm:ss z</build.time.mask>
         <git.directory>${project.basedir}/../.git</git.directory>
-        <proguard.directory>${project.basedir}/ant</proguard.directory>
+<!--        <proguard.directory>${project.basedir}/ant</proguard.directory>-->
         <kotlin.version>1.3.21</kotlin.version>
     </properties>
 
@@ -375,49 +375,49 @@
         </plugins>
     </build>
 
-    <profiles>
-        <profile>
-            <id>obfuscation</id>
-            <activation>
-                <property>
-                    <name>!debugOn</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.dingxin</groupId>
-                        <artifactId>proguard-maven-plugin</artifactId>
-                        <version>1.0.4-beta2</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>org.apache.ant</groupId>
-                                <artifactId>ant</artifactId>
-                                <version>1.10.5</version>
-                            </dependency>
-                            <dependency>
-                                <groupId>net.sf.proguard</groupId>
-                                <artifactId>proguard-base</artifactId>
-                                <version>6.1.0beta2</version>
-                            </dependency>
-                        </dependencies>
-                        <configuration>
-                            <configFile>${proguard.directory}/proguard_imc.cfg</configFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>process-classes-with-proguard</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>proguard</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+<!--    <profiles>-->
+<!--        <profile>-->
+<!--            <id>obfuscation</id>-->
+<!--            <activation>-->
+<!--                <property>-->
+<!--                    <name>!debugOn</name>-->
+<!--                </property>-->
+<!--            </activation>-->
+<!--            <build>-->
+<!--                <plugins>-->
+<!--&lt;!&ndash;                    <plugin>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <groupId>com.github.dingxin</groupId>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <artifactId>proguard-maven-plugin</artifactId>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <version>1.0.4-beta2</version>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <dependencies>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <dependency>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <groupId>org.apache.ant</groupId>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <artifactId>ant</artifactId>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <version>1.10.5</version>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </dependency>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <dependency>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <groupId>net.sf.proguard</groupId>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <artifactId>proguard-base</artifactId>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <version>6.1.0beta2</version>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </dependency>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </dependencies>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <configuration>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <configFile>${proguard.directory}/proguard_imc.cfg</configFile>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </configuration>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <executions>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <execution>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <id>process-classes-with-proguard</id>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <phase>package</phase>&ndash;&gt;-->
+<!--&lt;!&ndash;                                <goals>&ndash;&gt;-->
+<!--&lt;!&ndash;                                    <goal>proguard</goal>&ndash;&gt;-->
+<!--&lt;!&ndash;                                </goals>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </execution>&ndash;&gt;-->
+<!--&lt;!&ndash;                        </executions>&ndash;&gt;-->
+<!--&lt;!&ndash;                    </plugin>&ndash;&gt;-->
+<!--                </plugins>-->
+<!--            </build>-->
+<!--        </profile>-->
+<!--    </profiles>-->
 
     <dependencies>
         <dependency>
