@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The Support Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Streams</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_support_classes.htm">The Support Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Streams</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor34"></a>Streams</h2>
+        <p>The MrSID SDK provides an abstract stream class, <code>LTIOStreamInf</code>, which provides a Unix stdio-like interface for working with data in files or file-like objects. Rather than relying on the application to provide a file name or a <code>FILE*</code>, many of the SDK functions are designed to operate on <code>LTIOStreamInf</code> objects instead. This enables more portable and extensible interfaces.</p>
+        <p>The <code>LTIOStreamInf</code> interface requires only a small set of primitives, including:</p>
+        <ul>
+            <li value="1"><code>open()</code> and <code>close()</code></li>
+            <li value="2"><code>read()</code> and <code>write()</code>, using byte arrays</li>
+            <li value="3"><code>seek()</code> and <code>tell()</code>, using 64-bit offsets</li>
+            <li value="4"><code>isOpen()</code> and <code>isEOF()</code></li>
+        </ul>
+        <p>(For details on the precise semantics of these primitives, see the <a href="ReferenceManual/index.html" target="_blank" class="interTopic2">Reference Manual</a> and <a href="notes_on_streams.htm" target="" title="" alt="" class="MCXref_0">"Notes on Streams"</a>.)</p>
+        <p>A number of useful stream types, including files, in-memory buffers, sockets, and buffered streams, can be implemented using the stream interface. The SDK provides the following stream implementations:</p>
+        <ul>
+            <li value="1"><code>LTIOFileStream</code> – OS-native file support (2GB or less only)</li>
+            <li value="2"><code>LTIOMemStream</code> – in-memory, read-only buffer of fixed size</li>
+            <li value="3"><code>LTIODynamicMemStream</code> – in-memory read/write buffer, which grows as required</li>
+            <li value="4"><code>LTIOBufferedStream</code> – nontrivial buffering for an underlying <code>LTIOStreamInf</code></li>
+            <li value="5"><code>LTIOCallbackStream</code> – stream implemented via user-supplied callbacks for basic operations (read, write, open etc.)</li>
+        </ul>
+        <h6 class="h7">Examples</h6>
+        <p>The <a href="ReferenceManual/index.html" target="_blank" class="interTopic2">Reference Manual</a> contains several examples of working with streams, including code showing how to perform simple reads and writes and how to derive your own simple stream from <code>LTIOStreamInf</code>.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

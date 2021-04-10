@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Notes on World Files</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Notes on World Files</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor13"></a>Notes on World Files</h2>
+        <p>A "world file" is a simple text file containing auxilliary georeferencing information for an image. It can be used to georeference an image that has no georeferencing information within it, or to override existing georeferencing information.
+
+</p>
+        <p>By convention, the filename for a world file is the same as the image it pertains to, with a different extension. The three-letter extension is made up of the first and last characters of the image filename extension, followed by a 'w'. For example, the world file for a TIFF image named <span class="fixedWidth">bainbridge.tif</span> would be <span class="fixedWidth">bainbridge.tfw</span>; the world file for a MrSID image named <span class="fixedWidth">madison.sid</span> would be named <span class="fixedWidth">madison.sdw</span>.
+
+</p>
+        <p>The <span class="fixedWidth">LTIGeoCoord</span> class stores the same information as a world file. It has member functions for reading and writing world files. Many of the image reader and writer classes support the use of world file georeferencing information.
+
+ 
+
+</p>
+        <h6 class="h7">Format
+</h6>
+        <p>The world file format is six lines, each line containing a double precision value (represented in text). No additional lines may be present. Leading and trailing whitespace are allowed.
+
+The meanings of the six values are:
+
+</p>
+        <ul>
+            <li value="1">dimension of a pixel in map units in <span class="italic">x</span> direction
+
+</li>
+            <li value="2">first rotation term
+
+</li>
+            <li value="3">second rotation term
+
+</li>
+            <li value="4">dimension of a pixel in map units in <span class="italic">y</span> direction
+
+</li>
+            <li value="5"><span class="italic">x</span>-coordinate of the center of the upper-left pixel </li>
+            <li value="6"><span class="italic">y</span>-coordinate of the center of the upper-left pixel
+
+ 
+
+</li>
+        </ul>
+        <p>The <span class="italic">y</span>-dimension is, by convention, a negative value.
+</p>
+        <p>The MrSID SDK currently ignores the rotation term in most cases.
+
+</p>
+        <p>Because the floating point values are represented textually, when using world files be wary of errors due to roundoff, imprecise scanf/printf conversion, etc.
+
+ 
+
+</p>
+        <h6 class="h7">Example
+
+</h6>
+        <p>This is an example of a world file:</p>
+        <p class="codesampleFirstLine"><span style="color: #ffffff;">xx</span>0.20000000</p>
+        <p class="codesample"><span style="color: #ffffff;">xx</span>0.00000000</p>
+        <p class="codesample"><span style="color: #ffffff;">xx</span>0.00000000</p>
+        <p class="codesample"><span style="color: #ffffff;">x</span>-0.20000000</p>
+        <p class="codesample">780.10000000</p>
+        <p class="codesample">219.90000000</p>
+        <p>This world file indicates the image resolution is (0.2, -0.2) and the upper left is at (780.1, 219.9). The rotation terms are zero, meaning no rotation is required.
+</p>
+        <p />
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

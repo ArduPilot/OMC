@@ -1,0 +1,5 @@
+#install gdal.jar to local maven repository:
+mvn install:install-file -Dfile=WorldWindJava\lib-external\gdal\bin\gdal.jar -DgroupId=org.gdal -DartifactId=gdal -Dversion=2.3.1-imc -Dpackaging=jar
+
+#copy:
+win64\gdalalljni.dll -> IntelMissionControl\lib64\gdalalljni.dll

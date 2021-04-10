@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Architecture and Design" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Scenes</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="architecture_and_design.htm">Architecture and Design</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Scenes</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor30"></a>Scenes</h2>
+        <p>As implied in the previous section, when a <span class="fixedWidth">read()</span> call is made to an image stage, the scene of interest must be specified. A scene, implemented by the <span class="fixedWidth">LTIScene</span> class, has three basic properties:
+
+</p>
+        <ul>
+            <li value="1">upper-left <span class="italic">x</span>- and <span class="italic">y</span>-position
+
+</li>
+            <li value="2">width and height
+
+</li>
+            <li value="3">magnification (resolution)
+
+</li>
+        </ul>
+        <p>The position is expressed in pixel space, relative to the given magnification, with (0,0) and (<span class="italic">w</span>-1,<span class="italic">h</span>-1) being the upper-left and lower-right corners of the image, where w and h are the width and height of the image (in pixels).
+
+</p>
+        <p>The scene width and height are also expressed in terms of pixels, but at the magnification of the scene. That is, the width and height values represent the pixel dimensions of the scene as decoded to the output buffer.
+
+</p>
+        <p>The magnification value is a floating point value representing the resolution or scale at which the image is to be read. A magnification of 1.0 corresponds to the full resolution of the image (one to one); a value of 0.5 represents the image at a downsampled view of half the full width and height, and a value of 2.0 represents the image at an upsampled view of twice the full width and height. <span class="bolder">Note:</span> Only powers of two are supported for most image types (although filters for arbitrary resampling are available).
+
+</p>
+        <p>As an example, consider an image that is 625x625 pixels, as shown in Figure 1. </p>
+        <p>
+            <img src="resources/images/scenes_images/original_625x625_with_rect.png" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span> Input scene; (x,y)=(0,0) (w,h)=(625, 625) mag=1.0
+
+ 
+
+</p>
+        <p>The middle rectangle in red corresponds to a full-resolution scene that is 200x200 pixels taken from the upper-left corner of the image. This is shown in Figure 2.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/scenes_images/scale_2_cropped.png" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 2: &#160;"><span class="autonumber"><span>Figure 2: &#160;</span></span> Red
+
+Input scene: (x,y)=(0, 0) (w,h)=(200,200) mag=1.0
+
+ 
+
+</p>
+        <p>The inner rectangle in blue corresponds to a scene at twice the resolution (mag=2) that is also 200x200 pixels and also taken from the upper-left corner of the image. This scene is shown in Figure 3. Note that the scene is extracted into a buffer sized for 200x200 pixels, but the corresponding “footprint” in full-resolution space is only 100x100.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/scenes_images/scale_1_cropped.png" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 3: &#160;"><span class="autonumber"><span>Figure 3: &#160;</span></span>Blue
+
+Input scene: (x,y)=(0, 0) (w,h)=(200,200) mag=2.0 </p>
+        <p>The outer rectangle in green corresponds to a scene at mag=0.5 that is again 200x200 pixels from the upper-left corner of the image; see Figure 4. Note that the scene is extracted into a buffer sized for 200x200 pixels, but the corresponding footprint in full-resolution space is 400x400.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/scenes_images/scale_3_cropped.png" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 4: &#160;"><span class="autonumber"><span>Figure 4: &#160;</span></span>Green
+
+Input scene: (x,y)=(0, 0) (w,h)=(200,200) mag=0.5
+ </p>
+        <p>At mag=2.0 the scene is effectively sampling from an image of size 1250x1250. Likewise at mag=0.5 the scene is sampling from an image of size 313x313.</p>
+        <p class="Note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>Not all image formats natively support multiresolution decoding. MrSID and JPEG 2000, being wavelet-based systems, efficiently support decoding at powers-of-two scales. In order to achieve this effect with other formats a resampling filter must be applied.
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

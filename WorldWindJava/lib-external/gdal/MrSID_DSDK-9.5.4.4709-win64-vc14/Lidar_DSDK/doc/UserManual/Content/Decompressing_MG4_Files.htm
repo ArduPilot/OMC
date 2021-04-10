@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="MrSID Decode SDK Command Line Tools" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Decompressing MG4 Files</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="MrSID_Decode_SDK_Command_Line_Tools.htm">MrSID Decode SDK Command Line Tools</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Decompressing MG4 Files</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor14"></a>Decompressing MG4 Files</h2>
+        <p>The MrSID Decode  SDK&#160;includes a command line tool called <span class="fixedWidth">lidardecode</span>. Located in the <span class="fixedWidth">bin</span> directory, <span class="fixedWidth">lidardecode</span> enables you to decompress MG4 files to LAS or text files.</p>
+        <h6 class="h7"><a name="Usage"></a>Usage</h6>
+        <p>The only required parameters are <span class="fixedWidth">-inputFile</span> (or <span class="fixedWidth">-i</span>), which specifies the input file name, and <span class="fixedWidth">-outputFile</span> (or <span class="fixedWidth">-o</span>), which specifies the output file name. </p>
+        <p>If no output format  (<span class="fixedWidth"></span><span class="fixedWidth">-outputFormat</span> or <span class="fixedWidth">-of</span>) is specified, the file extension specified in the <span class="fixedWidth">-outputFile</span> parameter is used as the output format.</p>
+        <p>If no output format  (<span class="fixedWidth"></span><span class="fixedWidth">-outputFormat</span> or <span class="fixedWidth">-of</span>) is specified and no file extension  is specified in the output file name , then<span class="fixedWidth"> <![CDATA[ ]]></span><span class="fixedWidth" style="mc-tag-and-class: span;"></span><span class="fixedWidth">lidardecode</span> decodes the file to the default format (text) and appends the default suffix (.txt) to the output file name.</p>
+        <p>You may add other options and parameters as described in the table of switches below. The order of the switches in the syntax has no bearing on the output.</p>
+        <p>For examples of how to form a command, see <a href="#Examples" target="" title="" alt="" class="MCXref_0 selected">"Examples"</a>.</p>
+        <table style="width: 100%; margin-left: auto; margin-right: auto;" cellspacing="0">
+            <caption><span class="fixedWidth">lidardecode</span> Switches</caption>
+            <col style="width: 180px;" />
+            <col style="width: 90px;" />
+            <col />
+            <tbody>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-inputFile</span> (<span class="fixedWidth">-i</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">(Required) Specifies name of input MG4 file.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-outputFile</span> (<span class="fixedWidth">-o</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">(Required) Specifies name of output file. If no file extension is provided, default is to concatenate a format suffix to input file.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-outputFormat</span> (<span class="fixedWidth">-of</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;page-break-inside: auto;">Specifies output format. Acceptable values are TXT, LAS10, LAS11, LAS12. Default is TXT.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-subsample</span> (<span class="fixedWidth">-s</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">unsigned integer</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells                 <span class="fixedWidth">lidardecode</span> to subsample, taking every <span class="italic">n</span>-th point.  <span class="fixedWidth">-s 2</span> selects one half the file, <span class="fixedWidth">-s 3</span> selects one third.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-crop</span> (<span class="fixedWidth">-c</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">FLOAT0 FLOAT1 FLOAT2 FLOAT3 FLOAT4 FLOAT5</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells <span class="fixedWidth">lidardecode</span> to crop to the specified box (world coordinates:  x-min, x-max, y-min, y-max, z-min, z-max).
+  A value of <span class="fixedWidth">-inf</span> (for a minimum) or <span class="fixedWidth">+inf</span> (maximum) means do not crop in that direction.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-offset</span> (<span class="fixedWidth">-ofs</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">FLOAT0 FLOAT1 FLOAT2</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Specifies the offset from which the points will be specified (world coordinates:  <span class="italic">x</span>[0], <span class="italic">y</span>[0], <span class="italic">z</span>[0].  Default is to use the origin of the bounding box.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-outFields</span> (<span class="fixedWidth">-ofld</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>Tells <span class="fixedWidth">lidardecode</span> to include particular fields.  By default<span class="fixedWidth"> lidardecode</span> outputs all those supported by the output format and are in the input file.
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">x</span> - <span class="italic">x</span> point values</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">y</span> - <span class="italic">y</span> point values</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">z</span> - <span class="italic">z</span> point values
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">i</span> - intensity
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">r</span> - return number
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">n</span> - number of returns
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">d</span> - scan direction
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">e</span> - edge of flight line
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">a</span> - scan angle
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">c</span> - class id
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">p</span> - source id
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">u</span> - user data
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">t</span> - GPS time
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">R</span> - red
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">G</span> - green
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">B</span> - blue</p>&#160;</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-scale</span> (<span class="fixedWidth">-sc</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">FLOAT0 FLOAT1 FLOAT2</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Specifies the scale (or <span class="italic">precision</span>) factor (<span class="italic">x</span>-scale, <span class="italic">y</span>-scale, <span class="italic">z</span>-scale).  Default is <span class="fixedWidth">0.001</span>, <span class="fixedWidth">0.001</span>, <span class="fixedWidth">0.001.</span></td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-h</span> (<span class="fixedWidth">-?</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays a short usage message.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-help</span> <![CDATA[ ]]></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays a detailed usage message.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-version</span> (<span class="fixedWidth">-v)</span></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays version information.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-verbose</span> (<span class="fixedWidth">-V</span>) </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells <span class="fixedWidth">lidardecode</span> to display more verbose error messages.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;"><span class="fixedWidth">-credits</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColEnd" style="vertical-align: top;">Displays credits and copyrights.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h6 class="h7"><a name="Examples"></a>Examples</h6>
+        <p>The following command uses the minimum required parameters and decodes to a text file called "Exp_D2_1.txt".</p>
+        <p class="codesampleFirstLine">lidardecode -i E:\Data\localTestImages\Exp_D2_1.sid -o Exp_D2_1.txt</p>
+        <p>The following command produces the same result as the previous one, but because the user wants to change the output file name, the <span class="fixedWidth">-o</span> parameter has been included and the text output is explicitly called for.</p>
+        <p class="codesampleFirstLine">lidardecode -i E:\Data\localTestImages\Exp_D2_1.sid -o E:\Data\localTestImages\Exp_D2_2.txt</p>
+        <p>The following command decodes to a LAS file.</p>
+        <p class="codesampleFirstLine">lidardecode -i E:\Data\localTestImages\Exp_D2_1.sid -o E:\Data\localTestImages\Exp_D2_1.las</p>
+        <p>The following command decodes to a text file called "Exp_D2_1.xyz" (any extension other than .las results in a text file) and limits the data in the file to four fields (GPS time, x, y and z).</p>
+        <p class="codesampleFirstLine">lidardecode -i E:\Data\localTestImages\Exp_D2_1.sid -o E:\Data\localTestImages\Exp_D2_1.xyz -ofld txyz</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

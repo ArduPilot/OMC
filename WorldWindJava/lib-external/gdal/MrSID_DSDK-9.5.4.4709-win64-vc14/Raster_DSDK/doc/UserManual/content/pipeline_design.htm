@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Architecture and Design" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Pipeline Design</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="architecture_and_design.htm">Architecture and Design</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Pipeline Design</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor4"></a>Pipeline Design</h2>
+        <p>An image processing pipeline is a system in which each image “stage” performs one specific operation on an image or a piece of an image, and then passes the resulting image data on to the next stage. The MrSID SDK uses this model to provide the ability to construct workflows that read, write, and manipulate images in a variety of ways.
+</p>
+        <h6 class="h7"><a name="kanchor5"></a>Image Stages
+
+</h6>
+        <p>There are three basic types of image stages:
+
+</p>
+        <ul>
+            <li value="1"><span style="font-weight: bold;font-style: normal;">Image reader:</span> an image reader will generate (“decode”) pixel data from some external image source, such as a TIFF or MrSID file. A reader serves as the initial stage of a pipeline and passes pixel data to its successor stage(s). 
+
+</li>
+            <li value="2"><span style="font-weight: bold;font-style: normal;">Image filter:</span> an image filter or “transformer” will change the pixel data received from its predecessor image stage(s) in some way and pass the new data on to its successor image stage(s). Examples of filters include colorspace and datatype transformers, which change the properties of pixels; mosaickers, which combine multiple images into one image; and histogram stretchers, which dynamically scale the pixel values within some numeric range.
+
+</li>
+            <li value="3"><span style="font-weight: bold;font-style: normal;">Image writer:</span> an image writer will produce (“encode”) some external image object, such as an NITF or JPEG 2000 file. A writer serves as the final stage of a pipeline, receiving data from its predecessor stage; it can be viewed as the “opposite” of an image reader. </li>
+        </ul>
+        <p>The simplest pipeline consists trivially of just a single image reader. The reader may or may not be connected to one or more filter stages. (As we will see later, a writer may not be required for all workflows.)</p>
+        <h6 class="h7"> 
+
+Some Examples
+
+</h6>
+        <p>In Figure 1 an image pipeline is shown consisting of a MrSID image reader connected to a filter that changes the image’s colorspace. Given a filename, the MrSID reader will pass pixel data to the filter, which will transform the (presumably RGB) pixel data to grayscale pixel data. 
+
+
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image001.gif" style="width: 518px;height: 120px;" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span>Simple pipeline with MrSID&#160;image reader and color space filter</p>
+        <p>Figure 2 shows a pipeline that reads raw image data (in BIP/BIL/BSQ form), performs some dynamic range adjustments on the data in a filter stage, and writes the image out again as a raw file. Such a pipeline might be used to massage 12-bit image data to more easily displayed 8-bit data.</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image002.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 2: &#160;"><span class="autonumber"><span>Figure 2: &#160;</span></span>Pipeline that reads and writes raw image data</p>
+        <p>Figure 3 shows a pipeline with two GeoTIFF image readers that are connected to a mosaicking stage, which is in turn connected to a JPEG 2000 writer. (The GeoTIFF images are presumed to be “compatible” in a geospatial sense.)
+
+
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image003.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 3: &#160;"><span class="autonumber"><span>Figure 3: &#160;</span></span>Pipeline with two image readers, a mosaicking filter and a JP2 writer</p>
+        <p>Finally, Figure 4 shows a watermarking pipeline: a JPEG watermark is inserted onto the base TIFF image, and the result is written to a MrSID file. Note how this pipeline diagram is structurally similar to Figure 3.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image004.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 4: &#160;"><span class="autonumber"><span>Figure 4: &#160;</span></span>Watermarking pipeline</p>
+        <h6 class="h7"><a name="kanchor6"></a>Implementation
+
+</h6>
+        <p>Several abstract classes are used to construct the pipeline system.
+
+</p>
+        <ul>
+            <li value="1"><span class="fixedWidth">LTIImage</span> provides the basic properties of an image, such as width and height, pixel type, etc.
+
+</li>
+            <li value="2"><span class="fixedWidth">LTIImageStage</span> extends the <span class="fixedWidth">LTIImage</span> class by adding functions for reading pixel data from an image.</li>
+            <li value="3"><span class="fixedWidth">LTIImageReader</span> extends the <span class="fixedWidth">LTIImageStage</span> class to serve as the base class for all readers.
+
+</li>
+            <li value="4"><span class="fixedWidth">LTIImageFilter</span> extends the <span class="fixedWidth">LTIImageStage</span> class to serve as the base class for all filters. The constructor for an <span class="fixedWidth">LTIImageFilter</span> takes an <span class="fixedWidth">LTIImageStage</span>.
+</li>
+            <li value="5"><span class="fixedWidth">LTIImageWriter</span> is the base class for all writers. It does not inherit from any of the above classes as it serves only as a “sink”, i.e. it does not export any image properties as an <span class="fixedWidth">LTIImage</span> would. The constructor for an <span class="fixedWidth">LTIImageWriter</span> takes an <span class="fixedWidth">LTIImageStage</span>.
+
+</li>
+        </ul>
+        <p>Figure 5 shows the inheritance diagram for these classes. These classes, and classes derived from them, are described in subsequent sections.
+
+
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image005.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 5: &#160;"><span class="autonumber"><span>Figure 5: &#160;</span></span>Inheritance</p>
+        <p><a name="kanchor7"></a>Another class, <span class="fixedWidth">LTIImageStageManager</span>, is a base class for managing a set of <span class="fixedWidth">LTIImageStage</span> objects – it can be thought of as an array of such objects.  It used for passing a set of image stages to certain types of mosaic filters to reduce their resource usage.  The <span class="fixedWidth">LTIImageStageManager</span> is also used for “wrapping” file formats that can hold multiple images.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,20 @@
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+#include "../../../../BuildHarness/lt_versionInfo.h"
+
+#define LT_VERSION_COMMENT "SWIG-generated C interface for LizardTech Lidar DSDK"
+#define LT_VERSION_DESC "private interface for LizardTech Lidar DSDK"
+#define LT_VERSION_INTERNAL_NAME ""
+#define LT_VERSION_ORIGINAL_FILE_NAME "LidarDSDKp.dll"
+#define LT_VERSION_PRIVATE_BUILD ""
+#define LT_VERSION_PRODUCT_NAME "LizardTech LiDAR DSDK"
+#define LT_VERSION_SPECIAL_BUILD ""
+
+#define LT_VERSION_CUR 1
+#define LT_VERSION_REV 1
+#define LT_VERSION_AGE 0
+
+#include "../../../../BuildHarness/win32/lt_version.rc"

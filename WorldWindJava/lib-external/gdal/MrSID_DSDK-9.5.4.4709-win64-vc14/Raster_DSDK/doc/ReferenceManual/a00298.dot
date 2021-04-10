@@ -1,0 +1,38 @@
+digraph "lti_geoFileImageWriter.h"
+{
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="lti_geoFileImageWriter.h",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node1 -> Node2 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="lti_imageWriter.h",height=0.2,width=0.4,color="black",URL="$a00184.html"];
+  Node2 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="lti_types.h",height=0.2,width=0.4,color="black",URL="$a00209.html",tooltip="This file contains a number of enums, typedefs, etc, that are used throughout the MrSID SDK..."];
+  Node3 -> Node4 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="lt_base.h",height=0.2,width=0.4,color="black",URL="$a00140.html",tooltip="Include file for all LizardTech sources. "];
+  Node4 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="lt_platform.h",height=0.2,width=0.4,color="black",URL="$a00156.html",tooltip="Preprocessor symbols for canonical identification of OS, architecture, and compiler. "];
+  Node4 -> Node6 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="lt_define.h",height=0.2,width=0.4,color="black",URL="$a00142.html",tooltip="Preprocessor definitions used throughout LizardTech sources. "];
+  Node6 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="lt_types.h",height=0.2,width=0.4,color="black",URL="$a00159.html",tooltip="Declaration of standard types and limits in a C-interface. "];
+  Node7 -> Node8 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="limits.h",height=0.2,width=0.4,color="grey75"];
+  Node7 -> Node9 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="float.h",height=0.2,width=0.4,color="grey75"];
+  Node7 -> Node5 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node7 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 -> Node10 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="lt_status.h",height=0.2,width=0.4,color="black",URL="$a00157.html",tooltip="Declaration of the LT_STATUS type and some commonly used status codes. "];
+  Node3 -> Node11 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="stddef.h",height=0.2,width=0.4,color="grey75"];
+  Node2 -> Node12 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="stdlib.h",height=0.2,width=0.4,color="grey75"];
+  Node1 -> Node13 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="lti_scene.h",height=0.2,width=0.4,color="black",URL="$a00205.html"];
+  Node13 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 -> Node14 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="lti_geometry.h",height=0.2,width=0.4,color="black",URL="$a00177.html"];
+  Node14 -> Node3 [color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+}

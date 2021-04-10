@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" MadCap:TargetType="WebHelp" MadCap:PathToHelpSystem="../" MadCap:RuntimeFileType="Search" MadCap:HelpSystemFileName="index.xml" MadCap:PathToSkinFolder="../Data/Skindsdk/" MadCap:InPreviewMode="False">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Search</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript" src="../content/SkinSupport/MadCapAll.js">
+        </script>
+        <style type="text/css">
+a:active
+{
+  color: #0055ff;
+  text-decoration: none;
+  background-color: transparent;
+}
+a:link
+{
+  color: #0055ff;
+  text-decoration: none;
+}
+a:visited
+{
+  color: #0055ff;
+  text-decoration: none;
+}
+a:hover
+{
+  color: #ff0000;
+  text-decoration: none;
+}
+body
+{
+  background-color: #fafafa;
+  font-family: Arial, Sans-Serif;
+  font-size: 12px;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+}
+select
+{
+  font-size: 10px;
+  width: 100%;
+}
+option
+{
+  font-size: 10px;
+}
+table#searchResultsTable
+{
+  font-size: 12px;
+  border: solid 1px #999999;
+  border-collapse: collapse;
+  margin: 0px auto 0px auto;
+  padding: 0px;
+  table-layout: fixed;
+}
+table#searchResultsTable th.columnHeading
+{
+  background-image: url( 'Images/SearchGradient.jpg' );
+  background-position: right bottom;
+  background-repeat: repeat-x;
+  border: solid 1px #999999;
+  cursor: default;
+  height: 20px;
+  text-indent: 5px;
+}
+table#searchResultsTable td
+{
+  border: dotted 1px #999999;
+  white-space: nowrap;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+table
+{
+  border: none;
+  border-collapse: collapse;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+}
+div.SearchResultsContainer
+{
+  border: none;
+  margin: 0px;
+  padding: 0px;
+  position: relative;
+  overflow: auto;
+}
+div#SearchResults
+{
+  border: none;
+  margin: 0px;
+  padding: 3px;
+}
+form
+{
+  margin: 2px;
+}
+button
+{
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+#communityResultList
+{
+    font-family: Arial;
+    margin: 0;
+    padding: 0;
+    list-style-image: none;
+    list-style-type: none;
+    padding-left: 10px;
+}
+#communityResultList li
+{
+    margin-bottom: 16px;
+}
+#communityResultList li
+{
+    margin: 10px 0px;
+}
+#communityResultList a
+{
+    text-decoration: none;
+}
+#communityResultList a:hover
+{
+    text-decoration: underline;
+}
+#resultList.communitySearch .title
+{
+    display: none;
+}
+#resultList.communitySearch #communityResultList
+{
+    padding: 0px;
+}
+.activityInfo
+{
+    color: #666;
+}
+.activityInfo a
+{
+    color: #666;
+}
+a.activityText
+{
+    color: #000;
+}
+.activityTime
+{
+    font-style: italic;
+    font-size: 11px;
+    color: #999;
+    margin-left: 3px;
+}
+</style>
+        <script type="text/javascript" src="../content/SkinSupport/stemmer-english.global.min.js">
+        </script>
+    </head>
+    <body>
+        <form name="search" onsubmit="StartSearch( false, null, null ); return false;" style="display: none;">
+            <table id="SearchFormTable">
+                <tr>
+                    <td style="padding-right: 10px;">
+                        <input name="searchField" title="Search text box" style="font-size: 10px; width: 100%;" type="text" />
+                    </td>
+                    <td style="width: 70px; padding-left: 5px; padding-right: 5px;">
+                        <input id="SearchButton" type="button" value="Search" onclick="StartSearch( false, null, null );" />
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div class="SearchResultsContainer">
+            <div id="SearchResults">
+            </div>
+        </div>
+    </body>
+</html>

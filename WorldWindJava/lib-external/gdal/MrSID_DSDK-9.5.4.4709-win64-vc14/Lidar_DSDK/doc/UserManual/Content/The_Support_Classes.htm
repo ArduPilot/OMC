@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Support Classes</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="The_SDK_Classes.htm">The SDK Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Support Classes</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor13"></a>The Support Classes</h2>
+        <p>The MrSID Decode SDK&#160;includes several supporting classes, however, you will probably only need to engage the <span class="fixedWidth">IO</span>&#160;classes and the <span class="fixedWidth">Bounds</span> class.</p>
+        <h6 class="h7"><a name="TheIOClass"></a>The <span class="fixedWidth">IO</span>&#160;Classes</h6>
+        <p>The SDK&#160;provides an abstract mechanism for reading and writing data. These mechanism constitute the <span class="fixedWidth">IO</span> class.</p>
+        <p>The <span class="fixedWidth">IO</span>&#160;class provides methods for opening and closing the resource, reading and writing of byte arrays at a given offset in the resource, and getting and setting the resource size. This model is different from the <span class="fixedWidth">UNIX stdio</span> interfaces in that the file position is not stored in the <span class="fixedWidth">IO</span>&#160;object. It mimics the <span class="fixedWidth">POSIX pread()</span>&#160;and <span class="fixedWidth">pwrite()</span> interfaces. This model ensures the thread safety of the IO&#160;subclasses, enabling you to read from the <span class="fixedWidth">IO</span>&#160;instances on multiple threads simultaneously.</p>
+        <p>The <span class="fixedWidth">FileIO</span> Class is a concrete implementation of the IO&#160;class for reading files from and writing files to disk.</p>
+        <h6 class="h7">The       <span class="fixedWidth">Bounds</span> Class</h6>
+        <p>The <span class="fixedWidth">Bounds</span> class defines a three-dimensional bounding box used to define regions of interest. This class has a one-dimensional interval for each of the X, Y and Z axes. </p>
+        <p class="note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The <span class="fixedWidth"></span>one-dimensional interval used by the <span class="fixedWidth">Bounds</span> class has member variables named <span class="fixedWidth">min</span> and <span class="fixedWidth">max</span> that may conflict with the <span class="fixedWidth">min()</span> and <span class="fixedWidth">max()</span> macros in <span class="fixedWidth">Windows.h</span>. To avoid this conflict, we undefined the <span class="fixedWidth">min()</span> and <span class="fixedWidth">max()</span> macros.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

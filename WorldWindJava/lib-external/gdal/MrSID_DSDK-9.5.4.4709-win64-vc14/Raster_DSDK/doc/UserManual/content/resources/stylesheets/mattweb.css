@@ -1,0 +1,396 @@
+@namespace MadCap url(http://www.madcapsoftware.com/Schemas/MadCap.xsd);
+/*<meta />*/
+
+* { mc-hyphenate: never; }
+
+body { font-family: Arial; margin-top: 8px; }
+
+p { font-size: 10pt; }
+p.codesample { font-family: 'Courier New', monospace; line-height: 15px; margin: 0 0 0 4em; text-indent: 0em; color: #000000; }
+p.topiclinklist { font-family: Arial; margin: 0px; font-size: 8pt; text-indent: 0.5in; font-weight: bold; }
+p.MyStyle { font-family: Arial; margin: 0px; font-size: 10pt; }
+
+h1 { color: #0066cc; margin: 0.75em 0 0.12em 0; font-size: 20pt; mc-heading-level: 1; }
+h2 { color: #0066cc; margin-bottom: 0.12em; font-size: 20pt; mc-heading-level: 2; }
+h3 { color: #0066cc; margin: 0.75em 0 0.12em 0; font-size: 20pt; mc-heading-level: 3; }
+h4 { color: #0066cc; font-style: italic; font-size: 18pt; mc-heading-level: 4; }
+h5 { font-size: 16pt; margin-top: 1.5em 0 0.12em 0; mc-heading-level: 5; }
+h6 { font-style: italic; font-size: 14pt; mc-heading-level: 6; }
+
+h6.h7 { font-size: 12pt; font-style: normal; margin-bottom: 0.67em; }
+h6.h8 { font-size: 10pt; margin-bottom: 1.67em; }
+h6.h9 { font-size: 10pt; font-style: normal; margin-bottom: 0.67em; }
+
+blockquote { margin-bottom: 0pt; margin-top: 0pt; margin-left: 3em; }
+blockquote.mattslinklist { font-family: Arial; font-size: 8pt; font-weight: bold; }
+
+ul { font-family: Arial; font-size: 10pt; }
+li { font-family: Arial; font-size: 10pt; }
+
+a { text-decoration: underline; color: #000000; }
+a:link { color: #000000; }
+a:visited { }
+a:hover { color: #0066cc; }
+
+a.a { font-weight: bold; text-decoration: none; }
+a.a:link { font-weight: bold; color: #000000; }
+a.a:visited { }
+a.a:focus { color: #0066cc; }
+a.a:hover { text-decoration: none; }
+
+pre { font-family: 'Courier New', monospace; font-size: 10pt; }
+pre.codesample04em { margin: 0 0 0 4em; color: #000000; }
+pre.codesample05em { margin: 0 0 0 5em; color: #000000; }
+pre.codesample06em { margin: 0 0 0 6em; color: #000000; }
+pre.codesample07em { margin: 0 0 0 7em; color: #000000; }
+pre.codesample08em { margin: 0 0 0 8em; color: #000000; }
+
+img.toolicons {  }
+
+a.crossref:visited { text-decoration: underline; color: #8b008b; }
+a.crossref:hover {  }
+a.crossref {  }
+
+h6.attribute { font-size: 12pt; font-style: normal; font-family: monospace; }
+
+p.codesampleIndent01 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0em; margin-left: 6.00em; color: #000000; }
+p.codesampleIndent02 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 8.00em; color: #000000; }
+p.codesampleIndent03 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 10.00em; color: #000000; }
+p.codesampleIndent04 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 12.00em; color: #000000; }
+p.codesampleIndent05 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0em; margin-left: 14.00em; color: #000000; }
+p.codesampleIndent06 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0em; margin-left: 16em; color: #000000; }
+p.codesampleIndent07 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 18.00em; color: #000000; }
+p.codesampleIndent08 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 20.00em; color: #000000; }
+p.codesampleIndent09 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 22.00em; color: #000000; }
+p.codesampleIndent10 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 23.00em; color: #000000; }
+p.codesampleIndent11 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 24.00em; color: #000000; }
+p.codesampleIndent12 { font: Courier New; font-family: 'Courier New', Arial; line-height: 15px; margin-bottom: 0pt; margin-top: 0pt; margin: 0; text-indent: 0.00em; margin-left: 26.00em; color: #000000; }
+
+h6.value { font-size: 10pt; font-style: normal; font: monospace; font-family: 'Courier New'; font-weight: bolder; margin-bottom: 0.67em; }
+
+img.buttonInText { width: 23px; height: 22px; margin-right: 0.5em; margin-left: 0.5em; }
+
+a.downloadLearnMore { font-weight: bold; text-decoration: none; color: #0066cc; }
+a.downloadLearnMore:visited { color: #8b008b; }
+a.downloadLearnMore:hover { color: #ff9900; text-decoration: underline; }
+
+a.interTopicLink:visited { color: #8b008b; text-decoration: none; }
+a.interTopicLink:focus { text-decoration: none; }
+a.interTopicLink:hover { color: #ff9900; text-decoration: underline; }
+
+a.interTopic2 { text-decoration: none; color: #0066cc; }
+a.interTopic2:visited { color: #8b008b; }
+a.interTopic2:hover { text-decoration: underline; color: #ff9900; }
+
+h5.TOCTopHeading { font-size: 12pt; mc-heading-level: 0; }
+
+MadCap|breadcrumbsProxy { font-weight: bolder; font: Arial; font-family: Arial; font-size: 8pt; }
+
+img.imageWebAndPrint {  }
+
+MadCap|pageFooter.OddPage { mc-page-number-format: lower-roman; mc-page-number-start-value: i; }
+MadCap|pageFooter.EvenPage { mc-page-number-format: lower-roman; mc-page-number-start-value: ii; }
+MadCap|pageFooter.FirstPage { mc-page-number-format: lower-roman; mc-page-number-start-value: i; }
+MadCap|pageFooter { mc-page-number-format: lower-roman; }
+
+MadCap|variable.mainPageNumberFooter { mc-page-number-format: decimal; font-size: 8pt; }
+
+p.softReturn { margin-bottom: 0.12em; margin-top: 0.12em; }
+
+MadCap|xref { color: #0066cc; text-decoration: none; mc-format: '{quote}{para}{quote}'; }
+MadCap|xref:hover { text-decoration: underline; color: #ff9900; }
+MadCap|xref.printedCrossRef:hover { color: #0066cc; }
+MadCap|xref.zseeLowerCase { mc-format: 'see {quote}{para}{quote}'; }
+MadCap|xref.noSee { mc-format: '{quote}{para}{quote}'; }
+MadCap|xref.noSee:hover { color: #ff9900; }
+MadCap|xref.noSeeFixedNoPage { font: Courier New; font-family: 'Courier New'; mc-format: '{quote}{para}{quote}'; }
+MadCap|xref.noSeeFixedNoPage:hover { color: #ff9900; }
+MadCap|xref.noSeeStartingOn { mc-format: '{quote}{para}{quote}'; }
+MadCap|xref.onPage { mc-format: 'on {page}'; }
+MadCap|xref.onPage:hover { color: #ff9900; }
+MadCap|xref.SeeAlso { mc-format: 'See also {quote}{para}{quote}'; }
+
+table { widows: 2; orphans: 2; vertical-align: top; text-align: left; }
+
+p.codesampleFirstLine { margin-left: 4em; margin-bottom: 0em; font: Courier New; line-height: 15px; font-family: 'Courier New'; color: #000000; }
+
+caption { font-size: 10pt; font-family: Arial; font-weight: bolder; margin-bottom: 1em; padding-bottom: 1em; }
+
+td { vertical-align: top; }
+td p { margin-top: 0px; padding-top: 0px; margin-bottom: 5px; }
+th { vertical-align: top; }
+
+p.Index1 {  }
+p.Index2 {  }
+
+ul.ulSpecial { margin-left: 80px; }
+ul.uSpecialIndent2 { margin-left: 120px; }
+
+h6.h7Ital { margin-bottom: 0.67em; font-style: italic; font-size: 11pt; }
+
+MadCap|bodyProxy.intro {  }
+
+MadCap|variable.smallPageNumberFooter { font-size: 8pt; }
+
+h1.ptdh1 { margin: 0.75em; margin-left: 0em; margin-right: 0em; margin-bottom: 0.12em; margin-top: 0.12em; }
+h2.ptdh2 { margin-top: 0.75em; margin: 0.75em; margin-bottom: 0.12em; margin-left: 0em; margin-right: 0em; }
+h3.ptdh3 { color: #0066cc; font-family: Arial; margin: 0.75em; margin-bottom: 0.12em; margin-left: 0em; margin-right: 0em; font-style: inherit; mc-heading-level: 3; font-size: 20pt; }
+h4.ptdh4 { color: #0066cc; font-family: Arial; margin: 0.75em; margin-bottom: 0.12em; margin-left: 0em; margin-right: 0em; font-style: normal; font-size: 20pt; }
+
+p.asteriskNote { font-family: Arial; font: Arial; font-size: 8pt; }
+
+p.topiclinklistFirstLine { text-indent: 0.5in; font-size: 8pt; font-weight: bold; margin: 0; margin-top: 1.5em; }
+
+pre.codesample4emFirstLine { color: #000000; }
+pre.codesample04emFirstLine { margin: 0em; margin-left: 4.00em; margin-top: 1.12em; color: #000000; }
+pre.codesample9em { color: #000000; }
+pre.codesample09em { margin: 0em; margin-left: 9.00em; color: #000000; }
+pre.codesample10em { margin: 0em; margin-left: 10.00em; color: #000000; }
+pre.codesample11em { margin: 0em; margin-left: 11.00em; color: #000000; }
+pre.codesample12em { margin: 0em; margin-left: 12.00em; color: #000000; }
+
+a.GlossaryPageTerm { font-size: 8pt; }
+a.GlossaryPageTerm:hover { color: #000000; text-decoration: none; }
+div.GlossaryPageDefinition { font-size: 8pt; }
+MadCap|glossaryProxy { font-size: 10pt; font-family: Arial; font: Arial; }
+p.glossaryManualEntry { font-weight: bolder; }
+
+td.tdButton { font-size: 10pt; border: none; padding-left: 1em; vertical-align: middle; padding-right: 1em; padding-bottom: 0.5em; padding-top: 0.5em; border-top: solid 1px #000000; border-bottom: solid 1px #000000; }
+
+img.arrowsTour { border: none; }
+
+a.imgArrowTour {  }
+a.imgArrowTour:hover { border-top: none; border: none 0px; border-bottom-width: 0px; }
+
+p.listItemParagraph { font-size: 10pt; font-family: Arial; font: Arial; margin-top: 0.12em; margin-bottom: 1.12em; }
+p.listItemParaBelowIndent { margin-bottom: 0.12em; }
+
+p.editorNoteToSelf { mc-auto-number-class: note; font-weight: normal; font-style: italic; mc-auto-number-format: 'REVIEW NOTE: '; }
+p.note { font-style: normal; mc-auto-number-class: BoldNOTE; padding-top: 0.5em; padding-bottom: 0.5em; padding-left: 0.5em; mc-auto-number-format: 'NOTE:  '; background-color: #d2f0ff; }
+p.tip { font-style: normal; mc-auto-number-class: BoldTIP; padding-top: 0.5em; padding-bottom: 0.5em; padding-left: 0.5em; mc-auto-number-format: 'TIP:  '; background-color: #e4f1d3; }
+p.important { font-style: normal; mc-auto-number-class: BoldIMPORTANT; padding-top: 0.5em; padding-bottom: 0.5em; padding-left: 0.5em; mc-auto-number-format: 'IMPORTANT:  '; background-color: #d2f0ff; }
+p.warning { font-style: normal; mc-auto-number-class: BoldWARNING; padding-top: 0.5em; padding-bottom: 0.5em; padding-left: 0.5em; mc-auto-number-format: 'WARNING:  '; background-color: #ffe0cc; }
+
+span.note { font: Arial; font-family: sans-serif; font-weight: bold; font-size: 10pt; }
+span.tip { font: Arial; font-family: sans-serif; font-weight: bold; font-size: 10pt; }
+span.important { font: Arial; font-family: sans-serif; font-weight: bold; font-size: 10pt; color: #000000; }
+span.warning { font: Arial; font-family: sans-serif; font-weight: bold; font-size: 10pt; color: #ff0000; }
+
+.BoldNOTE { color: #000000; font-weight: bold; }
+.BoldWARNING { color: #ff0000; font-weight: bold; }
+.BoldTIP { font-weight: bold; color: #006400; }
+.BoldIMPORTANT { font-weight: bold; color: #000000; }
+
+p.glossaryManualBody { font-size: 10pt; font-family: Arial; font: Arial; margin-left: 3em; }
+p.captionFigure { font-size: 8pt; text-align: center; margin-bottom: 3.12em; margin-left: 15em; margin-right: 15em; mc-auto-number-format: 'Figure {n+}:  '; font-weight: bolder; }
+
+p.switchEntry { font: Courier New; font-family: monospace; margin-left: 3em; margin-top: 3em; margin-bottom: 0.12em; }
+p.switchBody { margin-left: 3em; margin-bottom: 3em; margin-top: 0.6em; }
+p.switchBodyNotLast { margin-bottom: 0.12em; margin-left: 3em; margin-top: 0.6em; }
+p.switchEntryFirstLine { margin-left: 3em; font: Courier New; font-family: monospace; margin-bottom: 0.12em; }
+
+span.bolder { font-weight: bolder; }
+span.italic { font-style: italic; }
+span.fixedWidth { font: Courier New; font-family: monospace; }
+
+p.spacerNarrow { margin-top: 0.12em; margin-bottom: 0.0em; }
+
+p.titlePageCompName { font-size: 12pt; font: Verdana; font-family: Verdana; margin-bottom: 0.12em; margin: 0; margin-top: 1.12em; font-weight: 800; text-indent: 17.0em; }
+p.titlePageProductName { font-family: Arial; font: Arial; font-weight: normal; font-size: 32pt; margin: 0; }
+p.titlePageUserManual { font-size: 14pt; font-family: Verdana; font: Verdana; font-weight: bolder; margin: 0; margin-bottom: 1.12em; }
+
+MadCap|indexProxy { font-family: Arial; font: Arial; border-top-style: none; }
+p.IndexHeading { text-align: left; mc-heading-format: '{A}'; margin-left: 0.00em; }
+p.headerTitle { font-family: Arial; font: Arial; margin-right: 0px; margin-left: 0px; font-size: 8pt; padding-bottom: 1em; }
+
+MadCap|variable { font-size: 8pt; }
+
+td.TableStyle_Menu_Body_0_0_RowSep_ColSep_button {  }
+
+table.sdk_SysReqs { font-family: Arial; font-size: 10pt; width: 800px; max-width: none; min-width: 720px; border: 1px solid black; border-collapse: collapse; }
+table.sdk_SysReqs col.col1 { width: 240px; }
+table.sdk_SysReqs col.col2 { width: 340px; }
+table.sdk_SysReqs col.col3 { width: 220px; }
+table.sdk_SysReqs th { padding: 5px; background-color: black; color: white; vertical-align: bottom; }
+table.sdk_SysReqs td { padding: 5px; border: 1px solid black; }
+
+@media print {
+	table.sdk_SysReqs { font-family: Arial; font-size: 9pt; width: 6.00in; border: 0.5pt solid black; border-collapse: collapse; page-break-inside: avoid; page-break-before: auto; }
+	table.sdk_SysReqs col.col1 { width: 2.00in; }
+	table.sdk_SysReqs col.col2 { width: 2.50in; }
+	table.sdk_SysReqs col.col3 { width: 1.5in; }
+	table.sdk_SysReqs tr { page-break-inside: avoid; }
+	table.sdk_SysReqs th { padding: 4pt; border: 0.5pt solid black; background-color: DarkGray; color: white; vertical-align: bottom; }
+	table.sdk_SysReqs td { padding: 4pt; border: 0.5pt solid black; }
+}
+
+
+@media print {
+	p { orphans: 2; }
+
+	p.TOCTopHeading { mc-heading-level: 0; font-size: 14pt; font-weight: bolder; page-break-before: always; }
+	p.TOC1 { mc-heading-level: 1; font-size: 12pt; font-weight: bolder; margin-bottom: 0.5em; margin-top: 0.5em; }
+	p.TOC2 { mc-heading-level: 2; font-weight: bolder; margin-bottom: 0.5em; margin-top: 0.5em; font-style: normal; }
+	p.TOC3 { mc-heading-level: 0; margin-top: 0.5em; margin-bottom: 0.5em; font-style: normal; font-weight: normal; }
+	p.TOC4 { mc-heading-level: 0; margin-bottom: 0.5em; margin-top: 0.5em; }
+	p.TOC5 { mc-heading-level: 0; }
+	p.TOC6 { mc-heading-level: 0; }
+	p.TOC7 { mc-heading-level: 0; }
+	p.TOC8 { mc-heading-level: 0; }
+	p.TOC9 { mc-heading-level: 0; }
+
+	p.softReturn {  }
+
+	p.codesample { margin-top: 0em; color: #000000; }
+	p.codesampleFirstLine { margin: 0em; margin-left: 4em; margin-top: 1.12em; font: Courier New; font-family: 'Courier New'; line-height: 15px; widows: 2; color: #000000; }
+	p.codesampleIndent01 { color: #000000; }
+	p.codesampleIndent02 { color: #000000; }
+	p.codesampleIndent03 { color: #000000; }
+	p.codesampleIndent04 { color: #000000; }
+	p.codesampleIndent05 { color: #000000; }
+	p.codesampleIndent06 { color: #000000; }
+	p.codesampleIndent07 { color: #000000; }
+	p.codesampleIndent08 { color: #000000; }
+	p.codesampleIndent09 { color: #000000; }
+	p.codesampleIndent10 { color: #000000; }
+	p.codesampleIndent11 { color: #000000; }
+	p.codesampleIndent12 { color: #000000; }
+
+	p.NoteItalic { font-style: italic; background-color: #dcdcdc; }
+	p.warning { background-color: #ffe0cc; }
+	p.captionFigure { font-weight: normal; margin-left: 7em; margin-right: 7em; }
+	p.note { padding-left: 0.5em; background-color: #d2f0ff; }
+	p.important { padding-top: 0.5em; background-color: #d2f0ff; }
+	p.editorNoteToSelf { mc-auto-number-format: 'REVIEW NOTE: '; }
+
+	p.titlePageCompName { text-indent: 15.0em; }
+
+	span.important { color: #000000; }
+	span.warning { color: #000000; }
+	span.note {  }
+
+	.BoldNOTE { font-weight: bold; }
+	.BoldTIP { color: #006400; }
+	.BoldIMPORTANT { color: #000000; }
+
+	h1 { mc-heading-level: 1; color: #000000; }
+	h2 { color: #000000; font-size: 22pt; mc-heading-level: 2; }
+	h3 { mc-heading-level: 0; color: #000000; font-size: 18pt; }
+	h4 { mc-heading-level: 0; color: #000000; margin-bottom: 0.12em; font-size: 16pt; }
+	h5 { mc-heading-level: 0; margin-bottom: 1.12em; }
+	h6 { mc-heading-level: 0; font-size: 11pt; }
+	h1.ptdh1 { orphans: 2; margin: 0.75em; margin-left: 0em; margin-right: 0em; margin-bottom: 0.12em; padding-bottom: 6px; padding-top: 6px; border-bottom: solid 2px; font-size: 18pt; }
+	h2.ptdh2 { font-style: inherit; padding-bottom: 6px; padding-top: 6px; orphans: 2; margin: 0.75em; margin-left: 0em; margin-right: 0em; margin-bottom: 0.12em; font-size: 16pt; }
+	h3.ptdh3 { orphans: 2; padding-bottom: 6px; padding-top: 6px; height: 2em; color: #000000; font-style: inherit; margin: 0.75em; margin-left: 0em; margin-right: 0em; margin-bottom: 0.12em; mc-heading-level: 0; font-size: 14pt; }
+	h4.ptdh4 { color: #000000; font-style: italic; font-size: 12pt; }
+	h6.h7 { margin-bottom: 0.2em; font-size: 11pt; }
+
+	img {  }
+	img.imageWebAndPrint { width: 6.00in; }
+
+	a:hover { color: #000000; }
+
+	a.downloadLearnMore { color: #000000; }
+	a.downloadLearnMore:hover { color: #000000; }
+	a.downloadLearnMore:visited { color: #000000; }
+
+	a.crossref:hover { color: #000000; }
+	a.crossref:visited { color: #000000; }
+
+	a.a:focus { color: #000000; }
+
+	a.interTopic2 { color: #000000; }
+	a.interTopic2:visited { color: #000000; }
+	a.interTopic2:hover { color: #000000; }
+	a.interTopicLink:visited { color: #000000; }
+	a.interTopicLink:hover { color: #000000; }
+
+	MadCap|pageHeader.EvenPage {  }
+	MadCap|pageHeader.OddPage {  }
+
+	MadCap|pageFooter {  }
+	MadCap|pageFooter.EvenPage { mc-page-number-format: lower-roman; }
+	MadCap|pageFooter.FirstPage { mc-page-number-start-value: i; mc-page-number-format: lower-roman; }
+	MadCap|pageFooter.OddPage {  }
+
+	MadCap|xref { color: #000000; mc-format: '{quote}{para}{quote} on page {page}'; }
+	MadCap|xref:hover { text-decoration: none; color: #000000; }
+	MadCap|xref.printedCrossRef:hover { color: #000000; }
+	MadCap|xref.noSee { mc-format: '{quote}{para}{quote} on page {page}'; }
+	MadCap|xref.noSeeStartingOn { mc-format: '{quote}{para}{quote} starting on page {page}'; }
+	MadCap|xref.noSeeNoPage { mc-format: '{quote}{para}{quote}'; }
+	MadCap|xref.noSeeNoPageBelow { mc-format: '{quote}{para}{quote} below'; }
+	MadCap|xref.noSeeNoPageAbove { mc-format: '{quote}{para}{quote} above'; }
+	MadCap|xref.SeeAlso { mc-format: 'See also {quote}{para}{quote} on page {page}'; }
+	MadCap|xref.zseeLowerCase { mc-format: 'see {quote}{para}{quote} on page {page}'; }
+	MadCap|xref.seeLowerCaseFixed { font-family: 'Courier New'; font: Courier New; mc-format: 'see {quote}{para}{quote} '; }
+	MadCap|xref.onPage { mc-format: ' on page {page}'; }
+
+	table { vertical-align: top; }
+	td.tdButton { border: none; font-size: 10pt; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px; padding: 5px; }
+
+	ul {  }
+	li {  }
+
+	ul.uSpecialIndent2 {  }
+
+	MadCap|indexProxy {  }
+	p.Index1 { font-size: 8pt; }
+	p.Index6 { font-size: 8pt; }
+	p.Index2 { font-size: 8pt; }
+	p.Index3 { font-size: 8pt; }
+	p.Index4 { font-size: 8pt; }
+	p.Index5 { font-size: 8pt; }
+	p.Index7 { font-size: 8pt; }
+	p.Index8 { font-size: 8pt; }
+	p.Index9 { font-size: 8pt; }
+
+	MadCap|bodyProxy.sampleWebApps { mc-page-number-start-value: 59; }
+	MadCap|bodyProxy.intro { mc-page-number-start-value: 3; }
+	MadCap|bodyProxy.install { mc-page-number-start-value: 7; }
+	MadCap|bodyProxy.configuring { mc-page-number-start-value: 15; }
+
+	MadCap|variable.smallPageNumberFooter { font: Arial; font-family: Arial; font-size: 8pt; }
+
+	pre.codesample9em { color: #800080; }
+	pre.codesample4emFirstLine {  }
+	pre.codesample10em {  }
+
+	div.GlossaryPageTerm { font-size: 10pt; margin-top: 1.12em; margin-bottom: 1em; }
+	div.GlossaryPageDefinition { font-size: 10pt; }
+	MadCap|glossaryTerm { color: #000000; font-weight: normal; }
+}
+
+@media non-print {
+	p.codesample { color: #000000; }
+	p.editorNoteToSelf {  }
+	p.captionFigure { font-weight: bolder; }
+	p.Note { padding-top: 1in; padding: 0.5em; background-color: #d2f0ff; }
+
+	.BoldNOTE { font-weight: bold; }
+	.BoldIMPORTANT { color: #000000; }
+
+	img.imageWebAndPrint { width: auto; }
+
+	h1.ptdh1 { margin-bottom: 0.12em; }
+	h2.ptdh2 { margin: 0.75em; margin-bottom: 0.12em; margin-left: 0em; margin-right: 0em; }
+	h3.ptdh3 { color: #0066cc; font-size: 24pt; font-style: inherit; mc-heading-level: 0; margin: 0.75em; margin-bottom: 0.12em; margin-left: 0em; margin-right: 0em; }
+
+	MadCap|xref.noSeeStartingOn { mc-format: '{quote}{para}{quote}'; }
+	MadCap|xref.noSeeNoPageBelow {  }
+	MadCap|xref.noSeeNoPageAbove {  }
+
+	a.GlossaryPageTerm:hover { text-decoration: underline; font-weight: bold; color: #0066cc; }
+	a.GlossaryPageTerm:visited { color: #000000; }
+	a.GlossaryPageTerm:focus { color: #0066cc; }
+	a.GlossaryPageTerm:link { color: #000000; }
+	div.GlossaryPageTerm { font-size: 8pt; }
+	div.GlossaryPageEntry { font-size: 8pt; color: #0066cc; }
+	div.GlossaryPageHeading { font-size: 8pt; }
+	MadCap|glossaryTerm.Hyperlink { font-family: Arial; font-size: 8pt; }
+	MadCap|glossaryTerm.Hyperlink:hover { color: #0066cc; }
+
+	p.glossaryManualDescription { text-indent: 0em; margin-left: 0em; }
+
+	pre { color: #2b009b; }
+}

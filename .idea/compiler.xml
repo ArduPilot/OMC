@@ -19,15 +19,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="OpenMissionControl" />
+        <module name="missioncontrol.worldwind" />
         <module name="IntelMissionControl" />
         <module name="WorldWindJava" />
         <module name="LibInsight" />
-        <module name="InsightService" />
-        <module name="asyncfx" />
-        <module name="missioncontrol.worldwind" />
-        <module name="missioncontrol.asyncfx" />
         <module name="missioncontrol.imc-presentation" />
+        <module name="OpenMissionControl" />
+        <module name="asyncfx" />
+        <module name="InsightService" />
+        <module name="missioncontrol.asyncfx" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

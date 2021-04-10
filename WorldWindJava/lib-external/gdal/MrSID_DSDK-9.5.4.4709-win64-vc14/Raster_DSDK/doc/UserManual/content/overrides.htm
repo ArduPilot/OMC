@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Overrides</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Overrides</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor84"></a>Overrides</h2>
+        <p>The SDK uses a system of “mixins” to simplify the overriding of <span class="fixedWidth">LTIImageStage</span> properties.  Specifically, <span class="fixedWidth">LTIImageStage</span> defines an abstract interface that needs to be implemented by derived class of <span class="fixedWidth">LTIImageFilter</span>; <span class="fixedWidth">LTIImageFilter</span> implements the <span class="fixedWidth">LTIImageStage</span> interface by forwarding the method call to the next <span class="fixedWidth">LTIImageStage</span> in the pipeline.  Derived classes of <span class="fixedWidth">LTIImageFilter</span> that change image properties will need to override the accessor functions.
+
+</p>
+        <p>A cropping filter would change the width and height of the image at that stage in the pipeline, and so would need to override <span class="fixedWidth">getWidth()</span> and <span class="fixedWidth">getHeight()</span>.  </p>
+        <p>For example:
+</p>
+        <p class="codesampleFirstLine">#include "lti_imageFilter.h"
+</p>
+        <p class="codesample">#include "lti_imageStageOverrides.h"
+
+</p>
+        <p class="codesample">&#160;</p>
+        <p class="codesample">class MyCropFilter : public LTIOverrideDimensions&lt; LTIImageFilter &gt;
+</p>
+        <p class="codesample">{
+</p>
+        <p class="codesampleIndent01">...
+ </p>
+        <p class="codesampleIndent01">LT_STATUS initialize(... lt_uint32 newWidth, lt_uint32 newHeight, ...)
+   </p>
+        <p class="codesampleIndent01">{
+</p>
+        <p class="codesampleIndent02">...</p>
+        <p class="codesampleIndent02">sts = setDimensions(newWidth, newHeight);
+   </p>
+        <p class="codesampleIndent02">...</p>
+        <p class="codesampleIndent01">}
+</p>
+        <p class="codesampleIndent01">...</p>
+        <p class="codesample">};
+
+</p>
+        <p><span class="fixedWidth">LTIOverrideDimensions&lt;&gt;</span> adds <span class="fixedWidth">getWidth()</span> and <span class="fixedWidth">getHeight()</span>, a protected <span class="fixedWidth">setDimensions()</span> function, and the needed data members.
+
+</p>
+        <p>The SDK uses templates to implement the mixins over virtual inheritance.  To override many sets of properties you use the following code:
+</p>
+        <p class="codesampleFirstLine">class MyFilter : public LTIOverrideXXX &lt; LTIOverrideYYY &lt; LTIOverideZZZ
+&lt; LTIImageFilter &gt; &gt; &gt;</p>
+        <p class="codesample">{ ... };
+
+
+</p>
+        <p>The list of override mixin templates and the <span class="fixedWidth">LTIImageStage</span> functions they override is as follows:
+</p>
+        <ul>
+            <li value="1"><span class="fixedWidth">LTIOverrideMetadata
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getMetadata()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="2"><span class="fixedWidth">LTIOverrideDimensions
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getWidth(), getHeight()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="3"><span class="fixedWidth">LTIOverridePixelProps
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getPixelProps()
+</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">getMinDynamicRange()
+</span>
+                    </li>
+                    <li value="3"><span class="fixedWidth">getMaxDynamicRange()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="4"><span class="fixedWidth">LTIOverrideNoDataPixels
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getNoDataPixel()
+</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">getBackgroundPixel()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="5"><span class="fixedWidth">LTIOverrideGeoCoord
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getGeoCoord()</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">isGeoCoordImplicit()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="6"><span class="fixedWidth">LTIOverrideMagnification
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getMinMagnification()
+</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">getMaxMagnification()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="7"><span class="fixedWidth">LTIOverrideIsSelectiveData
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">isSelective()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="8"><span class="fixedWidth">LTIOverrideStripHeight
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getStripHeight()
+</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">setStripHeight()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="9"><span class="fixedWidth">LTIOverrideDelegates
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">setProgressDelegate()
+</span>
+                    </li>
+                    <li value="2"><span class="fixedWidth">getProgressDelegate()
+</span>
+                    </li>
+                    <li value="3"><span class="fixedWidth">setInterruptDelegate()
+</span>
+                    </li>
+                    <li value="4"><span class="fixedWidth">getInterruptDelegate()
+</span>
+                    </li>
+                </ul>
+            </li>
+            <li value="10"><span class="fixedWidth">LTIOverridePixelLookupTables:
+</span>
+                <ul style="list-style-type: circle;">
+                    <li value="1"><span class="fixedWidth">getPixelLookupTable()</span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" lang="en-us" xml:lang="en-us" MadCap:TargetType="WebHelp" MadCap:PathToHelpSystem="./" MadCap:RuntimeFileType="DefaultCSH" MadCap:HelpSystemFileName="index.xml" MadCap:PathToSkinFolder="Data/SkinDSDK/" MadCap:InPreviewMode="False">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>WebHelp</title>
+        <script type="text/javascript" src="Content/SkinSupport/MadCapAll.js">
+        </script>
+        <script type="text/javascript">
+/* <![CDATA[ */
+var gRootFolder	= FMCGetRootFolder( document.location );
+
+ProcessCSH();
+
+function ProcessCSH()
+{
+	CheckStartTopic(function(cshData)
+    {
+	    function OnCompleteGetSkinLayout(skinLayout)
+        {
+            var currLocation	= document.location;
+	        var href			= FMCGetHref( currLocation );
+	        var hash			= currLocation.hash;
+	        var search			= currLocation.search;
+	        var outputFile		= href.substring( href.lastIndexOf( "/" ) + 1, href.lastIndexOf( "." ) - "_CSH".length );
+	        var outputSuffix	= href.substring( href.lastIndexOf( "." ) );
+
+	        //
+
+	        var newHash	= search;
+	
+	        newHash += "#CSHID=" + encodeURIComponent( cshData.cshID );
+	
+	        if ( cshData.topic )
+	        {
+		        newHash += "|StartTopic=" + encodeURIComponent( cshData.topic );
+	        }
+
+	        if ( cshData.skinName )
+	        {
+		        newHash += "|SkinName=" + cshData.skinName;
+	        }
+	
+	        if ( cshData.isJS )
+	        {
+		        newHash += "|OpenType=Javascript";
+	        }
+
+	        //
+
+	        var url	= gRootFolder + outputFile;
+	
+	        if ( skinLayout )
+	        {
+		        url = url + "_" + skinLayout;
+	        }
+
+	        url = url + outputSuffix + newHash;
+	
+	        document.location.replace( url );
+	
+	        window.focus();
+        }
+	
+	    if ( cshData.skinName )
+	    {
+		    GetSkinLayout(cshData.skinName, OnCompleteGetSkinLayout);
+
+            return;
+	    }
+
+        OnCompleteGetSkinLayout(null);
+    });
+}
+
+function CheckStartTopic(OnCompleteFunc)
+{
+    var cshData = new Object();
+    var hash        = document.location.hash;
+    var startTopic  = hash.substring( 1 );
+    
+    if ( startTopic != null && startTopic != "" )
+    {
+		var parts	= startTopic.split( "|" );
+		var pos		= startTopic.indexOf( "OpenType=Javascript" );
+		
+		if ( pos != -1 )
+		{
+			if ( startTopic.charAt( pos - 1 ) == "|" )
+			{
+				pos--;
+			}
+			
+			startTopic = startTopic.substring( 0, pos );
+			
+			cshData.topic = null;
+			cshData.skinName = null;
+			cshData.isJS = true;
+			
+			for ( var i = 0; i < parts.length; i++ )
+			{
+				var pair	= parts[i].split( "=" );
+				
+				if ( pair[0] == "CSHID" )
+				{
+					cshData.cshID = pair[1];
+				}
+				else if ( pair[0] == "Topic" )
+				{
+					cshData.topic = pair[1];
+				}
+				else if ( pair[0] == "Skin" )
+				{
+					cshData.skinName = pair[1];
+				}
+			}
+
+            OnCompleteFunc(cshData);
+		}
+		else
+		{
+			LookupCSHDataFromMapID( parts[0], function(cshData)
+            {
+			    if ( parts.length == 2 )
+			    {
+				    cshData.skinName = parts[1];
+			    }
+
+                OnCompleteFunc(cshData);
+            });
+		}
+    }
+    else
+    {
+        OnCompleteFunc(cshData);
+    }
+}
+
+function GetSkinLayout(skinName, OnCompleteFunc)
+{
+	var skinPath = "Data/Skin" + skinName + "/";
+
+    CMCXmlParser.GetXmlDoc(skinPath + "Skin.xml", true, function(xmlDoc)
+    {
+        var webHelpOptions = xmlDoc.getElementsByTagName( "WebHelpOptions" )[0];
+        var skinLayout = "Left";
+    
+        if (webHelpOptions)
+        {
+            if (webHelpOptions.getAttribute("NavigationPanePosition"))
+            {
+                skinLayout = webHelpOptions.getAttribute("NavigationPanePosition");
+            }
+        }
+    
+        OnCompleteFunc(skinLayout);
+    }, null);
+}
+
+function LookupCSHDataFromMapID( id, OnCompleteFunc )
+{
+    var cshShortcutData = new Object();
+    var helpSystem		= new CMCHelpSystem( null, gRootFolder, gRootFolder + "Data/HelpSystem.xml", null, null );
+
+    helpSystem.Load(function ()
+    {
+        helpSystem.LookupCSHID(id, function (idInfo)
+        {
+            if (idInfo.Topic != null)
+            {
+                var myPathUrl = new CMCUrl(helpSystem.GetPath());
+                var idUrl = new CMCUrl(idInfo.Topic);
+                var relUrl = idUrl.ToRelative(myPathUrl);
+
+                cshShortcutData.topic = relUrl.FullPath;
+            }
+            else
+            {
+                cshShortcutData.topic = null;
+            }
+
+            cshShortcutData.cshID = id;
+            cshShortcutData.skinName = idInfo.Skin;
+
+            OnCompleteFunc(cshShortcutData);
+        });
+    });
+}
+/* ]]> */
+</script>
+    </head>
+    <body>
+    </body>
+</html>

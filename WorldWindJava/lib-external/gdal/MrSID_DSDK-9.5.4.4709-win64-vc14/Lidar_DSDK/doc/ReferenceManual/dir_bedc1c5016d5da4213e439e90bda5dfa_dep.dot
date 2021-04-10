@@ -1,0 +1,14 @@
+digraph "win64-vc14" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_2ebba4385388f641bfcb0459aa590096 {
+    graph [ bgcolor="#ddddee", pencolor="black", label="dist" fontname="Helvetica", fontsize="10", URL="dir_2ebba4385388f641bfcb0459aa590096.html"]
+  subgraph clusterdir_bedc1c5016d5da4213e439e90bda5dfa {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_bedc1c5016d5da4213e439e90bda5dfa.html"];
+    dir_bedc1c5016d5da4213e439e90bda5dfa [shape=plaintext label="win64-vc14"];
+    dir_c0ca0e39fdeed39e1ed791ced327e17e [shape=box label="Release_md" color="red" fillcolor="white" style="filled" URL="dir_c0ca0e39fdeed39e1ed791ced327e17e.html"];
+  }
+  }
+}

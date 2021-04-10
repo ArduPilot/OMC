@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Notes on Streams</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Notes on Streams</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor9"></a>Notes on Streams</h2>
+        <p>The <span class="fixedWidth">LTIOStreamInf</span> class, and streams derived from it, provide an abstraction for performing I/O in a variety of ways, including "large file" I/O, buffered I/O, memory-based I/O, etc. As it is a well-known model, the semantics of the stream operations are very similar to those of the Unix stdio operations.
+
+</p>
+        <p>This technical note provides some technical details on the <span class="fixedWidth">LTIOStreamInf</span> operations.
+
+ 
+
+</p>
+        <h6 class="h7">Offsets
+
+</h6>
+        <p>The term "offset <span class="italic">n</span>" refers to byte (<span class="italic">n</span>+1) in the file; that is, offset 0 is the first byte and offset 10 is the eleventh byte. When a stream is "positioned at offset <span class="italic">n</span>", we mean than the next byte read in will be byte (<span class="italic">n</span>+1).
+</p>
+        <h6 class="h7">Initialization
+
+</h6>
+        <p>Each derived class has constructor which has no parameters and an <span class="fixedWidth">initialize()</span> function which zero or more parameters which will vary according to each derived class. (<span class="bolder">Note:</span> this initialization process is different from that of most of the other SDK functions, which put all constructor parameters in the constructor and not the initialization function.)
+</p>
+        <p>The <span class="fixedWidth">initialize()</span> function must be called prior to any other member functions.
+
+ 
+
+</p>
+        <p>open()
+
+</p>
+        <ul>
+            <li value="1"><span class="fixedWidth">open()</span> must be called before any other stream functions can be called (excluding <span class="fixedWidth">initialize()</span> and <span class="fixedWidth">close()</span>)
+
+</li>
+            <li value="2">beyond that, the semantics of <span class="fixedWidth">open()</span> are undefined; typically, it will allocate resources on behalf of the stream, e.g. a <span class="fixedWidth">FILE</span> handle, and/or make them available to the user
+
+</li>
+            <li value="3">after <span class="fixedWidth">open()</span>, the stream will be positioned at offset 0 and the <span class="fixedWidth">EOF</span> flag will be false
+
+</li>
+            <li value="4">calling <span class="fixedWidth">open()</span> on an already opened file will return an error
+
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">close()</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">close()</span> will deallocate the resources, but in such a way that a subsequent call to <span class="fixedWidth">open()</span> will restore them for use
+
+</li>
+            <li value="2">calling <span class="fixedWidth">close()</span> on a closed stream will have no effect (and is not an error)
+
+</li>
+            <li value="3">strictly speaking, <span class="fixedWidth">close()</span> need not be called as the destructor is expected to call <span class="fixedWidth">close()</span>; relying on this is considered bad form, however
+
+</li>
+            <li value="4">a closed stream must be opened again before any other functions may be called
+
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">read(lt_uint8 *buffer, lt_uint32 len)</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">read()</span> will return the number of bytes successfully read; only that many bytes are valid within the read buffer
+
+</li>
+            <li value="2">if the number of bytes read is not equal to the number of bytes asked for, then exactly one of the following is true:
+
+</li>
+            <li value="3"><span class="fixedWidth">EOF</span> was encountered
+
+<ul style="list-style-type: circle;"><li value="1">&#160;the stream uses "socket semantics", and one or more additional reads will be required to get the remaining desired bytes
+
+</li><li value="2">an error occurred
+
+</li></ul></li>
+            <li value="4">the <span class="fixedWidth">getLastError()</span> function is used to determine the precise error condition, if the number of bytes read is not equal to the number of bytes requested
+
+</li>
+            <li value="5">the position of the stream after the read is equal to the position of the stream prior to the read plus the number of bytes successfully read
+
+</li>
+            <li value="6">if <span class="fixedWidth">EOF</span> is true when the read is requested, read will return 0 bytes read and keep <span class="fixedWidth">EOF</span> set to <span class="fixedWidth">true</span></li>
+        </ul>
+        <p><span class="fixedWidth">write(const lt_uint8 *buffer, lt_uint32 len)</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">write()</span> will return the number of bytes successfully written
+
+</li>
+            <li value="2">if the number of bytes written is not equal to the number of bytes requested, then exactly one of the following is true:
+
+<ul style="list-style-type: circle;"><li value="1">the stream uses "socket semantics", and one or more additional writes will be required to output the remaining bytes
+
+</li><li value="2">an error occurred
+
+</li></ul></li>
+            <li value="3">the <span class="fixedWidth">getLastError()</span> function is used to determine the precise error condition, if bytes read != bytes given
+
+</li>
+            <li value="4">the position of the stream after the write is equal to the position of the stream prior to the write plus the number of bytes successfully written
+
+</li>
+            <li value="5">a call to <span class="fixedWidth">write()</span> will always clear the <span class="fixedWidth">EOF</span> flag; <span class="fixedWidth">write()</span> never sets the <span class="fixedWidth">EOF</span> flag
+</li>
+        </ul>
+        <p><span class="fixedWidth">tell()</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">tell()</span> returns the current offset as a 64-bit value
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">seek()</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">seek()</span> positions the stream to the given offset using a 64-bit value</li>
+            <li value="2">the <span class="fixedWidth">EOF</span> flag is reset 
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">EOF</span>
+        </p>
+        <ul>
+            <li value="1">when an attempt is made to read past the last byte of the file, the <span class="fixedWidth">EOF</span> flag becomes true
+
+</li>
+            <li value="2">in particular, note that merely reading the last byte will not set <span class="fixedWidth">EOF</span> to true
+
+</li>
+            <li value="3">&#160;for example, consider a file of 4 bytes, with the stream positioned at offset 0:
+
+<ul style="list-style-type: circle;"><li value="1">a read request of 4 bytes will return 4 bytes read, position is offset 4, <span class="fixedWidth">EOF</span> is not set
+
+</li><li value="2">a read request of 6 bytes will return 4 bytes read, position is offset 4, <span class="fixedWidth">EOF</span> is set
+
+</li></ul></li>
+            <li value="4">a write operation has no effect on the <span class="fixedWidth">EOF</span> flag
+
+</li>
+            <li value="5">a seek operation always clears the <span class="fixedWidth">EOF</span> flag
+
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">duplicate()</span>
+        </p>
+        <ul>
+            <li value="1"><span class="fixedWidth">duplicate()</span> creates a new stream of the same type as the original stream and calls <span class="fixedWidth">initialize()</span> on it with same parameters as original stream
+
+</li>
+            <li value="2"><span class="fixedWidth">isOpen()</span> should initially return false; it is up to the caller to call <span class="fixedWidth">open()</span> on the newly created stream
+
+ 
+
+</li>
+        </ul>
+        <p><span class="fixedWidth">getLastError()</span>
+        </p>
+        <ul>
+            <li value="1">The <span class="fixedWidth">getLastError()</span> function is used to get the status code when one of the following I/O functions failed:
+
+<ul style="list-style-type: circle;"><li value="1"><span class="fixedWidth">read()</span></li><li value="2"><span class="fixedWidth">write()</span></li><li value="3"><span class="fixedWidth">tell()</span></li><li value="4"><span class="fixedWidth">duplicate()</span></li></ul></li>
+            <li value="2">The <span class="fixedWidth">getLastError()</span> function is required because, like the other I/O functions, these functions do not return status codes.
+
+</li>
+            <li value="3">The value returned by <span class="fixedWidth">getLastError()</span> is undefined unless called immediately after a failed call to one of the above functions. A call to any other I/O function will invalidate the state of <span class="fixedWidth">getLastError()</span>.
+
+</li>
+            <li value="4">The minimal implementation of this function is to return <span class="fixedWidth">LT_STS_Failure</span>.
+</li>
+        </ul>
+        <h6 class="h7">Modes
+
+</h6>
+        <p>Any "modes" that a stream supports ("<span class="fixedWidth">w</span>", "<span class="fixedWidth">wb</span>", "<span class="fixedWidth">r+</span>", etc) are defined by the derived class; there is no notion of mode at the base class level.</p>
+        <p>For example, it is entirely possible one would want to make a "read-only file stream" class. Such a class would be implemented with the <span class="fixedWidth">write()</span> function always returning 0 bytes read.
+
+ 
+
+</p>
+        <p class="h7">&#160;</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

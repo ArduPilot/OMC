@@ -1,0 +1,25 @@
+var a00010 =
+[
+    [ "~Metadata", "a00010.html#a3f022f35acbfc67eb34715f51f5ef0b3", null ],
+    [ "Metadata", "a00010.html#a06ead038e0ddd6b7060f58ab003a6a0f", null ],
+    [ "add", "a00010.html#ae3f28f058e629ed4dd4f283a0ee47453", null ],
+    [ "add", "a00010.html#a71a3c17c0a9ab19f7025bf0b1ad88a52", null ],
+    [ "dump", "a00010.html#aed0b77af736acf10dff3ecd817322d31", null ],
+    [ "get", "a00010.html#a70f617fd977451387b46110ba6601c65", null ],
+    [ "get", "a00010.html#a0851f1ec77ef98a32526e3fcdd09bda0", null ],
+    [ "getDataType", "a00010.html#a0966813751f8b3070cf48889999ac538", null ],
+    [ "getDescription", "a00010.html#a0de081cb9964812e1fa4bbb5dd2eb5be", null ],
+    [ "getKey", "a00010.html#aee5c078f476e61bc55f9073e1089dbc1", null ],
+    [ "getKeyIndex", "a00010.html#a6a750329d30521419d3fabe5f89b29e3", null ],
+    [ "getNumRecords", "a00010.html#acf71386e409ec0e748ac8f0daab0f64e", null ],
+    [ "getValue", "a00010.html#ad210e22647ff6458b259a90bb20dd6bc", null ],
+    [ "getValueLength", "a00010.html#a521b0a50b5a9dd5ed3b1edf894880001", null ],
+    [ "has", "a00010.html#af9754f85ee7ce43b5e622e80deb57bbb", null ],
+    [ "read", "a00010.html#ad70ed4ebda65203f64c0a630ef899a89", null ],
+    [ "remove", "a00010.html#afafff6c50409c18410328dfe3b2a1447", null ],
+    [ "remove", "a00010.html#afd22416bbcef30d1f6b15faa3d6b5cae", null ],
+    [ "remove", "a00010.html#a821b83a81e34b949905ca4674355a72d", null ],
+    [ "sort", "a00010.html#a678c7dd886fd1841579dcd204e29cfd4", null ],
+    [ "write", "a00010.html#a95b0d847e78b5fcd4bcebd08c0e4d9ca", null ],
+    [ "m_records", "a00010.html#abdbd5d7255d4d88513d23638eb2cfe0b", null ]
+];

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Base Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Scene and Buffer Management</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_sdk_base_classes.htm">The SDK Base Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Scene and Buffer Management</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor51"></a>Scene and Buffer Management</h2>
+        <p>The two parameters to the <code>LTIImageStage::read()</code> function are an <code>LTIScene</code> object and an <code>LTISceneBuffer</code> object. These together specify the region of the image to be decoded and the buffer to put the data into.
+
+</p>
+        <p>The properties of an <code>LTIScene</code> are the upper-left point, dimensions, and magnification of the region to be decoded.  (For more information see    <a href="scenes.htm" target="" title="" alt="" class="MCXref_noSeeStartingOn_0">"Scenes"</a>.)
+
+</p>
+        <p>As a scene is a largely read-only embodiment of its properties, the <code>LTINavigator</code> class extends <code>LTIScene</code> by adding functions to control the scene, including:
+
+</p>
+        <ul>
+            <li value="1">move scene to a given location or by a given amount
+
+</li>
+            <li value="2">zoom to a given magnification or by a given amount
+
+</li>
+            <li value="3">determine the “best fit” scene of the image to a given size (within the power-of-2 resolution constraints)
+
+</li>
+            <li value="4">set the scene based on upper-left, lower-right, or center points
+
+</li>
+            <li value="5">set the scene using geospatial position, as opposed to pixel coordinates
+
+</li>
+        </ul>
+        <p>By using the navigator class, issues of proper rounding control and keeping the scene within the image can be managed transparently to the user.
+
+</p>
+        <p>The <code>LTISceneBuffer</code> class is used to represent the in-memory buffer that will hold the data produced by the <code>read()</code> call. The buffer can be supplied directly by the user, allocated internally by the class, or inherited from another scene buffer. Depending on how it's configured, it can also represent only a subset of the bands in the image, so that only the bands that are asked for are decoded. </p>
+        <p>While the extents of the “visible” or “exposed” window of the buffer must be at least as large as the dimensions of the scene being used for the read operation, the actual buffer might be considerably larger; this allows for read requests to target specific regions of the buffer, as is required for strip-based decoding workflows. 
+
+</p>
+        <p>As an example, consider Figure 1, which shows an <code>LTISceneBuffer</code> object that has a total size of 200x100 (20,000 pixels) and a window size of 160x60 (9,600 pixels). This buffer can be used to “insert” a scene onto the total buffer, using (40,20) as the upper-left position. (This upper-left position corresponds to byte 200*20+40 of the buffer, assuming an 8-bit, 1-banded image.)
+ 
+
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/scene_and_buffer_mgmt_imajes/image001.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span>LTISceneBuffer
+
+ 
+
+</p>
+        <p>The data in the scene buffer is internally stored in a packed BSQ format. By supporting only one data layout, the complexity of the various image stages and the need for additional memory-to-memory copies is reduced. However, when constructing decoder pipelines the client often needs the data organized in some other fashion, so the scene buffer class supports these “import/export” features:
+
+</p>
+        <ul>
+            <li value="1">copy data into the buffer from memory (in packed BSQ or BIP forms)
+
+</li>
+            <li value="2">copy data into the buffer from a stream (in packed BSQ or BIP form)
+
+</li>
+            <li value="3">copy data from the buffer to memory (in packed BSQ or BIP form)
+
+</li>
+            <li value="4">copy data from the buffer to a stream (in packed BSQ or BIP form)
+
+</li>
+            <li value="5">copy data from the buffer to memory, with full control over layout and padding (such as padding of rows to satisfy alignment constraints)
+
+</li>
+        </ul>
+        <p>The copying is performed relative to the visible window of the buffer, not the total buffer. For the BSQ memory functions, the data may be held as one large BSQ buffer or as one individual buffer for each band.</p>
+        <p>See code samples for demonstrations of how to manage scenes and scene buffers.
+
+ 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

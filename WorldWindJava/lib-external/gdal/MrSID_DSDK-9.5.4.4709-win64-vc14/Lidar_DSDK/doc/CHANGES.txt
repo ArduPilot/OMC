@@ -1,0 +1,62 @@
+
+RELEASE NOTES:
+
+*** API CHANGE *** As described below, some breaking changes have been
+   introduced to the API. This may require changes to existing code.
+
+1.1.4 January 2017
+  - On Windows, the library is bulit without /Zc:wchar_t- so wchar_t is now
+    a compile defined type, which is the VS default behavior.  The /Zc:wchar_t-
+    options is not required to link with wide string methods in FileIO and
+    Version.
+  - SDK class no longer override the new and delete operators.  This alows users
+    of the SDK to override new.
+  - Added support for new LAS 1.4 channels ScannerChannel, ClassFlags, and
+    NearInfrared.
+  - Added ProgressDelegate::displayWarning(), which is an optional override,
+    it is called with informitive messages.
+  - Added PointInfo::init() methods for building PointInfo object that have
+    a subset of channels of a given PointInfo or PointData object.
+
+1.1.3 December 2015
+   
+  - Changed IO and FileIO classes. Subclasses of IO are now responsible for
+    making IO::open() and IO::close() thread safe. This will only affect
+	derived sub-classes of IO. See the file lidar/IO.h for more information.
+  - Added a new GPS time channel. Replaced the CHANNEL_NAME_GPSTime macro
+    with CHANNEL_NAME_GPSTime_Week and added CHANNEL_NAME_GPSTime_Adjusted.
+	GPSTIme_Week is the number of seconds since midnight Sunday.
+	GPSTime_Adjusted is the satellite GPS Time minus 1 x 10^9.
+
+1.1.1 December 2010
+  - Turned the SDK library into a DLL and removed the static version.
+  - Turned Bounds::Huge into a function Bounds::Huge().
+
+1.1.0 March 2010
+  - Revised file format (MG4 4.0.0.3) to support lossless floating point
+    compression.
+  - Added PointInfo class to replace the (ChannelInfo[], length) idiom.
+    1.0.1:  
+      iter = reader->createIterator(bounds, 
+                                    1.0, 
+                                    reader->getChannelInfo(), 
+                                    reader->getNumChannels(), 
+                                    NULL);                                    
+    1.1.0:  
+      iter = reader->createIterator(bounds, 
+                                    1.0, 
+                                    reader->getPointInfo(), 
+                                    NULL);
+  - Removed LTLogMessage functions. The information can be retrieved from the
+      Error object.
+  - Added experimental SWIG-based C#, Python and Ruby bindings to the 
+    contributions directory.
+  - Robustness improvements to viewer application.
+
+1.0.1 September 2009
+  - Revised file format (MG4 4.0.0.2) to support faster decodes.
+
+1.0.0 July 2009
+  - This is the first public release of the LizardTech LiDAR SDK.
+
+

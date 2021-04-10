@@ -1,0 +1,11 @@
+digraph "lt_distro_mrsid_sdk" {
+  bgcolor=transparent;
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_7532eaeb1f84e7d59373dc6944a97a55 {
+    graph [ bgcolor="#eeeeff", pencolor="black", label="" URL="dir_7532eaeb1f84e7d59373dc6944a97a55.html"];
+    dir_7532eaeb1f84e7d59373dc6944a97a55 [shape=plaintext label="lt_distro_mrsid_sdk"];
+    dir_05b1f2f18472af8684c80fc012be751f [shape=box label="dist" color="red" fillcolor="white" style="filled" URL="dir_05b1f2f18472af8684c80fc012be751f.html"];
+  }
+}

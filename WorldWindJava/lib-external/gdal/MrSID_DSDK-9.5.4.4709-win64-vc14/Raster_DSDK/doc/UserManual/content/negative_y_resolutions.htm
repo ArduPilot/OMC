@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Negative y-Resolutions</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Negative y-Resolutions</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor21"></a>Negative <span class="italic">y</span>-Resolutions</h2>
+        <p>The <span class="italic">y</span>-resolution ("YRES" or "YDIM") of an image can be either positive or negative, depending on what type of image is being used and which interface is being used to query the resolution. This note provides some background on this issue.
+
+</p>
+        <p>First, some definitions:
+
+</p>
+        <p>By "negative YDIM" (hereafter, "-YDIM"), we mean that (0,0) is in the LOWER LEFT and extends up and to the right to (<span class="italic">w</span>,<span class="italic">h</span>).  This is the normal Cartesian representation you learned in high school algebra.
+
+</p>
+        <p>By “positive YDIM” ("+YDIM"), we mean that (0,0) is in the UPPER LEFT and extends down and to the right to (<span class="italic">w</span>,<span class="italic">h</span>). This is a common representation in computer graphics.
+
+</p>
+        <p>Figure 1 shows the default geo coordinates for a 640x480 image with no internal georeferencing, using -YDIM conventions. Note that while the rows of the image will proceed visually down the page, the <span class="italic">y</span>-value of the rows decreases, from 479 down to 0.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/negative_yres_imajes/negative_yres.gif" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span>640w x 480h
+
+ </p>
+        <p>The MrSID SDK follows the -YDIM convention. This means that the function <span class="fixedWidth">LTIGeoCoord::getYRes()</span> will generally return a value less than zero. Image reader and writer classes must respect this: when importing or exporting geospatial resolutions, care must be taken to adjust the sign if needed in order to match the SDK requirements and the external file format requirements.
+
+ 
+
+</p>
+        <h6 class="h7">Additional notes
+</h6>
+        <p>The classical MrSID metadata tag <span class="fixedWidth">IMAGE::Y_RESOLUTION</span> is stored with a positive sign, for historical reasons. If you access this metadata value directly, you must multiply the value by -1.0 before using it.
+
+</p>
+        <p>As a debugging aid, the mrsidinfo tool can be used to show the georeferencing of the image, including all four corner points.
+
+</p>
+        <p>World files expect the use of negative YDIMs (fourth line).
+
+</p>
+        <p>BBB files use positive YDIMs in their headers. (The <span class="fixedWidth">LTIBBBImageReader</span> class will internally negate the value to satisfy the SDK requirements.)
+
+</p>
+        <p>YDIM and XDIM should never be 0.0.
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

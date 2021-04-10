@@ -1,0 +1,13 @@
+digraph "LTINavigator"
+{
+  bgcolor="transparent";
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  Node1 [label="LTINavigator",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="LTIScene",height=0.2,width=0.4,color="black",URL="$a00102.html",tooltip="representation of a scene "];
+  Node3 -> Node1 [dir="back",color="darkorchid3",fontsize="10",style="dashed",label=" m_image" ,fontname="Helvetica"];
+  Node3 [label="LTIImage",height=0.2,width=0.4,color="black",URL="$a00052.html",tooltip="abstract class representing an image "];
+  Node4 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="LTIReferenceCountedObject",height=0.2,width=0.4,color="black",URL="$a00100.html",tooltip="LTIReferenceCountedObject is a base class for implementing reference counting. "];
+}

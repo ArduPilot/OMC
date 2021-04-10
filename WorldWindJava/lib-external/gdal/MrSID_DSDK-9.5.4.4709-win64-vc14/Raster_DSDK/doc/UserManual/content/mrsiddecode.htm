@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Command Line Applications" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>mrsiddecode</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="command_line_applications.htm">Command Line Applications</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">mrsiddecode</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor64"></a>mrsiddecode</h2>
+        <p>The mrsiddecode tool extracts (decodes) all or a portion of a MrSID or JPEG 2000 image to one of several image formats.
+
+ 
+
+</p>
+        <h5>Switches
+
+ 
+
+</h5>
+        <h6 class="h7">File Control
+</h6>
+        <p>&#160;</p>
+        <p class="switchEntryFirstLine">-i<span style="font-family: Arial;"> or </span>-inputFile STRING</p>
+        <p class="switchBody">Input file (required)</p>
+        <p class="switchEntry">-o<span style="font-family: Arial;"> or </span>-outputFile STRING</p>
+        <p class="switchBody">Output file (required)</p>
+        <p class="switchEntry">-of<span style="font-family: Arial;"> or </span>-outputFormat STRING</p>
+        <p class="switchBody">Output image format: <code>tif | tifg | jpg | bip | bil | bsq | bmp</code></p>
+        <p class="switchEntry">-if<span style="font-family: Arial;"> or </span>-inputFormat STRING</p>
+        <p class="switchBody">Input image format</p>
+        <p class="switchEntry">-mos<span style="font-family: Arial;"> or </span>-mosaic				</p>
+        <p class="switchBody">Image format is mosaic (aux file)
+</p>
+        <h6 class="h7">Main Switches </h6>
+        <p>&#160;</p>
+        <p class="switchEntryFirstLine">-j <span style="font-family: Arial;"> or </span> -numThreads </p>
+        <p class="switchBody">Sets the number of available threads used while processing MG3 and MG4 files. If no value is specified, the number of threads is set to the maximum. For more information, see <a href="multi-threading.htm" class="MCXref_0">"Multi-Threading"</a>.</p>
+        <p class="switchEntry">-watermarkFile STRING</p>
+        <p class="switchBody">Watermark file</p>
+        <p class="switchEntry">-watermarkPosition STRING</p>
+        <p class="switchBody">Position of watermark: <code>center | center_left | center_right | upper_left | upper_center | upper_right | lower_left | lower_center | lower_right (default)</code></p>
+        <p class="switchEntry">-drmin<span style="font-family: Arial;"> or </span>-dynRangeMin FLOAT</p>
+        <p class="switchBody">Minimum dynamic range</p>
+        <p class="switchEntry">-drmax<span style="font-family: Arial;"> or </span>-dynRangeMax FLOAT</p>
+        <p class="switchBody">Maximum dynamic range</p>
+        <p class="switchEntry">-drauto<span style="font-family: Arial;"> or </span>-autoDynRange</p>
+        <p class="switchBody">Automatic dynamic range adjustment</p>
+        <p class="switchEntry">-wf<span style="font-family: Arial;"> or </span>-worldFile</p>
+        <p class="switchBody">Generate world file</p>
+        <p class="switchEntry">-sh<span style="font-family: Arial;"> or </span>-stripHeight UNSIGNED-INT</p>
+        <p class="switchBody">Strip height</p>
+        <p class="switchEntry">-endian STRING</p>
+        <p class="switchBody">Endianness (BBB output only): <span style="font-family: monospace;">host | little | big</span></p>
+        <p class="switchEntry">-bsq</p>
+        <p class="switchBody">Output is BSQ (BBB output only)</p>
+        <p class="switchEntry">-bgc<span style="font-family: Arial;"> or </span>-backgroundColor STRING	</p>
+        <p class="switchBody">Set background color
+
+</p>
+        <p class="switchEntry">-tpc<span style="font-family: Arial;"> or </span>-transparencyColor STRING	</p>
+        <p class="switchBody">Set transparency color
+</p>
+        <h6 class="h7">MrSID Options</h6>
+        <p class="switchEntry">-pwd<span style="font-family: Arial;"> or </span>-password STRING</p>
+        <p class="switchBodyNotLast">password to decode image (MG2 and MG3 only)</p>
+        <p class="switchEntry">-b <span style="font-family: Arial;"> or </span> -bandList STRING</p>
+        <p class="switchBody">a comma separated list of band to decode (MG4 only)</p>
+        <h6 class="h7">JPEG 2000 Options
+</h6>
+        <p class="switchEntry">-layers<span style="font-family: Arial;"> or </span>-qualityLayers UNSIGNED-INT</p>
+        <p class="switchBody">Number of quality layers </p>
+        <p class="switchEntry">-prec <span style="font-family: Arial;"> or </span> -precision UNSIGNED-INT</p>
+        <p class="switchBody">bits of precision in output</p>
+        <h6 class="h7">Scene Selection</h6>
+        <p class="switchEntry">-ulxy FLOAT0 FLOAT1
+</p>
+        <p class="switchBody">Upper-left of scene (x,y)
+
+ 
+
+</p>
+        <p class="switchEntry">-lrxy FLOAT0 FLOAT1
+
+</p>
+        <p class="switchBody">Lower-right of scene (x,y)
+</p>
+        <p class="switchEntry">-cxy FLOAT0 FLOAT1
+
+</p>
+        <p class="switchBody">Center of scene (x,y)
+
+ 
+
+</p>
+        <p class="switchEntry">-wh FLOAT0 FLOAT1
+
+</p>
+        <p class="switchBody">Size of scene (width,height)
+
+ 
+
+</p>
+        <p class="switchEntry">-s<span style="font-family: Arial;"> or </span>-scale SIGNED-INT
+</p>
+        <p class="switchBody">Scale of scene
+</p>
+        <p class="switchEntry">-coord<span style="font-family: Arial;"> or </span>-coordspace STRING
+</p>
+        <p class="switchBody">Coordinate space of scene: <code>geo | image</code></p>
+        <h6 class="h7">Examples
+
+</h6>
+        <h6 class="h8">To decode a MrSID file to a JPG file: 
+      </h6>
+        <p class="codesampleFirstLine">mrsiddecode -i input.sid -o output.jpg
+
+ 
+
+</p>
+        <h6 class="h8">To decode a MrSID file to a GeoTIFF file: 
+      </h6>
+        <p class="codesampleFirstLine">mrsiddecode -i input.sid -o geotiff.tif -of tifg
+
+ 
+
+</p>
+        <h6 class="h8">To decode the upper-left 50x50 pixel scene from a JPEG 2000 image: 
+      </h6>
+        <p class="codesampleFirstLine">mrsiddecode -i input.jp2 -o output.tif -ulxy 0 0 -wh 50 50
+
+ 
+
+</p>
+        <h6 class="h8">To decode an image at scale 2, i.e. one-quarter resolution: 
+</h6>
+        <p class="codesampleFirstLine">mrsiddecode -i input.jp2 -o output.tif -s 2
+
+ 
+</p>
+        <h5>Some Definitions
+ 
+
+</h5>
+        <p>Let us define "input scene" (or just "scene") to be the portion of the MrSID image to be decoded. The scene may be the whole image or some subset. The scene may extend "outside" of the image proper.
+
+</p>
+        <p>Let us also define "output window" (or just "window") to be the region occupied by the image produced by the decoder, e.g. the generated TIFF. Note that the output window may not be the same size as the input scene.
+
+</p>
+        <p>Finally, let us define "coordinate space" to refer to one of two possible ways of specifying regions of the image:
+</p>
+        <ul>
+            <li value="1">image space: what we normally think of as "pixel" space, at full resolution 
+</li>
+            <li value="2">geo space: the image's geographic space 
+ 
+</li>
+        </ul>
+        <h6 class="h7">Basic Scene Selection
+</h6>
+        <p>The command line decoder allows you to specify the input scene explicitly in one of three ways:
+
+</p>
+        <ul>
+            <li value="1">
+                <p>upper-left (x,y) corner of scene, and (width,height) of scene 
+</p>
+                <p class="codesampleFirstLine">-ulxy X Y -wh W H 
+</p>
+            </li>
+            <li value="2">
+                <p>upper-left (x,y) corner of scene, and lower-right (x,y) corner of scene 
+</p>
+                <p class="codesampleFirstLine">-ulxy X Y -lrxy X Y 
+</p>
+            </li>
+            <li value="3">
+                <p>center (x,y) of scene, and (width,height) of scene 
+</p>
+                <p class="codesampleFirstLine">-cxy X Y -wh W H 
+</p>
+            </li>
+        </ul>
+        <p>For example, consider a 100x100 image. To select the upper-left quarter of the image, the following three ways are equivalent:
+
+</p>
+        <p class="codesampleFirstLine">-ulxy 0 0 -wh 50 50 
+</p>
+        <p class="codesample">-ulxy 0 0 -lrxy 49 49 
+</p>
+        <p class="codesample">-cxy 25 25 -wh 50 50 </p>
+        <p>(The reader is strongly encouraged to work these examples through manually, to ensure full understanding of the material being presented.)
+
+</p>
+        <p>Note that if no scene is specified, the decoder defaults to the entire image.
+
+ 
+</p>
+        <h6 class="h7">Scaled Scene Selection
+</h6>
+        <p>Consider again the 100x100 image. At scale 1 (half-resolution), this is a 50x50 image. To decode the same upper-right quarter at half-res -- a 25x25 image -- these three are equivalent (modulo round-off errors):
+
+</p>
+        <p class="codesampleFirstLine">-s 1 -ulxy 0 0 -wh 25 25 
+</p>
+        <p class="codesample">-s 1 -ulxy 0 0 -lrxy 24 24 
+</p>
+        <p class="codesample">-s 1 -cxy 12.5 12.5 -wh 25 25 </p>
+        <p>The first form is straight-forward: it just says make a scale 1 image, starting at the upper-left corner, of size 25x25. The second form is also clear: make a scale 1 image, starting at the upper-left corner and extending down to (24,24).
+
+</p>
+        <p>And the third form is really just a variation of the first: make a scale 1 image, centered at (12.5,12.5), of size 25x25...
+
+ 
+
+ 
+</p>
+        <h6 class="h7">Input Scenes and Output Windows
+</h6>
+        <p>Recall that in the definitions above, we noted the output window may be different than the input scene. Here's how that can happen.
+
+</p>
+        <p>Consider the following decode on our 100x100 image: </p>
+        <p class="codesampleFirstLine">-s 0 -ulxy 0 0 -wh 125 125. </p>
+        <p>This is a normal scale 0 decode, but the output window is 125x125 -- considerably larger than our input scene. The result is an image that really is 125x125, with the right and bottom edges left as black (technically, the background color).
+
+</p>
+        <p>One could reasonably argue that allowing the user to specify a decode "outside the image" is a bug, but for an end-user app it's actually a nice feature to have: it lets the user extract out some arbitrarily-sized region of her image, but turn it into a more well-formed size. The classic example of this feature is a decode along these lines: </p>
+        <p class="codesampleFirstLine">-s 4 –ulxy 0 0 -wh 32 32</p>
+        <p>which extracts the scaled image into a stock 32x32 icon (we assume here that the scale 4 image is of some size less than or equal to 32x32, otherwise they'd have to use a smaller scale).
+
+</p>
+        <p>The input scene is always positioned in the upper-left corner of the output window -- unless you are using the <code>-cxy</code> scene selection mechanism, in which case the input scene is always positioned in the center of the output window.
+
+ 
+</p>
+        <h6 class="h7">Geo Coordinate Spaces
+</h6>
+        <p>The above examples are all done in the familiar "pixel space", where (0,0) is the upper-left corner and the lower-right corner is (width-1,height-1) and each pixel is a 1x1 object. We call this "image" space and it is the default.
+
+</p>
+        <p>For geo images, however, we often prefer to express points on the image and dimensions in terms of geo coordinates. That is, the upper-left might be (32929.00,28292.25) and the size of the pixel might be (0.0005,0.0005).
+</p>
+        <p>To accomodate this, we allow the above scene selections to be done in "geo" space. If our 100x100 image had an upper-left coordinate of (100.0,50.0) and an (<i>x,y</i>) resolution of (10.0,5.0), we would use the following to decode the whole image: </p>
+        <p class="codesampleFirstLine">-coord geo -ulxy 100 50 -wh 1000 500</p>
+        <p>That is, the input scene starts at the upper-left position of (100.0,50.0) and the output window is the full size of the input image (100*10=1000 and 100*5=500).
+
+ 
+</p>
+        <h5>More Examples
+</h5>
+        <p>To conclude, the examples within each of the following groups of scene selections using our 100x100 image with UL=(100,50) and res=(10,5) are all equivalent.
+
+</p>
+        <p>Full scene, full res (100x100 image, all picture at full res) </p>
+        <p class="codesampleFirstLine">-ulxy 0 0 -wh 100 100 -s 0 -coord image </p>
+        <p class="codesample">-ulxy 0 0 -lrxy 99 99 -s 0 -coord image 
+</p>
+        <p class="codesample">-cxy 50 50 -wh 100 100 -s 0 -coord image 
+</p>
+        <p class="codesample">-ulxy 100 50 -wh 1000 500 -s 0 -coord geo </p>
+        <p class="codesample">-ulxy 100 50 -lrxy 1090 -445 -s 0 -coord geo </p>
+        <p class="codesample">-cxy 600 -200 -wh 1000 500 -s 0 -coord geo 
+</p>
+        <p>Part scene, full res (50x50 image, UL quarter of image at full res) </p>
+        <p class="codesampleFirstLine">-ulxy 0 0 -wh 50 50 -s 0 -coord image 
+</p>
+        <p class="codesample">-ulxy 0 0 -lrxy 49 49 -s 0 -coord image </p>
+        <p class="codesample">-cxy 25 25 -wh 50 50 -s 0 -coord image 
+</p>
+        <p class="codesample">-ulxy 100 50 -wh 500 250 -s 0 -coord geo 
+</p>
+        <p class="codesample">-ulxy 100 50 -lrxy 590 -195 -s 0 -coord geo 
+</p>
+        <p class="codesample">-cxy 350 -75 -wh 500 250 -s 0 -coord geo 
+</p>
+        <p>Full scene, half-res (whole image at half res, in UL quadrant of 100x100 image) 
+</p>
+        <p class="codesampleFirstLine">-ulxy 0 0 -wh 100 100 -s 1 -coord image 
+</p>
+        <p class="codesample">-ulxy 0 0 -lrxy 99 99 -s 1 -coord image </p>
+        <p class="codesample">-ulxy 100 50 -wh 1000 500 -s 1 -coord geo 
+</p>
+        <p class="codesample">-ulxy 100 50 -lrxy 1090 -445 -s 1 -coord geo  
+</p>
+        <p>Full scene, half-res (centered) (whole image at half res, in center quadrant of 100x100 image) 
+</p>
+        <p class="codesampleFirstLine">-cxy 50 50 -wh 100 100 -s 1 -coord image 
+</p>
+        <p>Full scene, half-res (centered) (whole image at half res, in center of a 50x50 image) 
+</p>
+        <p class="codesampleFirstLine">-cxy 600 -200 -wh 1000 500 -s 1 -coord geo 
+</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

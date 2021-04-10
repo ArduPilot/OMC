@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="MrSID Decode SDK Command Line Tools" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Viewing File Information</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="MrSID_Decode_SDK_Command_Line_Tools.htm">MrSID Decode SDK Command Line Tools</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Viewing File Information</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor2"></a>Viewing File Information</h2>
+        <p>The MrSID Decode  SDK&#160;includes a command line tool called <span class="fixedWidth">lidarinfo</span>. Located in the       <span class="fixedWidth">bin</span> directory, <span class="fixedWidth">lidardinfo</span> enables you to view the information in LAS or TXT files in text form.</p>
+        <h6 class="h7"><a name="UsageLidarInfo"></a>Usage</h6>
+        <p>The only required parameter for LAS files is <span class="fixedWidth">-inputFile</span> (or <span class="fixedWidth">-i</span>), which specifies the input file name. Text input files also require the <span class="fixedWidth">-parse</span> (or <span class="fixedWidth">-p</span>) parameter, which describes the order of the fields. </p>
+        <p>You may add other options and parameters as described in the table of switches below. The order of the switches in the syntax has no bearing on the output.</p>
+        <p>For examples of how to form a command, see <a href="#ExampleLidarInfo" target="" title="" alt="" class="MCXref_0 selected">"Example"</a>.</p>
+        <table style="width: 100%; margin-left: auto; margin-right: auto;" cellspacing="0">
+            <caption><span class="fixedWidth">lidarinfo</span> Switches</caption>
+            <col style="width: 180px;" />
+            <col style="width: 90px;" />
+            <col />
+            <tbody>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-inputFile</span> (<span class="fixedWidth">-i</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">(Required) Specifies the name of the input file.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-parse</span> (<span class="fixedWidth">-p</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">string</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">
+                        <p>(Required for text input) Parse format that describes the fields in a text input file. Valid values are:
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">x</span> - <span class="italic">x</span> point values</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">y</span> - <span class="italic">y</span> point values</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">z</span> - <span class="italic">z</span> point values
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">i</span> - intensity
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">r</span> - return number
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">n</span> - number of returns
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">d</span> - scan direction
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">e</span> - edge of flight line
+  </p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">a</span> - scan angle
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">c</span> - class id
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">p</span> - source id
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">u</span> - user data
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">t</span> - GPS time
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">R</span> - red
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">G</span> - green
+</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">B</span> - blue</p>
+                        <p class="glossaryManualBody"><span class="fixedWidth">s</span> - skip this column</p>
+                        <p>Example:</p>
+                        <p>If you have five fields in the order GPS time, intensity, <span class="italic">x</span>, <span class="italic">y</span> and <span class="italic">z</span> and you only want the time and the point values, then specify <span class="fixedWidth">-parse tsxyz</span>, which skips the second (intensity) column and correctly labels the other four. <span class="fixedWidth">&#160;</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-metadata</span> (<span class="fixedWidth">-m</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells <span class="fixedWidth">lidarinfo</span> to display all metadata.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-bounds</span> (<span class="fixedWidth">-b</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;page-break-inside: auto;">Tells <span class="fixedWidth">lidarinfo</span> to determine the extents of the data by reading the data itself instead of reading min and max values reported in the header.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth"><span class="fixedWidth">-skipHeader</span></span> (<span class="fixedWidth"><span class="fixedWidth">-skip</span></span>)<span class="fixedWidth"></span></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">unsigned integer</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells <span class="fixedWidth">lidarinfo</span> to skip the first <span class="italic">n</span> lines of text input files.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-returns</span> (<span class="fixedWidth">-r</span>) </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;page-break-inside: auto;">Decodes the points and displays a histogram of the number of points per return value.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-classification</span> (<span class="fixedWidth">-c</span>) </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Decodes the points and displays a histogram of the number of points per classification.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-h</span> (<span class="fixedWidth">-?</span>)</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays a short usage message.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-help</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays a detailed usage message.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-version</span> (<span class="fixedWidth">-v)</span></td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Displays version information.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;"><span class="fixedWidth">-verbose</span> (<span class="fixedWidth">-V</span>) </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowSep_ColEnd" style="vertical-align: top;">Tells <span class="fixedWidth">lidarinfo</span> to display more verbose error messages.</td>
+                </tr>
+                <tr>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;"><span class="fixedWidth">-credits</span>
+                    </td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColSep" style="vertical-align: top;">&#160;</td>
+                    <td class="TableStyle_buttonsTable2_Body_0_0_RowEnd_ColEnd" style="vertical-align: top;">Displays credits and copyrights.</td>
+                </tr>
+            </tbody>
+        </table>
+        <h6 class="h7"><a name="ExampleLidarInfo"></a>Example</h6>
+        <p>The command</p>
+        <p class="codesampleFirstLine">lidarinfo -i LakeRoosevelt_2.sid 
+</p>
+        <p>returns the following information:</p><pre class="codesample04em">Basic LiDAR Info:
+   Format:            MG4 4.0.0.1
+   Number of Points:  3144893399
+   Bounds Min:        408841.780000 5370276.770000 391.350000
+   Bounds Max:        447234.600000 5422959.680000 1188.890000
+   Scale:             0.001 0.001 0.001
+   Offset:            408841.780000 5370276.770000 391.350000
+   Supported Fields:  GPSTime X Y Z Intensity ReturnNum NumReturns ClassId ScanDir ScanAngle UserData SourceId
+   Spatial Reference: None</pre>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

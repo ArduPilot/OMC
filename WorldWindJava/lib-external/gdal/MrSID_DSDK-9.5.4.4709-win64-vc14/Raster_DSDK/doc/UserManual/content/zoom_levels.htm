@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Appendix A - Technical Notes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Zoom Levels</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="appendix_a_technical_notes.htm">Appendix A - Technical Notes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Zoom Levels</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor8"></a>Zoom Levels</h2>
+        <p>The following describes the MrSID SDK’s handling of zoom levels for MG2, MG3, MG4 and JP2. In the code below, assume the following:
+
+ 
+
+</p>
+        <blockquote>
+            <p><span class="fixedWidth">W</span> = image width (constant)
+
+</p>
+            <p><span class="fixedWidth">H</span> = image height (constant)
+
+</p>
+            <p><span class="fixedWidth">n</span> = number of levels
+
+ 
+
+ 
+
+</p>
+        </blockquote>
+        <h6 class="h7">MG2 Behavior
+ 
+
+</h6>
+        <p>The default number of zoom levels is computed by initially assuming the maximum possible number of levels. The size of the image that would be needed to support that number of levels is then computed. If the actual image is larger than the computed size, the number is determined and the SDK inquires no further. Otherwise, the SDK recomputes the image size with a reduced number of levels, and continues to do so until the actual image size is equal to or greater than the required size.
+
+ 
+
+ 
+
+</p>
+        <p class="codesampleFirstLine">n = 9
+
+</p>
+        <p class="codesample">loop
+
+</p>
+        <p class="codesample">{
+</p>
+        <p class="codesampleIndent02">min_length = (IPOW(2, n+1) - 2) * 4 + 1
+
+</p>
+        <p class="codesampleIndent02">if (W &gt; min_length) and (H &gt; min_length) break;
+
+</p>
+        <p class="codesampleIndent02">--n
+
+</p>
+        <p class="codesample">}
+
+ 
+
+</p>
+        <p>The <span class="fixedWidth">min_length</span> values for <span class="fixedWidth">n=9, 8, …, 3</span> are <span class="fixedWidth">4089, 2041, …, 57</span>.
+
+ 
+
+</p>
+        <p>The maximum number of levels for the image is computed the same way.
+
+ 
+
+</p>
+        <p>These zoom level calculations are in the <span class="fixedWidth">MG2WriterParams</span> class. However, if you request less than 3 levels (or more than 9), the SDK will clamp your request to 3 (or 9). These are hard limits for MG2.
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">MG3 and MG4 Behavior
+
+ 
+
+</h6>
+        <p>MG3 and MG4 use different equations than MG2 and do not have the hard limits of 3 and 9 levels.
+
+ 
+
+</p>
+        <p>The default number of zoom levels is determined by initially assuming zero levels, then reducing the minimum image dimension by a factor of two until it falls below 32.
+
+ 
+
+</p>
+        <p class="codesampleFirstLine">n = 0
+
+</p>
+        <p class="codesample">minWH = MIN(W,H)
+</p>
+        <p class="codesample">while (minWH &gt;= 32)
+
+</p>
+        <p class="codesample">{
+</p>
+        <p class="codesampleIndent02">minWH = minWH / 2
+
+</p>
+        <p class="codesampleIndent02">++n
+
+</p>
+        <p class="codesample">}
+
+ 
+
+</p>
+        <p>The maximum number of zoom levels is computed by a different method: the number of levels is increased as long as the dimension at that number of levels is not greater than the minimum actual image dimension.
+
+ 
+
+</p>
+        <p class="codesampleFirstLine">n = 1
+
+</p>
+        <p class="codesample">minWH = MIN(W,H)
+</p>
+        <p class="codesample">while (minWH &gt; (1 &lt;&lt; (n+1) )
+
+</p>
+        <p class="codesample">{
+</p>
+        <p class="codesampleIndent02">++n
+
+</p>
+        <p class="codesample">}
+</p>
+        <p class="codesample">--n
+
+ 
+
+</p>
+        <p>These zoom level calculations are in the <span class="fixedWidth">MG3WriterParams</span> and <span class="fixedWidth">MG4WriterParams</span> classes.
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">JP2 Behavior
+ 
+
+</h6>
+        <p>JP2 behaves identically to MG3 and MG4. These zoom level calculations are in the <span class="fixedWidth">JP2WriterParams</span> class.
+
+ 
+
+ 
+
+</p>
+        <h6 class="h7">Example
+ 
+
+</h6>
+        <p>Consider a 512x512 image. Using the SDK encoder and info tools, the following results are obtained:
+
+ 
+
+</p>
+        <blockquote>
+            <p>mg2: image is encoded to 6 levels
+
+</p>
+            <blockquote>
+                <p>0: 512x512
+
+</p>
+                <p>1: 256x256
+</p>
+                <p>..
+
+</p>
+                <p>5: 16x16
+
+</p>
+                <p>6: 8x8
+
+ 
+
+</p>
+            </blockquote>
+            <p>mg3: image is encoded to 5 levels
+
+</p>
+            <blockquote>
+                <p>0: 512x512
+
+</p>
+                <p>1: 256x256
+
+</p>
+                <p>..
+
+</p>
+                <p>5: 16x16
+
+ 
+
+</p>
+            </blockquote>
+            <p>jp2: image is encoded to 5 levels
+
+</p>
+            <blockquote>
+                <p>0: 512x512
+
+</p>
+                <p>1: 256x256
+
+</p>
+                <p>..
+
+</p>
+                <p>5: 16x16
+
+ 
+
+ 
+</p>
+            </blockquote>
+        </blockquote>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

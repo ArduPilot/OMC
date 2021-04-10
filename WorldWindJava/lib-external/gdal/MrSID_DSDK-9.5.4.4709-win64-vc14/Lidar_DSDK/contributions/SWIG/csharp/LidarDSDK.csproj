@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5455210a-6ac4-48ff-b778-ada4606c0460}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LizardTech.LidarSDK</RootNamespace>
+    <AssemblyName>LizardTech.LidarDSDK</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <WarningLevel>4</WarningLevel> 
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_md|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\$(LT_TARGET)\$(Configuration)\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_md|x86' ">
+    <OutputPath>..\..\..\bin\$(LT_TARGET)\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_md|x64' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\bin\$(LT_TARGET)\$(Configuration)\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_md|x64' ">
+    <OutputPath>..\..\..\bin\$(LT_TARGET)\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Bounds.cs" />
+    <Compile Include="ChannelData.cs" />
+    <Compile Include="ChannelInfo.cs" />
+    <Compile Include="DataType.cs" />
+    <Compile Include="DataTypeUtils.cs" />
+    <Compile Include="FileIO.cs" />
+    <Compile Include="IO.cs" />
+    <Compile Include="LidarDSDK.cs" />
+    <Compile Include="LidarDSDKPINVOKE.cs" />
+    <Compile Include="Metadata.cs" />
+    <Compile Include="MetadataDataType.cs" />
+    <Compile Include="MG4PointReader.cs" />
+    <Compile Include="Object.cs" />
+    <Compile Include="PercentProgressDelegate.cs" />
+    <Compile Include="PointData.cs" />
+    <Compile Include="PointInfo.cs" />
+    <Compile Include="PointIterator.cs" />
+    <Compile Include="PointReader.cs" />
+    <Compile Include="PointSource.cs" />
+    <Compile Include="PointWriter.cs" />
+    <Compile Include="ProgressDelegate.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="SimplePointWriter.cs" />
+    <Compile Include="SWIGTYPE_p_p_char.cs" />
+    <Compile Include="SWIGTYPE_p_size_t.cs" />
+    <Compile Include="SWIGTYPE_p_void.cs" />
+    <Compile Include="TXTPointReader.cs" />
+    <Compile Include="TXTPointWriter.cs" />
+    <Compile Include="Version.cs" />
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

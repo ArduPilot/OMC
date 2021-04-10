@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The PointSource Class</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="The_SDK_Classes.htm">The SDK Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The PointSource Class</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor21"></a>The <span class="fixedWidth">PointSource</span> Class</h2>
+        <p>The <span class="fixedWidth">PointSource</span> class is the root class for accessing LiDAR data. Following is a description of each of the methods.</p>
+        <h6 class="h7">Methods for Accessing Properties</h6>
+        <h6 class="h7Ital">Number of Points</h6>
+        <p>To access the number of points, call <span class="fixedWidth">PointSource::getNumPoints()</span>.</p>
+        <h6 class="h7Ital">Channels</h6>
+        <p>A channel is all the values for a given attribute. For example, the X channel is all the X values for a given point cloud. </p>
+        <p>To access the channel information, call <span class="fixedWidth">PointSource::getNumChannels()</span> and <span class="fixedWidth">PointSource::getPointInfo()</span>.</p>
+        <p>For more information about channels, see <a href="The_Buffer_Management_Classes.htm#TheChannelInfoClass" target="" title="" alt="" class="MCXref_0">"The ChannelInfo Class"</a> and <a href="The_Buffer_Management_Classes.htm#ThePointInfoClass" target="" title="" alt="" class="MCXref_0">"The PointInfo Class"</a>.</p>
+        <h6 class="h7Ital"><a name="Quantization"></a>Quantization</h6>
+        <p>If you call the functions <span class="fixedWidth">PointSource::getScale()</span> and <span class="fixedWidth">PointSource::getOffset()</span>and <span class="fixedWidth">NULL</span>&#160;is returned, the file is not quantized. Otherwise it returns an array of <span class="fixedWidth">double</span>s representing the quantization scale and offset values for the X, Y and Z channels. </p>
+        <p>Even when the LiDAR file is quantized the X, Y, Z value that are extracted form the point cloud are floating point values, not the integer indexes.</p>
+        <p>For more information about quantization, see <a href="Architecture_and_Design.htm#FloatingPointQuantization" target="" title="" alt="" class="MCXref_0">"Floating Point Quantization"</a>.</p>
+        <h6 class="h7Ital">Metadata</h6>
+        <p>Metadata is auxiliary information about the point cloud stored as key-value pairs. Metadata can be any information the user wishes to add. You can store strings, arrays of floating point values and raw binary data.</p>
+        <p>To access the channel information, call <span class="fixedWidth">PointSource::loadMetadata()</span>. </p>
+        <p>For more information see <a href="The_Metadata_Class.htm" target="" title="" alt="" class="MCXref_0">"The Metadata Class"</a>.</p>
+        <h6 class="h7Ital">Classification Names</h6>
+        <p>The MrSID Decode SDK&#160;stores the classification name as an array of strings. You can use the ClassId channel to index into the ClassIdName array.</p>
+        <p>To access the classification names, call <span class="fixedWidth">PointSource::getNumClassIdNames()</span> and <span class="fixedWidth">PointSource::getClassIdNames()</span>.</p>
+        <h6 class="h7">Methods for Accessing the Point Cloud</h6>
+        <h6 class="h7Ital">Using a Point Iterator </h6>
+        <p>A point iterator is an iterator that gets points for a given bounds. </p>
+        <p>The function <span class="fixedWidth">PointSource::createIterator()</span> returns an iterator for a given bounds, fraction and set of channels (see <a href="Architecture_and_Design.htm#SpecifyingROI" target="" title="" alt="" class="MCXref_0">"Specifying a Region of Interest"</a>). </p>
+        <p>To extract the points, call the function <span class="fixedWidth">PointIterator::getNextPoints()</span>, which walks the specified region of the point cloud until there are no more points to extract (for an example, see <a href="Code_Examples.htm" target="" title="" alt="" class="MCXref_0">"Code Examples"</a>).</p>
+        <p>For more information see <a href="The_PointIterator_Class.htm" target="" title="" alt="" class="MCXref_0">"The PointInterator Class"</a>.</p>
+        <h6 class="h7Ital">Using Bounds and a Fixed Number of Points</h6>
+        <p>Using bounds and a fixed number of points to extract is much simpler but less versatile. </p>
+        <p><span class="fixedWidth">PointSource::read()</span> fills a <span class="fixedWidth">PointData</span> object with the points that most uniformly represent the specified region of interest (for an example, see <a href="Code_Examples.htm" target="" title="" alt="" class="MCXref_0">"Code Examples"</a>). </p>
+        <p><span class="fixedWidth"></span>
+        </p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

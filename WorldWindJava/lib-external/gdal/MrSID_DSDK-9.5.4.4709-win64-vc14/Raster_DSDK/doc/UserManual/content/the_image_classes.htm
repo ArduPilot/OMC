@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="The SDK Base Classes" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>The Image Classes</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="resources/stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="the_sdk_base_classes.htm">The SDK Base Classes</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">The Image Classes</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor45"></a>The Image Classes</h2>
+        <p>As described in the previous chapter, a hierarchy of several classes is used to represent images, image stages, and the image pipeline. See Figure 1.
+</p>
+        <p style="text-align: center;">
+            <img src="resources/images/pipeline_imajes/image005.gif" style="width: 470px;height: 253px;" />
+        </p>
+        <p class="captionFigure" MadCap:autonum="Figure 1: &#160;"><span class="autonumber"><span>Figure 1: &#160;</span></span>Inheritance 
+
+ 
+
+</p>
+        <p>The <code>LTIImage</code> class represents the properties of an image, including:
+
+</p>
+        <ul>
+            <li value="1">width and height
+
+</li>
+            <li value="2">pixel type (number of bands, colorspace, datatype)
+</li>
+            <li value="3">background and nodata pixel values
+</li>
+            <li value="4">dynamic range of the samples
+
+</li>
+            <li value="5">simple geographic coordinates
+
+</li>
+            <li value="6">supported magnification range
+
+</li>
+            <li value="7">metadata
+
+ 
+
+</li>
+        </ul>
+        <p>The <code>LTIImageStage</code> class extends <code>LTIImage</code> by adding:
+
+</p>
+        <ul>
+            <li value="1">strip-based read functions
+
+</li>
+            <li value="2">progress and interrupt delegates
+
+ 
+
+</li>
+        </ul>
+        <p>The <span class="fixedWidth">LTIImageReader</span> and <span class="fixedWidth">LTIImageFilter</span> classes extend <span class="fixedWidth">LTIImageStage</span> in order to more closely reflect their positions and operations in the image pipeline. These two classes are discussed in subsequent chapters.
+
+</p>
+        <p><a name="kanchor46"></a>While the <span class="fixedWidth">LTIImageWriter</span> class does not inherit from any of the other <span class="fixedWidth">LTIImage</span> classes; it replicates some of the same functionality (such as strip-based operations and delegate control) so that it can be used as a client of an image pipeline. The <span class="fixedWidth">LTIGeoFileImageWriter</span> class is derived from <span class="fixedWidth">LTIImageWriter</span> to aid in implemented image writers. <span class="fixedWidth">LTIGeoFileImageWriter</span> extends <span class="fixedWidth">LTIImageWriter</span> to provide the ability to output to a specific form (stream or file) and optionally generate world files.
+</p>
+        <p>The <span class="fixedWidth">LTIImageStageManager</span> is a base  class for managing a set of <span class="fixedWidth">LTIImageStage</span> objects – it can be thought of as an array of such objects.  It used for passing a set of image stages to an <span class="fixedWidth">LTIImageMosaicFilter</span> and enabling the mosaic filter to reduce its resource usage.  The <span class="fixedWidth">LTIImageStageManager</span> is also used for “wrapping” file formats that can hold multiple images.</p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>

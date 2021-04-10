@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:MadCap="http://www.madcapsoftware.com/Schemas/MadCap.xsd" MadCap:tocPath="Introduction" MadCap:InPreviewMode="false" MadCap:PreloadImages="false" MadCap:RuntimeFileType="Topic" MadCap:TargetType="WebHelp" lang="en-us" xml:lang="en-us" MadCap:PathToHelpSystem="../" MadCap:HelpSystemFileName="index.xml" MadCap:SearchType="Stem">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Architecture and Design</title>
+        <link href="SkinSupport/Slideshow.css" rel="stylesheet" />
+        <link href="SkinSupport/MadCap.css" rel="stylesheet" />
+        <link href="Resources/Stylesheets/mattweb.css" rel="stylesheet" />
+        <script src="SkinSupport/jquery.min.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapAll.js" type="text/javascript">
+        </script>
+        <script src="SkinSupport/MadCapTopicAll.js" type="text/javascript">
+        </script>
+    </head>
+    <body>
+        <div class="MCBreadcrumbsBox_0"><span class="MCBreadcrumbsPrefix">You are here: </span><a class="MCBreadcrumbsLink" href="Introduction.htm">Introduction</a><span class="MCBreadcrumbsDivider"> &gt; </span><span class="MCBreadcrumbs">Architecture and Design</span>
+        </div>
+        <h2 class="ptdh2"><a name="kanchor27"></a>Architecture and Design</h2>
+        <p>This section provides an overview of the architecture and some insight into the design philosophy of LizardTech's MrSID Decode SDK.</p>
+        <h6 class="h7">Basic Terminology</h6>
+        <p><span class="bolder">Point</span> – A location in three-dimensional (3D) space with non-optional attributes (X,Y,Z) and optional attributes such as scan angle, pulse intensity, and color.</p>
+        <p><span class="bolder">Channel</span> – All the values for a given attribute. For example, the X channel is all the X values for a given point cloud.</p>
+        <h6 class="h7"><a name="kanchor28"></a>Class Hierarchy</h6>
+        <p>The MrSID Decode SDK&#160;is designed around two major classes:&#160;objects that are <span class="italic">sources</span> of LiDAR point data and objects that are <span class="italic">destinations</span> of LiDAR point data. The sources are derived from the <span class="fixedWidth">PointSource</span> class, and the destinations are derived from the <span class="fixedWidth">PointWriter</span> class. For the SDK, we deal mainly with he <span class="fixedWidth">PointSource</span> class. </p>
+        <p>The most interesting subclass of the <span class="fixedWidth">PointSource</span> class is <span class="fixedWidth">MG4PointReader</span>. The <span class="fixedWidth">PointSource</span> has two types of methods. The first is for getting properties about the point cloud, and the other type is for accessing the point cloud itself, either the entire cloud or subsets thereof.</p>
+        <h6 class="h7"><a name="SpecifyingROI"></a><a name="kanchor29"></a>Specifying a Region of Interest</h6>
+        <p>When extracting points from the point cloud you must specify the region you wish to extract from, which we call the region of interest. The MrSID Decode SDK&#160;uses a bounding box to specify the region of interest.           </p>
+        <p>If you wish to extract all the points in a point cloud, you may do it in either of two ways:</p>
+        <ul>
+            <li value="1">use the bounding box of the point source </li>
+            <li value="2">use <span class="fixedWidth">-HUGE_VAL</span> (-infinity) to <span class="fixedWidth">+HUGE_VAL</span> (+infinity) for the X,Y and Z ranges</li>
+        </ul>
+        <p>Using a bounding box generally defines far more points than a user needs, so when extracting points from a cloud, you must also specify the fraction of the point cloud that you wish to extract.                 For example if you only want every 20th point, specify 0.05 (1/20) as the fraction value. Use 1.0 when you want all the points.</p>
+        <h6 class="h7"> Point Cloud Data Buffers </h6>
+        <p>When extracting points we use the <span class="fixedWidth">PointData</span> class to pass around parts of the point cloud among functions. This class is a group of channel buffers for the channels that are to be extracted (see <a href="The_Buffer_Management_Classes.htm" target="" title="" alt="" class="MCXref_0">"The Buffer Management Classes"</a>).            </p>
+        <h6 class="h7"><a name="kanchor30"></a>Programming and Memory Model</h6>
+        <p>The MrSID Decode SDK separates object allocation and object initialization.  This means the constructors do not take arguments and classes have one or more <span class="fixedWidth">init()</span> methods.  This makes it easier to work with exceptions and to chain object constructors.</p>
+        <p>The SDK chooses to use reference counting for objects with long or unknown life spans.   The base class for reference counting is <span class="fixedWidth">Object</span>. Its methods, <span class="fixedWidth">Object::retain()</span> and <span class="fixedWidth">Object::release()</span> increment and decrement the reference counter.   Functions and methods that start with “create” create a new reference counted object with a count of one.  It is the responsibility of the “create” caller to release the object when done with it using <span class="fixedWidth">Object::release()</span>.   When you retain a pointer to an <span class="fixedWidth">Object</span> you must retain the object using <span class="fixedWidth">Object::retain()</span>, until that pointer goes out of scope, at which time you must release the object.</p>
+        <p>See <a href="http://en.wikipedia.org/wiki/Reference_counting" target="_blank" class="interTopic2"><span class="fixedWidth">http://en.wikipedia.org/wiki/Reference_counting</span></a><span>&#160;</span>for more information on reference counting.</p>
+        <p class="note" MadCap:autonum="NOTE: &#160;"><span class="autonumber"><span class="BoldNOTE">NOTE: &#160;</span></span>The SDKs naming conventions are patterned after those in Objective C.</p>
+        <h6 class="h7"><a name="kanchor31"></a>Thread Safety</h6>
+        <p>The MrSID Decode SDK is thread safe.   Once the <span class="fixedWidth">PointSource</span> has been initialized any number of threads can use the <span class="fixedWidth">PointSource</span> instance.  The stateful (thread-specific)&#160;information for the point extraction is stored in the <span class="fixedWidth">PointIterator</span> class.</p>
+        <h6 class="h7"><a name="FloatingPointQuantization"></a><a name="kanchor32"></a>Floating Point Quantization</h6>
+        <p>Quantization is a way to convert floating point values to integer values. This facilitates lossless wavelet compression of LiDAR data. LAS files, which contain floating point values, are quantized as part of their storage. The MG4 format quantizes because it uses an integer wavelet transform to achieve lossless compression. The result is that, even with the quantization, LAS files can be compressed losslessly in MG4.</p>
+        <p>If you are doing any error analysis you must factor the quantization scale into the error bound calculation.</p>
+        <p>Quantization in the MrSID Decode SDK&#160;uses the following conversions between floating point and integer space:</p>
+        <p class="codesampleFirstLine">&lt;floating point value&gt; = scale * &lt;integer value&gt; + offset</p>
+        <p class="codesampleFirstLine">&lt;index value&gt; = floor((&lt;floating point value&gt; - offset) / scale + 0.5)</p>
+        <p>In going from integer space to floating point space and back again using the above methods, the index space values do not change.
+This stability minimizes the conversion error. </p>
+        <p>&#160;</p>
+        <script type="text/javascript" src="SkinSupport/MadCapBodyEnd.js">
+        </script>
+    </body>
+</html>
