@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.openjfx</groupId>
+  <artifactId>javafx-graphics</artifactId>
+  <versioning>
+    <release>11.0.2-hotfix</release>
+    <versions>
+      <version>11.0.2-hotfix</version>
+    </versions>
+    <lastUpdated>20190328000839</lastUpdated>
+  </versioning>
+</metadata>
