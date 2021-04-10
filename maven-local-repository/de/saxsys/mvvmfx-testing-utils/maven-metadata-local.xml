@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>de.saxsys</groupId>
+  <artifactId>mvvmfx-testing-utils</artifactId>
+  <versioning>
+    <versions>
+      <version>1.9.0-ABC-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20190501163656</lastUpdated>
+  </versioning>
+</metadata>

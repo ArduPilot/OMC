@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.testfx</groupId>
+  <artifactId>openjfx-monocle</artifactId>
+  <versioning>
+    <release>jdk-12.0.1+2</release>
+    <versions>
+      <version>jdk-11+26-local</version>
+      <version>jdk-12.0.1+2</version>
+    </versions>
+    <lastUpdated>20190508135526</lastUpdated>
+  </versioning>
+</metadata>
