@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.control.Separator?>
+<BorderPane fx:id="layoutRoot" styleClass="dialog"
+            xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.intel.missioncontrol.ui.update.UpdateView" style="-fx-min-width: 45em;
+    -fx-max-width: 45em;">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/dialog.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/dialogs/about/AboutDialogView.css"/>
+    </stylesheets>
+
+    <top>
+        <BorderPane styleClass="about-header">
+            <left>
+                <Label styleClass="intel-logo"/>
+            </left>
+            <center>
+                <VBox alignment="CENTER_LEFT">
+                    <Label styleClass="app-title"
+                           text="%com.intel.missioncontrol.ui.dialogs.AboutDialogView.header"/>
+                </VBox>
+            </center>
+        </BorderPane>
+    </top>
+
+    <center>
+        <!--<ScrollPane>  Marco: 2018-04-13: this will add always a scroll bar since dialog is just some pixels too tiny... without this dialog should always find preferred height himself?-->
+        <VBox fx:id="updatesBox" style="-fx-padding: 0 0 0 1em;">
+        </VBox>
+        <!--</ScrollPane>-->
+    </center>
+
+    <bottom>
+        <Separator/>
+        <HBox styleClass="footer">
+            <Label HBox.hgrow="NEVER" styleClass="hint-label" text="%com.intel.missioncontrol.ui.update.UpdateView.chooseVersions"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ButtonBar HBox.hgrow="NEVER" fx:id="updateButtonBar">
+                <buttons>
+                    <Button fx:id="runUpdateButton" styleClass="primary-button" defaultButton="true"
+                            mnemonicParsing="false"
+                            text="%com.intel.missioncontrol.ui.update.UpdateView.runUpdatesButton"
+                            onAction="#runDownload"/>
+                    <Button fx:id="laterButton" styleClass="secondary-button" mnemonicParsing="false"
+                            text="%com.intel.missioncontrol.ui.update.UpdateView.laterButton" onAction="#closeDialog"/>
+                </buttons>
+            </ButtonBar>
+        </HBox>
+    </bottom>
+
+</BorderPane>

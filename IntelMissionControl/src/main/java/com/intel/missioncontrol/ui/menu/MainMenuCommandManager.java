@@ -133,14 +133,6 @@ public class MainMenuCommandManager {
                 .selectReadOnlyObject(Matching::statusProperty)
                 .isEqualTo(MatchingStatus.IMPORTED);
 
-        menuModel // this got deleted??
-            .find(MainMenuModel.Help.DOWNLOAD_TICKET)
-            .visibleProperty()
-            .bind(
-                Bindings.createBooleanBinding(
-                    () -> licenceManager.getMaxOperationLevel().compareTo(OperationLevel.TECHNICIAN) >= 0,
-                    licenceManager.maxOperationLevelProperty()));
-
         menuModel
             .find(MainMenuModel.Project.EXIT)
             .setActionHandler(WindowHelper::closePrimaryStage, allowProjectChange);
@@ -375,31 +367,8 @@ public class MainMenuCommandManager {
         menuModel.find(MainMenuModel.Help.DEMO_MISSION).setActionHandler(() -> openDemoMission());
 
         menuModel
-            .find(MainMenuModel.Help.SUPPORT_REQUEST)
-            .setActionHandler(
-                () -> {
-                    if (!applicationContext.askUserForMissionSave()) {
-                        return;
-                    }
-
-                    dialogService.requestDialogAsync(ownerViewModel, SendSupportDialogViewModel.class);
-                });
-
-        menuModel
             .find(MainMenuModel.Help.ABOUT)
             .setActionHandler(() -> dialogService.requestDialogAsync(ownerViewModel, AboutDialogViewModel.class));
-
-        menuModel.find(MainMenuModel.Help.DOWNLOAD_TICKET).setActionHandler(this::handleTicketDownload);
-
-        menuModel
-            .find(MainMenuModel.Help.DOWNLOAD_TICKET)
-            .visibleProperty()
-            .bind(
-                Bindings.createBooleanBinding(
-                    () -> licenceManager.getMaxOperationLevel().compareTo(OperationLevel.TECHNICIAN) >= 0,
-                    licenceManager.maxOperationLevelProperty()));
-
-        menuModel.find(MainMenuModel.Help.UPLOAD_OLD_SUPPORT_REQUESTS).setActionHandler(this::handleOldSupportUpload);
 
         menuModel
             .find(MainMenuModel.Debug.MENU_CAPTION)

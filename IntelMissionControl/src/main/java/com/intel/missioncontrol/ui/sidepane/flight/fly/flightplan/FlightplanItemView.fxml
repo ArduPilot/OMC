@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import com.intel.missioncontrol.ui.controls.RadioButton?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.flightplan.FlightplanItemView">
+
+    <RadioButton fx:id="layoutRoot" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                 style="-fx-min-height: theme-control-size;-fx-border-color: theme-separator-color;-fx-border-width: 0 0 1 0;">
+
+        <graphic>
+            <HBox styleClass="table-cell, normal-spacing">
+                <HBox alignment="CENTER_LEFT">
+                    <Label fx:id="flightPlanNameLabel">
+                        <tooltip>
+                            <Tooltip fx:id="flightPlanNameTooltip"/>
+                        </tooltip>
+                    </Label>
+                    <Label fx:id="activeFlightPlanString"
+                           text="%com.intel.missioncontrol.ui.sidepane.flight.fly.flightplan.FlightplanItemView.onAir"
+                           style="-fx-font-style: italic;-fx-min-width: 4em">
+                    </Label>
+                </HBox>
+                <Button fx:id="editButton" styleClass="transparent-icon-button, icon-pencil" alignment="CENTER_RIGHT"
+                        onAction="#onEditClicked">
+                    <tooltip>
+                        <Tooltip
+                                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.flightplan.FlightplanItemView.editButton.tooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </graphic>
+    </RadioButton>
+
+</HBox>

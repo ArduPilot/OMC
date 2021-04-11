@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<AdornerSplitView fx:id="rootNode" xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningView">
+    <VBox>
+        <VBox fx:id="obstacleAvoidanceRoot" styleClass="form-row, icon-oa-3">
+            <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryView.useAvoidanceSensor"/>
+            <ToggleSwitch fx:id="obstacleAvoidanceSwitch"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningView.obstacleAvoidanceSwitch.tooltip"/>
+        </VBox>
+        <VBox styleClass="form-row, icon-safety-waypoint">
+            <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryView.addSafetyWaypoints"/>
+            <ToggleSwitch fx:id="addSafetyWaypointSwtich"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.sidepane.planning.obstacleavoidance.ObstacleAvoidancePlanningView.addSafetyWaypointSwtich.tooltip"/>
+        </VBox>
+    </VBox>
+</AdornerSplitView>

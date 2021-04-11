@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.intel.missioncontrol.ui.sidepane.planning.widgets.GsdWidgetView" minWidth="0"
+         maxWidth="Infinity">
+
+    <VBox styleClass="form-row, icon-resolution">
+        <Label fx:id="labelGsd" text="%gsdWidget.labelGsd"/>
+        <AutoCommitSpinner fx:id="gsdInput" editable="true" maxWidth="Infinity" styleClass="lablable"/>
+        <Label fx:id="gsdWarningLabel"
+               text="%com.intel.missioncontrol.ui.sidepane.planning.widgets.gsdWarningLabel" styleClass="hint-label"/>
+        <Button styleClass="secondary-button" fx:id="setGsd" visible="false" focusTraversable="false"
+                text="%com.intel.missioncontrol.ui.sidepane.planning.widgets.setGsd" onAction="#hideMe"/>
+    </VBox>
+
+    <VBox styleClass="form-row, icon-distance">
+        <Label text="%gsdWidget.labelAltDistance"/>
+        <AutoCommitSpinner fx:id="altDistanceInput" editable="true" maxWidth="Infinity"
+                           styleClass="lablable" AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                           AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.aoi.labelAltDistance.tooltip"/>
+        <Button styleClass="secondary-button" fx:id="setDistance" focusTraversable="false"
+                text="%com.intel.missioncontrol.ui.sidepane.planning.widgets.setAlt" onAction="#hideMe"/>
+    </VBox>
+
+
+</fx:root>

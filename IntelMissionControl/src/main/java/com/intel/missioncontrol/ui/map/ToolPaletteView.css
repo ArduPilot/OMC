@@ -1,0 +1,148 @@
+#layoutRoot {
+    -fx-padding: 7.5em 2.5em 1.6em 0;
+    -fx-border-insets: 7.5em 2.5em 1.6em 0;
+    -fx-background-insets: 7.5em 2.3em 1.6em 0;
+}
+
+.tool-container {
+    -fx-pref-width: 3em;
+    -fx-max-width: 3em;
+}
+
+.small-spacing {
+    -fx-spacing: 1;
+}
+
+.tool-palette-button {
+    -fx-min-width: 3em;
+    -fx-min-height: 3em;
+    -fx-pref-width: 3em;
+    -fx-pref-height: 3em;
+    -fx-max-width: 3em;
+    -fx-max-height: 3em;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-background-color: theme-tool-palette-background-color;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 2.66em;
+
+    -fx-label-padding: 0;
+    -fx-content-display: graphic-only;
+
+    -fx-border-color: theme-tool-palette-border-color;
+    -fx-border-width: 1;
+    -fx-border-insets: 0;
+}
+
+.tool-palette-button > .radio {
+    -fx-padding: 0;
+    visibility: collapsed;
+}
+
+.tool-palette-button > .radio > .dot {
+    -fx-padding: 0;
+    visibility: collapsed;
+}
+
+.tool-palette-button:hover {
+    -fx-background-color: theme-tool-palette-hover-color;
+    -fx-border-color: theme-separator-color;
+
+}
+
+.tool-palette-button:pressed {
+    -fx-background-color: theme-tool-palette-pressed-color;
+}
+
+.tool-palette-button:selected {
+    -fx-background-color: theme-tool-palette-selected-color;
+}
+
+.tool-palette-button:focused {
+    -fx-border-color: theme-tool-palette-border-color;
+}
+
+.tool-palette-button:disabled {
+    -fx-background-color: theme-tool-palette-disabled-color;
+}
+
+#rulerButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_toolbar-ruler.svg');
+}
+
+#rulerButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_toolbar-ruler(fill=theme-white).svg');
+}
+
+
+#viewCockpitButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-pilot.svg');
+}
+#viewCockpitButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-pilot(fill=theme-white).svg');
+}
+
+
+#viewFollowButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-followplane.svg');
+}
+#viewFollowButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-followplane(fill=theme-white).svg');
+}
+
+
+#viewStayButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-map.svg');
+}
+#viewStayButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-map(fill=theme-white).svg');
+}
+
+#videoButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_video.svg');
+}
+#videoButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_video(fill=theme-white).svg');
+}
+
+#map2DButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-2D.svg');
+}
+
+#map2DButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-2D(fill=theme-white).svg');
+}
+
+#map3DButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-3D.svg');
+}
+
+#map3DButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_view-3D(fill=theme-white).svg');
+}
+
+#locateMeButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_show-on-map-tool.svg');
+}
+
+#locateMeButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_show-on-map-tool(fill=theme-white).svg');
+}
+
+#zoomInButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_zoom-in.svg');
+}
+
+#zoomInButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_zoom-in(fill=theme-white).svg');
+}
+
+#zoomOutButton {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_zoom-out.svg');
+}
+
+#zoomOutButton:selected {
+    -fx-background-image: url('/com/intel/missioncontrol/icons/icon_zoom-out(fill=theme-white).svg');
+}

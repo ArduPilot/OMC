@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.CheckBox?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="layoutRoot" id="EditWaypoints" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView" styleClass="dialog"
+      stylesheets="@/com/intel/missioncontrol/ui/sidepane/planning/EditWaypointsView.css">
+    <HBox styleClass="content">
+        <ToggleSwitch fx:id="recalculateSwitch"
+                      text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.enable"/>
+    </HBox>
+    <VBox VBox.vgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
+        <TableView fx:id="tableView" editable="true" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="checkedColumn" reorderable="false" sortable="false">
+                    <graphic>
+                        <CheckBox fx:id="selectionCheckBox" editable="false">
+                            <contextMenu>
+                                <ContextMenu>
+                                    <items>
+                                        <MenuItem onAction="#selectAllClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.selectAll"/>
+                                        <MenuItem onAction="#deselectAllClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.deselectAll"/>
+                                        <MenuItem onAction="#invertSelectionClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.invertSelection"/>
+                                        <MenuItem onAction="#selectNoImgClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.selectNoImg"/>
+                                        <MenuItem onAction="#deselectNoImgClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.deselectNoImg"/>
+                                        <MenuItem onAction="#selectWarnClicked"
+                                                  text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.menu.selectWarn"/>
+                                    </items>
+                                </ContextMenu>
+                            </contextMenu>
+                        </CheckBox>
+                    </graphic>
+                </TableColumn>
+                <TableColumn fx:id="warningColumn" reorderable="false"/>
+                <TableColumn fx:id="numberInFlightColumn" reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.numberInFlight"/>
+                <TableColumn fx:id="latColumn" reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.latitude"/>
+                <TableColumn fx:id="lonColumn" reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.longitude"/>
+                <TableColumn text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altitude"
+                             reorderable="false">
+                    <columns>
+                        <TableColumn fx:id="altitudeAboveRColumn"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altitudeAboveR"/>
+                        <TableColumn fx:id="altitudeAboveTakeoffColumn"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altitudeAboveTakeoffColumn"/>
+                        <TableColumn fx:id="groundDistanceColumn"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altAGL"/>
+                    </columns>
+                </TableColumn>
+                <TableColumn fx:id="speedColumn" reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.speed"/>
+                <TableColumn fx:id="stopAtWayPointColumn" reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.stopAtWayPointColumn"/>
+                <TableColumn reorderable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.camera">
+                    <columns>
+                        <TableColumn fx:id="rollColumn" reorderable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.roll"/>
+                        <TableColumn fx:id="pitchColumn" reorderable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.pitch"/>
+                        <TableColumn fx:id="yawColumn" reorderable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.yaw"/>
+                        <TableColumn fx:id="triggerColumn" reorderable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.trigger"/>
+                    </columns>
+                </TableColumn>
+                <TableColumn fx:id="noteColumn" reorderable="false" resizable="false"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.note"/>
+                <TableColumn fx:id="deleteColumn" reorderable="false" sortable="false" resizable="false"/>
+            </columns>
+        </TableView>
+    </VBox>
+    <VBox alignment="CENTER_LEFT" fx:id="lowerBulkSettingsBox" styleClass="content">
+        <VBox>
+            <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.editPanelHeader"
+                   styleClass="label-bold"/>
+        </VBox>
+        <FlowPane styleClass="content, wide-spacing">
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.latitude"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="latCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="latSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.longitude"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="lonCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="lonSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altAbbr"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.altitudeAboveR"
+                               style="-fx-padding:0 0.2em 0;"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="altCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="altSpinner"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.roll"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="rollCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="rollSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.pitch"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="pitchCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="pitchSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.yaw"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="yawCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="yawSpinner"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent" alignment="CENTER">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.trigger"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox visible="false"/>
+                    </HBox>
+                    <ComboBox fx:id="triggerComboBox" style="-fx-pref-width:12em;"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.speed"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox text="Add" fx:id="speedCheckbox"/>
+                    </HBox>
+                    <AutoCommitSpinner fx:id="speedSpinner"/>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER">
+                <VBox styleClass="form-row, unindent" alignment="CENTER">
+                    <HBox alignment="CENTER">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.note"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox visible="false"/>
+                    </HBox>
+                    <TextField fx:id="noteTextField"/>
+                </VBox>
+            </HBox>
+        </FlowPane>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT" VBox.vgrow="NEVER" styleClass="footer, wide-spacing">
+        <Button fx:id="deleteWaypointsButton" styleClass="cautionary-button" HBox.hgrow="NEVER"
+                text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.deleteWaypoints"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="applyButton" styleClass="primary-button" HBox.hgrow="NEVER"
+                text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.applyToSelected"/>
+    </HBox>
+
+</VBox>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<FlowPane fx:id="layoutRoot" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.planning.ChooseAoiView" styleClass="content">
+
+    <VBox styleClass="wide-spacing" style="-fx-padding: 0 0 3em;">
+        <VBox fx:id="aoiMenu" />
+    </VBox>
+    <VBox styleClass="form-row, icon-settings, no-label, label-value">
+        <Hyperlink fx:id="editPlanSettingsLabel"
+                   styleClass="hyperlink, label-bold" text="%firstAoiScreen.editPlanSettingsLabel"/>
+    </VBox>
+</FlowPane>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<AdornerSplitView fx:id="rootNode" xmlns="http://javafx.com/javafx"
+                  xmlns:fx="http://javafx.com/fxml"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.starting.StartingView">
+    <VBox>
+        <VBox styleClass="form-row, icon-auto-takeoff">
+            <Label text="%com.intel.missioncontrol.ui.planning.starting.StartingView.takeOffCaption"/>
+            <ToggleSwitch fx:id="autoSwitch"
+                          text="%com.intel.missioncontrol.ui.planning.starting.StartingView.auto"/>
+        </VBox>
+        <HBox styleClass="form-row, normal-spacing">
+            <ToggleButton fx:id="chooseTakeOffPositionButton" styleClass="secondary-button, iconized, icon-crosshair"
+                          onAction="#onToggleChooseTakeOffPositionClicked"
+                          text="%com.intel.missioncontrol.ui.planning.starting.StartingView.setOnMap"/>
+            <Button fx:id="takeOffPositionFromUavButton" styleClass="secondary-button, iconized, icon-uav"
+                    onAction="#takeOffPositionFromUavButtonClicked"
+                    text="%com.intel.missioncontrol.ui.planning.starting.StartingView.fromUAV"/>
+        </HBox>
+
+        <VBox styleClass="form-row, icon-latitude">
+            <Label text="%com.intel.missioncontrol.ui.planning.starting.StartingView.latitudeLabel"/>
+            <AutoCommitSpinner fx:id="takeOffLatitudeSpinner" editable="true"
+                               maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox styleClass="form-row, icon-longitude">
+            <Label text="%com.intel.missioncontrol.ui.planning.starting.StartingView.longitudeLabel"/>
+            <AutoCommitSpinner fx:id="takeOffLongitudeSpinner" editable="true"
+                               maxWidth="Infinity"/>
+        </VBox>
+    </VBox>
+</AdornerSplitView>
+

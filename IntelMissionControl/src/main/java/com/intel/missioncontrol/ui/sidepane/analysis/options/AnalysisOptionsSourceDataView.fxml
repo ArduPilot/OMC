@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import com.intel.missioncontrol.ui.controls.SegmentButton?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
+<?import org.controlsfx.control.TaskProgressView?>
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.options.AnalysisOptionsSourceDataView"
+      styleClass="unpad" spacing="2">
+
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/analysis/options/AnalysisOptionsSourceDataView.css"/>
+    </stylesheets>
+
+    <VBox styleClass="content">
+        <HBox styleClass="normal-spacing" alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+            <Button fx:id="btnImportData" onAction="#btnImportDataClicked" styleClass="primary-button"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.btnImportData"/>
+            <Button fx:id="btnAddData" onAction="#btnImportDataClicked" styleClass="primary-button"
+                    alignment="CENTER_RIGHT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.btnAddData"/>
+            <MenuButton fx:id="btnAddFilter"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.btnAddFilter"
+                        alignment="CENTER_RIGHT">
+                <items>
+                    <MenuItem onAction="#filterClicked" fx:id="altitude"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Altitude"/>
+                    <MenuItem onAction="#filterClicked" fx:id="pitch"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Pitch"/>
+                    <MenuItem onAction="#filterClicked" fx:id="yaw"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Yaw"/>
+                    <MenuItem onAction="#filterClicked" fx:id="roll"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Roll"/>
+                    <MenuItem onAction="#filterClicked" fx:id="iso" visible="false" disable="true"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Iso"/>
+                    <MenuItem onAction="#filterClicked" fx:id="exposureTime" visible="false" disable="true"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.ExposureTime"/>
+                    <MenuItem onAction="#filterClicked" fx:id="exposure" visible="false" disable="true"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Exposure"/>
+                    <MenuItem onAction="#filterClicked" fx:id="imageType" visible="false" disable="true"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.imageType"/>
+                    <MenuItem onAction="#filterClicked" fx:id="annotation" visible="false" disable="true"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Annotation"/>
+                    <MenuItem onAction="#filterClicked" fx:id="byArea"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.ByArea"/>
+                    <MenuItem onAction="#filterClicked" fx:id="byFlightplan"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.ByFlightplan"/>
+                </items>
+            </MenuButton>
+        </HBox>
+    </VBox>
+
+    <!-- TODO IMC-3137
+       <TitledPane fx:id="imagePane" HBox.hgrow="ALWAYS" visible="false" managed="false"
+                   text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.imagePane">
+           <AdornerSplitView>
+               <VBox styleClass="unpad">
+
+            </VBox>
+        </AdornerSplitView>
+    </TitledPane>
+    TODO IMC-3137 -->
+
+    <TitledPane fx:id="imageImportPane" HBox.hgrow="ALWAYS"
+                text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.imageImportPane">
+        <VBox styleClass="unpad" style="-fx-pref-height:8em; -fx-min-height:8em;">
+            <VBox styleClass="form-row, icon-intersect, no-label">
+                <TaskProgressView fx:id="progressView"/>
+            </VBox>
+        </VBox>
+    </TitledPane>
+
+    <StackPane fx:id="altitudeFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" textAlignment="LEFT" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.altitudeFilterPane">
+            <VBox styleClass="unpad">
+                <HBox styleClass="form-row, icon-altitude">
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblFrom"/>
+                        <AutoCommitSpinner fx:id="altitudeFromSpinner" editable="true" styleClass="spinner"
+                        />
+                    </VBox>
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblTo"/>
+                        <AutoCommitSpinner fx:id="altitudeToSpinner" editable="true" styleClass="spinner"/>
+                        <Label fx:id="altitudeRangeLabel" styleClass="hint-label"
+                               text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.rangeFormat"
+                               visible="false" managed="false"/>
+                    </VBox>
+                </HBox>
+                <VBox styleClass="form-row, label-value">
+                    <Label
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filteredOut"/>
+                    <Label fx:id="rangeNotPassedFilter" styleClass="label-bold"/>
+                </VBox>
+            </VBox>
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="pitchFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.pitchFilterPane">
+            <VBox styleClass="unpad">
+                <HBox styleClass="form-row, icon-camera-pitch">
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblFrom"/>
+                        <AutoCommitSpinner fx:id="pitchFromSpinner" editable="true" styleClass="spinner"/>
+                    </VBox>
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblTo"/>
+                        <AutoCommitSpinner fx:id="pitchToSpinner" editable="true" styleClass="spinner"/>
+                        <Label fx:id="pitchRangeLabel"
+                               text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.rangeFormat"
+                               managed="false" visible="false"/>
+
+                    </VBox>
+                </HBox>
+                <VBox styleClass="form-row, label-value">
+                    <Label
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filteredOut"/>
+                    <Label fx:id="pitchNotPassedFilter" styleClass="label-bold"/>
+                </VBox>
+            </VBox>
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="yawFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.yawFilterPane">
+            <VBox styleClass="unpad">
+                <HBox styleClass="form-row, icon-camera-yaw">
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblFrom"/>
+                        <AutoCommitSpinner fx:id="yawFromSpinner" editable="true" styleClass="spinner"/>
+                    </VBox>
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblTo"/>
+                        <AutoCommitSpinner fx:id="yawToSpinner" editable="true" styleClass="spinner"/>
+                        <Label fx:id="yawRangeLabel" visible="false" managed="false"
+                               text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.rangeFormat"/>
+                    </VBox>
+                </HBox>
+                <VBox styleClass="form-row">
+
+                    <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filteredOut"/>
+                    <Label fx:id="yawNotPassedFilter" styleClass="label-bold"/>
+                </VBox>
+            </VBox>
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="rollFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.rollFilterPane">
+
+            <VBox styleClass="unpad">
+                <HBox styleClass="form-row, icon-camera-roll">
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblFrom"/>
+                        <AutoCommitSpinner fx:id="rollFromSpinner" editable="true" styleClass="spinner"/>
+                    </VBox>
+                    <VBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblTo"/>
+                        <AutoCommitSpinner fx:id="rollToSpinner" editable="true" styleClass="spinner"/>
+                        <Label fx:id="rollRangeLabel" visible="false" managed="false"
+                               text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.rangeFormat"/>
+                    </VBox>
+                </HBox>
+                <VBox styleClass="form-row, label-value">
+                    <Label
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filteredOut"/>
+                    <Label fx:id="rollNotPassedFilter" styleClass="label-bold"/>
+                </VBox>
+            </VBox>
+
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="isoFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.isoFilterPane">
+
+            <!-- TODO IMC-3043 new filters-->
+            <VBox styleClass="unpad"/>
+
+        </TitledPane>
+        <Button fx:id="buttonIsoRemove" StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="exposureTimeFilterPane">
+        <TitledPane HBox.hgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.exposureTimeFilterPane">
+
+            <VBox styleClass="unpad">
+                <!-- TODO IMC-3043 new filters-->
+            </VBox>
+
+        </TitledPane>
+        <Button fx:id="buttonExposureTimeRemove" StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="exposureFilterPane">
+        <TitledPane text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.exposureFilterPane">
+
+            <!-- TODO IMC-3043 new filters-->
+            <VBox styleClass="unpad"/>
+
+        </TitledPane>
+        <Button fx:id="buttonExposureRemove" StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="imageTypeFilterPane">
+        <TitledPane text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.imageTypeFilterPane">
+
+            <!-- TODO IMC-3043 new filters-->
+            <VBox styleClass="unpad"/>
+
+        </TitledPane>
+        <Button fx:id="buttonImageTypeRemove" StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="annotationFilterPane">
+        <TitledPane text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.annotationFilterPane">
+            <!-- TODO IMC-3043 new filters-->
+            <VBox styleClass="unpad"/>
+
+        </TitledPane>
+        <Button fx:id="buttonAnnotationRemove" StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="areaFilterPane">
+        <TitledPane VBox.vgrow="ALWAYS" StackPane.alignment="TOP_LEFT"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.areaFilterPane">
+            <VBox styleClass="unpad, normal-spacing">
+                <VBox>
+                    <ItemsView fx:id="areaFilterListView" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                               style="-fx-border-color: theme-separator-color; -fx-border-width: 0 0 0.083em;">
+                        <VBox maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    </ItemsView>
+                </VBox>
+
+                <VBox styleClass="form-row, no-label, unindent">
+                    <Button fx:id="btnAddDefaultAOI"
+                            styleClass="secondary-button"
+                            mnemonicParsing="false" onAction="#addDefaultAreaFilter"
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.areaFilterPane.btnAddDefaultAOI.label"/>
+
+
+                    <Button fx:id="doneAddingAOIButton"
+                            styleClass="primary-button"
+                            onAction="#doneAddingDefaultAreaFilter" visible="false" managed="false"
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.areaFilterPane.btnAddDefaultAOI.label"/>
+                </VBox>
+
+                <VBox styleClass="form-row" visible="false" managed="false">
+                    <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filterOutImages"/>
+                    <HBox>
+                        <fx:define>
+                            <ToggleGroup fx:id="filterAOIGroup"/>
+                        </fx:define>
+                        <SegmentButton toggleGroup="$filterAOIGroup"
+                                       text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filterAOIOutside"
+                                       styleClass="first"
+                                       userData="OUTSIDE"/>
+                        <SegmentButton toggleGroup="$filterAOIGroup"
+                                       text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filterAOIInside"
+                                       userData="INSIDE"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="label-value, form-row">
+                    <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.filteredOut"/>
+                    <Label fx:id="areaNotPassedFilter" styleClass="label-bold"/>
+                </VBox>
+
+
+            </VBox>
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <StackPane fx:id="flightplanFilterPane">
+        <TitledPane VBox.vgrow="ALWAYS"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.flightplanFilterPane">
+            <VBox styleClass="form-row, icon-plan">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.flightPlansLabel"/>
+                <HBox styleClass="normal-spacing">
+                    <CheckComboBox fx:id="flightPlanNamesComboBox"
+                                   HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                   AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+                </HBox>
+            </VBox>
+        </TitledPane>
+        <Button StackPane.alignment="TOP_RIGHT"
+                styleClass="flat-icon-button, destructive, icon-trash"
+                mnemonicParsing="false" onAction="#removeFilter">
+        </Button>
+    </StackPane>
+
+    <TitledPane fx:id="summaryPane"
+                text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Summary">
+        <VBox styleClass="unpad">
+            <VBox styleClass="label-value, form-row">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblPassedFilter"/>
+                <Label fx:id="lblPassedFilter" styleClass="label-bold"/>
+                <Label fx:id="lblCalculating" styleClass="label-bold"
+                       text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblCalculating"/>
+                <ProgressBar fx:id="passedFilterProgressBar" maxWidth="Infinity" visible="false" managed="false"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.lblToExport"
+                       styleClass="label-regular"/>
+                <ComboBox fx:id="exportFilterComboBox"
+                          HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+    </TitledPane>
+
+    <TitledPane text="%com.intel.missioncontrol.ui.analysis.AnalysisOptionsSourceDataView.Hardware"
+                expanded="false">
+        <fx:include fx:id="hardwareSelectionView"
+                    source="/com/intel/missioncontrol/ui/common/hardware/HardwareSelectionView.fxml"/>
+    </TitledPane>
+
+
+</VBox>

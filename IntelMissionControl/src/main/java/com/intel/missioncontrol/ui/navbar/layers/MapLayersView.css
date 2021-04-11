@@ -1,0 +1,87 @@
+#transformRoot {
+    -fx-background-color: theme-navbar-section-background-color;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-pref-width: 26em;
+}
+
+#transformRoot:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.layer-row { /*hbox*/
+    -fx-min-height: theme-control-size;
+    -fx-max-height: theme-control-size;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.layer-row:hover {
+    -fx-background-color: theme-menu-item-background-hover-color;
+    -fx-text-fill: theme-menu-item-text-hover-color;
+}
+
+.layer-row:disabled {
+    -fx-background-color: theme-menu-item-background-disabled-color;
+    -fx-text-fill: theme-menu-item-text-disabled-color;
+}
+
+.layer-row .check-box {
+    -fx-text-overrun: center-ellipsis;
+}
+
+.layer-row .check-box .box {
+    visibility: hidden;
+    -fx-min-width: theme-control-size;
+    -fx-max-width: theme-control-size;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-background-size: 1.33em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.layer-row .check-box .box .mark {
+    visibility: collapsed;
+}
+
+.layer-row .check-box:selected .box {
+    visibility: visible;
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_layer-eye-marked.svg");
+}
+
+.layer-row .check-box:disabled .box {
+    visibility: visible;
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_layer-eye-marked(fill=theme-button-text-disabled-color).svg");
+}
+
+.layer-row .radio-button {
+    -fx-text-overrun: center-ellipsis;
+}
+
+.layer-row .radio-button .radio {
+    visibility: hidden;
+    -fx-min-width: theme-control-size;
+    -fx-max-width: theme-control-size;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-background-size: 1.33em;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.layer-row .radio-button .radio .dot {
+    visibility: collapsed;
+}
+
+.layer-row .radio-button:selected .radio {
+    visibility: visible;
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_layer-eye-marked.svg");
+}
+
+.layer-row .radio-button:disabled .radio {
+    visibility: visible;
+    -fx-background-image: url("/com/intel/missioncontrol/icons/icon_layer-eye-marked(fill=theme-button-text-disabled-color).svg");
+}

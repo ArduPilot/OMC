@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.checklist.ChecklistView"
+      styleClass="wide-spacing">
+
+    <Label fx:id="caption" styleClass="label-bold"/>
+    <ItemsView fx:id="itemsView">
+        <itemsPane>
+            <VBox/>
+        </itemsPane>
+    </ItemsView>
+</VBox>
+

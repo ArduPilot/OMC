@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<VBox fx:id="layoutRoot" styleClass="popover" style="-fx-min-height: 5em;" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.tasks.LinkBoxStatusView"
+      stylesheets="@/com/intel/missioncontrol/styles/popover.css">
+
+    <HBox>
+        <Label fx:id="linkboxname" styleClass="primary"/>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Button styleClass="transparent-icon-button, icon-settings-inverse" onAction="#configureRTK"/>
+    </HBox>
+
+
+    <HBox VBox.vgrow="NEVER" styleClass="normal-spacing" alignment="BASELINE_LEFT">
+
+        <Button fx:id="batteryStatus" styleClass="large-transparent-icon-button"/>
+        <Button fx:id="linkBoxConnectivity" styleClass="large-transparent-icon-button"/>
+        <Button fx:id="cloudConnectivity" styleClass="large-transparent-icon-button"/>
+        <Button fx:id="gnssState" styleClass="large-transparent-icon-button"/>
+        <Button fx:id="droneConnectivity" styleClass="large-transparent-icon-button"/>
+        <Button fx:id="linkboxwarning" styleClass="large-transparent-icon-button"/>
+    </HBox>
+    <Label fx:id="message" styleClass="text-area-linkbox" VBox.vgrow="NEVER" alignment="BASELINE_LEFT"
+           HBox.hgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity" wrapText="true"/>
+
+</VBox>

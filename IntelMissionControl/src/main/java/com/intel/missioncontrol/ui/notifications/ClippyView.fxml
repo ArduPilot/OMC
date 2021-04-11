@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.intel.missioncontrol.ui.notifications.ClippyView"
+            pickOnBounds="false" StackPane.alignment="BOTTOM_RIGHT"
+            maxWidth="400" maxHeight="370">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/themes/colors-light.css"/>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+    </stylesheets>
+    <ImageView fitWidth="400" fitHeight="370">
+        <Image url="@/com/intel/missioncontrol/gfx/clippy.png"/>
+    </ImageView>
+    <VBox AnchorPane.leftAnchor="30" AnchorPane.topAnchor="22" AnchorPane.rightAnchor="60"
+          AnchorPane.bottomAnchor="190" spacing="5">
+        <Label fx:id="text" VBox.vgrow="NEVER" wrapText="true"/>
+        <Pane VBox.vgrow="ALWAYS"/>
+        <Button fx:id="button1" styleClass="secondary-button" VBox.vgrow="NEVER"/>
+        <Button fx:id="button2" styleClass="secondary-button" VBox.vgrow="NEVER"/>
+    </VBox>
+</AnchorPane>

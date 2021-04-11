@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.RichTextLabel?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.view.InsightSettingsView"
+      style="-fx-pref-width: 25em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.navbar.settings.SettingsView.insight"/>
+
+    <ScrollPane hbarPolicy="NEVER" fitToWidth="true" fitToHeight="true">
+        <VBox styleClass="content" >
+            <VBox styleClass="form-row" style="-fx-padding: 0 0 1em 0">
+                <RichTextLabel fx:id="signedInStatusLabel"/>
+            </VBox>
+
+            <VBox fx:id="usernameBox" styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.navbar.settings.view.InsightSettingsView.username"/>
+                <TextField fx:id="userNameField" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox fx:id="passwordBox" styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.navbar.settings.view.InsightSettingsView.password"/>
+                <PasswordField fx:id="passwordField" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row">
+                <ActivityButton fx:id="signInButton" styleClass="primary-button" minWidth="100"
+                                text="%com.intel.missioncontrol.ui.navbar.settings.view.InsightSettingsView.signIn"/>
+                <ActivityButton fx:id="signOutButton" styleClass="primary-button" minWidth="100"
+                                text="%com.intel.missioncontrol.ui.navbar.settings.view.InsightSettingsView.signOut"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+
+</VBox>

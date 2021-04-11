@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:id="root"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView"
+      styleClass="dialog">
+
+    <VBox styleClass="content" VBox.vgrow="ALWAYS">
+        <VBox styleClass="form-row,unindent">
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.name"/>
+            <TextField fx:id="connectionName" focusTraversable="false"/>
+        </VBox>
+        <VBox styleClass="form-row,unindent">
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.uav"/>
+            <ComboBox fx:id="uavComboBox" maxWidth="Infinity"/>
+        </VBox>
+        <VBox styleClass="form-row,unindent">
+            <fx:define>
+                <ToggleGroup fx:id="transportToggleGroup"/>
+            </fx:define>
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.transport"/>
+            <RadioButton fx:id="tcpRadio"
+                         text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.tcp"
+                         toggleGroup="$transportToggleGroup"/>
+            <RadioButton fx:id="udpRadio"
+                         text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.udp"
+                         toggleGroup="$transportToggleGroup"/>
+        </VBox>
+        <HBox styleClass="normal-spacing">
+            <VBox styleClass="form-row,unindent">
+                <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.host"/>
+                <TextField fx:id="hostTextField"/>
+            </VBox>
+            <VBox styleClass="form-row,unindent">
+                <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.port"/>
+                <AutoCommitSpinner fx:id="portSpinner" editable="true"/>
+            </VBox>
+        </HBox>
+        <VBox styleClass="form-row,unindent">
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.systemId"/>
+            <AutoCommitSpinner fx:id="systemIdSpinner" editable="true"/>
+        </VBox>
+    </VBox>
+    <HBox styleClass="footer">
+        <Label fx:id="validationErrorLabel"/>
+        <Button fx:id="commitButton" styleClass="primary-button"
+                onAction="#OnCommitButtonClicked"/>
+        <Button styleClass="secondary-button"
+                text="%com.intel.missioncontrol.ui.navbar.settings.connection.dialog.ConnectionDialogView.cancel"
+                onAction="#OnCancelButtonClicked"/>
+    </HBox>
+</VBox>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" id="CopyLogs" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView" styleClass="dialog" style="-fx-pref-height: 32em;-fx-pref-width: 50em;">
+
+    <VBox VBox.vgrow="NEVER" styleClass="content">
+        <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView.copyFromLabel"/>
+        <HBox styleClass="wide-spacing">
+            <TextField fx:id="originPathTextField" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="browseButton" HBox.hgrow="NEVER" styleClass="secondary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView.browse"/>
+            <Button fx:id="openFolderButton" HBox.hgrow="NEVER" styleClass="secondary-button, icon-folder"/>
+        </HBox>
+    </VBox>
+
+    <TableView fx:id="tableView" VBox.vgrow="ALWAYS" editable="true" maxHeight="Infinity">
+        <columns>
+            <TableColumn fx:id="checkedColumn" reorderable="false" sortable="false" maxWidth="27" >
+                <graphic>
+                    <CheckBox fx:id="selectionCheckBox">
+                    </CheckBox>
+                </graphic>
+            </TableColumn>
+            <TableColumn fx:id="nameColumn" reorderable="false" editable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.analysis.LogFile"/>
+            <TableColumn fx:id="dateColumn" reorderable="false" editable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.analysis.Date"/>
+            <TableColumn fx:id="durationColumn" reorderable="false" editable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.analysis.Duration"/>
+            <TableColumn fx:id="imageCountColumn" reorderable="false" editable="false"
+                         text="%com.intel.missioncontrol.ui.sidepane.analysis.Images"/>
+        </columns>
+    </TableView>
+
+    <HBox alignment="CENTER_LEFT" VBox.vgrow="NEVER" styleClass="footer">
+        <Button fx:id="copySelectedButton" styleClass="primary-button" HBox.hgrow="NEVER"
+                text="%com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView.copySelectedLogs"/>
+        <Button fx:id="cancelButton" styleClass="secondary-button" HBox.hgrow="NEVER"
+                text="%com.intel.missioncontrol.ui.sidepane.analysis.AddFlightLogsView.cancel"/>
+    </HBox>
+
+</VBox>

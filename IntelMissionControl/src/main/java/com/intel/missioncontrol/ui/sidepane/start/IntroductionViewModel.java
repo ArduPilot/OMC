@@ -53,10 +53,6 @@ public class IntroductionViewModel extends ViewModelBase {
         return mainScope.mainMenuModelProperty().get().find(MainMenuModel.Help.QUICK_START_GUIDE).getCommand();
     }
 
-    public Command getContactSupportCommand() {
-        return mainScope.mainMenuModelProperty().get().find(MainMenuModel.Help.SUPPORT_REQUEST).getCommand();
-    }
-
     public Command getDemoMissionCommand() {
         return mainScope.mainMenuModelProperty().get().find(MainMenuModel.Help.DEMO_MISSION).getCommand();
     }

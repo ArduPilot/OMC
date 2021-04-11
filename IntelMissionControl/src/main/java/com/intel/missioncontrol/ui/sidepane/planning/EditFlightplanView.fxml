@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Tooltip?>
+<FancyTab xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.planning.EditFlightplanView">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/planning/aoi-template.css"/>
+
+    </stylesheets>
+    <tabId>
+        <SidePaneTab fx:value="EDIT_FLIGHTPLAN"/>
+    </tabId>
+
+    <header>
+        <VBox>
+            <HBox styleClass="primary,header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white"
+                        onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary,header">
+                <MenuButton fx:id="flightPlansMenuButton" HBox.hgrow="NEVER" styleClass="drop-down-selector"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="showOnMapButton" HBox.hgrow="NEVER" styleClass="flat-icon-button, icon-show-on-map">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.sidepane.showOnMap.tooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </header>
+
+    <content>
+        <StackPane>
+            <ScrollPane fx:id="editFlightplanView" hbarPolicy="NEVER" fitToWidth="true">
+                <VBox fx:id="editArea">
+                    <VBox  styleClass="content">
+                        <MenuButton fx:id="addAreaOfInterestBtn" mnemonicParsing="false"
+                                    text="%com.intel.missioncontrol.ui.sidepane.planning.addGoal"/>
+                    </VBox>
+                    <VBox fx:id="formsContainer" minWidth="0" maxWidth="Infinity" spacing="2"/>
+                </VBox>
+            </ScrollPane>
+
+            <ScrollPane fx:id="chooseAoiView" hbarPolicy="NEVER" fitToWidth="true" fitToHeight="true">
+                <fx:include source="ChooseAoiView.fxml"/>
+            </ScrollPane>
+        </StackPane>
+    </content>
+
+    <footer>
+        <Pane>
+            <HBox fx:id="footer" styleClass="footer">
+
+                <Button text="%com.intel.missioncontrol.ui.SidePaneView.button.saveAndProceed"
+                        fx:id="saveFpAndProceedButtonMenuItem" styleClass="primary-button, landfill"/>
+
+                <Button fx:id="saveTemplate"
+                        text="%com.intel.missioncontrol.ui.SidePaneView.button.saveFlightplanTemplate"
+                        styleClass="secondary-button"/>
+                <SplitMenuButton fx:id="saveBtn" styleClass="secondary-split-menu-button, landfill"
+                                 text="%com.intel.missioncontrol.ui.SidePaneView.button.saveBtn">
+                    <items>
+                        <MenuItem text="%com.intel.missioncontrol.ui.SidePaneView.button.saveFlightplan"
+                                  fx:id="saveFpButtonMenuItem">
+                            <accelerator>
+                                <KeyCodeCombination control="UP" code="S" shift="UP" alt="UP" meta="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+                        <MenuItem fx:id="exportFpButtonMenuItem"
+                                  text="%com.intel.missioncontrol.ui.SidePaneView.button.export">
+                            <accelerator>
+                                <KeyCodeCombination control="UP" code="E" shift="UP" alt="UP" meta="UP"
+                                                    shortcut="DOWN"/>
+                            </accelerator>
+                        </MenuItem>
+
+                    </items>
+                </SplitMenuButton>
+                <Button fx:id="exportButton" text="%com.intel.missioncontrol.ui.SidePaneView.button.export"
+                        styleClass="secondary-button"/>
+            </HBox>
+        </Pane>
+    </footer>
+
+</FancyTab>

@@ -1,0 +1,19 @@
+#EditWaypoints {
+    -fx-pref-width: 78em;
+    -fx-max-width: 78em;
+    -fx-min-width: 50em;
+    -fx-pref-height: 50em;
+}
+
+
+#EditWaypoints #tableView {
+    -fx-max-width: 78em;
+}
+
+#EditWaypoints #noteColumn {
+    -fx-pref-width:12em;
+    -fx-min-width:12em;
+}
+#EditWaypoints #deleteColumn {
+    -fx-pref-width:8em;
+}

@@ -1,0 +1,12 @@
+#localLayoutRoot {
+    -fx-background-color: theme-beginner-pane-background-color;
+    -fx-border-color: theme-beginner-pane-border-color;
+    -fx-border-width: 0;
+}
+
+.header-label {
+    -fx-text-fill: theme-label-inverse-text-color;
+    -fx-font-weight: bold;
+    -fx-font-size: 1.15em;
+    -fx-padding: 1em 0 1em 1em;
+}

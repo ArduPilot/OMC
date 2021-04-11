@@ -1,0 +1,431 @@
+<!--
+  Copyright 2013 Alexander Casall, Manuel Mauky
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<groupId>de.saxsys</groupId>
+	<artifactId>mvvmfx-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>1.9.0-ABC-SNAPSHOT</version>
+	<name>mvvmFX parent</name>
+	<description>MvvmFX with Advanced Bindings and Commands (ABC).</description>
+	<url>http://www.saxsys.de</url>
+	<developers>
+		<developer>
+			<email>alexander.casall@saxsys.de</email>
+			<name>Alexander Casall</name>
+			<url>http://www.alexander-casall.de</url>
+			<id>sialcasa</id>
+		</developer>
+		<developer>
+			<email>manuel.mauky@saxsys.de</email>
+			<name>Manuel Mauky</name>
+			<url>http://www.lestard.eu</url>
+		</developer>
+	</developers>
+
+	<organization>
+		<name>Saxonia Systems AG</name>
+		<url>www.saxsys.de</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<issueManagement>
+		<url>https://github.com/sialcasa/mvvmFX/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+
+	<scm>
+		<url>https://github.com/sialcasa/mvvmFX</url>
+		<connection>scm:git:git://github.com/sialcasa/mvvmFX.git</connection>
+		<developerConnection>scm:git:git@github.com:sialcasa/mvvmFX.git</developerConnection>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<sonar.java.source>11</sonar.java.source>
+		<java.version>11</java.version>
+		<mvvmfx.version>${project.version}</mvvmfx.version>
+	</properties>
+
+	<modules>
+		<module>mvvmfx</module>
+		<module>mvvmfx-cdi</module>
+		<module>mvvmfx-guice</module>
+		<module>mvvmfx-easydi</module>
+		<module>mvvmfx-spring-boot</module>
+		<module>examples</module>
+		<module>mvvmfx-archetype</module>
+		<module>mvvmfx-utils</module>
+		<module>mvvmfx-testing-utils</module>
+		<module>mvvmfx-validation</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-cdi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-guice</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-easydi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-archetype</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-utils</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-testing-utils</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>de.saxsys</groupId>
+				<artifactId>mvvmfx-validation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.12</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>1.7.12</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>net.jodah</groupId>
+				<artifactId>typetools</artifactId>
+				<version>0.6.1</version>
+			</dependency>
+			
+			<!-- dependency injection -->
+			<dependency>
+				<groupId>javax.enterprise</groupId>
+				<artifactId>cdi-api</artifactId>
+				<version>2.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.weld.se</groupId>
+				<artifactId>weld-se-core</artifactId>
+				<version>3.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>com.cathive.fx</groupId>
+				<artifactId>fx-guice</artifactId>
+				<version>8.0.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.lestard</groupId>
+				<artifactId>advanced-bindings</artifactId>
+				<version>0.4.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.lestard</groupId>
+				<artifactId>doc-annotations</artifactId>
+				<version>0.2</version>
+			</dependency>
+
+			<!-- Testing Frameworks -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+				<version>5.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.10.19</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.10.19</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>1.7.1</version>
+			</dependency>
+			<dependency>
+				<groupId>eu.lestard</groupId>
+				<artifactId>assertj-javafx</artifactId>
+				<version>0.3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.cedarsoft.commons</groupId>
+				<artifactId>test-utils</artifactId>
+				<version>6.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>1.2.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>nl.jqno.equalsverifier</groupId>
+				<artifactId>equalsverifier</artifactId>
+				<version>3.1.8</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<skip>true</skip>
+					<source>11</source>
+					<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+					<quiet>true</quiet>
+					<additionalparam>-Xdoclint:none</additionalparam>
+					<excludePackageNames>
+						*.internal
+					</excludePackageNames>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>attach-doc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-doc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- Minimal supported version is 2.4 -->
+				<version>2.19.1</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>1.0.0-RC2</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.3.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.vintage</groupId>
+						<artifactId>junit-vintage-engine</artifactId>
+						<version>5.3.1</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+
+		<!-- This profile is used for deployment of releases to sonatype OSS repository.
+		 For snapshot deployments this profile is NOT needed -->
+		<profile>
+			<id>deploy-release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<!--
+				This profile can be used to get per-test coverage information in sonarqube:
+				
+				First run:
+				
+					mvn org.jacoco:jacoco-maven-plugin:prepare-agent clean install -Pcoverage-per-test
+					
+				This instruments the code by jacoco. After that run:
+				
+					mvn sonar:sonar
+					
+				to start the sonar reporting.		
+			
+				See: https://github.com/SonarSource/sonar-examples/tree/master/projects/languages/java/code-coverage/ut/ut-maven-jacoco
+				
+			-->
+			<id>coverage-per-test</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<!-- Minimal supported version is 2.4 -->
+						<version>2.19.1</version>
+						<configuration>
+							<properties>
+								<property>
+									<name>listener</name>
+									<value>org.sonar.java.jacoco.JUnitListener</value>
+								</property>
+							</properties>
+						</configuration>
+						<dependencies>
+							<dependency>
+								<groupId>org.junit.platform</groupId>
+								<artifactId>junit-platform-surefire-provider</artifactId>
+								<version>1.0.0-RC2</version>
+							</dependency>
+							<dependency>
+								<groupId>org.junit.jupiter</groupId>
+								<artifactId>junit-jupiter-engine</artifactId>
+								<version>5.3.1</version>
+							</dependency>
+							<dependency>
+								<groupId>org.junit.vintage</groupId>
+								<artifactId>junit-vintage-engine</artifactId>
+								<version>5.3.1</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+
+			<dependencies>
+				<dependency>
+					<groupId>org.codehaus.sonar-plugins.java</groupId>
+					<artifactId>sonar-jacoco-listeners</artifactId>
+					<version>1.2</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-base</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>11.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+</project>

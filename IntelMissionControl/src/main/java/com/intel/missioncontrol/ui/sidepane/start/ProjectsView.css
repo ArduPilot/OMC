@@ -1,0 +1,23 @@
+.table-row-cell {
+    -fx-border-color: theme-separator-color;
+    -fx-border-width: 0 0 1 0;
+}
+
+.title {
+    -fx-max-width: Infinity;
+}
+
+.project-name {
+    -fx-font-size: 1.15em;
+    -fx-font-weight:bold;
+    -fx-max-width: 16em;
+    -fx-text-overrun: center-ellipsis;
+}
+
+.label-value {
+    -fx-padding:0.2em 0 0;
+}
+
+.label-value .label {
+    -fx-min-width:4em;
+}

@@ -246,7 +246,7 @@ public class GeoTiffEntry {
                                 }
                             });
                     elevationModelShiftType.bindBidirectional(getGeoTiffSettings().elevationModelShiftTypeProperty());
-                };
+                });
         load();
     }
 

@@ -1,0 +1,67 @@
+#Telemetry {
+    -fx-pref-width:30em;
+}
+
+#ObstacleAvoidance {
+    -fx-min-width:20em;
+    -fx-pref-width:28em;
+}
+
+.telemetry-cell {
+	-fx-font-size: 1.15em;
+    -fx-min-height: 6.5em;
+    -fx-max-height: 6.5em;
+    -fx-padding:2em 0 0;
+    -fx-border-color: theme-separator-color;
+    -fx-border-width: 0 1 1 0;
+    -fx-background-color: theme-transparent;
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: 2em;
+    -fx-background-position: center 1.2em;
+    -fx-font-weight: bold;
+
+}
+
+.telemetry-cell .label {
+    -fx-text-fill: theme-button-text-color;
+    -fx-background-color: theme-transparent;
+    -fx-font-weight: normal;
+}
+
+.telemetry-cell .label-value {
+    -fx-alignment: center;
+	-fx-font-size: 1em;
+	-fx-padding: -2em 0 0;
+}
+
+.telemetry-cell .label-bold {
+    -fx-font-weight: bold;
+    -fx-padding: 0;
+}
+
+.telemetry-cell .label-value .label-bold {
+	-fx-font-size: 1.15em;
+    -fx-padding: .2em 0 0;
+
+}
+
+.telemetry-cell:focused {
+    -fx-border-color: theme-separator-color;
+}
+
+.telemetry-cell:hover {
+    -fx-background-color: theme-button-background-hover-color;
+}
+
+.telemetry-cell:selected {
+    -fx-background-color: theme-button-background-pressed-color;
+}
+
+.telemetry-cell:pressed {
+    -fx-background-color: theme-button-background-pressed-color;
+}
+
+.telemetry-cell.stale,
+.telemetry-cell.stale .label {
+    -fx-text-fill: theme-button-text-disabled-color !important;
+}

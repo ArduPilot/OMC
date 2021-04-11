@@ -1,0 +1,12 @@
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+
+<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.intel.missioncontrol.ui.sidepane.planning.widgets.WidthWidgetView" minWidth="0" maxWidth="Infinity">
+    <VBox styleClass="form-row, icon-width">
+        <Label text="%widthWidget.label"/>
+        <AutoCommitSpinner fx:id="spinnerWidth" editable="true" maxWidth="Infinity" />
+    </VBox>
+
+</fx:root>

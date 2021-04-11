@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.controls.CheckBox?>
+<?import com.intel.missioncontrol.ui.controls.Hyperlink?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<HBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.notifications.ToastView"
+      style="-fx-padding: 1em 0 1em 1em" styleClass="wide-spacing" alignment="CENTER">
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/ui/notifications/ToastView.css"/>
+    </stylesheets>
+
+    <StackPane fx:id="imageContainer">
+        <ImageView fx:id="imageView" fitWidth="24" fitHeight="24"/>
+    </StackPane>
+
+    <Label fx:id="textLabel" alignment="BASELINE_CENTER" />
+
+    <CheckBox fx:id="actionCheckBox" alignment="CENTER" />
+
+    <Hyperlink fx:id="actionLink" alignment="BASELINE_CENTER" />
+
+    <Button fx:id="closeButton" styleClass="transparent-icon-button, icon-close-inverse"/>
+
+</HBox>

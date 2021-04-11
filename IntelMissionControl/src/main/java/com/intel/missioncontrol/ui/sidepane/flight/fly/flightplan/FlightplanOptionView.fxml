@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:id="rootNode"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.flightplan.FlightplanOptionView" id="FlightPlanList">
+    <ScrollPane fx:id="scrollPane" VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER">
+        <ItemsView fx:id="itemsView"  >
+            <VBox prefWidth="Infinity"  />
+        </ItemsView>
+    </ScrollPane>
+
+    <VBox fx:id="selectedFlightPlan" styleClass="content"/>
+</VBox>

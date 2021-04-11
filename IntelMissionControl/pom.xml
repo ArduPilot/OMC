@@ -583,11 +583,6 @@
             <version>9.0.0</version>
         </dependency>
         <dependency>
-            <groupId>Serialio</groupId>
-            <artifactId>Serialio</artifactId>
-            <version>1.0-local</version>
-        </dependency>
-        <dependency>
             <groupId>it.sauronsoftware</groupId>
             <artifactId>ftp4j</artifactId>
             <version>1.7.2-local</version>

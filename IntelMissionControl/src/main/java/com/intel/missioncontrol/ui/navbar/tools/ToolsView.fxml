@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import java.net.URL?>
+
+<AnchorPane fx:id="layoutRoot" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+            fx:controller="com.intel.missioncontrol.ui.navbar.tools.ToolsView"
+            onMouseClicked="#onBackgroundClicked" pickOnBounds="false" styleClass="navbar-page">
+    <stylesheets>
+
+        <URL value="@/com/intel/missioncontrol/ui/navbar/NavBarView.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/navbar/tools/ToolsView.css"/>
+    </stylesheets>
+    <fx:define>
+        <Rectangle fx:id="clippingNode" width="${contentPane.width}" height="${contentPane.height}"/>
+    </fx:define>
+
+    <HBox fx:id="transformRoot" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+        <VBox id="menuPane" style="-fx-pref-width: 20em" cache="true" cacheHint="SPEED">
+            <fx:define>
+                <ToggleGroup fx:id="menuToggleGroup"/>
+            </fx:define>
+            <Label styleClass="primary,header"
+                   text="%com.intel.missioncontrol.ui.tools.ToolsView.caption"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="ORIENTATION"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.orientationData"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="DEBUG_DATA"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.debugData"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="POSITION_DATA"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.positionData"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="POSITION_OPERATION_DATA"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.positionOrientationData"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="LINK_INFO"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.linkInfo"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="PHOTO_DATA"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.photoData"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="BACKEND_INFO"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.backendInfo"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="ANDROID_STATE"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.androidState"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="SELECTED_CONNECTOR_DETAILS"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.connectorDetails"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="OTHER_DETAILS"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.otherDetails"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="AIRSPEED_ESTIMATION"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.windAirspeedEstimation"/>
+            <RadioButton styleClass="secondary"
+                         toggleGroup="$menuToggleGroup" userData="SIMULATOR_FAILURES"
+                         text="%com.intel.missioncontrol.ui.tools.ToolsView.simulatedSystemFailures"/>
+        </VBox>
+
+        <StackPane clip="${clippingNode}" cache="true" cacheHint="SPEED">
+            <StackPane fx:id="contentPane">
+                <fx:include fx:id="orientationDataView" source="view/OrientationDataView.fxml"/>
+                <fx:include fx:id="debugDataView" source="view/DebugDataView.fxml"/>
+                <fx:include fx:id="positionDataView" source="view/PositionDataView.fxml"/>
+                <fx:include fx:id="positionOrientationDataView" source="view/PositionOrientationDataView.fxml"/>
+                <fx:include fx:id="linkInfoView" source="view/LinkInfoView.fxml"/>
+                <fx:include fx:id="photoDataView" source="view/PhotoDataView.fxml"/>
+                <fx:include fx:id="backendInfoView" source="view/BackendInfoView.fxml"/>
+                <fx:include fx:id="androidStateView" source="view/AndroidStateView.fxml"/>
+                <fx:include fx:id="otherDetailsView" source="view/OtherDetailsView.fxml"/>
+                <fx:include fx:id="windAndAirspeedEstimationView" source="view/WindAndAirspeedEstimationView.fxml"/>
+                <fx:include fx:id="simulatedSystemFailuresView" source="view/SimulatedSystemFailuresView.fxml"/>
+                <fx:include fx:id="manualServoInputValuesView" source="view/ManualServoInputValuesView.fxml"/>
+            </StackPane>
+            <HBox id="contentPaneButtonsContainer" StackPane.alignment="TOP_RIGHT">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button HBox.hgrow="NEVER" styleClass="large-transparent-icon-button"
+                        style="-fx-background-size: 0.5em; -fx-background-image: url('/com/intel/missioncontrol/gfx/menu-arrow-right.svg')"
+                        StackPane.alignment="TOP_RIGHT" onAction="#onDetachPageClicked"/>
+                <Button HBox.hgrow="NEVER" styleClass="large-flat-icon-button, icon-close" shortcut="Esc"
+                        StackPane.alignment="TOP_RIGHT" onAction="#onCloseClicked"/>
+            </HBox>
+        </StackPane>
+
+    </HBox>
+</AnchorPane>

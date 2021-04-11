@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.view.InternetConnectivitySettingsView"
+      style="-fx-pref-width: 25em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.navbar.settings.SettingsView.internetConnectivity"/>
+
+    <ScrollPane hbarPolicy="NEVER" fitToWidth="true">
+        <VBox styleClass="content">
+            <VBox styleClass="form-row">
+                <Label text="%internetConnectivityView.autoProxy"/>
+                <ToggleSwitch fx:id="autoProxyToggle" />
+            </VBox>
+            <VBox styleClass="form-row">
+                <Label text="%internetConnectivityView.useProxy"/>
+                <ToggleSwitch fx:id="useProxyOption"/>
+            </VBox>
+            <GridPane styleClass="normal-spacing" fx:id="servers">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="60"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="40"/>
+                </columnConstraints>
+
+                <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="form-row">
+                    <Label fx:id="httpLabel" text="%internetConnectivityView.httpLabel"/>
+                    <TextField fx:id="httpTextField"/>
+                </VBox>
+                <VBox styleClass="form-row" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                    <Label text="%internetConnectivityView.portLabel"/>
+                    <AutoCommitSpinner fx:id="httpPortSpinner"
+                                       editable="true"
+                                       GridPane.valignment="BOTTOM"/>
+                </VBox>
+                <VBox GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="form-row">
+                    <Label fx:id="httpsLabel" text="%internetConnectivityView.httpsLabel"
+                    />
+                    <TextField fx:id="httpsTextField"/>
+                </VBox>
+                <VBox styleClass="form-row" GridPane.rowIndex="1" GridPane.columnIndex="1">
+                    <Label text="%internetConnectivityView.portLabel"/>
+                    <AutoCommitSpinner fx:id="httpsPortSpinner"
+                                       editable="true"
+                                       GridPane.valignment="BOTTOM"/>
+                </VBox>
+                <VBox GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="form-row">
+                    <Label fx:id="ftpLabel" text="%internetConnectivityView.ftpLabel"
+                    />
+                    <TextField fx:id="ftpTextField"/>
+                </VBox>
+                <VBox styleClass="form-row" GridPane.rowIndex="2" GridPane.columnIndex="1">
+                    <Label text="%internetConnectivityView.portLabel"/>
+                    <AutoCommitSpinner fx:id="ftpPortSpinner" editable="true"
+                                       GridPane.valignment="BOTTOM"/>
+                </VBox>
+                <VBox GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="form-row">
+                    <Label fx:id="socksLabel" text="%internetConnectivityView.socksLabel"
+                    />
+                    <TextField fx:id="socksTextField"/>
+                </VBox>
+                <VBox styleClass="form-row" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                    <Label text="%internetConnectivityView.portLabel"/>
+                    <AutoCommitSpinner fx:id="socksPortSpinner"
+                                       editable="true"
+                                       GridPane.valignment="BOTTOM"/>
+                </VBox>
+            </GridPane>
+        </VBox>
+    </ScrollPane>
+</VBox>

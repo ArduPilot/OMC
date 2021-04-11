@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<VBox fx:id="layoutRoot" styleClass="popover" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.warnings.WarningsPopoverView"
+      stylesheets="@/com/intel/missioncontrol/styles/popover.css">
+
+    <Label VBox.vgrow="NEVER"
+           text="%com.intel.missioncontrol.ui.MainView.dialogs.warnings.title" styleClass="primary"/>
+    <Separator VBox.vgrow="NEVER"/>
+    <ItemsView fx:id="itemsView" VBox.vgrow="ALWAYS">
+        <VBox styleClass="wide-spacing"/>
+    </ItemsView>
+
+</VBox>

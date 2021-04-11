@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootPane" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.planning.aoi.AoiLocationTabView">
+    <HBox fx:id="topBox" VBox.vgrow="NEVER" styleClass="content, wide-spacing">
+        <Label text="%aoiSectionWidget.labelVertices" styleClass="label-bold"/>
+        <Hyperlink fx:id="addVertex"
+                   text="%aoiSectionWidget.hyperlinkAddVertices"/>
+        <Hyperlink fx:id="addVertexFromUAV"
+                   text="%aoiSectionWidget.hyperlinkAddVerticesFromUAV"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Hyperlink fx:id="optimizeAoiLink"
+                   text="%com.intel.missioncontrol.ui.planning.aoi.AoiLocationTabView.lnkMaximizeAoi"/>
+    </HBox>
+
+
+    <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="vertex-pane">
+
+        <TableView fx:id="vertexTable" editable="true" style="-fx-max-width:36em;">
+            <columns>
+                <TableColumn fx:id="vertexCountColumn"
+                             text="%com.intel.missioncontrol.ui.sidepane.planning.EditWaypointsView.numberInFlight"
+                             reorderable="false" sortable="false"                             />
+                <TableColumn fx:id="isRefPoint" reorderable="false"
+                             sortable="false" />
+                <TableColumn fx:id="latColumn" text="%vertexTableView.latitudeCoordinateLabel" reorderable="false"
+                             sortable="false"/>
+                <TableColumn fx:id="lonColumn" text="%vertexTableView.longitudeCoordinateLabel" reorderable="false"
+                             sortable="false"/>
+                <TableColumn fx:id="altAboveR" text="%vertexTableView.altAboveRCoordinateLabel" reorderable="false"
+                             sortable="false"/>
+                <TableColumn fx:id="altAboveTakeoff" text="%vertexTableView.altAboveTakeoffCoordinateLabel"
+                             reorderable="false"
+                             sortable="false"/>
+                <TableColumn fx:id="deleteColumn"
+                             reorderable="false"
+                             sortable="false"/>
+            </columns>
+        </TableView>
+
+    </ScrollPane>
+
+</VBox>

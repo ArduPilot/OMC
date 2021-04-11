@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.warnings.WarningsDialogView"
+      styleClass="dialog">
+
+    <VBox styleClass="content">
+        <Label fx:id="warningsLabel"
+               text="%com.intel.missioncontrol.ui.flight.FlightView.warningsLabel"/>
+        <ScrollPane hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" fitToHeight="true">
+            <VBox fx:id="warnings"/>
+        </ScrollPane>
+    </VBox>
+    <HBox styleClass="footer, wide-spacing">
+        <CheckBox alignment="CENTER_LEFT" fx:id="confirmationCheckbox"
+                  text="%com.intel.missioncontrol.ui.flight.FlightView.confirmationCheckbox"/>
+        <HBox alignment="CENTER_RIGHT">
+            <Button styleClass="primary-button" fx:id="proceedBtn"
+                    text="%com.intel.missioncontrol.ui.flight.FlightView.proceedButton"/>
+            <Button styleClass="secondary-button" fx:id="cancelBtn"
+                    text="%com.intel.missioncontrol.ui.flight.FlightView.cancelButton"/>
+        </HBox>
+    </HBox>
+</VBox>

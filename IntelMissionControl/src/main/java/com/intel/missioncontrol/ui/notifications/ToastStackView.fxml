@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+
+<Pane fx:id="itemsPane" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.notifications.ToastStackView"
+      pickOnBounds="false" StackPane.alignment="BOTTOM_CENTER" prefHeight="${itemsPane.parent.height}">
+    <StackPane.margin>
+        <Insets bottom="24" />
+    </StackPane.margin>
+</Pane>

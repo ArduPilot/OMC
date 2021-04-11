@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
+<VBox fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.DataImportNewView"
+      styleClass="dialog" id="DataImport">
+
+    <VBox styleClass="content" VBox.vgrow="ALWAYS">
+
+        <VBox styleClass="form-row, unindent">
+            <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.lblDataType"/>
+            <ComboBox fx:id="dataTypeCombobox"/>
+        </VBox>
+
+        <AdornerSplitView fx:id="imagePane">
+            <VBox>
+
+                <HBox styleClass="form-row, unindent, no-label, normal-spacing">
+                    <Button fx:id="captureImagesButton"
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.captureImages"
+                            styleClass="secondary-button, iconized, icon-camera"/>
+                    <Button fx:id="transferWirelesslyButton"
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.transferWirelessly"
+                            styleClass="secondary-button"/>
+                </HBox>
+
+
+                <VBox styleClass="form-row, unindent">
+                    <HBox>
+                        <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesComboLabel"/>
+                        <Label fx:id="mismatchedImagesLabel"/>
+                        <Label fx:id="notEnoughSpaceLabel"/>
+                    </HBox>
+
+                    <HBox styleClass="normal-spacing">
+                        <TextField fx:id="imageFolderTextField" HBox.hgrow="ALWAYS"
+                                   AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                   AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imageFolder"/>
+                        <Button fx:id="browseImagesButton"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesBrowse"
+                                styleClass="secondary-button"/>
+                    </HBox>
+
+                    <Label fx:id="imagesCountLabel"
+                           text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountLabel"
+                           styleClass="hint-label"/>
+                    <!--TODO IMC-3133 add Preview link -->
+                </VBox>
+
+                <VBox>
+                    <VBox styleClass="form-row, unindent">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.copyFilesToProjectFolder"/>
+                        <ToggleSwitch fx:id="copyFilesToProjectFolderSwitch"/>
+                    </VBox>
+                    <VBox styleClass="form-row, unindent">
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.eraseFilesAfterCopying"/>
+                        <ToggleSwitch fx:id="eraseFilesAfterCopyingSwitch"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </AdornerSplitView>
+
+        <VBox fx:id="flightLogsPane" styleClass="normal-spacing">
+            <VBox id="flightLogList">
+                <TableView fx:id="tableView" editable="true" VBox.vgrow="ALWAYS" style="-fx-pref-height: 12em;">
+                    <columns>
+                        <TableColumn fx:id="checkedColumn" reorderable="false" sortable="false" maxWidth="27">
+                            <graphic>
+                                <CheckBox fx:id="selectionCheckBox">
+                                </CheckBox>
+                            </graphic>
+                        </TableColumn>
+                        <TableColumn fx:id="nameColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.analysis.LogFile"/>
+                        <TableColumn fx:id="dateColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.analysis.Date"/>
+                        <TableColumn fx:id="durationColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.analysis.Duration"/>
+                        <TableColumn fx:id="imageCountColumn" reorderable="false" editable="false"
+                                     text="%com.intel.missioncontrol.ui.sidepane.analysis.Images"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox styleClass="form-row, unindent, no-label">
+                <MenuButton fx:id="addFlightLogsButton"/>
+            </VBox>
+
+            <VBox styleClass="form-row, unindent">
+                <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.eraseFilesAfterCopying"/>
+                <ToggleSwitch fx:id="eraseLogFilesAfterCopyingSwitch"/>
+            </VBox>
+        </VBox>
+
+        <AdornerSplitView fx:id="flightPlansPane">
+            <VBox>
+                <VBox styleClass="form-row, unindent">
+                    <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.flightPlansLabel"/>
+                    <CheckComboBox fx:id="flightPlanNamesComboBox"
+                                   HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                   AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                   AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.flightPlans"/>
+                </VBox>
+                <VBox styleClass="form-row, unindent">
+                    <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.filterImages"/>
+                    <ToggleSwitch fx:id="onlyIncludeImagesInPlan"/>
+                </VBox>
+            </VBox>
+        </AdornerSplitView>
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+    <VBox styleClass="footer" VBox.vgrow="NEVER">
+        <BorderPane>
+            <left>
+                <VBox alignment="CENTER_LEFT">
+                    <CheckBox fx:id="chkImportAnotherSource"
+                              text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.chkImportAnotherSource"/>
+                </VBox>
+            </left>
+            <right>
+                <HBox styleClass="wide-spacing">
+                    <Button fx:id="importButton" styleClass="primary-button"
+                            text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.import"/>
+                    <Button fx:id="cancelButton" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.cancel"/>
+                </HBox>
+            </right>
+        </BorderPane>
+    </VBox>
+</VBox>

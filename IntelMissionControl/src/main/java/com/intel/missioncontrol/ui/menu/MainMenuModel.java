@@ -461,8 +461,6 @@ public class MainMenuModel {
             switch (this) {
                 case USER_MANUAL:
                     return Help.class.getResource("/com/intel/missioncontrol/icons/icon_menu-read-manual.svg");
-                case SUPPORT_REQUEST:
-                    return Help.class.getResource("/com/intel/missioncontrol/icons/icon_menu-send-support-request.svg");
                 case ABOUT:
                     return Help.class.getResource("/com/intel/missioncontrol/icons/icon_menu-about-IMC.svg");
                 default:

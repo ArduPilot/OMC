@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ItemsView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" styleClass="popover" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView"
+      stylesheets="@/com/intel/missioncontrol/styles/popover.css">
+
+    <Label VBox.vgrow="NEVER"
+           text="%com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView.caption" styleClass="primary"/>
+
+    <Separator VBox.vgrow="NEVER"/>
+
+    <ItemsView fx:id="itemsView" VBox.vgrow="ALWAYS">
+        <VBox/>
+    </ItemsView>
+
+    <Label fx:id="noTasksLabel" VBox.vgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity" alignment="CENTER"
+           text="%com.intel.missioncontrol.ui.dialogs.tasks.BackgroundTasksView.noTasksRunning"/>
+
+</VBox>

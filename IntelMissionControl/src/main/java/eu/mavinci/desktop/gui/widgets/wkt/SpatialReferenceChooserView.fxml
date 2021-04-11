@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="layoutRoot" id="SpatialReferenceChooser" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView"
+      styleClass="dialog" style="-fx-pref-width:60em; -fx-pref-height:45em;">
+
+    <GridPane styleClass="normal-spacing, content" VBox.vgrow="ALWAYS">
+        <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+        </columnConstraints>
+
+        <VBox GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="normal-spacing" GridPane.vgrow="ALWAYS">
+            <TextField fx:id="searchSrsField"
+                       promptText="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.searchPrompt"
+            />
+            <TreeView fx:id="srsTreeView"
+                      showRoot="false"
+                      VBox.vgrow="ALWAYS"
+                      editable="false"/>
+        </VBox>
+
+        <TextArea fx:id="wktSource" GridPane.rowIndex="0" GridPane.columnIndex="1" GridPane.vgrow="ALWAYS"
+                  text="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.wktSource"
+                  editable="false" wrapText="true"/>
+    </GridPane>
+
+    <BorderPane styleClass="footer">
+        <left>
+            <HBox styleClass="wide-spacing">
+                <Button fx:id="deleteButton" styleClass="secondary-button"
+                        text="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.delete"/>
+                <Button fx:id="createButton" styleClass="secondary-button"
+                        text="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.import"/>
+            </HBox>
+        </left>
+        <right>
+            <HBox styleClass="wide-spacing">
+                <Button fx:id="okButton" styleClass="primary-button"
+                        text="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.ok"/>
+                <Button fx:id="cancelButton" styleClass="secondary-button"
+                        text="%eu.mavinci.desktop.gui.widgets.wkt.SpatialReferenceChooserView.cancel"/>
+            </HBox>
+        </right>
+    </BorderPane>
+
+</VBox>

@@ -1,0 +1,17 @@
+#ConnectionSettings #ConnectionsTable {
+  -fx-pref-height: 12em;
+  -fx-max-height: Infinity;
+  -fx-pref-width: 55em;
+  -fx-max-width: 55em;
+  -fx-min-width: 55em;
+}
+#ConnectionSettings #ConnectionsTable #nameColumn {
+    -fx-pref-width: 19em;
+    -fx-max-width: 19em;
+    -fx-min-width: 19em;
+}
+#ConnectionSettings #ConnectionsTable #connectionDetailsColumn {
+    -fx-pref-width: 14em;
+    -fx-max-width: 14em;
+    -fx-min-width: 14em;
+}

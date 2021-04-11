@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.intel.missioncontrol.ui.navbar.tools.view.ManualServoInputValuesView"
+      style="-fx-pref-width: 35em">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.tools.ToolsView.manualServoInputValues"/>
+
+    <VBox styleClass="content">
+        <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.servo.input.analog.sticks"/>
+        <HBox spacing="36">
+            <VBox spacing="6">
+                <GridPane hgap="3">
+                    <AnchorPane GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <HBox AnchorPane.leftAnchor="0.0" spacing="6">
+                            <Text>←</Text>
+                            <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.left"/>
+                        </HBox>
+                        <HBox AnchorPane.rightAnchor="0.0" spacing="6">
+                            <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.right"/>
+                            <Label text="→"/>
+                        </HBox>
+                    </AnchorPane>
+                    <Pane fx:id="elevatorRudderPane" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <VBox AnchorPane.topAnchor="0.0" spacing="6">
+                            <Text>↑</Text>
+                            <Group>
+                                <Label rotate="-90"
+                                       text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.climb"/>
+                            </Group>
+                        </VBox>
+                        <VBox AnchorPane.bottomAnchor="0.0" spacing="6">
+                            <Group>
+                                <Label text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.dive"
+                                       rotate="-90"/>
+                            </Group>
+                            <Text>↓</Text>
+                        </VBox>
+                    </AnchorPane>
+                </GridPane>
+                <HBox spacing="6">
+                    <Text>↕</Text>
+                    <Text fx:id="elevatorLabel"/>
+                    <Label fx:id="elevatorValue"/>
+                </HBox>
+                <HBox spacing="6">
+                    <Text>↔</Text>
+                    <Text fx:id="rudderLabel"/>
+                    <Label fx:id="rudderValue"/>
+                </HBox>
+                <HBox spacing="12">
+                    <ToggleSwitch fx:id="verticalInversionSwitch"/>
+                    <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.controls.invert"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="6">
+                <GridPane hgap="3">
+                    <AnchorPane GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <HBox AnchorPane.leftAnchor="0.0" spacing="6">
+                            <Text>←</Text>
+                            <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.left"/>
+                        </HBox>
+                        <HBox AnchorPane.rightAnchor="0.0" spacing="6">
+                            <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.right"/>
+                            <Label text="→"/>
+                        </HBox>
+                    </AnchorPane>
+                    <Pane fx:id="throttleAileronPane" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <VBox AnchorPane.topAnchor="0.0" spacing="6">
+                            <Text>↑</Text>
+                            <Group>
+                                <Label rotate="-90"
+                                       text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.forward"/>
+                            </Group>
+                        </VBox>
+                        <VBox AnchorPane.bottomAnchor="0.0" spacing="6">
+                            <Group>
+                                <Label text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.back"
+                                       rotate="-90"/>
+                            </Group>
+                            <Text>↓</Text>
+                        </VBox>
+                    </AnchorPane>
+                </GridPane>
+                <HBox spacing="6">
+                    <Text>↕</Text>
+                    <Text fx:id="throttleLabel"/>
+                    <Label fx:id="throttleValue"/>
+                </HBox>
+                <HBox spacing="6">
+                    <Text>↔</Text>
+                    <Text fx:id="aileronLabel"/>
+                    <Label fx:id="aileronValue"/>
+                </HBox>
+                <HBox spacing="12">
+                    <ToggleSwitch fx:id="horizontalInversion"/>
+                    <Text text="%com.intel.missioncontrol.ui.tools.model.ManualServoInputValuesView.controls.invert"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <VBox>
+            <Text fx:id="autoPilotLabel"/>
+            <Label fx:id="autoPilotIndicator" text="Off"/>
+        </VBox>
+
+        <VBox>
+            <Text fx:id="landingLabel"/>
+            <Label fx:id="landingIndicator" text="Off"/>
+        </VBox>
+    </VBox>
+
+</VBox>

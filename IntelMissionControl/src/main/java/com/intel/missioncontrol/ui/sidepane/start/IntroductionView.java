@@ -35,9 +35,6 @@ public class IntroductionView extends ViewBase<IntroductionViewModel> {
     private Button viewVideoTourButton;
 
     @FXML
-    private Button contactSupportButton;
-
-    @FXML
     public void onHideViewAction() {
         viewModel.visibleProperty().set(false);
     }
@@ -52,9 +49,7 @@ public class IntroductionView extends ViewBase<IntroductionViewModel> {
 
         readManualButton.disableProperty().bind(viewModel.getShowUserManualCommand().notExecutableProperty());
         openDemoMissionButton.disableProperty().bind(viewModel.getDemoMissionCommand().notExecutableProperty());
-        viewVideoTourButton.disableProperty().bind(viewModel.getShowQuickStartCommand().notExecutableProperty());
-        contactSupportButton.disableProperty().bind(viewModel.getContactSupportCommand().notExecutableProperty());
-    }
+        viewVideoTourButton.disableProperty().bind(viewModel.getShowQuickStartCommand().notExecutableProperty());    }
 
     @Override
     protected Parent getRootNode() {
@@ -74,11 +69,6 @@ public class IntroductionView extends ViewBase<IntroductionViewModel> {
     @FXML
     private void onShowReadManual() {
         viewModel.getShowUserManualCommand().execute();
-    }
-
-    @FXML
-    private void onSendSupportRequest() {
-        viewModel.getContactSupportCommand().execute();
     }
 
     @FXML

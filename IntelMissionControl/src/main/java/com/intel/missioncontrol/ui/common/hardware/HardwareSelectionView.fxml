@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootNode" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.common.hardware.HardwareSelectionView" styleClass="unpad">
+    <VBox styleClass="form-row, icon-uav">
+        <Label text="%com.intel.missioncontrol.ui.common.hardware.HardwareSelectionView.uavLabel"/>
+        <ComboBox fx:id="uavComboBox" maxWidth="Infinity"/>
+    </VBox>
+    <VBox styleClass="form-row, icon-camera">
+        <Label text="%com.intel.missioncontrol.ui.common.hardware.HardwareSelectionView.cameraLabel"/>
+        <ComboBox fx:id="cameraComboBox" maxWidth="Infinity"/>
+    </VBox>
+    <VBox styleClass="form-row, icon-lens">
+        <HBox>
+            <Label text="%com.intel.missioncontrol.ui.common.hardware.HardwareSelectionView.lensLabel"/>
+            <Label fx:id="mismatchedExifAlert"/>
+        </HBox>
+        <ComboBox fx:id="lensComboBox" maxWidth="Infinity"/>
+    </VBox>
+</VBox>

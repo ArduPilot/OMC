@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.sidepane.planning.widgets.GsdComponent?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+
+<AdornerSplitView fx:id="rootNode" xmlns:fx="http://javafx.com/fxml"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.aoi.AoiGeneralTabView"
+                  styleClass="content">
+    <VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiGeneralTabView.lblName"/>
+            <TextField fx:id="txtAoiName" VBox.vgrow="ALWAYS" maxWidth="Infinity"/>
+        </VBox>
+
+        <VBox fx:id="aoiOrderBox" styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiGeneralTabView.lblOrderInFlight"/>
+            <AutoCommitSpinner fx:id="aoiOrderSpinner" maxWidth="Infinity"/>
+        </VBox>
+
+        <GsdComponent fx:id="gsdComponent"/>
+
+
+        <VBox fx:id="objectSurfaceBox">
+            <VBox styleClass="form-row">
+                <Label text="%com.intel.missioncontrol.ui.planning.aoi.AoiGeneralTabView.lblObject3dModel"/>
+                <ComboBox fx:id="modelSourceType"/>
+            </VBox>
+            <VBox fx:id="spec3dFileBox">
+                <HBox styleClass="form-row">
+                    <TextField fx:id="modelPathField" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="browseModel" styleClass="secondary-button"
+                            text="%com.intel.missioncontrol.ui.planning.aoi.AoiGeneralTabView.btnImport3dModel"/>
+                </HBox>
+
+                <Hyperlink fx:id="openTransformationTab" onAction="#openTransformationTab"
+                           text="%com.intel.missioncontrol.ui.planning.aoi.AoiGeneralTabView.lnkDefineObjectLocation"
+                           styleClass="form-row"/>
+            </VBox>
+        </VBox>
+
+    </VBox>
+</AdornerSplitView>

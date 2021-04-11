@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.CheckComboBox?>
+
+<FancyTab xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.DataImportView">
+    <tabId>
+        <SidePaneTab fx:value="DATA_IMPORT"/>
+    </tabId>
+
+    <header>
+        <VBox>
+            <HBox styleClass="primary, header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white"
+                        onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary, header">
+                <MenuButton fx:id="datasetMenuButton" HBox.hgrow="NEVER" styleClass="drop-down-selector"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="showHelpButton" HBox.hgrow="NEVER" styleClass="flat-icon-button, icon-help">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.analysis.AnalysisView.button.TransferData.help"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </header>
+
+    <scrollingContent>
+        <VBox style="-fx-padding:2 0 0 0" spacing="2">
+            <TitledPane text="%com.intel.missioncontrol.ui.analysis.AnalysisView.section.Images.name">
+                <AdornerSplitView>
+                    <VBox style="-fx-padding: 0 0 -1em 0;">
+                        <VBox styleClass="form-row, icon-image">
+                            <HBox styleClass="normal-spacing">
+                                <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesComboLabel"/>
+                                <Label fx:id="mismatchedImagesLabel"/>
+                                <Label fx:id="notEnoughSpaceLabel"/>
+                            </HBox>
+
+                            <HBox styleClass="normal-spacing">
+                                <TextField fx:id="imageFolderTextField" HBox.hgrow="ALWAYS"
+                                           AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                           AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imageFolder"/>
+                                <Button fx:id="browseImagesButton"
+                                        text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesBrowse"
+                                        styleClass="secondary-button"/>
+                            </HBox>
+
+                            <Label fx:id="imagesCountLabel"
+                                   text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.imagesCountLabel"
+                                   styleClass="hint-label"/>
+                        </VBox>
+                    </VBox>
+                </AdornerSplitView>
+            </TitledPane>
+
+            <TitledPane expanded="false"
+                        text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.importLogs.title">
+                <VBox styleClass="unpad" style="-fx-padding: -0.5em;">
+                    <VBox style="-fx-padding: -0.5em -0.5em 0.5em -0.5em;">
+                        <TableView fx:id="tableView" editable="true" VBox.vgrow="ALWAYS" style="-fx-pref-height: 12em;">
+                            <columns>
+                                <TableColumn fx:id="checkedColumn" reorderable="false" sortable="false" maxWidth="27">
+                                    <graphic>
+                                        <CheckBox fx:id="selectionCheckBox">
+                                        </CheckBox>
+                                    </graphic>
+                                </TableColumn>
+                                <TableColumn fx:id="nameColumn" reorderable="false" editable="false"
+                                             text="%com.intel.missioncontrol.ui.sidepane.analysis.LogFile"/>
+                                <TableColumn fx:id="dateColumn" reorderable="false" editable="false"
+                                             text="%com.intel.missioncontrol.ui.sidepane.analysis.Date"/>
+                                <TableColumn fx:id="durationColumn" reorderable="false" editable="false"
+                                             text="%com.intel.missioncontrol.ui.sidepane.analysis.Duration"/>
+                                <TableColumn fx:id="imageCountColumn" reorderable="false" editable="false"
+                                             text="%com.intel.missioncontrol.ui.sidepane.analysis.Images"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                    <StackPane styleClass="form-row, unindent" alignment="BASELINE_LEFT">
+                        <MenuButton fx:id="addFlightLogsButton"/>
+                    </StackPane>
+                </VBox>
+            </TitledPane>
+
+            <TitledPane fx:id="flightPlansPane" expanded="false"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisView.section.FlightPlans.name">
+                <AdornerSplitView>
+                    <VBox>
+                        <VBox styleClass="form-row, icon-plan">
+                            <Label text="%com.intel.missioncontrol.ui.analysis.AnalysisCreateView.flightPlansLabel"/>
+
+                            <HBox styleClass="normal-spacing">
+                                <CheckComboBox fx:id="flightPlanNamesComboBox"
+                                               HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                               AdornerSplitView.styleClass="flat-icon-button, icon-help"
+                                               AdornerSplitView.adornmentText="TODO"/>
+                            </HBox>
+                        </VBox>
+                    </VBox>
+                </AdornerSplitView>
+            </TitledPane>
+
+            <TitledPane fx:id="optionsPane"
+                        text="%com.intel.missioncontrol.ui.analysis.AnalysisView.section.Options.name">
+                    <VBox styleClass="content">
+                        <VBox styleClass="form-row, icon-copy">
+                            <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.copyFilesToProjectFolder"/>
+                            <ToggleSwitch fx:id="copyFilesToProjectFolderSwitch"/>
+                        </VBox>
+                        <VBox styleClass="form-row, icon-trash, destructive">
+                            <Label text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.eraseFilesAfterCopying"/>
+                            <ToggleSwitch fx:id="eraseFilesAfterCopyingSwitch"/>
+                        </VBox>
+                    </VBox>
+            </TitledPane>
+        </VBox>
+    </scrollingContent>
+
+    <footer>
+        <VBox styleClass="footer" alignment="CENTER_LEFT">
+            <Button fx:id="importButton" styleClass="primary-button"
+                    text="%com.intel.missioncontrol.ui.sidepane.analysis.DataImportView.import"/>
+        </VBox>
+    </footer>
+</FancyTab>

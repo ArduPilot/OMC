@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<RadioButton fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+             fx:controller="com.intel.missioncontrol.ui.sidepane.start.ProjectItemView" styleClass="content"
+             >
+    <graphic>
+        <HBox prefWidth="Infinity">
+            <VBox HBox.hgrow="ALWAYS">
+                <Label fx:id="nameLabel" styleClass="project-name"/>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="%com.intel.missioncontrol.ui.sidepane.start.ProjectItemView.lastUpdated"
+                           styleClass="hint-label"/>
+                    <Label fx:id="lastUpdateLabel" styleClass="hint-label"/>
+                    <Pane fx:id="cloudIcon" styleClass="icon-cloud"
+                          style="-fx-background-size: 1.33em; -fx-min-width:1.33em; -fx-min-height:1.33em; -fx-background-position: center; -fx-background-repeat: no-repeat"/>
+                </HBox>
+                <HBox styleClass="label-value">
+                    <VBox fx:id="flightPlansInfo">
+                        <Label fx:id="flightPlansCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.ProjectItemView.flightPlansCount"/>
+                    </VBox>
+                    <VBox fx:id="flightsInfo">
+                        <Label fx:id="flightsCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.ProjectItemView.flightsCount"/>
+                    </VBox>
+                    <VBox fx:id="datasetsInfo">
+                        <Label fx:id="datasetsCountLabel" styleClass="label-bold"/>
+                        <Label text="%com.intel.missioncontrol.ui.sidepane.start.ProjectItemView.datasetsCount"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+            <ImageView fx:id="imageView" fitWidth="100" preserveRatio="true"/>
+        </HBox>
+    </graphic>
+    <tooltip>
+        <Tooltip fx:id="fullName"/>
+    </tooltip>
+</RadioButton>

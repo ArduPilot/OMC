@@ -1,0 +1,116 @@
+/*************************************************************************************************
+ *  Sidepane
+ *************************************************************************************************/
+#fancyTabPane {
+    -fx-background-color: theme-background-color;
+    -fx-pref-width: theme-sidepane-width;
+    -fx-min-width: theme-sidepane-width;
+    -fx-max-width: theme-sidepane-width;
+}
+
+#sidepane .primary {
+    -fx-background-color: theme-sidepane-header-primary-color;
+}
+
+#sidepane .primary > .label {
+    -fx-text-fill: theme-sidepane-header-primary-text-color;
+
+}
+
+#sidepane .primary .button {
+    -fx-min-width: theme-large-control-size;
+    -fx-min-height: theme-large-control-size;
+    -fx-max-width: theme-large-control-size;
+    -fx-max-height: theme-large-control-size;
+}
+
+#sidepane .secondary {
+    -fx-background-color: theme-sidepane-header-secondary-color;
+
+}
+
+#sidepane .secondary > .label {
+    -fx-text-fill: theme-sidepane-header-secondary-text-color;
+}
+
+#sidepane .footer {
+  -fx-pref-width: theme-sidepane-width;
+}
+
+#sidepane .header > .label {
+    -fx-max-height: Infinity;
+    -fx-max-width: Infinity;
+
+}
+
+#shadowRect {
+    -fx-background-color: linear-gradient(to right, transparent, theme-pane-shadow-color);
+}
+
+
+/*************************************************************************************************
+ *  Status bar and action bar
+ *************************************************************************************************/
+.statusbar-container {
+    -fx-background-color: theme-statusbar-background-color;
+}
+
+.actionbar-container {
+    -fx-min-width: theme-sidepane-width;
+    -fx-max-width: theme-sidepane-width;
+}
+
+.statusbar-container *,
+.actionbar-container * {
+    -fx-min-height: theme-large-control-size;
+    -fx-max-height: theme-large-control-size;
+}
+
+
+
+.actionbar-container #backgroundTasksButton {
+    -fx-min-width: theme-large-control-size;
+    -fx-max-width: theme-large-control-size;
+}
+
+.statusbar-container .flat-button:hover {
+    -fx-background-color: theme-statusbar-background-hover-color;
+}
+
+.statusbar-container .flat-button:selected {
+    -fx-background-color: theme-statusbar-background-pressed-color;
+}
+
+.statusbar-container .flat-button:pressed {
+    -fx-background-color: theme-statusbar-background-pressed-color;
+}
+
+#backgroundTasksButton.icon-progress:hover,
+#backgroundTasksButton.icon-progress:selected,
+#backgroundTasksButton.icon-progress:pressed {
+    -fx-background-color: transparent !important;
+}
+
+#warningsButton {
+    -fx-background-position: 0.6em center;
+    -fx-label-padding: 0 0 0 2em;
+    -fx-background-size: 1.33em;
+    -fx-min-height: theme-large-control-size;
+}
+
+#colorLegendContainer {
+    -fx-background-color: theme-white-transparent;
+    -fx-border-color: theme-separator-color;
+    -fx-font-weight:normal;
+}
+
+#colorLegendContainer .content {
+    -fx-spacing: 0.5em;
+    -fx-padding: 0.5em;
+}
+
+#mapCreditsView {
+    -fx-spacing: 1em;
+    -fx-hgap: 1em;
+    -fx-padding: 1em;
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.controls.RotatingImageView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:id="layoutRoot" id="SafetyChecks"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.checks.SafetyChecksView">
+
+    <VBox styleClass="form-row" fx:id="autoCheckBox">
+        <HBox>
+            <HBox styleClass="set-back">
+                <RotatingImageView fx:id="autoCheckImageStatus" fitHeight="16" fitWidth="16" visible="false"
+                                   managed="false"/>
+            </HBox>
+            <Label fx:id="autoCheckStatus"/>
+        </HBox>
+        <Button
+                onAction="#showViewLogDialog" styleClass="secondary-button"
+                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.checks.SafetyChecksView.viewLog"/>
+    </VBox>
+    <VBox styleClass="form-row" fx:id="checkListBox">
+        <HBox>
+            <HBox styleClass="set-back">
+                <ImageView fx:id="checklistImageStatus" fitHeight="16" fitWidth="16" visible="false"
+                           managed="false"/>
+            </HBox>
+            <Label fx:id="checklistStatus"/>
+        </HBox>
+        <Button onAction="#showPopupChecklist" styleClass="secondary-button"
+                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.checks.SafetyChecksView.showChecklist"/>
+    </VBox>
+</VBox>

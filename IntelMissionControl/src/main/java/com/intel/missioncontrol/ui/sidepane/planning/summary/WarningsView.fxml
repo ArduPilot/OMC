@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.planning.summary.WarningsView" styleClass="unpad">
+
+    <VBox fx:id="WarningsPane" styleClass="form-row, no-label, icon-warning-regular">
+        <Label text="%com.intel.missioncontrol.ui.planning.summary.WarningsView.warning"/>
+    </VBox>
+    <VBox styleClass="form-row, no-label">
+        <Button fx:id="editWaypointsButton" mnemonicParsing="false" styleClass="secondary-button"
+                text="%com.intel.missioncontrol.ui.planning.settings.FlightPlanSummaryView.openDialog.buttonLabel"/>
+    </VBox>
+
+
+</VBox>

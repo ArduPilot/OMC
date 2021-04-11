@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.controls.RadioButton?>
+<?import com.intel.missioncontrol.ui.controls.ToggleButton?>
+<?import com.intel.missioncontrol.ui.navigation.NavBarDialog?>
+<?import com.intel.missioncontrol.ui.navigation.WorkflowStep?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane fx:id="layoutRoot" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.intel.missioncontrol.ui.navbar.NavBarView"
+           stylesheets="@/com/intel/missioncontrol/ui/navbar/NavBarView.css"
+           pickOnBounds="false" cache="true" cacheHint="SPEED">
+    <Pane id="shadowRect" StackPane.alignment="CENTER_RIGHT"
+          prefWidth="3" maxWidth="3" translateX="3" mouseTransparent="true"/>
+    <BorderPane id="nav">
+        <fx:define>
+            <ToggleGroup fx:id="workflowToggleGroup"/>
+            <ToggleGroup fx:id="popupToggleGroup"/>
+            <WorkflowStep fx:id="PLANNING" fx:value="PLANNING"/>
+            <WorkflowStep fx:id="FLIGHT" fx:value="FLIGHT"/>
+            <WorkflowStep fx:id="ANALYSIS" fx:value="DATA_PREVIEW"/>
+            <WorkflowStep fx:id="NONE" fx:value="NONE"/>
+            <NavBarDialog fx:id="SETTINGS" fx:value="SETTINGS"/>
+            <NavBarDialog fx:id="TOOLS" fx:value="TOOLS"/>
+            <NavBarDialog fx:id="MAPLAYERS" fx:value="MAPLAYERS"/>
+        </fx:define>
+        <top>
+            <VBox BorderPane.alignment="CENTER">
+                <Button fx:id="expandButtonRegular" styleClass="navbar-button" onKeyPressed="#expandWithSpace"
+                        onMouseClicked="#expandClicked" text="%com.intel.missioncontrol.ui.NavBarView.expandButton">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.expandButton.toolTip"/>
+                    </tooltip>
+                </Button>
+                <Button fx:id="expandButtonDeluxe" visible="false" managed="false" styleClass="navbar-button"
+                        onKeyPressed="#expandWithSpace" onMouseClicked="#expandClicked"
+                        text="%com.intel.missioncontrol.ui.NavBarView.expandButton"/>
+
+                <RadioButton id="planningButton" styleClass="navbar-button" shortcut="1"
+                             text="%com.intel.missioncontrol.ui.NavBarView.planningButton"
+                             toggleGroup="$workflowToggleGroup" userData="$PLANNING">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.planningButton.toolTip"/>
+                    </tooltip>
+                </RadioButton>
+                <RadioButton id="flightButton" styleClass="navbar-button" shortcut="2"
+                             text="%com.intel.missioncontrol.ui.NavBarView.flightButton"
+                             toggleGroup="$workflowToggleGroup" userData="$FLIGHT">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.flightButton.toolTip"/>
+                    </tooltip>
+                </RadioButton>
+                <RadioButton id="analysisButton" styleClass="navbar-button" shortcut="3"
+                             text="%com.intel.missioncontrol.ui.NavBarView.analysisButton"
+                             toggleGroup="$workflowToggleGroup" userData="$ANALYSIS">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.analysisButton.toolTip"/>
+                    </tooltip>
+                </RadioButton>
+            </VBox>
+        </top>
+        <bottom>
+            <VBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
+                <ToggleButton id="mapLayersButton" styleClass="navbar-button" shortcut="5"
+                              text="%com.intel.missioncontrol.ui.NavBarView.mapLayersButton"
+                              toggleGroup="$popupToggleGroup" userData="$MAPLAYERS">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.mapLayersButton.toolTip"/>
+                    </tooltip>
+                </ToggleButton>
+                <ToggleButton id="toolsButton" styleClass="navbar-button" shortcut="6"
+                              text="%com.intel.missioncontrol.ui.NavBarView.toolsButton"
+                              toggleGroup="$popupToggleGroup" userData="$TOOLS">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.toolsButton.toolTip"/>
+                    </tooltip>
+                </ToggleButton>
+                <ToggleButton id="settingsButton" styleClass="navbar-button" shortcut="7"
+                              text="%com.intel.missioncontrol.ui.NavBarView.settingsButton"
+                              toggleGroup="$popupToggleGroup" userData="$SETTINGS">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.NavBarView.settingsButton.toolTip"/>
+                    </tooltip>
+                </ToggleButton>
+            </VBox>
+        </bottom>
+    </BorderPane>
+</StackPane>

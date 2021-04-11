@@ -1,0 +1,112 @@
+.supportBox {
+    -fx-padding: 0.5em 0 0 0;
+}
+
+.support-dialog {
+    -fx-pref-width: 80em;
+    -fx-pref-height: 50em;
+}
+
+
+
+.support-request-details-grid-pane {
+    -fx-hgap: 1.25em;
+}
+
+
+
+#leftContainer, #rightContainer {
+    -fx-padding: 0.835em;
+}
+
+#leftContainer .label, #leftContainer .hyperlink {
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+#rightContainer .label, #rightContainer .hyperlink {
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+.hintLabel {
+    -fx-text-fill: theme-menu-item-text-disabled-color;
+    -fx-padding: 0.5em 0 0.5em 0;
+}
+
+#emails {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+    -fx-background-color: transparent;
+}
+
+
+#emails .list-cell {
+    -fx-background-color: transparent;
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+    -fx-padding: 0.25em 0;
+}
+
+#emails .list-cell:filled:selected {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+#emails {
+    -fx-pref-height: 10em;
+}
+
+.textFieldExtraWidth {
+    -fx-fill-width: true;
+    -fx-fit-to-width: true;
+}
+
+.fileListCellPane {
+    -fx-fill-width: true;
+    -fx-pref-height: 2.67em;
+}
+
+#additionalFiles {
+    -fx-pref-height: 18em;
+    -fx-min-height: 9em;
+}
+
+.cannotSendDetailsKeyColumn {
+    -fx-font-weight: bold;
+}
+
+.sendSupportWarningEnabled {
+    -fx-text-fill: theme-warnings-text-color;
+    -fx-alignment: center-left;
+}
+
+.cannotSendDetailsKeyColumn {
+    -fx-font-weight: bold;
+}
+
+.sendSupportWarningEnabled {
+    -fx-text-fill: theme-warnings-text-color;
+    -fx-alignment: center-left;
+}
+
+#rightContainer .table-view .column-header,
+.table-view .column-header .filler,
+.table-view .column-header .nested-column-header {
+    -fx-background-color: theme-table-header-background-color;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+#rightContainer .table-view {
+    -fx-background-color: theme-table-background-color;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-table-cell-border-width: 0;
+}

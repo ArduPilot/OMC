@@ -1,0 +1,20 @@
+#GeoTiffs {
+    -fx-pref-height: 32em;
+    -fx-pref-width: 80em;
+}
+
+#GeoTiffs #enabledColumn{
+    -fx-pref-width: 4em;
+    -fx-min-width: 4em;
+    -fx-max-width: 4em;
+}
+#GeoTiffs #elevationColumn{
+    -fx-pref-width: 26em;
+    -fx-min-width: 26em;
+    -fx-max-width: 26em;
+}
+#GeoTiffs #deleteColumn{
+    -fx-pref-width: 4em;
+    -fx-min-width: 4em;
+    -fx-max-width: 4em;
+}

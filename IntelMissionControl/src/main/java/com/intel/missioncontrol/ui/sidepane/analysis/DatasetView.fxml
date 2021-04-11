@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.MenuButton?>
+<?import com.intel.missioncontrol.ui.navigation.SidePaneTab?>
+<?import com.intel.missioncontrol.ui.sidepane.FancyTab?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitMenuButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<FancyTab xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.intel.missioncontrol.ui.sidepane.analysis.DatasetView">
+    <stylesheets>
+
+    </stylesheets>
+    <tabId>
+        <SidePaneTab fx:value="VIEW_DATASET"/>
+    </tabId>
+
+    <header>
+        <VBox>
+            <HBox styleClass="primary,header">
+                <Label text="%sidePane.labelMission"/>
+                <Label fx:id="projectNameLabel"/>
+                <Button id="renameButton" styleClass="transparent-icon-button, icon-rename-white"
+                        onAction="#renameClicked">
+                    <tooltip>
+                        <Tooltip text="%sidePane.labelMission.renameButtonTooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+            <HBox styleClass="secondary,header">
+                <MenuButton fx:id="datasetMenuButton" HBox.hgrow="NEVER" styleClass="drop-down-selector"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Button fx:id="showOnMapButton" HBox.hgrow="NEVER" styleClass="flat-icon-button, icon-show-on-map">
+                    <tooltip>
+                        <Tooltip text="%com.intel.missioncontrol.ui.sidepane.showOnMap.tooltip"/>
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </header>
+
+    <scrollingContent>
+        <VBox style="-fx-padding:2 0 0 0">
+            <fx:include fx:id="mapViewOptionsView" source="../analysis/MapViewOptionsView.fxml"/>
+            <fx:include fx:id="analysisOptionsView" source="../analysis/options/AnalysisOptionsView.fxml"/>
+        </VBox>
+    </scrollingContent>
+
+    <footer>
+        <HBox styleClass="footer">
+            <Button fx:id="saveDatasetBtn" onAction="#saveDatasetAction" styleClass="secondary-button, landfill"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisView.button.SaveDataset"/>
+            <Button fx:id="saveToCloudBtn" onAction="#saveToCloudAction" styleClass="primary-button, landfill"
+                    visible="false" managed="false"
+                    text="%com.intel.missioncontrol.ui.analysis.AnalysisView.button.SaveToCloud"/>
+            <SplitMenuButton fx:id="exportMenuButton" HBox.hgrow="NEVER" styleClass="secondary-split-menu-button, landfill">
+                <items>
+                    <MenuItem fx:id="exportToLastDestinationMenuItem"
+                              text="%com.intel.missioncontrol.ui.analysis.AnalysisView.export">
+                        <accelerator>
+                            <KeyCodeCombination control="UP" code="E" alt="UP" meta="UP" shift="DOWN"
+                                                shortcut="DOWN"/>
+                        </accelerator>
+                    </MenuItem>
+                    <SeparatorMenuItem/>
+                    <Menu fx:id="exportToFile"
+                          text="%com.intel.missioncontrol.ui.analysis.AnalysisView.exportToFile">
+                        <MenuItem
+                                fx:id="csvExport"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.csvExport"
+                                onAction="#exportToCsv"/>
+                        <MenuItem
+                                fx:id="writeExif"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.writeExif"
+                                onAction="#writeExifToImages"/>
+                    </Menu>
+                    <Menu fx:id="exportToApplication"
+                          text="%com.intel.missioncontrol.ui.analysis.AnalysisView.exportToApplication">
+                        <MenuItem
+                                fx:id="agiSoftPhotoScanExport"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.agiSoftPhotoScanExport"
+                                styleClass="no-icon-menu-item"
+                                onAction="#exportToAgiSoftPhotoScan"/>
+                        <MenuItem
+                                fx:id="agiSoftMetashapeExport"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.agiSoftMetashapeExport"
+                                styleClass="no-icon-menu-item"
+                                onAction="#exportToAgiSoftPhotoScan"/>
+                        <MenuItem
+                                fx:id="contextCaptureExport"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.contextCaptureExport"
+                                styleClass="no-icon-menu-item"
+                                onAction="#exportToContextCapture"/>
+                        <MenuItem
+                                fx:id="pix4DesktopExport"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.pix4DesktopExport"
+                                styleClass="no-icon-menu-item"
+                                onAction="#exportToPix4Desktop"/>
+                        <SeparatorMenuItem/>
+                        <MenuItem
+                                fx:id="defineApplicationsSplitButtonMenuItem"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.export.to.app.define"
+                                styleClass="icon-menu-item,iconized,icon-settings-flat"
+                                onAction="#showDefineAppSettings"/>
+                    </Menu>
+                    <Menu fx:id="intelInsightUpload"
+                          text="%com.intel.missioncontrol.ui.analysis.AnalysisView.intelInsight">
+                        <MenuItem
+                                fx:id="intelInsightUploadProcessing"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.intelInsightUploadProcessing"
+                                onAction="#intelInsightUploadProcessing"/>
+                        <MenuItem
+                                fx:id="intelInsightUploadNotProcessing"
+                                text="%com.intel.missioncontrol.ui.analysis.AnalysisView.intelInsightUploadNotProcessing"
+                                onAction="#intelInsightUploadNotProcessing"/>
+                    </Menu>
+                    <MenuItem
+                            fx:id="sparseDataset"
+                            text="%com.intel.missioncontrol.ui.analysis.AnalysisView.createSparseDataset"
+                            onAction="#sparseDataset"/>
+                </items>
+            </SplitMenuButton>
+        </HBox>
+    </footer>
+</FancyTab>

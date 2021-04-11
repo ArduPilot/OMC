@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ActivityToggleSwitch?>
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/8.0.112"
+      xmlns:fx="http://javafx.com/fxml/2019.1" fx:id="rootNote" id="ObstacleAvoidance"
+      fx:controller="com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryView"
+      styleClass="dialog">
+
+    <stylesheets>
+        <URL value="@/com/intel/missioncontrol/styles/controls.css"/>
+        <URL value="@/com/intel/missioncontrol/ui/sidepane/flight/fly/telemetry/telemetry.css"/>
+    </stylesheets>
+
+    <VBox styleClass="content" VBox.vgrow="ALWAYS">
+        <VBox styleClass="form-row, unindent" focusTraversable="true">
+            <Label text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.ObstacleAvoidanceTelemetryView.useAvoidanceSensor"/>
+            <ActivityToggleSwitch fx:id="obstacleAvoidanceToggleSwitch"
+                                  command="+{controller.viewModel.enableObstacleAvoidanceCommand}"/>
+        </VBox>
+    </VBox>
+    <HBox VBox.vgrow="NEVER" styleClass="footer" alignment="BASELINE_RIGHT">
+        <Button fx:id="closeButton" styleClass="secondary-button"
+                text="%com.intel.missioncontrol.ui.sidepane.flight.fly.telemetry.TelemetryDetailView.btnClose"
+                command="+{controller.viewModel.closeDialogCommand}"/>
+    </HBox>
+</VBox>

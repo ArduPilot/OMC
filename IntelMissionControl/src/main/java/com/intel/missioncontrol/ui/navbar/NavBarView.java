@@ -193,11 +193,6 @@ public class NavBarView extends ViewBase<NavBarViewModel> {
     }
 
     @FXML
-    private void sendSupportRequestClicked() {
-        viewModel.getSendSupportRequestCommand().execute();
-    }
-
-    @FXML
     private void expandClicked(MouseEvent event) {
         if (event.isAltDown() && event.isControlDown()) {
             boolean visible = expandButtonDeluxe.isVisible();

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.Button?>
+<?import com.intel.missioncontrol.ui.controls.RadioButton?>
+<?import com.intel.missioncontrol.ui.controls.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<GridPane fx:id="layoutRoot" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/2019.1"
+          fx:controller="com.intel.missioncontrol.ui.map.ToolPaletteView"
+          stylesheets="@/com/intel/missioncontrol/ui/map/ToolPaletteView.css"
+          pickOnBounds="false" alignment="BOTTOM_RIGHT">
+    <rowConstraints>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(9)}" prefHeight="Infinity"/>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(6)}" prefHeight="Infinity"/>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(6)}" prefHeight="Infinity"/>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(9)}" prefHeight="Infinity"/>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(6)}" prefHeight="Infinity"/>
+        <RowConstraints maxHeight="+{Convert.emsToPixels(9)}" prefHeight="Infinity"/>
+    </rowConstraints>
+
+
+    <VBox GridPane.rowIndex="0" GridPane.valignment="BOTTOM"
+          alignment="BOTTOM_LEFT" styleClass="tool-container, small-spacing"
+          visible="${controller.viewModel.viewModesVisible}" managed="${controller.viewModel.viewModesVisible}">
+        <fx:define>
+            <ToggleGroup fx:id="viewModeToggleGroup"/>
+        </fx:define>
+        <RadioButton fx:id="viewStayButton" toggleGroup="${viewModeToggleGroup}" styleClass="tool-palette-button">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.viewStayButton.tooltip"/>
+            </tooltip>
+        </RadioButton>
+        <RadioButton fx:id="viewFollowButton" toggleGroup="${viewModeToggleGroup}"
+                     styleClass="tool-palette-button">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.viewFollowButton.tooltip"/>
+            </tooltip>
+        </RadioButton>
+        <RadioButton fx:id="viewCockpitButton" toggleGroup="${viewModeToggleGroup}"
+                     styleClass="tool-palette-button">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.viewCockpitButton.tooltip"/>
+            </tooltip>
+        </RadioButton>
+    </VBox>
+
+    <ToggleButton GridPane.rowIndex="1" GridPane.valignment="BOTTOM" fx:id="videoToggleButton" id="videoButton"
+                  visible="${controller.viewModel.liveVideoVisible}" managed="${controller.viewModel.liveVideoVisible}"
+                  styleClass="tool-palette-button, tool-container">
+        <tooltip>
+            <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.videoButton.tooltip"/>
+        </tooltip>
+    </ToggleButton>
+
+    <ToggleButton GridPane.rowIndex="2" GridPane.valignment="BOTTOM" id="rulerButton" fx:id="rulerToggleButton"
+                  styleClass="tool-palette-button, tool-container">
+        <tooltip>
+            <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.rulerButton.tooltip"/>
+        </tooltip>
+    </ToggleButton>
+
+    <VBox GridPane.rowIndex="3" GridPane.valignment="BOTTOM"
+          alignment="BOTTOM_LEFT" styleClass="tool-container, small-spacing">
+        <fx:define>
+            <ToggleGroup fx:id="mapModeToggleGroup"/>
+        </fx:define>
+        <RadioButton id="map2DButton" toggleGroup="${mapModeToggleGroup}" styleClass="tool-palette-button"
+                     selected="#{controller.viewModel.flatMapEnabled}">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.map2DButton.tooltip"/>
+            </tooltip>
+        </RadioButton>
+        <RadioButton id="map3DButton" toggleGroup="${mapModeToggleGroup}" styleClass="tool-palette-button"
+                     selected="+{!controller.viewModel.flatMapEnabled}">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.map3DButton.tooltip"/>
+            </tooltip>
+        </RadioButton>
+    </VBox>
+
+    <Button GridPane.rowIndex="4" GridPane.valignment="BOTTOM" id="locateMeButton"
+            styleClass="tool-container, tool-palette-button"
+            command="+{controller.viewModel.locateMeCommand}">
+        <tooltip>
+            <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.locateMeButton.tooltip"/>
+        </tooltip>
+    </Button>
+
+    <VBox GridPane.rowIndex="5" GridPane.valignment="BOTTOM"
+          alignment="BOTTOM_LEFT" styleClass="tool-container, small-spacing">
+        <Button id="zoomInButton" styleClass="tool-palette-button" command="+{controller.viewModel.zoomInCommand}">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.zoomInButton.tooltip"/>
+            </tooltip>
+        </Button>
+        <Button id="zoomOutButton" styleClass="tool-palette-button" command="+{controller.viewModel.zoomOutCommand}">
+            <tooltip>
+                <Tooltip text="%com.intel.missioncontrol.ui.map.toolpalette.zoomOutButton.tooltip"/>
+            </tooltip>
+        </Button>
+    </VBox>
+</GridPane>

@@ -1,0 +1,25 @@
+.select-all {
+    -fx-min-height: theme-control-size;
+    -fx-border-color: theme-textfield-border-color;
+    -fx-border-style: solid solid none solid;
+    -fx-padding: 0.5em;
+}
+
+#allCheckBoxesContainer {
+    -fx-min-height: 6em;
+}
+
+#checkBoxesScrollContainer,
+#checkBoxesContainer,
+#changedItemsList,
+#changedItemsList .label {
+    -fx-background-color: theme-textfield-background-color;
+}
+
+#checkBoxesScrollContainer{
+    -fx-border-color: theme-textfield-border-color;
+    -fx-padding: 0.5em;
+}
+
+#changedItemsList .check-box {-fx-padding: 0 0 0.5em;}
+

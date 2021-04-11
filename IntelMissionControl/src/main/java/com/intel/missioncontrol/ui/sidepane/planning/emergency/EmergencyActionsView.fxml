@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.AdornerSplitView?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<AdornerSplitView fx:id="rootNode" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+                  fx:controller="com.intel.missioncontrol.ui.sidepane.planning.emergency.EmergencyActionsView"
+                  styleClass="unpad">
+    <VBox>
+        <VBox fx:id="settableEmergencyActions">
+            <VBox styleClass="form-row, icon-rc-link-lost">
+                <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.RcLinkLossSpinnerLabel"/>
+                <ComboBox fx:id="rcLinkLossComboBox" maxWidth="Infinity"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.RcLinkLossSpinnerLabel.help"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+            </VBox>
+            <VBox styleClass="form-row">
+                <Label
+                        text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.after"/>
+                <AutoCommitSpinner editable="true" fx:id="rcLinkLossSpinner" maxWidth="Infinity"/>
+            </VBox>
+
+
+            <VBox styleClass="form-row, icon-uav-link-lost">
+                <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.PrimaryLinkLossSpinnerLabel"/>
+                <ComboBox fx:id="primaryLinkLossComboBox" maxWidth="Infinity"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.PrimaryLinkLossSpinnerLabel.help"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+            </VBox>
+            <VBox styleClass="form-row">
+                <Label
+                        text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.after"/>
+                <AutoCommitSpinner editable="true" fx:id="primaryLinkLossSpinner" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row, icon-gnss-lost">
+                <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.GnssLinkLossSpinnerLabel"/>
+                <ComboBox fx:id="gnssLinkLossComboBox" maxWidth="Infinity"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.GnssLinkLossSpinnerLabel.help"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+            </VBox>
+            <VBox styleClass="form-row">
+                <Label
+                        text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.after"/>
+                <AutoCommitSpinner editable="true" fx:id="gnssLinkLossSpinner" maxWidth="Infinity"/>
+            </VBox>
+
+            <VBox styleClass="form-row, icon-restricted">
+                <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.GeofenceBreachSpinnerLabel"/>
+                <ComboBox fx:id="geofenceBreachComboBox" maxWidth="Infinity"
+                          AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.GeofenceBreachSpinnerLabel.help"
+                          AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+            </VBox>
+        </VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.AutoSafetyAltitudeSwitchLabel"/>
+            <ToggleSwitch fx:id="autoSafetyAltitudeSwitch"/>
+        </VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.SafetyAltitudeSpinnerLabel"/>
+            <AutoCommitSpinner editable="true" fx:id="safetyAltitudeSpinner" maxWidth="Infinity"
+                               AdornerSplitView.adornmentText="%com.intel.missioncontrol.ui.planning.emergency.EmergencyActionsView.SafetyAltitudeSpinnerLabel.help"
+                               AdornerSplitView.styleClass="flat-icon-button, icon-help"/>
+        </VBox>
+    </VBox>
+</AdornerSplitView>

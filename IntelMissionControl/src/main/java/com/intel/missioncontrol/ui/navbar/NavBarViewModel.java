@@ -58,7 +58,6 @@ public class NavBarViewModel extends ViewModelBase {
     private final GeneralSettings settings;
     private final ILicenceManager licenceManager;
     private final ParameterizedCommand<Enum> navigateToCommand = new ParameterizedDelegateCommand<>(this::navigateTo);
-    private Command sendSupportRequestCommand;
 
     @Inject
     public NavBarViewModel(
@@ -78,9 +77,6 @@ public class NavBarViewModel extends ViewModelBase {
         super.initializeViewModel();
 
         Expect.notNull(mainScope, "mainScope");
-
-        this.sendSupportRequestCommand =
-            mainScope.mainMenuModelProperty().get().find(MainMenuModel.Help.SUPPORT_REQUEST).getCommand();
 
         bindAvailableAndEnabledState(WorkflowStep.PLANNING, applicationContext.currentMissionProperty().isNotNull());
         bindAvailableAndEnabledState(
@@ -142,10 +138,6 @@ public class NavBarViewModel extends ViewModelBase {
 
     public ParameterizedCommand<Enum> getNavigateToCommand() {
         return navigateToCommand;
-    }
-
-    public Command getSendSupportRequestCommand() {
-        return sendSupportRequestCommand;
     }
 
     private void bindAvailableAndEnabledState(NavBarDialog navBarDialog, BooleanBinding binding) {

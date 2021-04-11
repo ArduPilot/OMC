@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.intel.missioncontrol.ui.controls.ActivityButton?>
+<?import com.intel.missioncontrol.ui.controls.AutoCommitSpinner?>
+<?import com.intel.missioncontrol.ui.controls.ToggleSwitch?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.112"
+      fx:controller="com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView"
+      fx:id="root" id="ConnectionSettings"
+      stylesheets="@/com/intel/missioncontrol/ui/navbar/settings/connection/ConnectionSettingsView.css"
+      style="-fx-pref-width: 50em;">
+
+    <Label styleClass="primary,header"
+           text="%com.intel.missioncontrol.ui.connection.ConnectionSettingsView.title"/>
+    <VBox styleClass="content, normal-spacing">
+        <TableView fx:id="tableView" id="ConnectionsTable">
+            <columns>
+                <TableColumn fx:id="nameColumn" reorderable="false" editable="false" resizable="false"
+                             text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.name"/>
+                <TableColumn fx:id="modelColumn" reorderable="false" editable="false"
+                             text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.model"/>
+                <TableColumn fx:id="connectionDetailsColumn" reorderable="false" editable="false"
+                             text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.connectionDetails"/>
+                <TableColumn fx:id="idColumn" reorderable="false" editable="false"
+                             text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.id"/>
+                <TableColumn fx:id="deleteColumn" reorderable="false" editable="false"/>
+            </columns>
+        </TableView>
+        <HBox styleClass="normal-spacing">
+            <ImageView fx:id="listenerImageStatus" fitHeight="16" fitWidth="16"/>
+            <Label fx:id="listenerStatus" styleClass="hint-label"/>
+        </HBox>
+
+        <HBox styleClass="wide-spacing" style="-fx-padding:2em 0 0;">
+            <ActivityButton fx:id="connectToDroneButton" styleClass="primary-button"
+                            text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.connectToDrone"
+                            onAction="#OnConnectToDrone"/>
+            <Button styleClass="secondary-button" fx:id="editConnectionButton"
+                    text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.editConnection"
+                    onAction="#OnEditConnectionButtonClicked" disable="true"/>
+            <Button styleClass="secondary-button" fx:id="addConnectionButton"
+                    text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.addConnection"
+                    onAction="#OnAddConnectionButtonClicked"/>
+        </HBox>
+        <Label fx:id="connectMessage" styleClass="restart-hint-label"
+               text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.connectMessage"/>
+    </VBox>
+    <VBox fx:id="connectionAuto" styleClass="content">
+        <Separator/>
+        <VBox styleClass="toggle-switch-group, form-row">
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.acceptIncomingConnections"/>
+            <ToggleSwitch fx:id="enableConnectionListenerSwitch"/>
+        </VBox>
+        <VBox styleClass="form-row">
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.port"/>
+            <AutoCommitSpinner fx:id="connectionListenerPortSpinner" editable="true"/>
+            <Label text="%com.intel.missioncontrol.ui.navbar.settings.connection.ConnectionSettingsView.portMessage"
+                   styleClass="hint-label"/>
+        </VBox>
+    </VBox>
+</VBox>

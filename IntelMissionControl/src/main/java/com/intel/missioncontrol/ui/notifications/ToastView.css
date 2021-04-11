@@ -1,0 +1,28 @@
+#textLabel,
+#actionLink,
+#actionCheckBox {
+    -fx-font-size: 1.15em;
+    -fx-text-fill: theme-toast-text-color;
+}
+
+#actionLink {
+    -fx-underline: true;
+    -fx-text-fill: theme-toast-text-hover-color;
+}
+
+.check-box:hover {
+    -fx-text-fill: theme-toast-text-color;
+}
+
+.check-box:selected {
+    -fx-text-fill: theme-toast-text-color;
+}
+
+#closeButton {
+    -fx-background-insets: -1em 0 -1em 0;
+    -fx-border-width: 0;
+}
+
+#closeButton:disabled {
+    -fx-opacity: 0.7;
+}
