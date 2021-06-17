@@ -1,0 +1,49 @@
+[
+  {
+    "planeName": "FALCON8PLUS",
+    "checklistItem": [
+      {
+        "title": "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkTitle",
+        "items": [
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkEmergencyProcedures",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPreflight",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkUav",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkRemote",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkAuxiliaryDevices",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPayloadAndLens",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPermissions",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkWeather",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkObstacles",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkDebris",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkAirspace",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkInterference",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkLineOfSight"
+        ]
+      }
+    ]
+  },
+  {
+    "planeName": "GRAYHAWK",
+    "checklistItem": [
+      {
+        "title": "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkTitle",
+        "items": [
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkEmergencyProcedures",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPreflight",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkUav",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkRemote",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkAuxiliaryDevices",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPayloadAndLens",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkPermissions",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkWeather",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkObstacles",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkDebris",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkAirspace",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkInterference",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkLineOfSight",
+          "com.intel.missioncontrol.ui.sidepane.flight.fly.checks.preflight.PreflightChecklistDialogView.checkStreams"
+        ]
+      }
+    ]
+  }
+]

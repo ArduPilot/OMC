@@ -1,0 +1,9 @@
+{
+  "id": "LumixGX1-14mm",
+  "name": "14mm",
+  "focalLength": 14.0,
+  "minRepTime": 0.7,
+  "maxTimeVariation": 2.35,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

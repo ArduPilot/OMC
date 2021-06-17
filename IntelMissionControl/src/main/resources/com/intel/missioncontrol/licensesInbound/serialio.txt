@@ -1,0 +1,14 @@
+SerialPort Platform Professional
+PartNo: JSP-PLT-PRO
+
+Developer Seat License - Includes Native Libs for All Supported Platforms
+
+---------
+[SALES #JHT-843-44598]: SerialPort - license
+SerialIO.com Sales <sales@serialio.com>
+24.03.2015
+
+to; marco.moeller 
+Thank you for contacting Serialio.com.
+
+So long as your end users install your application, there is no distribution license requirement.

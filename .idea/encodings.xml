@@ -7,6 +7,9 @@
     <file url="file://$PROJECT_DIR$/IntelMissionControl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/IntelMissionControl/ant/setup.nsi" charset="ISO-8859-1" />
     <file url="file://$PROJECT_DIR$/IntelMissionControl/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/IntelMissionControl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/IntelMissionControl/src/main/resources/properties" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/IntelMissionControl/test" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/LibInsight" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/LibInsight/src/main/kotlin" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/WorldWindJava" charset="UTF-8" />

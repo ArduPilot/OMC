@@ -1,0 +1,9 @@
+{
+  "id": "FujiXM1-RAW-18mm",
+  "name": "18mm",
+  "focalLength": 18.5,
+  "maxTimeVariation": 1.2,
+  "minRepTime": 1.2,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

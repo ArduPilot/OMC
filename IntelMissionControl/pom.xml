@@ -21,7 +21,7 @@
         <javafx.home>${basedir}/../toolchain/javafx-sdk-13.0.2-mirror</javafx.home>
         <cssconv.home>${basedir}/../toolchain/cssconv</cssconv.home>
         <lint4gj.home>${basedir}/../toolchain/lint4gj</lint4gj.home>
-        <lint4gj.skip>false</lint4gj.skip>
+        <lint4gj.skip>true</lint4gj.skip>
         <mainClass>com.intel.missioncontrol.Main</mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.time.mask>dd.MM.yyyy '@' HH:mm:ss z</build.time.mask>
@@ -111,7 +111,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M3</version>
                 <configuration>
-                    <skipTests>false</skipTests>
+                    <skipTests>true</skipTests>
                     <includes>
                         <include>**/*.class</include>
                     </includes>

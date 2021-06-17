@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g fill="#252525" transform="translate(3 3)">
+    <path d="M2,2 L24,2 L24,24 L2,24 L2,2 Z M4,4 L4,22 L22,22 L22,4 L4,4 Z"/>
+    <circle cx="23.5" cy="2.5" r="2.5"/>
+    <circle cx="2.5" cy="2.5" r="2.5"/>
+    <circle cx="2.5" cy="23.5" r="2.5"/>
+    <circle cx="23.5" cy="23.5" r="2.5"/>
+    <polygon points="5 5 10 5 11 10 5 10"/>
+    <polygon points="5 11 11 11 12 15 5 15"/>
+    <polygon points="5 16 12 16 13 21 5 21"/>
+    <polygon points="12 5 21 5 21 10 13 10"/>
+    <polygon points="13 11 21 11 21 13 14 15"/>
+    <polygon points="14 16 21 14 21 21 15 21"/>
+  </g>
+</svg>

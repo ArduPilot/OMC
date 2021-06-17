@@ -1,0 +1,10 @@
+{
+  "id": "SonyR10C-35mm",
+  "name": "35mm",
+  "focalLength": 35.0,
+  "maxTimeVariation": 1.5,
+  "minRepTime": 1.4,
+  "isManual": false,
+  "lensType": "STANDARD",
+  "description": "Sony Sonnar T* FE 35 mm F2.8 ZA (SEL35F28Z), 120g"
+}

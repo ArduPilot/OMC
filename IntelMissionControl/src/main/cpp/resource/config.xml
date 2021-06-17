@@ -1,0 +1,14 @@
+<config>
+  <mainclass>com.intel.missioncontrol.Main</mainclass>
+  <env>
+    <var name="PATH">%PROCDIR%server</var>
+  </env>
+  <vm>
+    <opt>-Dlog4j2.configurationFile=%PROCDIR%../conf/log4j2.xml</opt>
+    <opt>-Djava.class.path=%PROCDIR%%PROCNAME%.jar</opt>
+    <opt>-Djogamp.gluegen.UseTempJarCache=false</opt>
+    <opt>-DGDAL_DATA=%PROCDIR%../gdal</opt>
+    <opt>-Dprism.order=es2</opt>
+    <opt>-Dsun.java2d.d3d=false</opt>
+  </vm>
+</config>

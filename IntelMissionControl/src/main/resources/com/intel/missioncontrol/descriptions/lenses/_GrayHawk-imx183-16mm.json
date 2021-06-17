@@ -1,0 +1,9 @@
+{
+  "id": "GrayHawk-imx183-16mm",
+  "name": "16mm",
+  "focalLength": 16.0,
+  "maxTimeVariation": 1.1,
+  "minRepTime": 0.5,
+  "isManual": true,
+  "lensType": "STANDARD"
+}

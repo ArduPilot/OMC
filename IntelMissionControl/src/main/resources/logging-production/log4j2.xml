@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <ThresholdFilter level="INFO"/>
+            <PatternLayout>
+                <LevelPatternSelector defaultPattern="[%p] %msg%n">
+                    <PatternMatch key="FATAL" pattern="%style{[%p %C]}{red,bright} %style{%msg%n%throwable}{red,bright}"/>
+                    <PatternMatch key="ERROR" pattern="%style{[%p %C]}{red,bright} %style{%msg%n%throwable}{red,bright}"/>
+                    <PatternMatch key="WARN" pattern="%style{[%p %C]}{yellow,bright} %style{%msg%n%throwable}{yellow,dim}"/>
+                    <PatternMatch key="INFO" pattern="%style{[%p %C]}{blue,dim,bright} %style{%msg%n}{blue,dim}%style{%throwable}{blue,dim}"/>
+                    <PatternMatch key="DEBUG" pattern="%style{[%p %C]}{white,bright} %style{%msg%n%throwable}{white}"/>
+                    <PatternMatch key="GUICE" pattern="%style{[GUICE]}{cyan,dim,bright} %style{%msg%n}{cyan,dim}"/>
+                </LevelPatternSelector>
+            </PatternLayout>
+        </Console>
+        <ReseatableFile name="file">
+            <ThresholdFilter level="INFO"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </ReseatableFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.intel.missioncontrol.airmap.layer.AirMapTileLoader2" level="ERROR"/>
+        <Logger name="delight.nashornsandbox.NashornSandbox" level="OFF"/>
+        <Logger name="eu.mavinci" level="WARN"/>
+        <Logger name="com.intel.missioncontrol.map.worldwind.layers.MapboxLayer" level="WARN"/>
+        <Logger name="com.intel.missioncontrol.airspaces.services.Airmap2AirspaceService" level="WARN"/>
+        <Logger name="gov.nasa.worldwind" level="WARN"/>
+        <!--
+            level=DEBUG is not supported until the following JavaFX bug is fixed in jfx12:
+            https://bugs.openjdk.java.net/browse/JDK-8216470
+         -->
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Root>
+    </Loggers>
+</Configuration>

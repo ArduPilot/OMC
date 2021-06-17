@@ -1,0 +1,85 @@
+.root,
+#windowContentContainer,
+#menuBar .menu-item,
+.navbar-page,
+.map-layers,
+.popover,
+.popover-content {
+    -fx-font-size:12;
+}
+
+* {
+/* NB this only works for sizes like width and height */
+/* TODO change to less and have variables for all repeating dimensions */
+    theme-control-size: 2em;
+    theme-spinner-button-size: 1em;
+    theme-large-control-size: 3.5em;
+    theme-sidepane-width: 26em;
+}
+
+/* Form row related*/
+.form-row {
+    -fx-spacing: 0.2em;
+    -fx-padding: 0 0 0.5em 0;
+}
+
+#sidepane .form-row,
+.dialog .form-row {
+    -fx-padding: 0 0 0.5em 3em;
+    -fx-background-size: 2em;
+}
+
+#sidepane .form-row.unindent,
+.dialog .form-row.unindent {
+    -fx-padding: 0 0 0.5em 0 !important;
+}
+
+#sidepane .header > .label,
+.project-list .title,
+.drop-down-selector > .label {
+    -fx-padding: 0 0 0 0.5em !important;
+}
+
+#sidepane .content {
+    -fx-padding: 0.5em !important;
+}
+
+.navbar-page .content,
+.dialog .content,
+.popover {
+    -fx-padding: 0.5em !important;
+}
+
+#sidepane .footer,
+.map-layers .footer,
+.dialog .footer {
+    -fx-padding: 0.5em !important;
+    -fx-spacing: 0.5em !important;
+    -fx-min-height: 3em;
+}
+
+.dialog .footer {
+    -fx-max-height: 3em;
+}
+
+#FlightPlanList,
+#FlightLogList,
+#SafetyChecks {
+    -fx-padding:-0.5em;
+}
+
+#SafetyChecks .form-row,
+#AutoChecks .form-row {
+    -fx-padding: 0.5em 0.5em 1em 3.5em;
+    -fx-background-position: 0.5em 0.5em !important;
+}
+
+#SafetyChecks .form-row .set-back,
+#AutoChecks .form-row .set-back {
+    -fx-padding: 0 0 0 -3em;
+}
+
+#DataImport {
+    -fx-min-width:28.5em;
+    -fx-pref-height: 27em;
+}

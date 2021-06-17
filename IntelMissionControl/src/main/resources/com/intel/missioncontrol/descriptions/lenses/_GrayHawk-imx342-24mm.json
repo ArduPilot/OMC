@@ -1,0 +1,9 @@
+{
+  "id": "GrayHawk-imx342-24mm",
+  "name": "24mm",
+  "focalLength": 24.0,
+  "maxTimeVariation": 1.1,
+  "minRepTime": 0.5,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

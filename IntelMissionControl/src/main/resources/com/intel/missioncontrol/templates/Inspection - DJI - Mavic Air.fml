@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE flightplanml PUBLIC "-//EU//MAVINCI//XML" "http://www.mavinci.eu/xml/flightplanml.dtd">
+<?xml-stylesheet type="text/xsl" href="flightplanml.xsl" ?>
+<flightplan>
+  <!-- created with Intel Mission Control for Win at 13:00:16 25.10.2018 -->
+  <head>
+    <photosettings maxroll="0.0" maxnick="30.0" mintimeinterval="1.0" altitudeAdjustMode="FOLLOW_TERRAIN" isMultiFP="false" maxGroundSpeedKMH="115.00000000000001" maxGroundSpeedAutomatic="AUTOMATIC_DYNAMIC" stopAtWaypoints="false" gsdTolerance="0.3"/>
+    <recalculate_on_every_change name="true"/>
+    <eventActions safetyAlt="2000" isAuto="false">
+      <event name="gpsloss" action="2" delay="5" recover="1"/>
+      <event name="rcdataloss" action="1" delay="30" recover="1"/>
+      <event name="rcloss" action="1" delay="10" recover="1"/>
+      <event name="dataloss" action="1" delay="30" recover="1"/>
+      <event name="batlow" action="0" delay="10" recover="1" level="0"/>
+    </eventActions>
+    <startAltWgs84 alt="0.0" geoidOffset="0.0"/>
+    <name name=""/>
+    <landingpoint id="255" lon="0.0" lat="0.0" mode="3" alt="5500" altInternal="5500" yaw="0.0" altBreakout="1000" landingAngleDeg="9.0" lastAutoLandingRefStartPosLat="0.0" lastAutoLandingRefStartPosLon="0.0" lastAutoLandingGroundLevelMeter="1.7976931348623157E308" idLandingBegin="255"/>
+    <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+    <takeoff lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0"/>
+    <platform_description platform_id="DJIMavicAir">
+      <camera_description camera_id="DJIMavicAir-DefaultCamera" slotIdx="0" payloadIdx="0" lens_id="DJIMavicAir-DefaultLens"/>
+    </platform_description>
+    <picarea_templates>
+      <picarea id="3" gsd="0.0235" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="POLYGON" corridorMinLines="3" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="towardLaning" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0235" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="CORRIDOR" corridorMinLines="1" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="towardLaning" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0235" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="30.0" alt="-1.0" planType="CITY" corridorMinLines="3" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="towardLaning" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0235" overlapInFlight="90.0" overlapInFlightMin="80.0" overlapParallel="65.0" alt="-1.0" planType="SPIRAL" corridorMinLines="3" corridorWidth="300.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="towardLaning" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="COPTER3D" corridorMinLines="3" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0235" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="STAR" corridorMinLines="3" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="towardLaning" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="TOWER" corridorMinLines="3" corridorWidth="10.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="90.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="PANORAMA" corridorMinLines="3" corridorWidth="10.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="POINT_OF_INTEREST" corridorMinLines="3" corridorWidth="2.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="45.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="BUILDING" corridorMinLines="3" corridorWidth="100.0" addCeiling="true" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="30.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+      <picarea id="3" gsd="0.0118" overlapInFlight="85.0" overlapInFlightMin="75.0" overlapParallel="65.0" alt="-1.0" planType="FACADE" corridorMinLines="3" corridorWidth="100.0" addCeiling="false" cropHeightMin="0.0" cropHeightMax="50.0" name="" modelFilePath="" modelScale="1.0" modelSourceType="MODEL_FILE" modelAxisAlignmentX="UNCHANGED" modelAxisAlignmentY="UNCHANGED" modelAxisAlignmentZ="UNCHANGED" modelAxisOffsetX="0.0" modelAxisOffsetY="0.0" modelAxisOffsetZ="0.0" minGroundDistance="10.0" minObjectDistance="5.0" maxObjectDistance="1000.0" facadeScanningSide="left" objectHeight="50.0" enableCropHeightMax="false" enableCropHeightMin="false" circleLeftTrueRightFalse="false" circleCount="1" scanDirection="fromStarting" startCapture="endOfLine" jumpPattern="interleaving" verticalScanPattern="upDown" startCaptureVertically="down" onlySingleDirection="false" onlySingleDirectionAngle="0.0" cameraTiltToggleEnable="false" cameraTiltToggleDegrees="5.0" cameraPitchOffsetDegrees="0.0" cameraRollToggleEnable="false" cameraRollToggleDegrees="5.0" cameraRollOffsetDegrees="0.0" maxYawRollChange="15.0" maxPitchChange="30.0" restrictionCeiling="100.0" restrictionCeilingEnabled="true" restrictionCeilingRef="ABOVE_SEALEVEL" restrictionFloor="0.0" restrictionFloorEnabled="true" restrictionFloorRef="ABOVE_SEALEVEL" pitchOffsetLineBegin="0.0">
+        <corners>
+        </corners>
+        <refPoint lon="0.0" lat="0.0" alt="0.0" altWgs="0.0" geoidOffset="0.0" yaw="0.0" isDefined="true" hasAlt="false" hasYaw="false" isAuto="true" elevation="0.0" type="VERTEX" index="0"/>
+        <modelAxisTransformations>
+        </modelAxisTransformations>
+      </picarea>
+    </picarea_templates>
+    <enableJumpOverWaypoints name="true"/>
+    <obstacleAvoidance name="false"/>
+  </head>
+  <body>
+  </body>
+</flightplan>

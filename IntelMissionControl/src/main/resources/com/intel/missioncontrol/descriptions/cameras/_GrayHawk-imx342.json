@@ -1,0 +1,69 @@
+{
+  "id": "GrayHawk-imx342",
+  "name": "imx342",
+  "roll": 0.0,
+  "pitch": 0.0,
+  "yaw": 270.0,
+  "maxRoll": 20.0,
+  "maxPitch": 110.0,
+  "maxYaw": 360.0,
+  "minRoll": -20.0,
+  "minPitch": -110.0,
+  "minYaw": 0.0,
+  "enforcePitchRange": true,
+  "gpsOffsetToTailInM": -0.178,
+  "gpsOffsetToRightWingInM": 0,
+  "gpsOffsetToSkyInM": 0,
+  "isRollFixed": true,
+  "isPitchFixed": false,
+  "isYawFixed": false,
+  "isRollStabilized": true,
+  "isPitchStabilized": true,
+  "isYawStabilized": false,
+  "ccdHeight": 16.756,
+  "ccdResX": 6480,
+  "ccdResY": 4856,
+  "ccdWidth": 22.356,
+  "ccdXTransl": 0.0,
+  "ccdYTransl": 0.0,
+  "exposureTimeUS": 1000.0,
+  "cameraDelayMS": 30.0,
+  "exifModels": ["BF3-4-0315ZC"],
+  "pictureSizeInMB": 2.5,
+  "sdCapacityInGB": 128.0,
+  "ensoCalibFile": "",
+  "icarosCalibFile": "",
+  "menciCalibFile": "",
+  "pix4dCalibFile": "",
+  "agisoftCalibFile": "",
+  "filterType": "RGB",
+  "isProjectableToGround": true,
+  "exposureTimeFixed": false,
+  "bandNames": [
+    "rgb"
+  ],
+  "providingFeedback": false,
+  "compatibleLensesIds": [
+    "GrayHawk-imx342-20mm",
+    "GrayHawk-imx342-24mm",
+    "GrayHawk-imx342-35mm"
+  ],
+  "mavlinkParams": [
+    {
+      "id": "CAM_GAIN_UP_LIM",
+      "value": 12.0,
+      "type": "MAV_PARAM_EXT_TYPE_REAL64"
+    },
+    {
+      "id": "CAM_EXP_UP_LIM",
+      "value": 1000.0,
+      "type": "MAV_PARAM_EXT_TYPE_REAL64"
+    }
+  ],
+  "mavlinkCameraSpecifications": [
+    {
+      "vendor": "MATRIX VISION GmbH              ",
+      "model": "BF3-4-0315ZC                    "
+    }
+  ]
+}

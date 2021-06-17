@@ -1,0 +1,43 @@
+# Blender MTL File: 'new_miniplane_orange.blend'
+# Material Count: 4
+newmtl darkgrey
+Ns 96.078431
+Ka 0.037567 0.037567 0.037567
+Kd 0.037567 0.037567 0.037567
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl darkgrey2_flieger-texturmavinci.png
+Ns 96.078431
+Ka 0.081976 0.081976 0.081976
+Kd 0.081976 0.081976 0.081976
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+
+newmtl edges_flieger-texturmavinci.png
+Ns 96.078431
+Ka 1.000000 0.373002 0.000000
+Kd 1.000000 0.373002 0.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl white_flieger-texturmavinci.png
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+

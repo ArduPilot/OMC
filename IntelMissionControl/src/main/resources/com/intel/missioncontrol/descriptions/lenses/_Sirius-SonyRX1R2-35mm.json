@@ -1,0 +1,9 @@
+{
+  "id": "Sirius-SonyRX1R2-35mm",
+  "name": "35mm",
+  "focalLength": 35.0,
+  "maxTimeVariation": 2.05,
+  "minRepTime": 1.75,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

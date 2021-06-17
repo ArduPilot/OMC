@@ -189,7 +189,8 @@ public class WWFactory {
     }
 
     public static Model getAirplaneModelGrayHawk() {
-        final String src = "eu/mavinci/modells3d/GH_V5_no_texture.obj";
+        //final String src = "eu/mavinci/modells3d/GH_V5_no_texture.obj";
+        final String src = "eu/mavinci/modells3d/falcon8.obj";
         return getModel(src);
     }
 

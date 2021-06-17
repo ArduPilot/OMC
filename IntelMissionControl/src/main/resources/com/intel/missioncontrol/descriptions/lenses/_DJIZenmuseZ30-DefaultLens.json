@@ -1,0 +1,10 @@
+{
+  "id": "DJIZenmuseZ30-DefaultLens",
+  "name": "22-77 mm (equivalent, set to 22mm)",
+  "focalLength": 3.85,
+  "maxTimeVariation": 2.1,
+  "minRepTime": 1.0,
+  "isManual": false,
+  "lensType": "STANDARD",
+  "description": ""
+}

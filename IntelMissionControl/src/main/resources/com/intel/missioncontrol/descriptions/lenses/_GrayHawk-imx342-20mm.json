@@ -1,0 +1,9 @@
+{
+  "id": "GrayHawk-imx342-20mm",
+  "name": "20mm",
+  "focalLength": 20.0,
+  "maxTimeVariation": 1.1,
+  "minRepTime": 0.5,
+  "isManual": true,
+  "lensType": "STANDARD"
+}

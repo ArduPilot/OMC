@@ -1,0 +1,17 @@
+{
+  "id": "GrayHawk-DS5",
+  "name": "DS5 multiple streams",
+  "ensoCalibFile": "",
+  "icarosCalibFile": "",
+  "menciCalibFile": "",
+  "pix4dCalibFile": "",
+  "agisoftCalibFile": "",
+  "filterType": "RGB",
+  "mavlinkParams": [],
+  "mavlinkCameraSpecifications": [
+    {
+      "vendor": "Intel                           ",
+      "model": "ds5                             "
+    }
+  ]
+}

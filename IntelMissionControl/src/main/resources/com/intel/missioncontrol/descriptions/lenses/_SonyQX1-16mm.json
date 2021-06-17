@@ -1,0 +1,9 @@
+{
+  "id": "SonyQX1-16mm",
+  "name": "16mm",
+  "focalLength": 16,
+  "maxTimeVariation": 1.2,
+  "minRepTime": 1.07,
+  "isManual": false,
+  "lensType": "STANDARD"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "SonyR10C-8mm",
+  "name": "8mm",
+  "focalLength": 8.0,
+  "maxTimeVariation": 1.5,
+  "minRepTime": 1.4,
+  "isManual": true,
+  "lensType": "FISH_EYE"
+}
